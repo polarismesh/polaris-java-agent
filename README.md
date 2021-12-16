@@ -1,2 +1,1 @@
-# polaris-agent
-polaris-java-agent
+# polaris-java-agent
