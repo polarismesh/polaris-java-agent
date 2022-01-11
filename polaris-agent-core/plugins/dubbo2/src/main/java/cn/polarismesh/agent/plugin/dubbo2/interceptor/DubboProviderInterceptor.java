@@ -1,6 +1,6 @@
-package cn.polarismesh.plugin.dubbo2.interceptor;
+package cn.polarismesh.agent.plugin.dubbo2.interceptor;
 
-import cn.polarismesh.plugin.dubbo2.utils.PolarisUtil;
+import cn.polarismesh.agent.plugin.dubbo2.utils.PolarisUtil;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.rpc.Invoker;
 
@@ -18,7 +18,7 @@ public class DubboProviderInterceptor implements Interceptor {
             return;
         }
         PolarisUtil.register(url);
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> PolarisUtil.deregister(url)));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> PolarisUtil.shutdown(url)));
     }
 
     @Override

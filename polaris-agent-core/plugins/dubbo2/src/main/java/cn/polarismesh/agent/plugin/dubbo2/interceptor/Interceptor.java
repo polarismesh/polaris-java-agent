@@ -1,4 +1,4 @@
-package cn.polarismesh.plugin.dubbo2.interceptor;
+package cn.polarismesh.agent.plugin.dubbo2.interceptor;
 
 public interface Interceptor {
     void before(Object target, Object[] args);

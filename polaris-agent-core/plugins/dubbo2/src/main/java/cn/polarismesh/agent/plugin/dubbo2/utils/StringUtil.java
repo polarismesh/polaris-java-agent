@@ -1,4 +1,4 @@
-package cn.polarismesh.plugin.dubbo2.utils;
+package cn.polarismesh.agent.plugin.dubbo2.utils;
 
 public class StringUtil {
     public static String buildAddress(String host, int port) {

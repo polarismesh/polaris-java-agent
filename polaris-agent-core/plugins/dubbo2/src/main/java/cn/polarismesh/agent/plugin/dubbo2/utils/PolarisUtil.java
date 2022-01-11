@@ -1,4 +1,4 @@
-package cn.polarismesh.plugin.dubbo2.utils;
+package cn.polarismesh.agent.plugin.dubbo2.utils;
 
 import com.tencent.polaris.api.core.ProviderAPI;
 import com.tencent.polaris.api.rpc.InstanceDeregisterRequest;
@@ -16,7 +16,7 @@ public class PolarisUtil {
     private static final String DEFAULT_NAMESPACE = "default";
     private static final int TTL = 5;
 
-    private static final ProviderAPI providerAPI = DiscoveryAPIFactory.createProviderAPI();
+    private static final ProviderAPI PROVIDER_API = DiscoveryAPIFactory.createProviderAPI();
 
     private static final ScheduledExecutorService HEARTBEAT_EXECUTOR = Executors.newSingleThreadScheduledExecutor();
 
@@ -36,7 +36,7 @@ public class PolarisUtil {
         instanceRegisterRequest.setPort(port);
         instanceRegisterRequest.setTtl(ttl);
         instanceRegisterRequest.setMetadata(url.getParameters());
-        InstanceRegisterResponse instanceRegisterResponse = providerAPI.register(instanceRegisterRequest);
+        InstanceRegisterResponse instanceRegisterResponse = PROVIDER_API.register(instanceRegisterRequest);
         System.out.println("response after register is " + instanceRegisterResponse);
         // 注册完成后执行心跳上报
         System.out.println("heartbeat task start, ttl is " + ttl);
@@ -73,20 +73,26 @@ public class PolarisUtil {
         heartbeatRequest.setService(service);
         heartbeatRequest.setHost(host);
         heartbeatRequest.setPort(port);
-        providerAPI.heartbeat(heartbeatRequest);
+        PROVIDER_API.heartbeat(heartbeatRequest);
         System.out.printf("heartbeat instance, address is %s:%d%n", host, port);
     }
 
+    // 服务下线逻辑
+    public static void shutdown(URL url) {
+        HEARTBEAT_EXECUTOR.shutdown();
+        deregister(url);
+        PROVIDER_API.close();
+    }
+
     // 服务反注册
-    public static void deregister(URL url) {
+    private static void deregister(URL url) {
         String namespace = url.getParameter("polaris.namespace", DEFAULT_NAMESPACE);
         InstanceDeregisterRequest deregisterRequest = new InstanceDeregisterRequest();
         deregisterRequest.setNamespace(namespace);
         deregisterRequest.setService(url.getServiceInterface());
         deregisterRequest.setHost(url.getHost());
         deregisterRequest.setPort(url.getPort());
-        providerAPI.deRegister(deregisterRequest);
+        PROVIDER_API.deRegister(deregisterRequest);
         System.out.printf("deregister instance, address is %s:%d%n", url.getHost(), url.getPort());
-        providerAPI.close();
     }
 }
