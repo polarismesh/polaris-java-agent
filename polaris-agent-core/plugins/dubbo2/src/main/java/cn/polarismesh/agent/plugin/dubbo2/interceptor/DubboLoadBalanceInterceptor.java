@@ -1,5 +1,6 @@
 package cn.polarismesh.agent.plugin.dubbo2.interceptor;
 
+import cn.polarismesh.agent.plugin.dubbo2.polaris.loadbalance.LoadBalanceFactory;
 import cn.polarismesh.agent.plugin.dubbo2.polaris.loadbalance.PolarisAbstractLoadBalance;
 import cn.polarismesh.agent.plugin.dubbo2.utils.ReflectUtil;
 import org.apache.dubbo.common.utils.Holder;
@@ -10,7 +11,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import static cn.polarismesh.agent.plugin.dubbo2.constants.DubboConstants.DUBBO_LOADBALANCES;
 import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.DEFAULT_LOADBALANCE;
-import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.LOADBALANCE_MAP;
 
 
 /**
@@ -48,19 +48,14 @@ public class DubboLoadBalanceInterceptor implements AroundInterceptor {
             return;
         }
 
-        if (!LOADBALANCE_MAP.containsKey(name)) {
-            LOGGER.warn("unexpected loadbalance: {}, use dubbo loadbalance instead", name);
+        Object loadBalanceInstance = LoadBalanceFactory.getLoadBalance(name);
+        if (loadBalanceInstance == null) {
+            LOGGER.warn("get LoadBalance fail, use dubbo LoadBalance instead");
             return;
         }
-        Class loadBalanceClazz = LOADBALANCE_MAP.get(name);
-        try {
-            Object loadBalanceInstance = loadBalanceClazz.newInstance();
-            Holder<Object> instanceHolder = new Holder<>();
-            instanceHolder.set(loadBalanceInstance);
-            cachedInstances.put(name, instanceHolder);
-        } catch (IllegalAccessException | InstantiationException e) {
-            LOGGER.error(e.getMessage());
-        }
+        Holder<Object> instanceHolder = new Holder<>();
+        instanceHolder.set(loadBalanceInstance);
+        cachedInstances.put(name, instanceHolder);
 
         LOGGER.info("save LoadBalance in cachedInstances done");
     }
