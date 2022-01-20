@@ -7,6 +7,7 @@ import org.apache.dubbo.common.utils.Holder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import static cn.polarismesh.agent.plugin.dubbo2.constants.DubboConstants.DUBBO_LOADBALANCES;
@@ -30,19 +31,17 @@ public class DubboLoadBalanceInterceptor implements AroundInterceptor {
     @SuppressWarnings("unchecked")
     @Override
     public void before(Object target, Object[] args) {
-        String name = (String) args[0];
-        if (!DUBBO_LOADBALANCES.contains(name)) {
-            return;
-        }
-
-        ConcurrentMap<String, Holder<Object>> cachedInstances =
-                (ConcurrentMap<String, Holder<Object>>) ReflectUtil.getObjectByFieldName(target, "cachedInstances");
+        Map<String, Holder<Object>> cachedInstances =
+                (Map<String, Holder<Object>>) ReflectUtil.getObjectByFieldName(target, "cachedInstances");
         if (cachedInstances == null) {
             LOGGER.error("get cachedInstances fail");
             return;
         }
 
-        name = System.getProperty("loadbalance", DEFAULT_LOADBALANCE);
+        String name = (String) args[0];
+        if (!DUBBO_LOADBALANCES.contains(name)) {
+            name = System.getProperty("loadbalance", DEFAULT_LOADBALANCE);
+        }
         Holder<Object> holder = cachedInstances.get(name);
         if (holder != null && holder.get() instanceof PolarisAbstractLoadBalance) {
             return;
