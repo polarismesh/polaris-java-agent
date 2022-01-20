@@ -31,7 +31,6 @@ public class DubboClusterInvokerInterceptor implements AroundInterceptor {
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (!(args[0] instanceof RegistryDirectory)) {
-            System.out.println("ClusterInvoker return");
             return;
         }
         RegistryDirectory directory = (RegistryDirectory) args[0];
