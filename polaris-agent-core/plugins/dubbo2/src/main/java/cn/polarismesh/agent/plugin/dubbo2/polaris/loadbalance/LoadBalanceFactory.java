@@ -11,10 +11,7 @@ public class LoadBalanceFactory {
             LOGGER.info("loadbalance is not defined");
             return null;
         }
-        if (loadbalance.equals("random")) {
-            return new RandomLoadBalance();
-        }// TODO 其他负载均衡策略
-        LOGGER.warn("invalid loadbalance: {}", loadbalance);
-        return null;
+        return new RandomLoadBalance();
+        // TODO 其他负载均衡策略
     }
 }
