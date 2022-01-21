@@ -23,6 +23,14 @@
         <pinpoint.version>2.3.3</pinpoint.version>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-bootstrap-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
