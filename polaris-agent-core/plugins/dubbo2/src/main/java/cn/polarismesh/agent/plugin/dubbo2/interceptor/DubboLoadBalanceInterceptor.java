@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 
 import static cn.polarismesh.agent.plugin.dubbo2.constants.DubboConstants.DUBBO_LOADBALANCES;
 import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.DEFAULT_LOADBALANCE;
