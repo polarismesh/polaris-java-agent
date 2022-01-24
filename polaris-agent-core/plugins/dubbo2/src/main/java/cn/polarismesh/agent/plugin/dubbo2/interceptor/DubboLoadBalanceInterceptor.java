@@ -38,10 +38,7 @@ public class DubboLoadBalanceInterceptor implements AroundInterceptor {
             return;
         }
 
-        String name = (String) args[0];
-        if (!DUBBO_LOADBALANCES.contains(name)) {
-            name = System.getProperty("loadbalance", DEFAULT_LOADBALANCE);
-        }
+        String name = System.getProperty("loadbalance", DEFAULT_LOADBALANCE);
         Holder<Object> holder = cachedInstances.get(name);
         if (holder != null && holder.get() instanceof PolarisAbstractLoadBalance) {
             return;
