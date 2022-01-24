@@ -17,8 +17,8 @@ public class HostUtils {
     private static final String DEFAULT_ADDRESS = "127.0.0.1";
 
     public static String getHost() {
-        if (!StringUtils.isEmpty(PolarisServiceConstants.host))
-            return PolarisServiceConstants.host;
+        if (!StringUtils.isEmpty(PolarisServiceConstants.HOST))
+            return PolarisServiceConstants.HOST;
         InetUtils inetUtils = new InetUtils(null);
         try {
             return inetUtils.findFirstNonLoopbackHostInfo().getIpAddress();

@@ -10,15 +10,15 @@ public class PolarisServiceConstants {
     /**
      * 端口号
      */
-    public static String port;
+    public static String PORT;
 
     /**
      * 服务名
      */
-    public static String service;
+    public static String SERVICE;
 
     /**
      * 主机
      */
-    public static String host;
+    public static String HOST;
 }

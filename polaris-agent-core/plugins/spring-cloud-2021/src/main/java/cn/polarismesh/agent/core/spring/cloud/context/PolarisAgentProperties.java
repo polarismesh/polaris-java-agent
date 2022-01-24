@@ -1,5 +1,8 @@
 package cn.polarismesh.agent.core.spring.cloud.context;
 
+
+import com.tencent.polaris.api.utils.StringUtils;
+
 /**
  * Polaris服务属性实体类
  *
@@ -42,17 +45,101 @@ public class PolarisAgentProperties {
      */
     private String protocol;
 
-    public PolarisAgentProperties() {
+    private PolarisAgentProperties() {
     }
 
-    public PolarisAgentProperties(String namespace, String service, String host, Integer port, String serverToken, String serverAddress, String protocol) {
-        this.namespace = namespace;
-        this.service = service;
-        this.host = host;
-        this.port = port;
-        this.serverToken = serverToken;
-        this.serverAddress = serverAddress;
-        this.protocol = protocol;
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        /**
+         * 命名空间
+         */
+        private String namespace = "default";
+
+        /**
+         * 服务名
+         */
+        private String service;
+
+        /**
+         * 主机
+         */
+        private String host;
+
+        /**
+         * 端口号
+         */
+        private String port = "8080";
+
+        /**
+         * token
+         */
+        private String serverToken;
+
+        /**
+         * Polaris 地址
+         */
+        private String serverAddress;
+
+        /**
+         * 协议
+         */
+        private String protocol = "grpc";
+
+        public Builder withNamespace(String namespace) {
+            if (!StringUtils.isEmpty(namespace)) {
+                this.namespace = namespace;
+            }
+            return this;
+        }
+
+        public Builder withService(String service) {
+            this.service = service;
+            return this;
+        }
+
+        public Builder withHost(String host) {
+            this.host = host;
+            return this;
+        }
+
+        public Builder withPort(String port) {
+            if (!StringUtils.isEmpty(port)) {
+                this.port = port;
+            }
+            return this;
+        }
+
+        public Builder withServerToken(String serverToken) {
+            this.serverToken = serverToken;
+            return this;
+        }
+
+        public Builder withServerAddress(String serverAddress) {
+            this.serverAddress = serverAddress;
+            return this;
+        }
+
+        public Builder withProtocol(String protocol) {
+            if (!StringUtils.isEmpty(protocol)) {
+                this.protocol = protocol;
+            }
+            return this;
+        }
+
+        public PolarisAgentProperties build() {
+            PolarisAgentProperties polarisAgentProperties = new PolarisAgentProperties();
+            polarisAgentProperties.setHost(this.host);
+            polarisAgentProperties.setPort(Integer.valueOf(this.port));
+            polarisAgentProperties.setNamespace(this.namespace);
+            polarisAgentProperties.setService(this.service);
+            polarisAgentProperties.setProtocol(this.protocol);
+            polarisAgentProperties.setServerAddress(this.serverAddress);
+            polarisAgentProperties.setServerToken(this.serverToken);
+            return polarisAgentProperties;
+        }
     }
 
     public String getNamespace() {

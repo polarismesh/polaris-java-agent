@@ -7,12 +7,12 @@ import cn.polarismesh.agent.core.spring.cloud.context.factory.PolarisAPIFactory;
 import cn.polarismesh.agent.core.spring.cloud.context.factory.PolarisAgentPropertiesFactory;
 import cn.polarismesh.agent.core.spring.cloud.util.HostUtils;
 import cn.polarismesh.agent.core.spring.cloud.util.LogUtils;
+import com.tencent.polaris.api.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.reactive.context.GenericReactiveWebApplicationContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 
 import static cn.polarismesh.agent.core.spring.cloud.constant.PolarisServiceConstants.*;
@@ -37,34 +37,40 @@ public class PolarisAgentPropertiesInterceptor implements BeforePolarisIntercept
             ApplicationContext applicationContext = (ApplicationContext) configurableContext;
 
             // get basic info from applicationContext
-            port = applicationContext.getEnvironment().getProperty("server.port");
-            service = applicationContext.getEnvironment().getProperty("spring.application.name");
-            host = applicationContext.getEnvironment().getProperty("spring.cloud.client.ip-address");
-            Assert.notNull(port, "the server port can't be null, please check your server config");
-            Assert.notNull(service, "the application name can't be null, please check your spring config");
+            PORT = applicationContext.getEnvironment().getProperty("server.port");
+            SERVICE = applicationContext.getEnvironment().getProperty("spring.application.name");
+            HOST = applicationContext.getEnvironment().getProperty("spring.cloud.client.ip-address");
+            if (PORT == null) {
+                log.warn("the server port is empty loaded from application config, use '8080' instead");
+            }
+            Assert.notNull(SERVICE, "the application name can't be null, please check your spring config");
 
-            log.info("Polaris service is set with port: {}", port);
-            log.info("Polaris service is set with service: {}", service);
-            log.info("Polaris service is set with host: {}", host);
+            log.info("Polaris service is set with name: {}, host: {}, port: {}", SERVICE, HOST, PORT);
 
             // get init info from system
             String host = HostUtils.getHost();
             String namespace = System.getProperty("polaris.namespace");
             String serverAddress = System.getProperty("polaris.server.address");
+            String protocol = System.getProperty("polaris.server.protocol");
             Assert.notNull(serverAddress, "the polaris server address can't be null, please check your polaris agent parameter");
             if (StringUtils.isEmpty(namespace)) {
-                namespace = "default";
-                log.warn("the input namespace is empty, use default instead");
+                log.warn("the input namespace is empty, use 'default' instead");
+            }
+
+            if (StringUtils.isEmpty(protocol)) {
+                log.warn("the input protocol is empty, use 'grpc' instead");
             }
 
             // init polaris config and reserve
-            PolarisAgentProperties polarisAgentProperties = new PolarisAgentProperties();
-            polarisAgentProperties.setHost(host);
-            polarisAgentProperties.setPort(Integer.valueOf(port));
-            polarisAgentProperties.setProtocol("grpc");
-            polarisAgentProperties.setNamespace(namespace);
-            polarisAgentProperties.setService(service);
-            polarisAgentProperties.setServerAddress(serverAddress);
+            PolarisAgentProperties polarisAgentProperties =
+                    PolarisAgentProperties.builder()
+                            .withHost(host)
+                            .withPort(PORT)
+                            .withProtocol(protocol)
+                            .withServerAddress(serverAddress)
+                            .withNamespace(namespace)
+                            .withService(SERVICE)
+                            .build();
             PolarisAgentPropertiesFactory.setPolarisAgentProperties(polarisAgentProperties);
 
             // init polarisContext and api

@@ -35,7 +35,7 @@ public class PolarisContext {
         ConfigurationImpl configuration = (ConfigurationImpl) ConfigAPIFactory
                 .defaultConfig(ConfigProvider.DEFAULT_CONFIG);
         configuration.setDefault();
-        configuration.getGlobal().getAPI().setBindIP(PolarisServiceConstants.host);
+        configuration.getGlobal().getAPI().setBindIP(PolarisServiceConstants.HOST);
         configuration.getGlobal().getServerConnector().setAddresses(Collections.singletonList(polarisAgentProperties.getServerAddress()));
         return configuration;
     }
