@@ -16,7 +16,7 @@ import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.DEFA
 /**
  * 服务发现拦截器2：用于将dubbo的LoadBalance替换为自己的LoadBalance
  */
-public class DubboLoadBalanceInterceptor implements AroundInterceptor {
+public class DubboLoadBalanceInterceptor implements AbstractInterceptor {
     private static final Logger LOGGER = LoggerFactory.getLogger(DubboLoadBalanceInterceptor.class);
 
     /**

@@ -8,7 +8,7 @@ import org.apache.dubbo.rpc.Result;
 /**
  * 统计时延信息、上报服务调用结果
  */
-public class DubboInvokeInterceptor implements AroundInterceptor {
+public class DubboInvokeInterceptor implements AbstractInterceptor {
     private long startTimeMilli;
 
     @Override

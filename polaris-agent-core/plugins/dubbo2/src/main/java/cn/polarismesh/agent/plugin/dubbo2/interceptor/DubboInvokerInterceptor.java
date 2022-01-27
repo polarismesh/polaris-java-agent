@@ -6,7 +6,7 @@ import org.apache.dubbo.rpc.Invoker;
 /**
  * 服务发现拦截器0：记录ip:port与Invoker对象的映射关系
  */
-public class DubboInvokerInterceptor implements AroundInterceptor {
+public class DubboInvokerInterceptor implements AbstractInterceptor {
     @Override
     public void before(Object target, Object[] args) {
     }

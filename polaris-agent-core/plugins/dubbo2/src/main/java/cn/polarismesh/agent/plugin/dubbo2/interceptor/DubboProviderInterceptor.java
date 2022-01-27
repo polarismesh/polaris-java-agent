@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 服务注册拦截器
  */
-public class DubboProviderInterceptor implements AroundInterceptor {
+public class DubboProviderInterceptor implements AbstractInterceptor {
     private static final Logger LOGGER = LoggerFactory.getLogger(DubboProviderInterceptor.class);
 
     @Override

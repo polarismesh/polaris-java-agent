@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 服务发现拦截器1：用于覆盖AbstractClusterInvoker.directory属性，重写list方法
  */
-public class DubboClusterInvokerInterceptor implements AroundInterceptor {
+public class DubboClusterInvokerInterceptor implements AbstractInterceptor {
     private static final Logger LOGGER = LoggerFactory.getLogger(DubboClusterInvokerInterceptor.class);
 
     @Override
