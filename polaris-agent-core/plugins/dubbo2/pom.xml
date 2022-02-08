@@ -14,11 +14,22 @@
 
     <name>Polaris Agent Dubbo2 Plugin</name>
 
+    <properties>
+        <dubbo.version>2.7.15</dubbo.version>
+    </properties>
+
     <dependencies>
+        <!-- polaris -->
+        <dependency>
+            <groupId>com.tencent.polaris</groupId>
+            <artifactId>polaris-all</artifactId>
+        </dependency>
+
+        <!-- dubbo2 -->
         <dependency>
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo</artifactId>
-            <version>2.7.15</version>
+            <version>${dubbo.version}</version>
         </dependency>
     </dependencies>
 </project>
