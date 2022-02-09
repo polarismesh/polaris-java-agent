@@ -1,21 +1,26 @@
 #!/bin/bash
 
+# init variables
+version=$(cat version 2>/dev/null)
+folder_name=polaris-java-agent-"${version}"
+package_name="${folder_name}".zip
+
 # download pinpoint and unzip
-wget -O polaris-java-agent.tar.gz https://github.com/pinpoint-apm/pinpoint/releases/download/v2.3.3/pinpoint-agent-2.3.3.tar.gz
-tar -zxvf polaris-java-agent.tar.gz
+wget -O "${folder_name}".tar.gz https://github.com/pinpoint-apm/pinpoint/releases/download/v2.3.3/pinpoint-agent-2.3.3.tar.gz
+tar -zxvf "${folder_name}".tar.gz
 
 # modify content
-mv pinpoint-agent-2.3.3 polaris-java-agent
-rm -rf polaris-java-agent/plugin/*
+mv pinpoint-agent-2.3.3 "${folder_name}"
+rm -rf "${folder_name}"/plugin/*
 
 # build with maven
 mvn -B package --file pom.xml
 
 # add plugin
-mv target/* polaris-java-agent/plugin/
+mv target/* "${folder_name}"/plugin/
 
 # zip
-zip -r polaris-java-agent.zip polaris-java-agent
+zip -r "${package_name}" "${folder_name}"
 
 
 
