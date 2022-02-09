@@ -16,10 +16,13 @@ jobs:
           distribution: 'temurin'
           server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
           settings-path: ${{ github.workspace }} # location for the settings.xml file
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: Build
         id: build
         run: |
-          bash ./build.sh
+          bash ./build.sh ${{ steps.get_version.outputs.VERSION }}
           PACKAGE_NAME=$(ls | grep polaris-java-agent*.zip | sed -n '1p')
           echo ::set-output name=name::${PACKAGE_NAME}
       - name: Upload asset

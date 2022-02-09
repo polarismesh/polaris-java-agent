@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # init variables
-version=$(cat version 2>/dev/null)
+version=$1
 folder_name=polaris-java-agent-"${version}"
 package_name="${folder_name}".zip
 
