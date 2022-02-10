@@ -5,7 +5,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 
 public class DubboLoadBalanceInterceptor implements AroundInterceptor {
 
-    private AbstractInterceptor interceptor = InterceptorFactory.getInterceptor(DubboLoadBalanceInterceptor.class);
+    private AbstractInterceptor interceptor = InterceptorFactory.getInterceptor(this.getClass());
 
     @Override
     public void before(Object target, Object[] args) {

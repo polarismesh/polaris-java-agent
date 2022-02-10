@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.DEFAULT_NAMESPACE;
+import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.NAMESPACE_KEY;
 
 /**
  * 继承Dubbo的RegistryDirectory类，重写list方法
@@ -40,7 +41,7 @@ public class PolarisDirectory<T> extends RegistryDirectory<T> {
     @SuppressWarnings("unchecked")
     @Override
     public List<Invoker<T>> list(Invocation invocation) throws RpcException {
-        String namespace = System.getProperty("namespace", DEFAULT_NAMESPACE);
+        String namespace = System.getProperty(NAMESPACE_KEY, DEFAULT_NAMESPACE);
         String service = invocation.getServiceName();
         Instance[] instances = PolarisUtil.getTargetInstances(namespace, service);
         if (instances == null) {
