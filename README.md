@@ -15,25 +15,19 @@ Download the latest `polaris-java-agent-$version.zip` file from [releases](https
     ```
 
 2. add JVM parameters
-
-    ```
-    -javaagent:...\pinpoint-bootstrap.jar
-    -Dpinpoint.agentId=xxx
-    -Dpinpoint.applicationName=xxx
-    ```
     
-    `-javaagent` represents the path of `polaris-java-agent/pinpoint-bootstrap.jar`, `-Dpinpoint.agentId` and `-Dpinpoint.applicationName` are parameters of pinpoint，both of them can be any value
-    
-    The above three parameters are required, and there are some optional parameters
-    
-    | parameter |       description        |      example      | default |
-    | :-------: | :----------------------: | :---------------: | :-----: |
-    | namespace | the namespace of service | -Dnamespace=Dubbo | default |
-    |    ttl    |   the ttl of heartbeat   |      -Dttl=5      |    5    |
+    |         parameter         |          description          |                       example                        | default | Required |
+    | :-----------------------: | :---------------------------: | :--------------------------------------------------: | :-----: | :------: |
+    |         javaagent         | polaris-bootstrap.jar所在路径 | -javaagent:/polaris-java-agent/polaris-bootstrap.jar |  null   | Required |
+    |     Dpinpoint.agentId     |       pinpoint自带参数        |          -Dpinpoint.agentId=dubbo-provider           |  null   | Required |
+    | Dpinpoint.applicationName |       pinpoint自带参数        |         -Dpinpoint.applicationName=PROVIDER          |  null   | Required |
+    |  Dpolaris.server.address  |          polaris地址          |       -Dpolaris.server.address=localhost:8091        |  null   | Required |
+    |    Dpolaris.namespace     |      服务所属的命名空间       |              -Dpolaris.namespace=Dubbo               | default | Optional |
+    |       Dpolaris.ttl        |       服务心跳上报间隔        |                   -Dpolaris.ttl=5                    |    5    | Optional |
 
 3. start the project
 
 ## Example
 ```
-java -javaagent:/polaris-java-agent/pinpoint-bootstrap.jar -Dpinpoint.agentId=dubbo-provider -Dpinpoint.applicationName=PROVIDER -Dnamespace=Dubbo -Dttl=5 -jar xxx.jar
+java -javaagent:/polaris-java-agent/polaris-bootstrap.jar -Dpinpoint.agentId=dubbo-provider -Dpinpoint.applicationName=PROVIDER -Dpolaris.server.address=localhost:8091 -Dpolaris.namespace=Dubbo -Dpolaris.ttl=5 -jar xxx.jar
 ```
