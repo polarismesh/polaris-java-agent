@@ -6,7 +6,7 @@ Polaris-java-agent是使用Java agent技术开发的Polaris适配组件，目前
 
 ## 如何使用
 
-从[releases](https://github.com/polarismesh/polaris-java-agent/releases)中下载最新的`polaris-java-agent.zip`文件
+从[releases](https://github.com/polarismesh/polaris-java-agent/releases)中下载最新的`polaris-java-agent-$version.zip`文件
 
 1. 解压
 
@@ -16,24 +16,18 @@ Polaris-java-agent是使用Java agent技术开发的Polaris适配组件，目前
 
 2. 添加JVM启动参数
 
-    ```
-    -javaagent:...\pinpoint-bootstrap.jar
-    -Dpinpoint.agentId=xxx
-    -Dpinpoint.applicationName=xxx
-    ```
-    
-    其中`-javaagent`的值为`polaris-java-agent/pinpoint-bootstrap.jar`所在路径，`-Dpinpoint.agentId`和`-Dpinpoint.applicationName`是pinpoint相关参数，可以为任意值
-    
-    以上三个参数为必填，还有以下可选参数
-    
-    |  参数名   |        描述        |       示例        | 默认值  |
-    | :-------: | :----------------: | :---------------: | :-----: |
-    | namespace | 服务所属的命名空间 | -Dnamespace=Dubbo | default |
-    |    ttl    |  服务心跳上报间隔  |      -Dttl=5      |    5    |
+    |          参数名           |             描述              |                         示例                          | 默认值  | 是否必填 |
+    | :-----------------------: | :---------------------------: | :---------------------------------------------------: | :-----: | :------: |
+    |         javaagent         | polaris-bootstrap.jar所在路径 | -javaagent:/polaris-java-agent/polaris-bootstrap.jar |   无    |   必填   |
+    |     Dpinpoint.agentId     |       pinpoint自带参数        |           -Dpinpoint.agentId=dubbo-provider           |   无    |   必填   |
+    | Dpinpoint.applicationName |       pinpoint自带参数        |          -Dpinpoint.applicationName=PROVIDER          |   无    |   必填   |
+    |  Dpolaris.server.address  |          polaris地址          |        -Dpolaris.server.address=localhost:8091        |   无    |   必填   |
+    |    Dpolaris.namespace     |      服务所属的命名空间       |               -Dpolaris.namespace=Dubbo               | default |   可选   |
+    |       Dpolaris.ttl        |       服务心跳上报间隔        |                    -Dpolaris.ttl=5                    |    5    |   可选   |
 
 3. 启动项目
 
 ## 示例
 ```
-java -javaagent:/polaris-java-agent/pinpoint-bootstrap.jar -Dpinpoint.agentId=dubbo-provider -Dpinpoint.applicationName=PROVIDER -Dnamespace=Dubbo -Dttl=5 -jar xxx.jar
+java -javaagent:/polaris-java-agent/polaris-bootstrap.jar -Dpinpoint.agentId=dubbo-provider -Dpinpoint.applicationName=PROVIDER -Dpolaris.server.address=localhost:8091 -Dpolaris.namespace=Dubbo -Dpolaris.ttl=5 -jar xxx.jar
 ```
