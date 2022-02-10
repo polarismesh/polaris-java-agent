@@ -6,7 +6,7 @@ polaris-java-agent is the polaris adapter developed using Java agent technology,
 
 ## How to use
 
-Download the latest `polaris-java-agent.zip` file from [releases](https://github.com/polarismesh/polaris-java-agent/releases)
+Download the latest `polaris-java-agent-$version.zip` file from [releases](https://github.com/polarismesh/polaris-java-agent/releases)
 
 1. unzip file
 

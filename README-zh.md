@@ -6,7 +6,7 @@ Polaris-java-agent是使用Java agent技术开发的Polaris适配组件，目前
 
 ## 如何使用
 
-从[releases](https://github.com/polarismesh/polaris-java-agent/releases)中下载最新的`polaris-java-agent.zip`文件
+从[releases](https://github.com/polarismesh/polaris-java-agent/releases)中下载最新的`polaris-java-agent-$version.zip`文件
 
 1. 解压
 
