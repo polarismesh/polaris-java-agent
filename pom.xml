@@ -204,5 +204,6 @@
     <modules>
         <module>polaris-agent-core</module>
         <module>polaris-agent-adapter</module>
+        <module>polaris-agent-examples</module>
     </modules>
 </project>
