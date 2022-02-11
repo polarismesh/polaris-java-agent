@@ -1,18 +1,23 @@
 package cn.polarismesh.agent.plugin.dubbo2.utils;
 
 import cn.polarismesh.agent.plugin.dubbo2.entity.InvokerMap;
+import cn.polarismesh.agent.plugin.dubbo2.entity.Properties;
+import com.tencent.polaris.api.config.Configuration;
 import com.tencent.polaris.api.core.ConsumerAPI;
 import com.tencent.polaris.api.core.ProviderAPI;
 import com.tencent.polaris.api.exception.PolarisException;
 import com.tencent.polaris.api.pojo.Instance;
 import com.tencent.polaris.api.pojo.RetStatus;
 import com.tencent.polaris.api.rpc.*;
+import com.tencent.polaris.factory.ConfigAPIFactory;
 import com.tencent.polaris.factory.api.DiscoveryAPIFactory;
+import com.tencent.polaris.factory.config.ConfigurationImpl;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.rpc.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -27,10 +32,26 @@ import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.*;
 public class PolarisUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(PolarisUtil.class);
 
-    private static final ConsumerAPI CONSUMER_API = DiscoveryAPIFactory.createConsumerAPI();
-    private static final ProviderAPI PROVIDER_API = DiscoveryAPIFactory.createProviderAPI();
+    private static final Properties properties = Properties.getInstance();
+
+    private static final Configuration CONFIG = initConfig();
+
+    private static final ConsumerAPI CONSUMER_API = DiscoveryAPIFactory.createConsumerAPIByConfig(CONFIG);
+    private static final ProviderAPI PROVIDER_API = DiscoveryAPIFactory.createProviderAPIByConfig(CONFIG);
 
     private static final ScheduledExecutorService HEARTBEAT_EXECUTOR = Executors.newSingleThreadScheduledExecutor();
+
+    /**
+     * 初始化配置，绑定polaris地址
+     *
+     * @return Configuration对象
+     */
+    private static Configuration initConfig() {
+        ConfigurationImpl configuration = (ConfigurationImpl) ConfigAPIFactory.defaultConfig();
+        configuration.setDefault();
+        configuration.getGlobal().getServerConnector().setAddresses(Collections.singletonList(properties.getAddress()));
+        return configuration;
+    }
 
     /**
      * 服务注册
@@ -38,12 +59,11 @@ public class PolarisUtil {
      * @param url Dubbo的URL对象，存有服务注册需要的相关信息
      */
     public static void register(URL url) {
-        String namespace = System.getProperty("namespace", DEFAULT_NAMESPACE);
+        String namespace = properties.getNamespace();
         String service = url.getServiceInterface();
         String host = url.getHost();
         int port = url.getPort();
-        String ttlStr = System.getProperty("ttl");
-        int ttl = StringUtil.isNumeric(ttlStr) ? Integer.parseInt(ttlStr) : TTL;
+        int ttl = properties.getTtl();
         Map<String, String> parameters = new HashMap<>(url.getParameters());
         paramFilter(parameters);
 
@@ -196,7 +216,7 @@ public class PolarisUtil {
      */
     public static void reportInvokeResult(URL url, long delay, Result result, Throwable throwable) {
         ServiceCallResult serviceCallResult = new ServiceCallResult();
-        serviceCallResult.setNamespace(System.getProperty("namespace", DEFAULT_NAMESPACE));
+        serviceCallResult.setNamespace(properties.getNamespace());
         serviceCallResult.setService(url.getServiceInterface());
         serviceCallResult.setHost(url.getHost());
         serviceCallResult.setPort(url.getPort());
