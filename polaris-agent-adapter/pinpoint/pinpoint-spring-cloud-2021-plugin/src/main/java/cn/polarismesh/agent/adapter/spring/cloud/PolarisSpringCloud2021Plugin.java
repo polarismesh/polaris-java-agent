@@ -20,7 +20,6 @@ import cn.polarismesh.agent.adapter.spring.cloud.interceptor.PolarisAgentPropert
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.PolarisDiscoveryInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.PolarisRegistryInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.PolarisRibbonInterceptor;
-import cn.polarismesh.agent.core.spring.cloud.util.LogUtils;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -28,8 +27,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
@@ -42,13 +39,10 @@ import java.security.ProtectionDomain;
  */
 public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTemplateAware {
 
-    private static final PLogger logger = PLoggerFactory.getLogger(PolarisSpringCloud2021Plugin.class);
-
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        logger.info("Adding SpringCloud2021 transformers");
         addPolarisTransformers();
     }
 
@@ -77,7 +71,6 @@ public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTe
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
             InstrumentMethod method = target.getDeclaredMethod("refreshContext", "org.springframework.context.ConfigurableApplicationContext");
             if (method != null) {
-                LogUtils.logTargetMethodFound(method.getName());
                 method.addInterceptor(PolarisAgentPropertiesInterceptor.class);
             }
 
@@ -96,7 +89,6 @@ public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTe
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
             InstrumentMethod method = target.getDeclaredMethod("finishRefresh");
             if (method != null) {
-                LogUtils.logTargetMethodFound(method.getName());
                 method.addInterceptor(PolarisRegistryInterceptor.class);
             }
 
@@ -115,7 +107,6 @@ public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTe
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
             InstrumentMethod method = target.getDeclaredMethod("<init>", "java.util.List");
             if (method != null) {
-                LogUtils.logTargetMethodFound(method.getName());
                 method.addInterceptor(PolarisDiscoveryInterceptor.class);
             }
 
@@ -135,7 +126,6 @@ public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTe
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
             InstrumentMethod method = target.getDeclaredMethod("<init>", "com.netflix.loadbalancer.ILoadBalancer", "com.netflix.client.config.IClientConfig");
             if (method != null) {
-                LogUtils.logTargetMethodFound(method.getName());
                 method.addInterceptor(PolarisRibbonInterceptor.class);
             }
 

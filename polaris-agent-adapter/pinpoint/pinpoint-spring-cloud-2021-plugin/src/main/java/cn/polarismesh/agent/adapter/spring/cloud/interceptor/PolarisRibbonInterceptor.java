@@ -1,6 +1,6 @@
 package cn.polarismesh.agent.adapter.spring.cloud.interceptor;
 
-import cn.polarismesh.agent.core.spring.cloud.AfterPolarisInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.AroundPolarisInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.context.factory.PolarisAgentPropertiesFactory;
 import cn.polarismesh.agent.core.spring.cloud.util.LogUtils;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
@@ -12,6 +12,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
  */
 public class PolarisRibbonInterceptor implements AroundInterceptor {
 
+    private final AroundPolarisInterceptor polarisInterceptor = InterceptorFactory.getInterceptor(this.getClass());
+
     @Override
     public void before(Object target, Object[] args) {
     }
@@ -20,8 +22,7 @@ public class PolarisRibbonInterceptor implements AroundInterceptor {
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         // log
         LogUtils.logTargetFound(target);
-        // do registry
-        AfterPolarisInterceptor polarisInterceptor = new cn.polarismesh.agent.core.spring.cloud.support.PolarisRibbonInterceptor();
+        // do load balance
         polarisInterceptor.afterInterceptor(target, args, result, throwable, PolarisAgentPropertiesFactory.getPolarisAgentProperties());
     }
 }
