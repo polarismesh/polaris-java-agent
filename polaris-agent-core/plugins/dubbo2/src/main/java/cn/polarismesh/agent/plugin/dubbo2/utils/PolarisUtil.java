@@ -1,6 +1,7 @@
 package cn.polarismesh.agent.plugin.dubbo2.utils;
 
 import cn.polarismesh.agent.plugin.dubbo2.entity.InvokerMap;
+import cn.polarismesh.agent.plugin.dubbo2.entity.Properties;
 import com.tencent.polaris.api.config.Configuration;
 import com.tencent.polaris.api.core.ConsumerAPI;
 import com.tencent.polaris.api.core.ProviderAPI;
@@ -31,6 +32,8 @@ import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.*;
 public class PolarisUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(PolarisUtil.class);
 
+    private static final Properties properties = Properties.getInstance();
+
     private static final Configuration CONFIG = initConfig();
 
     private static final ConsumerAPI CONSUMER_API = DiscoveryAPIFactory.createConsumerAPIByConfig(CONFIG);
@@ -46,8 +49,7 @@ public class PolarisUtil {
     private static Configuration initConfig() {
         ConfigurationImpl configuration = (ConfigurationImpl) ConfigAPIFactory.defaultConfig();
         configuration.setDefault();
-        String address = System.getProperty(ADDRESS_KEY, DEFAULT_ADDRESS);
-        configuration.getGlobal().getServerConnector().setAddresses(Collections.singletonList(address));
+        configuration.getGlobal().getServerConnector().setAddresses(Collections.singletonList(properties.getAddress()));
         return configuration;
     }
 
@@ -57,12 +59,11 @@ public class PolarisUtil {
      * @param url Dubbo的URL对象，存有服务注册需要的相关信息
      */
     public static void register(URL url) {
-        String namespace = System.getProperty(NAMESPACE_KEY, DEFAULT_NAMESPACE);
+        String namespace = properties.getNamespace();
         String service = url.getServiceInterface();
         String host = url.getHost();
         int port = url.getPort();
-        String ttlStr = System.getProperty(TTL_KEY);
-        int ttl = StringUtil.isNumeric(ttlStr) ? Integer.parseInt(ttlStr) : DEFAULT_TTL;
+        int ttl = properties.getTtl();
         Map<String, String> parameters = new HashMap<>(url.getParameters());
         paramFilter(parameters);
 
@@ -215,7 +216,7 @@ public class PolarisUtil {
      */
     public static void reportInvokeResult(URL url, long delay, Result result, Throwable throwable) {
         ServiceCallResult serviceCallResult = new ServiceCallResult();
-        serviceCallResult.setNamespace(System.getProperty(NAMESPACE_KEY, DEFAULT_NAMESPACE));
+        serviceCallResult.setNamespace(properties.getNamespace());
         serviceCallResult.setService(url.getServiceInterface());
         serviceCallResult.setHost(url.getHost());
         serviceCallResult.setPort(url.getPort());

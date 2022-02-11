@@ -1,5 +1,6 @@
 package cn.polarismesh.agent.plugin.dubbo2.interceptor;
 
+import cn.polarismesh.agent.plugin.dubbo2.entity.Properties;
 import cn.polarismesh.agent.plugin.dubbo2.polaris.loadbalance.LoadBalanceFactory;
 import cn.polarismesh.agent.plugin.dubbo2.polaris.loadbalance.PolarisAbstractLoadBalance;
 import cn.polarismesh.agent.plugin.dubbo2.utils.ReflectUtil;
@@ -38,7 +39,7 @@ public class DubboLoadBalanceInterceptor implements AbstractInterceptor {
             return;
         }
 
-        String name = System.getProperty(LOADBALANCE_KEY, DEFAULT_LOADBALANCE);
+        String name = Properties.getInstance().getLoadbalance();
         Holder<Object> holder = cachedInstances.get(name);
         if (holder != null && holder.get() instanceof PolarisAbstractLoadBalance) {
             return;

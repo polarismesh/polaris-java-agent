@@ -1,6 +1,7 @@
 package cn.polarismesh.agent.plugin.dubbo2.polaris;
 
 import cn.polarismesh.agent.plugin.dubbo2.entity.InvokerMap;
+import cn.polarismesh.agent.plugin.dubbo2.entity.Properties;
 import cn.polarismesh.agent.plugin.dubbo2.utils.PolarisUtil;
 import cn.polarismesh.agent.plugin.dubbo2.utils.StringUtil;
 import com.tencent.polaris.api.pojo.Instance;
@@ -41,7 +42,7 @@ public class PolarisDirectory<T> extends RegistryDirectory<T> {
     @SuppressWarnings("unchecked")
     @Override
     public List<Invoker<T>> list(Invocation invocation) throws RpcException {
-        String namespace = System.getProperty(NAMESPACE_KEY, DEFAULT_NAMESPACE);
+        String namespace = Properties.getInstance().getNamespace();
         String service = invocation.getServiceName();
         Instance[] instances = PolarisUtil.getTargetInstances(namespace, service);
         if (instances == null) {
