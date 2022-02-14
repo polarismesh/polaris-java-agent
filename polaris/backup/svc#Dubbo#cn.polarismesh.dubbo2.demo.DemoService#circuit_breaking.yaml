@@ -1,0 +1,7 @@
+---
+code: 200000
+info: "execute success"
+type: "CIRCUIT_BREAKER"
+service:
+  name: "cn.polarismesh.dubbo2.demo.DemoService"
+  namespace: "Dubbo"
