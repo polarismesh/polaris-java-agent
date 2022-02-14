@@ -20,10 +20,12 @@ public class PolarisRibbonInterceptor implements AroundInterceptor {
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        // log
-        LogUtils.logTargetFound(target);
-        // do load balance
-        polarisInterceptor.afterInterceptor(target, args, result, throwable, PolarisAgentPropertiesFactory.getPolarisAgentProperties());
+        if (polarisInterceptor != null) {
+            // log
+            LogUtils.logTargetFound(target);
+            // do load balance
+            polarisInterceptor.afterInterceptor(target, args, result, throwable, PolarisAgentPropertiesFactory.getPolarisAgentProperties());
+        }
     }
 }
 
