@@ -15,8 +15,8 @@
     <name>Polaris Agent Spring Cloud 2021 Example</name>
 
     <modules>
-        <module>demo-callee</module>
-        <module>demo-caller</module>
+        <module>quickstart-example-provider</module>
+        <module>quickstart-example-consumer</module>
     </modules>
 
     <properties>
