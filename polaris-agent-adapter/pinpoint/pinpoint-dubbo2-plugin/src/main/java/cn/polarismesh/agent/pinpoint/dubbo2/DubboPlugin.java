@@ -43,9 +43,14 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private void addTransformers() {
         transformTemplate.transform("org.apache.dubbo.rpc.protocol.AbstractProtocol", AbstractProtocolTransform.class);
+
         transformTemplate.transform("org.apache.dubbo.rpc.protocol.AbstractProxyProtocol", ProtocolTransform.class);
         transformTemplate.transform("org.apache.dubbo.rpc.protocol.dubbo.DubboProtocol", ProtocolTransform.class);
+        transformTemplate.transform("org.apache.dubbo.rpc.protocol.redis.RedisProtocol", ProtocolTransform.class);
+        transformTemplate.transform("org.apache.dubbo.rpc.protocol.injvm.InjvmProtocol", ProtocolTransform.class);
+        transformTemplate.transform("org.apache.dubbo.rpc.protocol.memcached.MemcachedProtocol", ProtocolTransform.class);
         transformTemplate.transform("org.apache.dubbo.rpc.protocol.thrift.ThriftProtocol", ProtocolTransform.class);
+
         transformTemplate.transform("org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker", AbstractClusterInvokerTransform.class);
         transformTemplate.transform("org.apache.dubbo.common.extension.ExtensionLoader", ExtensionLoaderTransform.class);
     }
