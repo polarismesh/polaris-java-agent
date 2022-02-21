@@ -20,6 +20,9 @@ class InterceptorFactory {
         interceptorCache.put(PolarisAgentPropertiesInterceptor.class, new cn.polarismesh.agent.core.spring.cloud.support.PolarisAgentPropertiesInterceptor());
         interceptorCache.put(PolarisDiscoveryInterceptor.class, new cn.polarismesh.agent.core.spring.cloud.support.PolarisDiscoveryInterceptor());
         interceptorCache.put(PolarisRegistryInterceptor.class, new cn.polarismesh.agent.core.spring.cloud.support.PolarisRegistryInterceptor());
+        interceptorCache.put(PolarisServiceInfoInterceptor.class, new cn.polarismesh.agent.core.spring.cloud.support.PolarisServiceInfoInterceptor());
+        interceptorCache.put(PolarisFeignInvokeInterceptor.class, new cn.polarismesh.agent.core.spring.cloud.support.PolarisFeignInvokeInterceptor());
+        interceptorCache.put(PolarisRestTemplateInvokeInterceptor.class, new cn.polarismesh.agent.core.spring.cloud.support.PolarisRestTemplateInvokeInterceptor());
 //        interceptorCache.put(PolarisRibbonInterceptor.class, new cn.polarismesh.agent.core.spring.cloud.support.PolarisRibbonInterceptor());
     }
 

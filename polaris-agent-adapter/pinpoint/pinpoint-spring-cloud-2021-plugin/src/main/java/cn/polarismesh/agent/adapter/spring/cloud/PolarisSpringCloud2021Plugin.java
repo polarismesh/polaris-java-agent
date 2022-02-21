@@ -16,10 +16,7 @@
 
 package cn.polarismesh.agent.adapter.spring.cloud;
 
-import cn.polarismesh.agent.adapter.spring.cloud.interceptor.PolarisAgentPropertiesInterceptor;
-import cn.polarismesh.agent.adapter.spring.cloud.interceptor.PolarisDiscoveryInterceptor;
-import cn.polarismesh.agent.adapter.spring.cloud.interceptor.PolarisRegistryInterceptor;
-import cn.polarismesh.agent.adapter.spring.cloud.interceptor.PolarisRibbonInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -58,6 +55,9 @@ public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTe
         transformTemplate.transform("org.springframework.boot.SpringApplication", PolarisAgentPropertiesTransform.class);
         transformTemplate.transform("org.springframework.context.support.AbstractApplicationContext", PolarisRegistryTransform.class);
         transformTemplate.transform("org.springframework.cloud.client.discovery.composite.CompositeDiscoveryClient", PolarisDiscoveryTransform.class);
+        transformTemplate.transform("org.springframework.cloud.loadbalancer.blocking.client.BlockingLoadBalancerClient", PolarisServiceInfoTransform.class);
+        transformTemplate.transform("feign.SynchronousMethodHandler", PolarisFeignInvokeTransform.class);
+        transformTemplate.transform("org.springframework.web.client.RestTemplate", PolarisRestTemplateInvokeTransform.class);
         transformTemplate.transform("com.netflix.loadbalancer.LoadBalancerContext", PolarisLoadBalancerTransform.class);
     }
 
@@ -133,4 +133,62 @@ public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTe
         }
 
     }
+
+    public static class PolarisServiceInfoTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+                                    byte[] classfileBuffer) throws InstrumentException {
+
+
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            InstrumentMethod choose = target.getDeclaredMethod("choose", "java.lang.String", "org.springframework.cloud.client.loadbalancer.Request");
+            if (choose != null) {
+                choose.addInterceptor(PolarisServiceInfoInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+
+    }
+
+    public static class PolarisFeignInvokeTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+                                    byte[] classfileBuffer) throws InstrumentException {
+
+
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            InstrumentMethod method = target.getDeclaredMethod("invoke", "java.lang.Object[]");
+            if (method != null) {
+                method.addInterceptor(PolarisFeignInvokeInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+
+    }
+
+    public static class PolarisRestTemplateInvokeTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+                                    byte[] classfileBuffer) throws InstrumentException {
+
+
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            InstrumentMethod method = target.getDeclaredMethod("handleResponse", "java.net.URI", "org.springframework.http.HttpMethod", "org.springframework.http.client.ClientHttpResponse");
+            if (method != null) {
+                method.addInterceptor(PolarisFeignInvokeInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+
+    }
+
 }

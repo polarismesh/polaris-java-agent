@@ -1,13 +1,12 @@
 package cn.polarismesh.agent.core.spring.cloud.loadbalance.ribbon;
 
 import cn.polarismesh.agent.core.spring.cloud.context.PolarisAgentProperties;
+import cn.polarismesh.agent.core.spring.cloud.router.PolarisServiceRouter;
 import cn.polarismesh.agent.core.spring.cloud.util.LogUtils;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.*;
 import com.tencent.polaris.api.pojo.*;
 import com.tencent.polaris.router.api.core.RouterAPI;
-import com.tencent.polaris.router.api.rpc.ProcessRoutersRequest;
-import com.tencent.polaris.router.api.rpc.ProcessRoutersResponse;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -71,18 +70,8 @@ public class PolarisRoutingLoadBalancer extends DynamicServerListLoadBalancer<Se
             }
             serviceInstances = new DefaultServiceInstances(serviceKey, instances);
         }
-        ProcessRoutersRequest processRoutersRequest = new ProcessRoutersRequest();
-        processRoutersRequest.setDstInstances(serviceInstances);
-        String srcNamespace = polarisAgentProperties.getNamespace();
-        String srcService = polarisAgentProperties.getService();
-        if (StringUtils.isNotBlank(srcNamespace) && StringUtils.isNotBlank(srcService)) {
-            ServiceInfo serviceInfo = new ServiceInfo();
-            serviceInfo.setNamespace(srcNamespace);
-            serviceInfo.setService(srcService);
-            processRoutersRequest.setSourceService(serviceInfo);
-        }
-        ProcessRoutersResponse processRoutersResponse = routerAPI.processRouters(processRoutersRequest);
-        ServiceInstances filteredServiceInstances = processRoutersResponse.getServiceInstances();
+
+        ServiceInstances filteredServiceInstances = PolarisServiceRouter.getRoutedServiceInstance(serviceInstances);
         List<Server> filteredInstances = new ArrayList<>();
         for (Instance instance : filteredServiceInstances.getInstances()) {
             filteredInstances.add(new PolarisServer(serviceInstances, instance));
