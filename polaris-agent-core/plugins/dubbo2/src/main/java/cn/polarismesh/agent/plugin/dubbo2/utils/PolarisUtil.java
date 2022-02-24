@@ -6,14 +6,17 @@ import com.tencent.polaris.api.config.Configuration;
 import com.tencent.polaris.api.core.ConsumerAPI;
 import com.tencent.polaris.api.core.ProviderAPI;
 import com.tencent.polaris.api.exception.PolarisException;
-import com.tencent.polaris.api.pojo.Instance;
 import com.tencent.polaris.api.pojo.RetStatus;
+import com.tencent.polaris.api.pojo.ServiceInfo;
+import com.tencent.polaris.api.pojo.ServiceInstances;
 import com.tencent.polaris.api.rpc.*;
 import com.tencent.polaris.factory.ConfigAPIFactory;
 import com.tencent.polaris.factory.api.DiscoveryAPIFactory;
 import com.tencent.polaris.factory.config.ConfigurationImpl;
 import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.rpc.Result;
+import org.apache.dubbo.rpc.RpcContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +27,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.*;
+import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.DEFAULT_NAMESPACE;
+import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.FILTERED_PARAMS;
+import static org.apache.dubbo.common.constants.CommonConstants.PATH_KEY;
 
 /**
  * 实现Polaris相关逻辑的工具类
@@ -66,6 +71,7 @@ public class PolarisUtil {
         int ttl = properties.getTtl();
         Map<String, String> parameters = new HashMap<>(url.getParameters());
         paramFilter(parameters);
+        parameters.put(PATH_KEY, url.getPath());
 
         InstanceRegisterRequest instanceRegisterRequest = new InstanceRegisterRequest();
         instanceRegisterRequest.setNamespace(namespace);
@@ -74,6 +80,7 @@ public class PolarisUtil {
         instanceRegisterRequest.setPort(port);
         instanceRegisterRequest.setTtl(ttl);
         instanceRegisterRequest.setMetadata(parameters);
+        instanceRegisterRequest.setProtocol(url.getProtocol());
         try {
             InstanceRegisterResponse instanceRegisterResponse = PROVIDER_API.register(instanceRegisterRequest);
             LOGGER.info("response after register is {}", instanceRegisterResponse);
@@ -150,19 +157,8 @@ public class PolarisUtil {
      * @param url Dubbo的URL对象，存有服务反注册需要的相关信息
      */
     public static void shutdown(URL url) {
-        String address = url.getAddress();
-        InvokerMap.remove(address);
+        InvokerMap.removeAll();
         HEARTBEAT_EXECUTOR.shutdown();
-        deregister(url);
-        PROVIDER_API.close();
-    }
-
-    /**
-     * 调用PROVIDER_API实现服务反注册
-     *
-     * @param url Dubbo的URL对象，存有服务反注册需要的相关信息
-     */
-    private static void deregister(URL url) {
         String namespace = url.getParameter("polaris.namespace", DEFAULT_NAMESPACE);
         InstanceDeregisterRequest deregisterRequest = new InstanceDeregisterRequest();
         deregisterRequest.setNamespace(namespace);
@@ -175,6 +171,7 @@ public class PolarisUtil {
         } catch (PolarisException e) {
             LOGGER.error(e.getMessage());
         }
+        PROVIDER_API.close();
     }
 
     /**
@@ -184,27 +181,55 @@ public class PolarisUtil {
      * @param service   服务的service
      * @return Polaris选择的Instance对象
      */
-    public static Instance[] getTargetInstances(String namespace, String service) {
+    public static ServiceInstances getTargetInstances(String namespace, String service) {
         LOGGER.info("namespace {}, service {}", namespace, service);
-        GetAllInstancesRequest getAllInstancesRequest = new GetAllInstancesRequest();
-        getAllInstancesRequest.setNamespace(namespace);
-        getAllInstancesRequest.setService(service);
-        LOGGER.info("request set complete");
         try {
-            InstancesResponse oneInstance = CONSUMER_API.getAllInstance(getAllInstancesRequest);
-            Instance[] instances = oneInstance.getInstances();
-            if (instances == null || instances.length == 0) {
+            // init ServiceInfo
+            ServiceInfo serviceInfo = initServiceInfo(namespace, service);
+            // get available instances
+            GetInstancesRequest getInstancesRequest = new GetInstancesRequest();
+            getInstancesRequest.setNamespace(namespace);
+            getInstancesRequest.setService(service);
+            getInstancesRequest.setServiceInfo(serviceInfo);
+            InstancesResponse instancesResp = CONSUMER_API.getInstances(getInstancesRequest);
+            ServiceInstances dstInstances = instancesResp.toServiceInstances();
+            if (dstInstances == null || dstInstances.getInstances().isEmpty()) {
                 LOGGER.error("instances is null or empty");
                 return null;
             }
-            LOGGER.info("instances count is {}", instances.length);
-            return instances;
+            LOGGER.info("instances count after routing is {}", dstInstances.getInstances().size());
+            return dstInstances;
         } catch (PolarisException e) {
             LOGGER.error(e.getMessage());
             return null;
         }
     }
 
+    private static ServiceInfo initServiceInfo(String namespace, String service) {
+        ServiceInfo serviceInfo = new ServiceInfo();
+        String tag = RpcContext.getContext().getAttachment(CommonConstants.TAG_KEY);
+        // 只有当用户设置了tag时才进行绑定，否则路由时会报错
+        if (null != tag) {
+            LOGGER.info("tag: {}={}", CommonConstants.TAG_KEY, tag);
+            Map<String, String> metadata = new HashMap<>();
+            metadata.put(CommonConstants.TAG_KEY, tag);
+            serviceInfo.setMetadata(metadata);
+        }
+        serviceInfo.setNamespace(namespace);
+        serviceInfo.setService(service);
+        return serviceInfo;
+    }
+
+    /**
+     * 获取全量Instances，用于PolarisRegistry更新Instances信息
+     */
+    public static ServiceInstances getAllInstances(String namespace, String service) {
+        GetAllInstancesRequest getAllInstancesRequest = new GetAllInstancesRequest();
+        getAllInstancesRequest.setNamespace(namespace);
+        getAllInstancesRequest.setService(service);
+        InstancesResponse allInstancesResp = CONSUMER_API.getAllInstance(getAllInstancesRequest);
+        return allInstancesResp.toServiceInstances();
+    }
 
     /**
      * 调用CONSUMER_API上报服务请求结果
@@ -221,11 +246,11 @@ public class PolarisUtil {
         serviceCallResult.setHost(url.getHost());
         serviceCallResult.setPort(url.getPort());
         serviceCallResult.setDelay(delay);
-        serviceCallResult.setRetStatus(null == throwable ? RetStatus.RetSuccess : RetStatus.RetFail);
-        serviceCallResult.setRetCode(null != result ? 200 : -1);
+        serviceCallResult.setRetStatus((null == throwable && null != result && !result.hasException()) ? RetStatus.RetSuccess : RetStatus.RetFail);
+        serviceCallResult.setRetCode((null == throwable && null != result && !result.hasException()) ? 200 : -1);
         try {
             CONSUMER_API.updateServiceCallResult(serviceCallResult);
-            LOGGER.info("success to call updateServiceCallResult");
+            LOGGER.info("success to call updateServiceCallResult, status:{}", serviceCallResult.getRetStatus());
         } catch (PolarisException e) {
             LOGGER.error(e.getMessage());
         }

@@ -5,6 +5,7 @@ import cn.polarismesh.agent.plugin.dubbo2.entity.Properties;
 import cn.polarismesh.agent.plugin.dubbo2.utils.PolarisUtil;
 import cn.polarismesh.agent.plugin.dubbo2.utils.StringUtil;
 import com.tencent.polaris.api.pojo.Instance;
+import com.tencent.polaris.api.pojo.ServiceInstances;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.registry.integration.RegistryDirectory;
 import org.apache.dubbo.rpc.Invocation;
@@ -15,9 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.DEFAULT_NAMESPACE;
-import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.NAMESPACE_KEY;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 继承Dubbo的RegistryDirectory类，重写list方法
@@ -26,6 +26,8 @@ import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.NAME
  */
 public class PolarisDirectory<T> extends RegistryDirectory<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PolarisDirectory.class);
+
+    private final Map<Integer, List<Invoker<T>>> cachedResult = new ConcurrentHashMap<>();
 
     public PolarisDirectory(Class<T> serviceType, URL url) {
         super(serviceType, url);
@@ -44,14 +46,20 @@ public class PolarisDirectory<T> extends RegistryDirectory<T> {
     public List<Invoker<T>> list(Invocation invocation) throws RpcException {
         String namespace = Properties.getInstance().getNamespace();
         String service = invocation.getServiceName();
-        Instance[] instances = PolarisUtil.getTargetInstances(namespace, service);
+        ServiceInstances instances = PolarisUtil.getTargetInstances(namespace, service);
         if (instances == null) {
             LOGGER.error("get polaris instances fail");
             return super.list(invocation);
         }
 
+        // 检查缓存
+        int hashCode = instances.hashCode();
+        if (cachedResult.containsKey(hashCode)) {
+            return cachedResult.get(hashCode);
+        }
+
         List<Invoker<T>> invokers = new ArrayList<>();
-        for (Instance instance : instances) {
+        for (Instance instance : instances.getInstances()) {
             String address = StringUtil.buildAdress(instance.getHost(), instance.getPort());
             Invoker invoker = InvokerMap.get(address);
             if (invoker != null) {
@@ -65,6 +73,7 @@ public class PolarisDirectory<T> extends RegistryDirectory<T> {
             LOGGER.error("invokers build fail, invokers is empty");
             return super.list(invocation);
         }
+        cachedResult.put(hashCode, invokers);
         return invokers;
     }
 }
