@@ -2,11 +2,15 @@ package cn.polarismesh.agent.plugin.dubbo2.interceptor;
 
 import cn.polarismesh.agent.plugin.dubbo2.entity.InvokerMap;
 import org.apache.dubbo.rpc.Invoker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 服务发现拦截器0：记录ip:port与Invoker对象的映射关系
  */
 public class DubboInvokerInterceptor implements AbstractInterceptor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DubboInvokerInterceptor.class);
+
     @Override
     public void before(Object target, Object[] args) {
     }
@@ -25,5 +29,6 @@ public class DubboInvokerInterceptor implements AbstractInterceptor {
         Invoker invoker = (Invoker) result;
         String address = invoker.getUrl().getAddress();
         InvokerMap.put(address, invoker);
+        LOGGER.info("put {} invoker to the map", address);
     }
 }

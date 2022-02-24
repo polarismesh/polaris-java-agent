@@ -15,6 +15,7 @@
     <modules>
         <module>pinpoint-spring-cloud-2021-plugin</module>
         <module>pinpoint-dubbo2-plugin</module>
+        <module>pinpoint-dubbox-plugin</module>
     </modules>
 
     <packaging>pom</packaging>
