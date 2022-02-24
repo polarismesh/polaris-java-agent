@@ -9,11 +9,11 @@ import org.apache.dubbo.rpc.Result;
  * 统计时延信息、上报服务调用结果
  */
 public class DubboInvokeInterceptor implements AbstractInterceptor {
-    private long startTimeMilli;
+    private ThreadLocal<Long> startTimeMilli = new ThreadLocal<>();
 
     @Override
     public void before(Object target, Object[] args) {
-        this.startTimeMilli = System.currentTimeMillis();
+        this.startTimeMilli.set(System.currentTimeMillis());
     }
 
     /**
@@ -27,7 +27,7 @@ public class DubboInvokeInterceptor implements AbstractInterceptor {
      */
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        long delay = System.currentTimeMillis() - this.startTimeMilli;
+        long delay = System.currentTimeMillis() - this.startTimeMilli.get();
         Invocation invocation = (Invocation) args[0];
         URL url = invocation.getInvoker().getUrl();
         PolarisUtil.reportInvokeResult(url, delay, (Result) result, throwable);

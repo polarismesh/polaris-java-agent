@@ -18,12 +18,12 @@ Download the latest `polaris-java-agent-$version.zip` file from [releases](https
     
     |         parameter         |          description          |                       example                        | default | Required |
     | :-----------------------: | :---------------------------: | :--------------------------------------------------: | :-----: | :------: |
-    |         javaagent         | polaris-bootstrap.jar所在路径 | -javaagent:/polaris-java-agent/polaris-bootstrap.jar |  null   | Required |
-    |     Dpinpoint.agentId     |       pinpoint自带参数        |          -Dpinpoint.agentId=dubbo-provider           |  null   | Required |
-    | Dpinpoint.applicationName |       pinpoint自带参数        |         -Dpinpoint.applicationName=PROVIDER          |  null   | Required |
-    |  Dpolaris.server.address  |          polaris地址          |       -Dpolaris.server.address=localhost:8091        |  null   | Required |
-    |    Dpolaris.namespace     |      服务所属的命名空间       |              -Dpolaris.namespace=Dubbo               | default | Optional |
-    |       Dpolaris.ttl        |       服务心跳上报间隔        |                   -Dpolaris.ttl=5                    |    5    | Optional |
+    |         javaagent         | path of polaris-bootstrap.jar | -javaagent:/polaris-java-agent/polaris-bootstrap.jar |  null   | Required |
+    |     Dpinpoint.agentId     |      pinpoint parameter       |          -Dpinpoint.agentId=dubbo-provider           |  null   | Required |
+    | Dpinpoint.applicationName |      pinpoint parameter       |         -Dpinpoint.applicationName=PROVIDER          |  null   | Required |
+    |  Dpolaris.server.address  |        polaris address        |       -Dpolaris.server.address=localhost:8091        |  null   | Required |
+    |    Dpolaris.namespace     |     namespace of service      |              -Dpolaris.namespace=Dubbo               | default | Optional |
+    |       Dpolaris.ttl        |        ttl of hearbeat        |                   -Dpolaris.ttl=5                    |    5    | Optional |
 
 3. start the project
 

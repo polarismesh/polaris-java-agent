@@ -18,5 +18,6 @@
     <modules>
         <module>spring-cloud-2021</module>
         <module>dubbo2</module>
+        <module>dubbox</module>
     </modules>
 </project>
