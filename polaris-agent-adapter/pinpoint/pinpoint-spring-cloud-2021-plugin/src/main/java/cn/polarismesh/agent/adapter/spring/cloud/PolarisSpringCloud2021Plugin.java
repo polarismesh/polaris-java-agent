@@ -59,6 +59,8 @@ public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTe
         transformTemplate.transform("feign.SynchronousMethodHandler", PolarisFeignInvokeTransform.class);
         transformTemplate.transform("org.springframework.web.client.RestTemplate", PolarisRestTemplateInvokeTransform.class);
         transformTemplate.transform("org.springframework.cloud.openfeign.loadbalancer.FeignBlockingLoadBalancerClient", PolarisFeignInvokeStatusTransform.class);
+        transformTemplate.transform("org.springframework.cloud.loadbalancer.cache.DefaultLoadBalancerCacheManager", PolarisCacheManagerTransform.class);
+        transformTemplate.transform("org.springframework.http.client.AbstractClientHttpRequest", PolarisRestTemplateHeadersTransform.class);
         transformTemplate.transform("com.netflix.loadbalancer.LoadBalancerContext", PolarisLoadBalancerTransform.class);
     }
 
@@ -180,7 +182,6 @@ public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTe
                                     Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
                                     byte[] classfileBuffer) throws InstrumentException {
 
-
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
             InstrumentMethod method = target.getDeclaredMethod("handleResponse", "java.net.URI", "org.springframework.http.HttpMethod", "org.springframework.http.client.ClientHttpResponse");
             if (method != null) {
@@ -203,7 +204,44 @@ public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTe
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
             InstrumentMethod method = target.getDeclaredMethod("execute", "feign.Request", "feign.Request$Options");
             if (method != null) {
-                method.addInterceptor(PolarisFeignInvokeStatusInterceptor.class);
+                method.addInterceptor(PolarisFeignExecuteInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+
+    }
+
+    public static class PolarisCacheManagerTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+                                    byte[] classfileBuffer) throws InstrumentException {
+
+
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            InstrumentMethod method = target.getDeclaredMethod("<init>", "org.springframework.cloud.loadbalancer.cache.LoadBalancerCacheProperties", "java.lang.String[]");
+            if (method != null) {
+                method.addInterceptor(PolarisDiscoveryCacheInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+
+    }
+
+    public static class PolarisRestTemplateHeadersTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+                                    byte[] classfileBuffer) throws InstrumentException {
+
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            InstrumentMethod handleResponse = target.getDeclaredMethod("execute");
+            if (handleResponse != null) {
+                handleResponse.addInterceptor(PolarisRestTemplateHeadersInterceptor.class);
             }
 
             return target.toBytecode();

@@ -2,12 +2,16 @@ package cn.polarismesh.agent.core.spring.cloud.context;
 
 import org.springframework.cloud.client.ServiceInstance;
 
+import java.util.Map;
+
 /**
  * 调用上下文
  *
  * @author zhuyuhan
  */
 public class InvokeContext {
+
+    private Map<String, String> metadata;
 
     private ServiceInstance serviceInstance;
 
@@ -27,5 +31,13 @@ public class InvokeContext {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Map<String, String> getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, String> metadata) {
+        this.metadata = metadata;
     }
 }

@@ -1,8 +1,10 @@
 package cn.polarismesh.agent.core.spring.cloud.router;
 
+import cn.polarismesh.agent.core.spring.cloud.context.InvokeContextHolder;
 import cn.polarismesh.agent.core.spring.cloud.context.PolarisAgentProperties;
 import cn.polarismesh.agent.core.spring.cloud.context.factory.PolarisAPIFactory;
 import cn.polarismesh.agent.core.spring.cloud.context.factory.PolarisAgentPropertiesFactory;
+import cn.polarismesh.agent.core.spring.cloud.discovery.PolarisServiceInstance;
 import cn.polarismesh.agent.core.spring.cloud.util.LogUtils;
 import com.tencent.polaris.api.config.consumer.LoadBalanceConfig;
 import com.tencent.polaris.api.config.consumer.ServiceRouterConfig;
@@ -10,7 +12,9 @@ import com.tencent.polaris.api.pojo.Instance;
 import com.tencent.polaris.api.pojo.ServiceInfo;
 import com.tencent.polaris.api.pojo.ServiceInstances;
 import com.tencent.polaris.api.rpc.GetInstancesRequest;
+import com.tencent.polaris.api.rpc.GetOneInstanceRequest;
 import com.tencent.polaris.api.rpc.InstancesResponse;
+import com.tencent.polaris.api.utils.CollectionUtils;
 import com.tencent.polaris.api.utils.StringUtils;
 import com.tencent.polaris.router.api.rpc.ProcessLoadBalanceRequest;
 import com.tencent.polaris.router.api.rpc.ProcessLoadBalanceResponse;
@@ -18,9 +22,11 @@ import com.tencent.polaris.router.api.rpc.ProcessRoutersRequest;
 import com.tencent.polaris.router.api.rpc.ProcessRoutersResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cloud.client.ServiceInstance;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Polaris 服务路由API类
@@ -110,5 +116,42 @@ public class PolarisServiceRouter {
         InstancesResponse response = PolarisAPIFactory.getConsumerApi().getInstances(getInstancesRequest);
         LOGGER.info("success to route by Polaris with instance size:{}", response.getInstances().length);
         return response.toServiceInstances();
+    }
+
+    /**
+     * 利用ConsumerAPI进行路由、负载均衡
+     *
+     * @param service
+     * @return
+     */
+    public static ServiceInstance getOneInstance(String service) {
+        LogUtils.logInvoke(PolarisServiceRouter.class, "getOneInstance");
+        PolarisAgentProperties polarisAgentProperties = PolarisAgentPropertiesFactory.getPolarisAgentProperties();
+        String namespace = polarisAgentProperties.getNamespace();
+
+        GetOneInstanceRequest getOneInstanceRequest = new GetOneInstanceRequest();
+        getOneInstanceRequest.setService(service);
+        getOneInstanceRequest.setNamespace(namespace);
+        String srcNamespace = polarisAgentProperties.getNamespace();
+        String srcService = polarisAgentProperties.getService();
+
+        if (StringUtils.isNotBlank(srcNamespace) || StringUtils.isNotBlank(srcService)) {
+            ServiceInfo sourceService = new ServiceInfo();
+            sourceService.setNamespace(srcNamespace);
+            sourceService.setService(srcService);
+            getOneInstanceRequest.setServiceInfo(sourceService);
+        }
+
+        Map<String, String> metadata = InvokeContextHolder.get().getMetadata();
+        if (metadata != null) {
+            getOneInstanceRequest.setMetadata(metadata);
+        }
+
+        InstancesResponse response = PolarisAPIFactory.getConsumerApi().getOneInstance(getOneInstanceRequest);
+        List<Instance> instances = response.toServiceInstances().getInstances();
+        if (CollectionUtils.isNotEmpty(instances)) {
+            LOGGER.info("success to route and loadBalance by Polaris with instance:{}", instances.get(0));
+        }
+        return new PolarisServiceInstance(instances.get(0));
     }
 }

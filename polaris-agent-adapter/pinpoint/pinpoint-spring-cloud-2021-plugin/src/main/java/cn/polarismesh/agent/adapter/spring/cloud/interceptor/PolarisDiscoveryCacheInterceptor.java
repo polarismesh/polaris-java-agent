@@ -5,11 +5,11 @@ import cn.polarismesh.agent.core.spring.cloud.context.factory.PolarisAgentProper
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 
 /**
- * Polaris feign 服务调用响应状态获取拦截器
+ * Polaris 服务发现缓存管理拦截器
  *
  * @author zhuyuhan
  */
-public class PolarisFeignInvokeStatusInterceptor implements AroundInterceptor {
+public class PolarisDiscoveryCacheInterceptor implements AroundInterceptor {
 
     private final AroundPolarisInterceptor polarisInterceptor = InterceptorFactory.getInterceptor(this.getClass());
 
@@ -19,7 +19,7 @@ public class PolarisFeignInvokeStatusInterceptor implements AroundInterceptor {
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        // do get status interceptor
+        // do invoke interceptor
         polarisInterceptor.afterInterceptor(target, args, result, throwable, PolarisAgentPropertiesFactory.getPolarisAgentProperties());
     }
 }
