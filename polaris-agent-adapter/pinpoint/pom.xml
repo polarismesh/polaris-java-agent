@@ -16,6 +16,7 @@
         <module>pinpoint-spring-cloud-2021-plugin</module>
         <module>pinpoint-dubbo2-plugin</module>
         <module>pinpoint-dubbox-plugin</module>
+        <module>pinpoint-bootstrap</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -86,7 +87,7 @@
                             <Pinpoint-Plugin-Compiler-Version>${jdk.version}</Pinpoint-Plugin-Compiler-Version>
                         </manifestEntries>
                     </archive>
-                    <appendAssemblyId>false</appendAssemblyId>
+                    <!--<appendAssemblyId>false</appendAssemblyId>-->
                 </configuration>
             </plugin>
         </plugins>
