@@ -3,21 +3,23 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>polaris-agent-adapter-pinpoint</artifactId>
+        <artifactId>java-agent</artifactId>
         <groupId>com.tencent.polaris</groupId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>pinpoint-polaris-spring-cloud-2021-plugin</artifactId>
-
-    <name>Polaris Agent Pinpoint Spring Cloud 2021 Plugin</name>
+    <properties>
+        <skip.maven.deploy>true</skip.maven.deploy>
+    </properties>
+    <artifactId>polaris-agent-bootstrap</artifactId>
+    <name>Polaris Agent BootStrap</name>
 
     <dependencies>
         <dependency>
             <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-agent-spring-cloud-2021-plugin</artifactId>
+            <artifactId>polaris-agent-core-common-tools</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
