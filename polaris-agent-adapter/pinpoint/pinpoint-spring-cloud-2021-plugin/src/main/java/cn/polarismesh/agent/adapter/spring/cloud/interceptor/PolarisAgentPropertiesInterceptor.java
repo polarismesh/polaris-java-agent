@@ -1,6 +1,6 @@
 package cn.polarismesh.agent.adapter.spring.cloud.interceptor;
 
-import cn.polarismesh.agent.core.spring.cloud.BeforePolarisInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.AroundPolarisInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 
 /**
@@ -10,10 +10,12 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
  */
 public class PolarisAgentPropertiesInterceptor implements AroundInterceptor {
 
+    private final AroundPolarisInterceptor polarisInterceptor = InterceptorFactory.getInterceptor(this.getClass());
+
     @Override
     public void before(Object target, Object[] args) {
-        BeforePolarisInterceptor beforePolarisInterceptor = new cn.polarismesh.agent.core.spring.cloud.support.PolarisAgentPropertiesInterceptor();
-        beforePolarisInterceptor.beforeInterceptor(target, args, null);
+        // do init
+        polarisInterceptor.beforeInterceptor(target, args, null);
     }
 
     @Override

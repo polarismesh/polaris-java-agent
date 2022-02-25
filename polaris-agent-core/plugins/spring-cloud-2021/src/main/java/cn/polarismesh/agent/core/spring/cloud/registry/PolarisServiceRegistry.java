@@ -169,9 +169,11 @@ public class PolarisServiceRegistry implements ServiceRegistry<Registration>, Re
         heartbeatRequest.setPort(port);
         try {
             heartbeatExecutor.scheduleWithFixedDelay(
-                    () -> PolarisAPIFactory.getProviderApi().heartbeat(heartbeatRequest),
+                    () -> {
+                        PolarisAPIFactory.getProviderApi().heartbeat(heartbeatRequest);
+                        log.info("heartbeat instance, address is {}:{}", host, port);
+                    },
                     ttl, ttl, TimeUnit.SECONDS);
-            log.info("heartbeat instance, address is {}:{}", host, port);
         } catch (PolarisException e) {
             log.error(e.getMessage());
         }
