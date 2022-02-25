@@ -7,7 +7,6 @@ import com.netflix.loadbalancer.AbstractServerList;
 import com.netflix.loadbalancer.Server;
 import com.tencent.polaris.api.pojo.Instance;
 import com.tencent.polaris.api.pojo.ServiceInstances;
-import com.tencent.polaris.api.rpc.InstancesResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,8 +37,7 @@ public class PolarisServerList extends AbstractServerList<Server> {
     }
 
     private List<Server> getServers() {
-        InstancesResponse filteredInstances = polarisDiscoveryHandler.getFilteredInstances(serviceId);
-        ServiceInstances serviceInstances = filteredInstances.toServiceInstances();
+        ServiceInstances serviceInstances = polarisDiscoveryHandler.getFilteredInstances(serviceId);
         List<Server> polarisServers = new ArrayList<>();
         for (Instance instance : serviceInstances.getInstances()) {
             polarisServers.add(new PolarisServer(serviceInstances, instance));

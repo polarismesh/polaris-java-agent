@@ -19,11 +19,15 @@ public class PolarisRegistryInterceptor implements AfterPolarisInterceptor, Regi
 
     @Override
     public void afterInterceptor(Object target, Object[] args, Object result, Throwable throwable, PolarisAgentProperties polarisAgentProperties) {
-        if (target instanceof GenericWebApplicationContext || target instanceof GenericReactiveWebApplicationContext) {
-            LogUtils.logTargetFound(target);
-            PolarisContext polarisContext = new PolarisContext(polarisAgentProperties);
-            initFromContext(polarisContext);
-            interceptorInner();
+        try {
+            if (target instanceof GenericWebApplicationContext || target instanceof GenericReactiveWebApplicationContext) {
+                LogUtils.logTargetFound(target);
+                PolarisContext polarisContext = new PolarisContext(polarisAgentProperties);
+                initFromContext(polarisContext);
+                interceptorInner();
+            }
+        } catch (Throwable e) {
+            LogUtils.logInterceptError("PolarisRegistryInterceptor", e.getMessage());
         }
     }
 

@@ -4,7 +4,6 @@ import cn.polarismesh.agent.core.spring.cloud.util.LogUtils;
 import com.tencent.polaris.api.exception.PolarisException;
 import com.tencent.polaris.api.pojo.Instance;
 import com.tencent.polaris.api.pojo.ServiceInstances;
-import com.tencent.polaris.api.rpc.InstancesResponse;
 import org.springframework.cloud.client.ServiceInstance;
 
 import java.util.ArrayList;
@@ -28,8 +27,7 @@ public class PolarisServiceDiscovery {
     public List<ServiceInstance> getInstances(String serviceId) throws PolarisException {
         LogUtils.logInvoke(this, "getInstances");
         List<ServiceInstance> instances = new ArrayList<>();
-        InstancesResponse filteredInstances = polarisDiscoveryHandler.getFilteredInstances(serviceId);
-        ServiceInstances serviceInstances = filteredInstances.toServiceInstances();
+        ServiceInstances serviceInstances = polarisDiscoveryHandler.getFilteredInstances(serviceId);
         for (Instance instance : serviceInstances.getInstances()) {
             instances.add(new PolarisServiceInstance(instance));
         }

@@ -27,7 +27,8 @@ Download the latest `polaris-java-agent-$version.zip` file from [releases](https
 
 3. start the project
 
-## Example
-```
-java -javaagent:/polaris-java-agent/polaris-bootstrap.jar -Dpinpoint.agentId=dubbo-provider -Dpinpoint.applicationName=PROVIDER -Dpolaris.server.address=localhost:8091 -Dpolaris.namespace=Dubbo -Dpolaris.ttl=5 -jar xxx.jar
-```
+## Examples
+
+A polaris-agent-examples module is included in our project for you to get started with polaris-java-agent quickly. It contains multiple examples, and you can refer to the readme file in the example project for a quick walkthrough.
+
+[QuickStart Example](./polaris-agent-examples/README.md)

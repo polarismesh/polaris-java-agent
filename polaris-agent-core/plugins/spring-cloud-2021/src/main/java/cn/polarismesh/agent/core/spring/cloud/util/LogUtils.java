@@ -21,7 +21,15 @@ public class LogUtils {
     }
 
     public static void logInvoke(Object invoker, String method) {
-        log.info("agent method {} is invoked by {}", method, invoker);
+        log.info("agent method {}() is invoked by {}", method, invoker);
+    }
+
+    public static void logError(String message, Object... objects) {
+        log.error(message, objects);
+    }
+
+    public static void logInterceptError(String interceptor, Object... objects) {
+        log.error(interceptor + " intercept fail with error {}", objects);
     }
 
 }
