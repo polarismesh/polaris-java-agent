@@ -3,7 +3,7 @@ package cn.polarismesh.agent.pinpoint.dubbox.Interceptor;
 import cn.polarismesh.agent.plugin.dubbox.interceptor.AbstractInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 
-public class DubboLoadBalanceInterceptor implements AroundInterceptor {
+public class DubboRegistryInterceptor implements AroundInterceptor {
 
     private AbstractInterceptor interceptor = InterceptorFactory.getInterceptor(this.getClass());
 

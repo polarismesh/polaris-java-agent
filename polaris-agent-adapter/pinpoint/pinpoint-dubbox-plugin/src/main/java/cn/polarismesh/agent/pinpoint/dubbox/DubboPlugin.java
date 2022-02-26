@@ -42,6 +42,8 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addTransformers() {
+        transformTemplate.transform("com.alibaba.dubbo.registry.integration.RegistryProtocol", RegistryProtocolTransform.class);
+
         transformTemplate.transform("com.alibaba.dubbo.rpc.protocol.AbstractProxyProtocol", ProtocolTransform.class);
         transformTemplate.transform("com.alibaba.dubbo.rpc.protocol.dubbo.DubboProtocol", ProtocolTransform.class);
         transformTemplate.transform("com.alibaba.dubbo.rpc.protocol.redis.RedisProtocol", ProtocolTransform.class);
@@ -50,20 +52,27 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.alibaba.dubbo.rpc.protocol.thrift.ThriftProtocol", ProtocolTransform.class);
 
         transformTemplate.transform("com.alibaba.dubbo.rpc.cluster.support.AbstractClusterInvoker", AbstractClusterInvokerTransform.class);
-        transformTemplate.transform("com.alibaba.dubbo.common.extension.ExtensionLoader", ExtensionLoaderTransform.class);
+    }
+
+    public static class RegistryProtocolTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            InstrumentMethod invokeMethod = target.getDeclaredMethod("setRegistryFactory", "com.alibaba.dubbo.registry.RegistryFactory");
+            if (invokeMethod != null) {
+                invokeMethod.addInterceptor(DubboRegistryInterceptor.class);
+            }
+            return target.toBytecode();
+        }
     }
 
     public static class ProtocolTransform implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            InstrumentMethod invokeMethod1 = target.getDeclaredMethod("export", "com.alibaba.dubbo.rpc.Invoker");
-            if (invokeMethod1 != null) {
-                invokeMethod1.addInterceptor(DubboProviderInterceptor.class);
-            }
-            InstrumentMethod invokeMethod2 = target.getDeclaredMethod("refer", "java.lang.Class", "com.alibaba.dubbo.common.URL");
-            if (invokeMethod2 != null) {
-                invokeMethod2.addInterceptor(DubboInvokerInterceptor.class);
+            InstrumentMethod invokeMethod = target.getDeclaredMethod("refer", "java.lang.Class", "com.alibaba.dubbo.common.URL");
+            if (invokeMethod != null) {
+                invokeMethod.addInterceptor(DubboInvokerInterceptor.class);
             }
             return target.toBytecode();
         }
@@ -80,18 +89,6 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
             InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "com.alibaba.dubbo.rpc.Invocation");
             if (invokeMethod != null) {
                 invokeMethod.addInterceptor(DubboInvokeInterceptor.class);
-            }
-            return target.toBytecode();
-        }
-    }
-
-    public static class ExtensionLoaderTransform implements TransformCallback {
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            InstrumentMethod invokeMethod = target.getDeclaredMethod("getExtension", "java.lang.String");
-            if (invokeMethod != null) {
-                invokeMethod.addInterceptor(DubboLoadBalanceInterceptor.class);
             }
             return target.toBytecode();
         }
