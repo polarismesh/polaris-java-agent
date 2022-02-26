@@ -21,6 +21,8 @@ class InterceptorFactory {
         interceptorCache.put(DubboClusterInvokerInterceptor.class, new cn.polarismesh.agent.plugin.dubbo2.interceptor.DubboClusterInvokerInterceptor());
         interceptorCache.put(DubboInvokeInterceptor.class, new cn.polarismesh.agent.plugin.dubbo2.interceptor.DubboInvokeInterceptor());
         interceptorCache.put(DubboRegistryInterceptor.class, new cn.polarismesh.agent.plugin.dubbo2.interceptor.DubboRegistryInterceptor());
+        interceptorCache.put(DubboConfigInterceptor.class, new cn.polarismesh.agent.plugin.dubbo2.interceptor.DubboConfigInterceptor());
+        interceptorCache.put(DubboMetadataInterceptor.class, new cn.polarismesh.agent.plugin.dubbo2.interceptor.DubboMetadataInterceptor());
     }
 
     /**

@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 继承Dubbo的RegistryDirectory类，重写list方法
@@ -26,8 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PolarisDirectory<T> extends RegistryDirectory<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PolarisDirectory.class);
-
-    private final Map<Integer, List<Invoker<T>>> cachedResult = new ConcurrentHashMap<>();
 
     public PolarisDirectory(Class<T> serviceType, URL url) {
         super(serviceType, url);
@@ -52,12 +48,6 @@ public class PolarisDirectory<T> extends RegistryDirectory<T> {
             return super.list(invocation);
         }
 
-        // 检查缓存
-        int hashCode = instances.hashCode();
-        if (cachedResult.containsKey(hashCode)) {
-            return cachedResult.get(hashCode);
-        }
-
         List<Invoker<T>> invokers = new ArrayList<>();
         for (Instance instance : instances.getInstances()) {
             String address = StringUtil.buildAdress(instance.getHost(), instance.getPort());
@@ -73,7 +63,7 @@ public class PolarisDirectory<T> extends RegistryDirectory<T> {
             LOGGER.error("invokers build fail, invokers is empty");
             return super.list(invocation);
         }
-        cachedResult.put(hashCode, invokers);
+
         return invokers;
     }
 }
