@@ -17,7 +17,6 @@ public class Properties {
     private final String address;
     private final String namespace;
     private final int ttl;
-    private final String loadbalance;
 
     private Properties() {
         address = System.getProperty(ADDRESS_KEY, DEFAULT_ADDRESS);
@@ -26,10 +25,9 @@ public class Properties {
         if (StringUtil.isNumeric(ttlStr)) {
             ttl = Integer.parseInt(ttlStr);
         } else {
-            LOGGER.error("invalid ttl value: {}, use default ttl={} instead", ttlStr, DEFAULT_TTL);
+            LOGGER.error("invalid polaris.ttl value: {}, use default polaris.ttl={} instead", ttlStr, DEFAULT_TTL);
             ttl = DEFAULT_TTL;
         }
-        loadbalance = System.getProperty(LOADBALANCE_KEY, DEFAULT_LOADBALANCE);
     }
 
     public static Properties getInstance() {
@@ -46,9 +44,5 @@ public class Properties {
 
     public int getTtl() {
         return ttl;
-    }
-
-    public String getLoadbalance() {
-        return loadbalance;
     }
 }

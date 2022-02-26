@@ -16,10 +16,7 @@
 
 package cn.polarismesh.agent.pinpoint.dubbo2;
 
-import cn.polarismesh.agent.pinpoint.dubbo2.Interceptor.DubboClusterInvokerInterceptor;
-import cn.polarismesh.agent.pinpoint.dubbo2.Interceptor.DubboInvokeInterceptor;
-import cn.polarismesh.agent.pinpoint.dubbo2.Interceptor.DubboInvokerInterceptor;
-import cn.polarismesh.agent.pinpoint.dubbo2.Interceptor.DubboRegistryInterceptor;
+import cn.polarismesh.agent.pinpoint.dubbo2.Interceptor.*;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -45,11 +42,26 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addTransformers() {
+        transformTemplate.transform("org.apache.dubbo.config.context.ConfigManager", ConfigManagerTransform.class);
         transformTemplate.transform("org.apache.dubbo.registry.integration.RegistryProtocol", RegistryProtocolTransform.class);
-
         transformTemplate.transform("org.apache.dubbo.rpc.protocol.AbstractProtocol", AbstractProtocolTransform.class);
-
         transformTemplate.transform("org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker", AbstractClusterInvokerTransform.class);
+    }
+
+    public static class ConfigManagerTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            InstrumentMethod invokeMethod1 = target.getDeclaredMethod("getConfigCenters");
+            if (invokeMethod1 != null) {
+                invokeMethod1.addInterceptor(DubboConfigInterceptor.class);
+            }
+            InstrumentMethod invokeMethod2 = target.getDeclaredMethod("getMetadataConfigs");
+            if (invokeMethod2 != null) {
+                invokeMethod2.addInterceptor(DubboMetadataInterceptor.class);
+            }
+            return target.toBytecode();
+        }
     }
 
     public static class RegistryProtocolTransform implements TransformCallback {

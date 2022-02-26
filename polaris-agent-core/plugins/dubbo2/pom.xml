@@ -19,12 +19,6 @@
     </properties>
 
     <dependencies>
-        <!-- polaris -->
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-all</artifactId>
-        </dependency>
-
         <!-- dubbo2 -->
         <dependency>
             <groupId>org.apache.dubbo</groupId>

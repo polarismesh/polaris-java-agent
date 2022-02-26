@@ -4,12 +4,13 @@ import cn.polarismesh.agent.plugin.dubbox.entity.InvokerMap;
 import cn.polarismesh.agent.plugin.dubbox.entity.Properties;
 import cn.polarismesh.agent.plugin.dubbox.utils.PolarisUtil;
 import cn.polarismesh.agent.plugin.dubbox.utils.StringUtil;
-import com.tencent.polaris.api.pojo.Instance;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.registry.integration.RegistryDirectory;
 import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.RpcException;
+import com.tencent.polaris.api.pojo.Instance;
+import com.tencent.polaris.api.pojo.ServiceInstances;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,14 +42,14 @@ public class PolarisDirectory<T> extends RegistryDirectory<T> {
     public List<Invoker<T>> list(Invocation invocation) throws RpcException {
         String namespace = Properties.getInstance().getNamespace();
         String service = this.getUrl().getServiceInterface();
-        Instance[] instances = PolarisUtil.getTargetInstances(namespace, service);
+        ServiceInstances instances = PolarisUtil.getTargetInstances(namespace, service);
         if (instances == null) {
             LOGGER.error("get polaris instances fail");
             return super.list(invocation);
         }
 
         List<Invoker<T>> invokers = new ArrayList<>();
-        for (Instance instance : instances) {
+        for (Instance instance : instances.getInstances()) {
             String address = StringUtil.buildAdress(instance.getHost(), instance.getPort());
             Invoker invoker = InvokerMap.get(address);
             if (invoker != null) {

@@ -19,12 +19,6 @@
     </properties>
 
     <dependencies>
-        <!-- polaris -->
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-all</artifactId>
-        </dependency>
-
         <!-- dubbo -->
         <dependency>
             <groupId>com.alibaba</groupId>
