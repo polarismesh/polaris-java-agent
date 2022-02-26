@@ -10,8 +10,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>pinpoint-dubbo2-plugin</artifactId>
-    <name>Pinpoint Dubbo2 Plugin</name>
+    <artifactId>pinpoint-polaris-dubbo2-plugin</artifactId>
+    <name>Polaris Agent Pinpoint Dubbo2 Plugin</name>
 
     <dependencies>
         <dependency>

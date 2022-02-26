@@ -9,8 +9,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>common</artifactId>
     <packaging>pom</packaging>
+
+    <artifactId>polaris-agent-core-common</artifactId>
+    <name>Polaris Agent Core Common</name>
+    <modules>
+        <module>common-tools</module>
+    </modules>
 
 </project>

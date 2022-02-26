@@ -10,9 +10,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>pinpoint-spring-cloud-2021-plugin</artifactId>
+    <artifactId>pinpoint-polaris-spring-cloud-2021-plugin</artifactId>
 
-    <name>Pinpoint Spring Cloud 2021 Plugin</name>
+    <name>Polaris Agent Pinpoint Spring Cloud 2021 Plugin</name>
 
     <dependencies>
         <dependency>

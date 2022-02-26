@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>pinpoint-dubbox-plugin</artifactId>
+    <artifactId>pinpoint-polaris-dubbox-plugin</artifactId>
     <name>Pinpoint Dubbox Plugin</name>
 
     <dependencies>

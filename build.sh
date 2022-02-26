@@ -27,8 +27,10 @@ rm -rf "${folder_name}"/plugin/*
 # build with maven
 mvn -B package --file pom.xml
 
-# add plugin
-mv target/* "${folder_name}"/plugin/
+# add plugin and dependencies
+mv target/plugin/* "${folder_name}"/plugin/
+mkdir "${folder_name}"/lib/polaris
+mv target/lib/* "${folder_name}"/lib/polaris
 
 # zip
 zip -r "${package_name}" "${folder_name}"

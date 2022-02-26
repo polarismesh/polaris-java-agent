@@ -21,4 +21,12 @@ public class PolarisServiceConstants {
      * 主机
      */
     public static String HOST;
+
+    public interface HeaderName {
+
+        /**
+         * Polaris Agent路由元信息header key
+         */
+        String METADATA_HEADER = "POLARIS-AGENT";
+    }
 }
