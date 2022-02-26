@@ -27,7 +27,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.DEFAULT_NAMESPACE;
 import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.FILTERED_PARAMS;
 import static org.apache.dubbo.common.constants.CommonConstants.PATH_KEY;
 
@@ -159,7 +158,7 @@ public class PolarisUtil {
     public static void shutdown(URL url) {
         InvokerMap.removeAll();
         HEARTBEAT_EXECUTOR.shutdown();
-        String namespace = url.getParameter("polaris.namespace", DEFAULT_NAMESPACE);
+        String namespace = properties.getNamespace();
         InstanceDeregisterRequest deregisterRequest = new InstanceDeregisterRequest();
         deregisterRequest.setNamespace(namespace);
         deregisterRequest.setService(url.getServiceInterface());
