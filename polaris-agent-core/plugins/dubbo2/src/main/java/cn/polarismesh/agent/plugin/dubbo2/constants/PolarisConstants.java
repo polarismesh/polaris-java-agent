@@ -13,4 +13,5 @@ public class PolarisConstants {
     public static final int DEFAULT_TTL = 5;
 
     public static final String[] FILTERED_PARAMS = {"bind.ip", "bind.port"};
+    public static final String[] FILTERED_PARAMS_IF_EMPTY = {"protocol", "version"};
 }
