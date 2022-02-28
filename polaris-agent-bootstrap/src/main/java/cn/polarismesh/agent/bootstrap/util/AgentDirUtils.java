@@ -32,7 +32,7 @@ public class AgentDirUtils {
         // find boot-strap.jar
         final String bootstrapJarName = findBootstrapJar(bootstrap, classPath);
         if (bootstrapJarName == null) {
-            throw new IllegalStateException(bootstrap.getSimplePattern() + " not found.");
+            throw new IllegalStateException(bootstrap.getSimplePattern() + " not found: classpath " + classPath);
         }
 
         final String agentJarFullPath = parseAgentJarPath(classPath, bootstrapJarName);

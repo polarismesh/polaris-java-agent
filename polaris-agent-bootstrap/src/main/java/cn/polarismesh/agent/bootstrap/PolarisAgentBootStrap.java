@@ -82,11 +82,22 @@ public class PolarisAgentBootStrap {
         if (!loadFileProperties(polarisProperties, defaultConfigPath)) {
             return;
         }
-
-        System.setProperty(AgentConfig.KEY_NAMESPACE, polarisProperties.getProperty(AgentConfig.KEY_NAMESPACE));
-        System.setProperty(AgentConfig.KEY_SERVICE, polarisProperties.getProperty(AgentConfig.KEY_SERVICE));
-        System.setProperty(AgentConfig.KEY_TOKEN, polarisProperties.getProperty(AgentConfig.KEY_TOKEN));
-        System.setProperty(AgentConfig.KEY_REGISTRY, polarisProperties.getProperty(AgentConfig.KEY_REGISTRY));
+        String namespace = polarisProperties.getProperty(AgentConfig.KEY_NAMESPACE);
+        if (null != namespace) {
+            System.setProperty(AgentConfig.KEY_NAMESPACE, namespace);
+        }
+        String service = polarisProperties.getProperty(AgentConfig.KEY_SERVICE);
+        if (null != service) {
+            System.setProperty(AgentConfig.KEY_SERVICE, service);
+        }
+        String token = polarisProperties.getProperty(AgentConfig.KEY_TOKEN);
+        if (null != token) {
+            System.setProperty(AgentConfig.KEY_TOKEN, token);
+        }
+        String registry = polarisProperties.getProperty(AgentConfig.KEY_REGISTRY);
+        if (null != registry) {
+            System.setProperty(AgentConfig.KEY_REGISTRY, registry);
+        }
         System.setProperty(AgentConfig.INTERNAL_KEY_AGENT_DIR, agentDirPath);
 
         // load starter

@@ -32,6 +32,7 @@
         <maven.javadoc.plugin.version>3.2.0</maven.javadoc.plugin.version>
         <maven.shaded.plugin.version>3.2.4</maven.shaded.plugin.version>
         <org.codehaus.mojo.version>3.0.0</org.codehaus.mojo.version>
+        <slf4j.vesion>1.7.30</slf4j.vesion>
     </properties>
 
     <dependencyManagement>
@@ -41,6 +42,12 @@
                 <groupId>com.tencent.polaris</groupId>
                 <artifactId>polaris-all</artifactId>
                 <version>${polaris.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.vesion}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

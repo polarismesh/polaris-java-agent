@@ -1,21 +1,18 @@
 package cn.polarismesh.agent.plugin.dubbox.polaris;
 
 import cn.polarismesh.agent.plugin.dubbox.entity.InvokerMap;
-import cn.polarismesh.agent.plugin.dubbox.entity.Properties;
-import cn.polarismesh.agent.plugin.dubbox.utils.PolarisUtil;
 import cn.polarismesh.agent.plugin.dubbox.utils.StringUtil;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.registry.integration.RegistryDirectory;
 import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.RpcException;
-import com.tencent.polaris.api.pojo.Instance;
-import com.tencent.polaris.api.pojo.ServiceInstances;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 继承Dubbo的RegistryDirectory类，重写list方法
@@ -23,6 +20,7 @@ import java.util.List;
  * @param <T>
  */
 public class PolarisDirectory<T> extends RegistryDirectory<T> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PolarisDirectory.class);
 
     public PolarisDirectory(Class<T> serviceType, URL url) {
@@ -40,29 +38,37 @@ public class PolarisDirectory<T> extends RegistryDirectory<T> {
     @SuppressWarnings("unchecked")
     @Override
     public List<Invoker<T>> list(Invocation invocation) throws RpcException {
-        String namespace = Properties.getInstance().getNamespace();
         String service = this.getUrl().getServiceInterface();
-        ServiceInstances instances = PolarisUtil.getTargetInstances(namespace, service);
-        if (instances == null) {
-            LOGGER.error("get polaris instances fail");
-            return super.list(invocation);
+        Map<String, String> srcLabels = new HashMap<>();
+        if (null != invocation.getAttachments()) {
+            srcLabels.putAll(invocation.getAttachments());
         }
-
+        srcLabels.put("method", invocation.getMethodName());
+        List<?> instances = PolarisSingleton.getPolarisOperation()
+                .getAvailableInstances(service, srcLabels);
         List<Invoker<T>> invokers = new ArrayList<>();
-        for (Instance instance : instances.getInstances()) {
-            String address = StringUtil.buildAdress(instance.getHost(), instance.getPort());
-            Invoker invoker = InvokerMap.get(address);
-            if (invoker != null) {
-                invokers.add(invoker);
-            } else {
-                LOGGER.error("can not find invoker in InvokerMap, address is: {}", address);
+        if (null != instances) {
+            for (Object instance : instances) {
+                String host = PolarisSingleton.getPolarisOperation().getHost(instance);
+                int port = PolarisSingleton.getPolarisOperation().getPort(instance);
+                String address = StringUtil.buildAdress(host, port);
+                Invoker invoker = InvokerMap.get(address);
+                if (invoker != null) {
+                    invokers.add(invoker);
+                } else {
+                    LOGGER.error("can not find invoker in InvokerMap, address is: {}", address);
+                }
             }
         }
-
         if (invokers.isEmpty()) {
             LOGGER.error("invokers build fail, invokers is empty");
             return super.list(invocation);
         }
         return invokers;
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return true;
     }
 }

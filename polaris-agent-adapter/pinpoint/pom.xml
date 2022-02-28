@@ -13,8 +13,8 @@
     <artifactId>polaris-agent-adapter-pinpoint</artifactId>
     <name>Polaris Agent Adapter Pinpoint</name>
     <modules>
-        <module>pinpoint-spring-cloud-2021-plugin</module>
-        <module>pinpoint-dubbo2-plugin</module>
+        <!--<module>pinpoint-spring-cloud-2021-plugin</module>-->
+        <!--<module>pinpoint-dubbo2-plugin</module>-->
         <module>pinpoint-dubbox-plugin</module>
         <module>pinpoint-bootstrap</module>
     </modules>
@@ -83,8 +83,10 @@
                     <outputDirectory>../../../target</outputDirectory>
                     <archive>
                         <manifestEntries>
-                            <Pinpoint-Plugin-Id>${project.groupId}:${project.artifactId}</Pinpoint-Plugin-Id>
-                            <Pinpoint-Plugin-Compiler-Version>${jdk.version}</Pinpoint-Plugin-Compiler-Version>
+                            <Pinpoint-Plugin-Id>${project.groupId}:${project.artifactId}
+                            </Pinpoint-Plugin-Id>
+                            <Pinpoint-Plugin-Compiler-Version>${jdk.version}
+                            </Pinpoint-Plugin-Compiler-Version>
                         </manifestEntries>
                     </archive>
                     <!--<appendAssemblyId>false</appendAssemblyId>-->
