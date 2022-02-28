@@ -22,22 +22,32 @@ public interface AgentConfig {
     /**
      * namespace to register service
      */
-    String KEY_NAMESPACE = "agent.namespace";
+    String KEY_NAMESPACE = "agent.application.namespace";
 
     /**
      * application name
      */
-    String KEY_SERVICE = "agent.service";
+    String KEY_SERVICE = "agent.application.name";
 
     /**
      * token to validata
      */
-    String KEY_TOKEN = "agent.token";
+    String KEY_TOKEN = "agent.application.token";
 
     /**
      * polaris registry address
      */
-    String KEY_REGISTRY = "agent.registry";
+    String KEY_REGISTRY = "agent.polaris.registry";
+
+    /**
+     * polaris healthcheck ttl seconds
+     */
+    String KEY_HEALTH_TTL = "agent.application.healthcheck.ttl";
+
+    /**
+     * application version
+     */
+    String KEY_VERSION = "agent.application.version";
 
     /**
      * agent exec dir

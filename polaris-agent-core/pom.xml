@@ -18,11 +18,4 @@
         <module>common</module>
     </modules>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-all</artifactId>
-        </dependency>
-    </dependencies>
-
 </project>

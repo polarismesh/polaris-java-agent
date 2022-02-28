@@ -2,7 +2,7 @@ name: Release
 
 on:
   release:
-    types: [published]
+    types: [ published ]
 
 jobs:
   build:
@@ -22,7 +22,9 @@ jobs:
       - name: Build
         id: build
         run: |
-          bash ./build.sh ${{ steps.get_version.outputs.VERSION }}
+          pushd polaris-agent-build/bin
+          bash ./build-pinpoint.sh ${{ steps.get_version.outputs.VERSION }}
+          popd
           PACKAGE_NAME=$(ls | grep polaris-java-agent*.zip | sed -n '1p')
           echo ::set-output name=name::${PACKAGE_NAME}
       - name: Upload asset
