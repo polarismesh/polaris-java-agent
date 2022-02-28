@@ -36,3 +36,5 @@ applog/
 ### Maven ignore ###
 .flattened-pom.xml
 dependency-reduced-pom.xml
+
+backup/
