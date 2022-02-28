@@ -24,6 +24,27 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Premain-Class>cn.polarismesh.agent.bootstrap.PolarisAgentBootStrap
+                            </Premain-Class>
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                            <Pinpoint-Version>${project.version}</Pinpoint-Version>
+                            <Boot-Class-Path>${project.build.finalName}.jar</Boot-Class-Path>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>${maven.shaded.plugin.version}</version>
                 <executions>
@@ -51,35 +72,14 @@
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.MF</exclude>
-                                    </excludes>
+                                    <!--                                    <excludes>-->
+                                    <!--                                        <exclude>META-INF/*.MF</exclude>-->
+                                    <!--                                    </excludes>-->
                                 </filter>
                             </filters>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Premain-Class>cn.polarismesh.agent.bootstrap.PolarisAgentBootStrap
-                            </Premain-Class>
-                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
-                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
-                            <Pinpoint-Version>${project.version}</Pinpoint-Version>
-                            <Boot-Class-Path>${project.build.finalName}.jar</Boot-Class-Path>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
             </plugin>
         </plugins>
     </build>

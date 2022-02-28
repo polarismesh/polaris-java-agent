@@ -65,40 +65,40 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>linux_build</id>
-            <activation>
-                <os>
-                    <family>!windows</family>
-                </os>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>${org.codehaus.mojo.version}</version>
-                        <executions>
-                            <execution>
-                                <id>script-chmod</id>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>chmod</executable>
-                                    <arguments>
-                                        <argument>+x</argument>
-                                        <argument>bin/build-pinpoint.sh</argument>
-                                    </arguments>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+    <!--    <profiles>-->
+    <!--        <profile>-->
+    <!--            <id>linux_build</id>-->
+    <!--            <activation>-->
+    <!--                <os>-->
+    <!--                    <family>!windows</family>-->
+    <!--                </os>-->
+    <!--            </activation>-->
+    <!--            <build>-->
+    <!--                <plugins>-->
+    <!--                    <plugin>-->
+    <!--                        <groupId>org.codehaus.mojo</groupId>-->
+    <!--                        <artifactId>exec-maven-plugin</artifactId>-->
+    <!--                        <version>${org.codehaus.mojo.version}</version>-->
+    <!--                        <executions>-->
+    <!--                            <execution>-->
+    <!--                                <id>script-chmod</id>-->
+    <!--                                <phase>install</phase>-->
+    <!--                                <goals>-->
+    <!--                                    <goal>exec</goal>-->
+    <!--                                </goals>-->
+    <!--                                <configuration>-->
+    <!--                                    <executable>chmod</executable>-->
+    <!--                                    <arguments>-->
+    <!--                                        <argument>+x</argument>-->
+    <!--                                        <argument>bin/build-pinpoint.sh</argument>-->
+    <!--                                    </arguments>-->
+    <!--                                </configuration>-->
+    <!--                            </execution>-->
+    <!--                        </executions>-->
+    <!--                    </plugin>-->
+    <!--                </plugins>-->
+    <!--            </build>-->
+    <!--        </profile>-->
+    <!--    </profiles>-->
 
 </project>

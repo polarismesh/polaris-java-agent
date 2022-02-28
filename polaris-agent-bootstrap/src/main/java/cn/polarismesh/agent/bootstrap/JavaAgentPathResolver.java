@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  */
 public class JavaAgentPathResolver {
 
-    public static final JarDescription BOOT_JAR_DESC = new JarDescription("polaris-agent-bootstrap", true);
+    public static final JarDescription BOOT_JAR_DESC = new JarDescription("pinpoint-polaris-bootstrap", true);
 
     private final AgentPathFinder[] agentPathFinders;
 

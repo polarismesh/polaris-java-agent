@@ -1,7 +1,6 @@
 package cn.polarismesh.agent.pinpoint.dubbox.Interceptor;
 
 import cn.polarismesh.agent.plugin.dubbox.interceptor.AbstractInterceptor;
-
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
@@ -13,15 +12,19 @@ import java.util.Map;
 import java.util.Objects;
 
 class InterceptorFactory {
+
     private static final Map<Class<?>, AbstractInterceptor> interceptorCache = new HashMap<>();
 
     static {
-        addURLClassloader();
-        interceptorCache.put(DubboInvokerInterceptor.class, new cn.polarismesh.agent.plugin.dubbox.interceptor.DubboInvokerInterceptor());
-        interceptorCache.put(DubboProviderInterceptor.class, new cn.polarismesh.agent.plugin.dubbox.interceptor.DubboProviderInterceptor());
-        interceptorCache.put(DubboClusterInvokerInterceptor.class, new cn.polarismesh.agent.plugin.dubbox.interceptor.DubboClusterInvokerInterceptor());
-        interceptorCache.put(DubboInvokeInterceptor.class, new cn.polarismesh.agent.plugin.dubbox.interceptor.DubboInvokeInterceptor());
-        interceptorCache.put(DubboRegistryInterceptor.class, new cn.polarismesh.agent.plugin.dubbox.interceptor.DubboRegistryInterceptor());
+        //addURLClassloader();
+        interceptorCache.put(DubboInvokerInterceptor.class,
+                new cn.polarismesh.agent.plugin.dubbox.interceptor.DubboInvokerInterceptor());
+        interceptorCache.put(DubboClusterInvokerInterceptor.class,
+                new cn.polarismesh.agent.plugin.dubbox.interceptor.DubboClusterInvokerInterceptor());
+        interceptorCache.put(DubboInvokeInterceptor.class,
+                new cn.polarismesh.agent.plugin.dubbox.interceptor.DubboInvokeInterceptor());
+        interceptorCache.put(DubboRegistryInterceptor.class,
+                new cn.polarismesh.agent.plugin.dubbox.interceptor.DubboRegistryInterceptor());
     }
 
     /**

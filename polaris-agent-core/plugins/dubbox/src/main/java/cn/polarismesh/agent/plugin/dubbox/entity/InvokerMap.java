@@ -1,7 +1,6 @@
 package cn.polarismesh.agent.plugin.dubbox.entity;
 
 import com.alibaba.dubbo.rpc.Invoker;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -9,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 用于在Invoker对象创建的时候记录host:port与Invoker对象的映射关系
  */
 public class InvokerMap {
+
     private static final Map<String, Invoker<?>> map = new ConcurrentHashMap<>();
 
     public static Invoker get(String key) {
