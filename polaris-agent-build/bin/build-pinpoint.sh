@@ -40,12 +40,12 @@ dubbox_jar_name=$(ls -1 | grep pinpoint-polaris-dubbox-plugin | head -1)
 cp "${dubbox_jar_name}" polaris-agent-build/bin/pinpoint-agent-2.3.3/plugin
 
 #copy polaris-all
-pushd polaris-agent-core/common/common-library
+pushd polaris-agent-build
 mvn dependency:copy-dependencies
 cd target/dependency
 polaris_all_jar_name=$(ls -1 | grep polaris-all | head -1)
 popd
-cp "polaris-agent-core/common/common-library/target/dependency/${polaris_all_jar_name}" polaris-agent-build/bin/pinpoint-agent-2.3.3
+cp "polaris-agent-build/target/dependency/${polaris_all_jar_name}" polaris-agent-build/bin/pinpoint-agent-2.3.3
 
 # do package
 cd polaris-agent-build/bin
