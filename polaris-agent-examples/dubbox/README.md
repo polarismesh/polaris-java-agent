@@ -7,7 +7,7 @@
 
 ## 安装调用链组件
 
-需要安装collector-web以及hbase组件，可参考[安装指南](https://github.com/polarismesh/polaris-java-agent/issues/20)
+需要安装collector以及hbase组件，可参考[安装指南](https://github.com/polarismesh/polaris-java-agent/issues/20)
 
 ## 配置java-agent软件包
 
@@ -30,7 +30,12 @@
 
 - 检查服务是否已经注册到北极星：
 
+  通过浏览器打开```https://${北极星服务端IP}:8080```，打开北极星控制台，可以看到demo注册的服务，假如服务下存在健康实例，则证明服务注册成功。
 
+  ![](pic/polaris-server-services.png)    
 
-- 检查调用链数据：
+- 检查调用跟踪：
 
+  通过浏览器打开```https://${collector安装IP}:10010```，选择demo-consumer.default应用，可以看到调用关系拓扑。
+  
+  ![](pic/pinpoint-trace.png)    
