@@ -82,22 +82,10 @@ public class PolarisAgentBootStrap {
         if (!loadFileProperties(polarisProperties, defaultConfigPath)) {
             return;
         }
-        String namespace = polarisProperties.getProperty(AgentConfig.KEY_NAMESPACE);
-        if (null != namespace) {
-            System.setProperty(AgentConfig.KEY_NAMESPACE, namespace);
-        }
-        String service = polarisProperties.getProperty(AgentConfig.KEY_SERVICE);
-        if (null != service) {
-            System.setProperty(AgentConfig.KEY_SERVICE, service);
-        }
-        String token = polarisProperties.getProperty(AgentConfig.KEY_TOKEN);
-        if (null != token) {
-            System.setProperty(AgentConfig.KEY_TOKEN, token);
-        }
-        String registry = polarisProperties.getProperty(AgentConfig.KEY_REGISTRY);
-        if (null != registry) {
-            System.setProperty(AgentConfig.KEY_REGISTRY, registry);
-        }
+        replaceProperty(polarisProperties, AgentConfig.KEY_NAMESPACE);
+        replaceProperty(polarisProperties, AgentConfig.KEY_SERVICE);
+        replaceProperty(polarisProperties, AgentConfig.KEY_TOKEN);
+        replaceProperty(polarisProperties, AgentConfig.KEY_REGISTRY);
         System.setProperty(AgentConfig.INTERNAL_KEY_AGENT_DIR, agentDirPath);
 
         // load starter
@@ -108,6 +96,16 @@ public class PolarisAgentBootStrap {
         }
         logger.info(String.format("[Bootstrap] start bootStrapStarter:%s", starter.name()));
         starter.start(agentDirPath, polarisProperties, agentArgs, instrumentation);
+    }
+
+    private static void replaceProperty(Properties polarisProperties, String key) {
+        String propertyValue = System.getProperty(key);
+        if (null == propertyValue || propertyValue.length() == 0) {
+            String service = polarisProperties.getProperty(key);
+            if (null != service) {
+                System.setProperty(key, service);
+            }
+        }
     }
 
     private static boolean loadFileProperties(Properties properties, String filePath) {

@@ -6,6 +6,7 @@ import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.registry.integration.RegistryDirectory;
 import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
+import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.RpcException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,8 +41,9 @@ public class PolarisDirectory<T> extends RegistryDirectory<T> {
     public List<Invoker<T>> list(Invocation invocation) throws RpcException {
         String service = this.getUrl().getServiceInterface();
         Map<String, String> srcLabels = new HashMap<>();
-        if (null != invocation.getAttachments()) {
-            srcLabels.putAll(invocation.getAttachments());
+        Map<String, String> attachments = RpcContext.getContext().getAttachments();
+        if (null != attachments) {
+            srcLabels.putAll(attachments);
         }
         srcLabels.put("method", invocation.getMethodName());
         List<?> instances = PolarisSingleton.getPolarisOperation()
