@@ -87,6 +87,7 @@ public class PolarisAgentBootStrap {
         replaceProperty(polarisProperties, AgentConfig.KEY_TOKEN);
         replaceProperty(polarisProperties, AgentConfig.KEY_REGISTRY);
         System.setProperty(AgentConfig.INTERNAL_KEY_AGENT_DIR, agentDirPath);
+        System.setProperty(AgentConfig.INTERNAL_POLARIS_LOG_HOME, agentDirPath);
 
         // load starter
         BootStrapStarter starter = loadStarters();
