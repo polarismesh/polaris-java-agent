@@ -21,10 +21,15 @@ echo "workdir is ${workdir}"
 folder_name=polaris-java-agent-"${version}"
 package_name="${folder_name}".zip
 
-# download pinpoint and unzip
+# download pinpoint
 echo "start to download pinpoint-release"
 wget -O pinpoint-agent-2.3.3.tar.gz https://github.com/pinpoint-apm/pinpoint/releases/download/v2.3.3/pinpoint-agent-2.3.3.tar.gz
+
+# clear pinpoint bootstrap
 tar -zxvf pinpoint-agent-2.3.3.tar.gz
+pushd pinpoint-agent-2.3.3
+find ./ -name "pinpoint-bootstrap*.jar" | xargs rm -f
+popd
 
 # copy polaris.config
 echo "start to copy polaris.config"
