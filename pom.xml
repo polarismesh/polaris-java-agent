@@ -202,7 +202,6 @@
         <snapshotRepository>
             <id>nexus-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-
         </snapshotRepository>
         <repository>
             <id>nexus-releases</id>
