@@ -20,11 +20,11 @@ package cn.polarismesh.common.polaris;
 import cn.polarismesh.agent.common.tools.ClassUtils;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,7 +120,7 @@ public class PolarisOperator {
             if (inited.get()) {
                 return;
             }
-            ClassLoader clazzLoader = generatePolarisLoader();
+            ClassLoader clazzLoader = generatePolarisLoader(polarisConfig.getAgentDir());
             clazzLoaderTemplate = new ContextClassLoaderExecuteTemplate(clazzLoader);
             clazzLoaderTemplate.execute("init polaris context", new Callable<Object>() {
                 @Override
@@ -159,28 +159,40 @@ public class PolarisOperator {
         }
     }
 
-    private ClassLoader generatePolarisLoader() {
-        String libPath = polarisConfig.getAgentDir() + File.separator + "lib";
-        String[] polarisAllFiles = (new File(libPath)).list(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.startsWith("polaris-all");
+    public static ClassLoader generatePolarisLoader(String agentDir) {
+        String libPath = agentDir + File.separator + PolarisReflectConst.POLARIS_LIB_DIR;
+        File[] polarisDependencies = (new File(libPath)).listFiles();
+        if (null == polarisDependencies || polarisDependencies.length == 0) {
+            return null;
+        }
+        List<URL> urls = new ArrayList<>();
+        for (File polarisDependency : polarisDependencies) {
+            String filePath = agentDir + File.separator + PolarisReflectConst.POLARIS_LIB_DIR + File.separator
+                    + polarisDependency.getName();
+            if (polarisDependency.isDirectory()) {
+                filePath += File.separator;
             }
-        });
-        if (null == polarisAllFiles || polarisAllFiles.length == 0) {
-            return null;
+            System.out.println("polaris dependency path is " + filePath);
+            URL url = null;
+            try {
+                url = new URL("file:/" + filePath);
+            } catch (MalformedURLException e) {
+                LOGGER.error("fail to convert {} to url", filePath, e);
+                return null;
+            }
+            urls.add(url);
         }
-        String polarisAllPath =
-                polarisConfig.getAgentDir() + File.separator + "lib" + File.separator + polarisAllFiles[0];
-        System.out.println("polaris-all path is " + polarisAllPath);
-        URL polarisAllUrl = null;
-        try {
-            polarisAllUrl = new URL("file:" + polarisAllPath);
-        } catch (MalformedURLException e) {
-            LOGGER.error("fail to convert {} to url", polarisAllPath, e);
-            return null;
-        }
-        return new URLClassLoader(new URL[]{polarisAllUrl}, Object.class.getClassLoader());
+        ClassLoader clazzLoader = new URLClassLoader(urls.toArray(new URL[0]), Object.class.getClassLoader());
+//        InputStream logbackStream = clazzLoader.getResourceAsStream("logback.xml");
+//        System.out.println("polaris logback xml is " + logbackStream);
+//        Class<?> aClass = null;
+//        try {
+//            aClass = clazzLoader.loadClass(PolarisReflectConst.CLAZZ_FACADE);
+//        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        System.out.println("aClass is " + aClass);
+        return clazzLoader;
     }
 
     /**

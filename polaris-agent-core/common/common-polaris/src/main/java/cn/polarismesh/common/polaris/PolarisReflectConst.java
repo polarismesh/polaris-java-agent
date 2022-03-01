@@ -1,6 +1,10 @@
 package cn.polarismesh.common.polaris;
 
+import java.io.File;
+
 public interface PolarisReflectConst {
+
+    String POLARIS_LIB_DIR = "polaris" + File.separator + "lib";
 
     String CLAZZ_FACADE = "com.tencent.polaris.factory.api.APIFacade";
 

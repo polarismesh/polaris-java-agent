@@ -12,6 +12,9 @@
 
     <artifactId>polaris-agent-build</artifactId>
     <packaging>pom</packaging>
+    <properties>
+        <logback.version>1.2.7</logback.version>
+    </properties>
 
     <repositories>
         <repository>
@@ -41,6 +44,22 @@
         <dependency>
             <groupId>com.tencent.polaris</groupId>
             <artifactId>polaris-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
         </dependency>
     </dependencies>
 
