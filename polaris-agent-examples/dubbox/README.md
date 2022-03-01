@@ -21,7 +21,7 @@
 
 - 增加java-agent启动参数，并启动样例：
   
-  ![](pic/pinpoint-startup.png)
+  ![pinpoint-startup](./pic/pinpoint-startup.png)
   
   - DemoProvider：-javaagent:${java-agent安装目录}/polaris-java-agent-v1.0.0/pinpoint-polaris-bootstrap-1.0.0-SNAPSHOT.jar -Dagent.application.name=demo-provider
   - DemoConsumer：-javaagent:${java-agent安装目录}/polaris-java-agent-v1.0.0/pinpoint-polaris-bootstrap-1.0.0-SNAPSHOT.jar -Dagent.application.name=demo-consumer

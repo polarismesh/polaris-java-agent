@@ -31,4 +31,4 @@ polaris-java-agent通过Java字节码增强技术，将拦截器注入到应用�
 
 ## 使用指南
 
-- [dubbox应用接入](./polaris-agent-examples/README.md)
+- [dubbox应用接入](./polaris-agent-examples/dubbox/README.md)
