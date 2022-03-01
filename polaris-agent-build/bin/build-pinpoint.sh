@@ -53,8 +53,8 @@ popd
 
 #copy polaris dependencies
 echo "start to copy polaris dependencies"
-mkdir -P "${workdir}"/pinpoint-agent-2.3.3/polaris/lib
-mkdir -P "${workdir}"/pinpoint-agent-2.3.3/polaris/log
+mkdir -p "${workdir}"/pinpoint-agent-2.3.3/polaris/lib
+mkdir -p "${workdir}"/pinpoint-agent-2.3.3/polaris/log
 pushd polaris-agent-build
 mvn dependency:copy-dependencies
 pushd target/dependency
