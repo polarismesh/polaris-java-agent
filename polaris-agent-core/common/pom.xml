@@ -16,7 +16,6 @@
     <modules>
         <module>common-tools</module>
         <module>common-polaris</module>
-        <module>common-library</module>
     </modules>
 
 </project>

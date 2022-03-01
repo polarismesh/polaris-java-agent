@@ -12,43 +12,56 @@ else
   version="$currentTimeStamp"
 fi
 
+# workdir root
+cd ../..
+workdir=$(pwd)
+echo "workdir is ${workdir}"
+
 # init variables
 folder_name=polaris-java-agent-"${version}"
 package_name="${folder_name}".zip
 
-# download pinpoint and unzip
+# download pinpoint
 echo "start to download pinpoint-release"
 wget -O pinpoint-agent-2.3.3.tar.gz https://github.com/pinpoint-apm/pinpoint/releases/download/v2.3.3/pinpoint-agent-2.3.3.tar.gz
+
+# clear pinpoint bootstrap
 tar -zxvf pinpoint-agent-2.3.3.tar.gz
+pushd pinpoint-agent-2.3.3
+find ./ -maxdepth 1 -name "pinpoint-bootstrap*.jar" | xargs rm -f
+popd
 
 # copy polaris.config
 echo "start to copy polaris.config"
-cp ../config/polaris.config pinpoint-agent-2.3.3/
+cp polaris-agent-build/config/polaris.config pinpoint-agent-2.3.3/
 
 # build package
 echo "start to build package"
-cd ../..
 mvn -B package --file pom.xml
-cd target
 
 #copy bootstrap
+pushd target
+echo "start to copy bootstrap"
 boot_jar_name=$(ls -1 | grep pinpoint-polaris-bootstrap | head -1)
-cp "${boot_jar_name}" polaris-agent-build/bin/pinpoint-agent-2.3.3
+cp "${boot_jar_name}" "${workdir}"/pinpoint-agent-2.3.3/
 
 #copy plugin
+echo "start to copy plugin"
 dubbox_jar_name=$(ls -1 | grep pinpoint-polaris-dubbox-plugin | head -1)
-cp "${dubbox_jar_name}" polaris-agent-build/bin/pinpoint-agent-2.3.3/plugin
+cp "${dubbox_jar_name}" "${workdir}"/pinpoint-agent-2.3.3/plugin
+popd
 
 #copy polaris-all
-pushd polaris-agent-core/common/common-library
+echo "start to copy polaris-all"
+pushd polaris-agent-build
 mvn dependency:copy-dependencies
-cd target/dependency
+pushd target/dependency
 polaris_all_jar_name=$(ls -1 | grep polaris-all | head -1)
+cp "${polaris_all_jar_name}" "${workdir}"/pinpoint-agent-2.3.3/lib/
 popd
-cp "polaris-agent-core/common/common-library/target/dependency/${polaris_all_jar_name}" polaris-agent-build/bin/pinpoint-agent-2.3.3
+popd
 
 # do package
-cd polaris-agent-build/bin
+echo "start to zip package"
 mv pinpoint-agent-2.3.3 ${folder_name}
 zip -r "${package_name}" "${folder_name}"
-mv "${package_name}" ../../
