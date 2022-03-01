@@ -1,34 +1,32 @@
+
 # polaris-java-agent
 
-English | [简体中文](./README-zh.md)
+README：
 
-polaris-java-agent is the polaris adapter developed using Java agent technology, up to now it can support popular Java frameworks such as `spring cloud 2021` and `Dubbo2`
+- [介绍](#介绍)
+- [使用指南](#使用指南)
 
-## How to use
+## 介绍
 
-Download the latest `polaris-java-agent-$version.zip` file from [releases](https://github.com/polarismesh/polaris-java-agent/releases)
+polaris-java-agent提供无侵入的方式，供Java应用与polaris进行对接，进行服务治理，提供以下功能：
 
-1. unzip file
+- 服务注册发现
+- 动态路由及负载均衡
+- 故障节点熔断
+- 服务限流[开发中]
 
-    ```
-    unzip polaris-java-agent.zip
-    ```
+当前支持基于以下框架开发的Java应用进行接入：
 
-2. add JVM parameters
-    
-    |         parameter         |          description          |                       example                        | default | Required |
-    | :-----------------------: | :---------------------------: | :--------------------------------------------------: | :-----: | :------: |
-    |         javaagent         | path of polaris-bootstrap.jar | -javaagent:/polaris-java-agent/polaris-bootstrap.jar |  null   | Required |
-    |     Dpinpoint.agentId     |      pinpoint parameter       |          -Dpinpoint.agentId=dubbo-provider           |  null   | Required |
-    | Dpinpoint.applicationName |      pinpoint parameter       |         -Dpinpoint.applicationName=PROVIDER          |  null   | Required |
-    |  Dpolaris.server.address  |        polaris address        |       -Dpolaris.server.address=localhost:8091        |  null   | Required |
-    |    Dpolaris.namespace     |     namespace of service      |              -Dpolaris.namespace=Dubbo               | default | Optional |
-    |       Dpolaris.ttl        |        ttl of hearbeat        |                   -Dpolaris.ttl=5                    |    5    | Optional |
+- dubbox(version >= 2.8.4)
+- dubbo(version >= 2.7.0)[开发中]
+- spring-cloud(version >= 2020.0.0)[开发中]
 
-3. start the project
+本文档介绍如何使用polaris-java-agent接入polaris服务治理。
 
-## Examples
+## 技术架构
 
-A polaris-agent-examples module is included in our project for you to get started with polaris-java-agent quickly. It contains multiple examples, and you can refer to the readme file in the example project for a quick walkthrough.
 
-[QuickStart Example](./polaris-agent-examples/README.md)
+
+## 使用指南
+
+- [dubbox应用接入](./polaris-agent-examples/README.md)

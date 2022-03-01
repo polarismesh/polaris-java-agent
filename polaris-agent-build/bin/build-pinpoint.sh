@@ -18,7 +18,7 @@ workdir=$(pwd)
 echo "workdir is ${workdir}"
 
 # init variables
-folder_name=polaris-java-agent-"${version}"
+folder_name=polaris-pinpoint-agent-"${version}"
 package_name="${folder_name}".zip
 
 # download pinpoint
