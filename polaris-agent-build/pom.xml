@@ -13,92 +13,36 @@
     <artifactId>polaris-agent-build</artifactId>
     <packaging>pom</packaging>
 
+    <repositories>
+        <repository>
+            <id>nexus-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+
+        <repository>
+            <id>nexus-releases</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <dependencies>
-        <!-- core -->
         <dependency>
             <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-agent-core-common-tools</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!-- plugins -->
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-agent-dubbo2-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-agent-dubbox-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-agent-spring-cloud-2021-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!-- bootstrap -->
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-agent-bootstrap</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!-- pinpoint adapter -->
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>pinpoint-polaris-bootstrap</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>pinpoint-polaris-dubbo2-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>pinpoint-polaris-dubbox-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>pinpoint-polaris-spring-cloud-2021-plugin</artifactId>
-            <version>${project.version}</version>
+            <artifactId>polaris-all</artifactId>
         </dependency>
     </dependencies>
 
-    <!--    <profiles>-->
-    <!--        <profile>-->
-    <!--            <id>linux_build</id>-->
-    <!--            <activation>-->
-    <!--                <os>-->
-    <!--                    <family>!windows</family>-->
-    <!--                </os>-->
-    <!--            </activation>-->
-    <!--            <build>-->
-    <!--                <plugins>-->
-    <!--                    <plugin>-->
-    <!--                        <groupId>org.codehaus.mojo</groupId>-->
-    <!--                        <artifactId>exec-maven-plugin</artifactId>-->
-    <!--                        <version>${org.codehaus.mojo.version}</version>-->
-    <!--                        <executions>-->
-    <!--                            <execution>-->
-    <!--                                <id>script-chmod</id>-->
-    <!--                                <phase>install</phase>-->
-    <!--                                <goals>-->
-    <!--                                    <goal>exec</goal>-->
-    <!--                                </goals>-->
-    <!--                                <configuration>-->
-    <!--                                    <executable>chmod</executable>-->
-    <!--                                    <arguments>-->
-    <!--                                        <argument>+x</argument>-->
-    <!--                                        <argument>bin/build-pinpoint.sh</argument>-->
-    <!--                                    </arguments>-->
-    <!--                                </configuration>-->
-    <!--                            </execution>-->
-    <!--                        </executions>-->
-    <!--                    </plugin>-->
-    <!--                </plugins>-->
-    <!--            </build>-->
-    <!--        </profile>-->
-    <!--    </profiles>-->
 
 </project>
