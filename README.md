@@ -29,4 +29,4 @@ polaris-java-agent提供无侵入的方式，供Java应用与polaris进行对接
 
 ## 使用指南
 
-- [dubbox应用接入](./polaris-agent-examples/README.md)
+- [dubbox应用接入](./polaris-agent-examples/dubbox/README.md)
