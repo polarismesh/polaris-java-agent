@@ -28,7 +28,7 @@ wget -O pinpoint-agent-2.3.3.tar.gz https://github.com/pinpoint-apm/pinpoint/rel
 # clear pinpoint bootstrap
 tar -zxvf pinpoint-agent-2.3.3.tar.gz
 pushd pinpoint-agent-2.3.3
-find ./ -name "pinpoint-bootstrap*.jar" | xargs rm -f
+find ./ -maxdepth 1 -name "pinpoint-bootstrap*.jar" | xargs rm -f
 popd
 
 # copy polaris.config
