@@ -53,14 +53,14 @@ popd
 
 #copy polaris dependencies
 echo "start to copy polaris dependencies"
-mkdir -p "${workdir}"/pinpoint-agent-2.3.3/polaris/lib
+mkdir -p "${workdir}"/pinpoint-agent-2.3.3/polaris/lib/classes
 mkdir -p "${workdir}"/pinpoint-agent-2.3.3/polaris/log
 pushd polaris-agent-build
 mvn dependency:copy-dependencies
 pushd target/dependency
 cp ./*.jar "${workdir}"/pinpoint-agent-2.3.3/polaris/lib/
 popd
-cp config/logback.xml "${workdir}"/pinpoint-agent-2.3.3/polaris/lib/
+cp config/logback.xml "${workdir}"/pinpoint-agent-2.3.3/polaris/lib/classes/
 popd
 
 # do package
