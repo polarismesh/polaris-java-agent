@@ -25,7 +25,9 @@ polaris-java-agent提供无侵入的方式，供Java应用与polaris进行对接
 
 ## 技术架构
 
+polaris-java-agent通过Java字节码增强技术，将拦截器注入到应用中，实现北极星服务治理能力的对接。
 
+![](pic/arch.png)
 
 ## 使用指南
 
