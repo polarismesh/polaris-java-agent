@@ -19,7 +19,10 @@ package cn.polarismesh.common.polaris;
 
 import cn.polarismesh.agent.common.tools.ClassUtils;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -35,6 +38,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +48,7 @@ public class PolarisOperator {
 
     private static final String[] PARSER_METHOD_NAMES = new String[]{PolarisReflectConst.METHOD_GET_HOST,
             PolarisReflectConst.METHOD_GET_PORT, PolarisReflectConst.METHOD_GET_PROTOCOL,
-            PolarisReflectConst.METHOD_GET_METADATA};
+            PolarisReflectConst.METHOD_GET_METADATA, PolarisReflectConst.METHOD_GET_WEIGHT};
 
     private ContextClassLoaderExecuteTemplate clazzLoaderTemplate;
 
@@ -66,7 +70,7 @@ public class PolarisOperator {
         try {
             clazz = ClassUtils.forName(PolarisReflectConst.CLAZZ_FACADE, clazzLoader);
         } catch (Exception e) {
-            LOGGER.error("fail to resolve clazz {}, classloader {}", PolarisReflectConst.CLAZZ_FACADE,
+            LOGGER.error("[POLARIS] fail to resolve clazz {}, classloader {}", PolarisReflectConst.CLAZZ_FACADE,
                     ((URLClassLoader) clazzLoader).getURLs(), e);
             return false;
         }
@@ -74,7 +78,8 @@ public class PolarisOperator {
         methods.put(PolarisReflectConst.METHOD_INIT, initMethod);
 
         Method registerMethod = ClassUtils.getMethod(clazz, PolarisReflectConst.METHOD_REGISTER, String.class,
-                String.class, String.class, int.class, String.class, String.class, Map.class, int.class, String.class);
+                String.class, String.class, int.class, String.class, String.class, int.class, Map.class, int.class,
+                String.class);
         methods.put(PolarisReflectConst.METHOD_REGISTER, registerMethod);
 
         Method deregisterMethod = ClassUtils.getMethod(clazz, PolarisReflectConst.METHOD_DEREGISTER, String.class,
@@ -102,7 +107,7 @@ public class PolarisOperator {
         try {
             parserClazz = ClassUtils.forName(PolarisReflectConst.CLAZZ_INSTANCE_PARSER, clazzLoader);
         } catch (Exception e) {
-            LOGGER.error("fail to resolve clazz {}", PolarisReflectConst.CLAZZ_INSTANCE_PARSER, e);
+            LOGGER.error("[POLARIS] fail to resolve clazz {}", PolarisReflectConst.CLAZZ_INSTANCE_PARSER, e);
             return false;
         }
         for (String parserMethod : PARSER_METHOD_NAMES) {
@@ -129,8 +134,15 @@ public class PolarisOperator {
                     if (!initMethodsResult) {
                         return null;
                     }
-                    String configStr = PolarisReflectConst.CONFIG_TEMPLATE
-                            .replace(PolarisReflectConst.PLACE_HOLDER_ADDRESS, polarisConfig.getRegistryAddress());
+                    String configStr = "";
+                    String configTemplate = loadPolarisConfigTemplate();
+                    if (null != configTemplate) {
+                        configStr = configTemplate
+                                .replace(PolarisReflectConst.PLACE_HOLDER_ADDRESS, polarisConfig.getRegistryAddress())
+                                .replace(PolarisReflectConst.PLACE_REFRESH_INTERVAL,
+                                        Integer.toString(polarisConfig.getRefreshInterval()));
+                    }
+                    LOGGER.info("[POLARIS] polaris config is \n{}", configStr);
                     Method initMethod = methods.get(PolarisReflectConst.METHOD_INIT);
                     ReflectionUtils.invokeMethod(initMethod, null, configStr);
                     inited.set(true);
@@ -172,12 +184,11 @@ public class PolarisOperator {
             if (polarisDependency.isDirectory()) {
                 filePath += File.separator;
             }
-            System.out.println("polaris dependency path is " + filePath);
             URL url = null;
             try {
                 url = new URL("file:/" + filePath);
             } catch (MalformedURLException e) {
-                LOGGER.error("fail to convert {} to url", filePath, e);
+                LOGGER.error("[POLARIS] fail to convert {} to url", filePath, e);
                 return null;
             }
             urls.add(url);
@@ -198,24 +209,28 @@ public class PolarisOperator {
     /**
      * 服务注册
      */
-    public void register(String service, String host, int port, String protocol, Map<String, String> metadata) {
+    public void register(String service, String host, int port, String protocol, String version, int weight,
+            Map<String, String> metadata) {
         init();
         if (!inited.get()) {
-            LOGGER.error("fail to register address {}:{} to {}, polaris init failed", host, port, service);
+            LOGGER.error("[POLARIS] fail to register address {}:{} to {}, polaris init failed", host, port, service);
             return;
         }
+        LOGGER.info(
+                "[POLARIS] start to register: service {}, host {}, port {}， protocol {}, version {}, weight {}, metadata {}",
+                service, host, port, protocol, version, weight, metadata);
         clazzLoaderTemplate.execute("register", new Callable<Object>() {
             @Override
             public Object call() throws Exception {
                 String namespace = polarisConfig.getNamespace();
                 int ttl = polarisConfig.getTtl();
                 String token = polarisConfig.getToken();
-                String version = polarisConfig.getVersion();
                 Method registerMethod = methods.get(PolarisReflectConst.METHOD_REGISTER);
                 boolean result = (boolean) ReflectionUtils
                         .invokeMethod(registerMethod, null, namespace,
-                                service, host, port, protocol, version, metadata, ttl,
+                                service, host, port, protocol, version, weight, metadata, ttl,
                                 token);
+                LOGGER.info("register result is {} for service {}", result, service);
                 if (result) {
                     // 注册完成后执行心跳上报
                     LOGGER.info("heartbeat task start, ttl is {}", ttl);
@@ -237,9 +252,10 @@ public class PolarisOperator {
     public void deregister(String service, String host, int port) {
         init();
         if (!inited.get()) {
-            LOGGER.error("fail to deregister address {}:{} to {}, polaris init failed", host, port, service);
+            LOGGER.error("[POLARIS] fail to deregister address {}:{} to {}, polaris init failed", host, port, service);
             return;
         }
+        LOGGER.info("[POLARIS] start to deregister: service {}, host {}, port {}", service, host, port);
         clazzLoaderTemplate.execute("deregister", new Callable<Object>() {
             @Override
             public Object call() throws Exception {
@@ -251,7 +267,9 @@ public class PolarisOperator {
                 String namespace = polarisConfig.getNamespace();
                 String token = polarisConfig.getToken();
                 Method deregisterMethod = methods.get(PolarisReflectConst.METHOD_DEREGISTER);
-                ReflectionUtils.invokeMethod(deregisterMethod, null, namespace, service, host, port, token);
+                boolean result = (boolean) ReflectionUtils
+                        .invokeMethod(deregisterMethod, null, namespace, service, host, port, token);
+                LOGGER.info("[POLARIS] deregister result is {} for service {}", result, service);
                 return null;
             }
         });
@@ -280,7 +298,7 @@ public class PolarisOperator {
     public List<?> getAvailableInstances(String service, Map<String, String> srcLabels) {
         init();
         if (!inited.get()) {
-            LOGGER.error("fail to getInstances {}, polaris init failed", service);
+            LOGGER.error("[POLARIS] fail to getInstances {}, polaris init failed", service);
             return null;
         }
         return (List<?>) clazzLoaderTemplate.execute("getInstances", new Callable<Object>() {
@@ -304,7 +322,7 @@ public class PolarisOperator {
             int code) {
         init();
         if (!inited.get()) {
-            LOGGER.error("fail to getInstances {}, polaris init failed", service);
+            LOGGER.error("[POLARIS] fail to getInstances {}, polaris init failed", service);
             return;
         }
         clazzLoaderTemplate.execute("reportInvokeResult", new Callable<Object>() {
@@ -347,6 +365,17 @@ public class PolarisOperator {
             @Override
             public Object call() throws Exception {
                 Method method = methods.get(PolarisReflectConst.METHOD_GET_PROTOCOL);
+                return ReflectionUtils.invokeMethod(
+                        method, null, instance);
+            }
+        });
+    }
+
+    public int getWeight(Object instance) {
+        return (int) clazzLoaderTemplate.execute("getWeight", new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                Method method = methods.get(PolarisReflectConst.METHOD_GET_WEIGHT);
                 return ReflectionUtils.invokeMethod(
                         method, null, instance);
             }
@@ -399,4 +428,14 @@ public class PolarisOperator {
         }
     }
 
+    public static String loadPolarisConfigTemplate() {
+        ClassLoader classLoader = PolarisOperator.class.getClassLoader();
+        InputStream tmplStream = classLoader.getResourceAsStream(PolarisReflectConst.TEMPLATE_PATH);
+        if (null == tmplStream) {
+            LOGGER.error("[POLARIS] fail to load {}, file not exists", PolarisReflectConst.TEMPLATE_PATH);
+            return null;
+        }
+        return new BufferedReader(new InputStreamReader(tmplStream))
+                .lines().collect(Collectors.joining("\n"));
+    }
 }

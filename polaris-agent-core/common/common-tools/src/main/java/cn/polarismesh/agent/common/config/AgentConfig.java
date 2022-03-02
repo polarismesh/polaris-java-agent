@@ -45,17 +45,8 @@ public interface AgentConfig {
     String KEY_HEALTH_TTL = "agent.application.healthcheck.ttl";
 
     /**
-     * application version
+     * consumer subscribe refresh interval, seconds
      */
-    String KEY_VERSION = "agent.application.version";
+    String KEY_REFRESH_INTERVAL = "agent.consumer.refresh.interval";
 
-    /**
-     * agent exec dir
-     */
-    String INTERNAL_KEY_AGENT_DIR = "internal.agent.dir";
-
-    /**
-     * polaris logging home
-     */
-    String INTERNAL_POLARIS_LOG_HOME = "polaris.logback.home";
 }

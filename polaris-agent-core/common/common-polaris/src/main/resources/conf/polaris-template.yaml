@@ -1,0 +1,13 @@
+global:
+  serverConnector:
+    addresses:
+      - ${POLARIS_ADDRESS}
+  statReporter:
+    enable: false
+    plugin:
+      prometheus:
+        pushgatewayAddress: 127.0.0.1:9090
+        pushInterval: 10s
+consumer:
+  localCache:
+    serviceRefreshInterval: ${REFRESH_INTERVAL}s

@@ -18,6 +18,7 @@
 package cn.polarismesh.common.polaris;
 
 import cn.polarismesh.agent.common.config.AgentConfig;
+import cn.polarismesh.agent.common.config.InternalConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,8 @@ public class PolarisConfig {
 
     private static final int DEFAULT_TTL = 5;
 
+    private static final int DEFAULT_REFRESH_INTERVAL = 2;
+
     private final String namespace;
 
     private final String service;
@@ -37,11 +40,11 @@ public class PolarisConfig {
 
     private final String token;
 
-    private final String version;
-
     private final String agentDir;
 
     private final int ttl;
+
+    private final int refreshInterval;
 
     public PolarisConfig() {
         String namespaceStr = System.getProperty(AgentConfig.KEY_NAMESPACE);
@@ -50,10 +53,9 @@ public class PolarisConfig {
         }
         this.namespace = namespaceStr;
         this.service = System.getProperty(AgentConfig.KEY_SERVICE);
-        this.version = System.getProperty(AgentConfig.KEY_VERSION);
         this.token = System.getProperty(AgentConfig.KEY_TOKEN);
         this.registryAddress = System.getProperty(AgentConfig.KEY_REGISTRY);
-        this.agentDir = System.getProperty(AgentConfig.INTERNAL_KEY_AGENT_DIR);
+        this.agentDir = System.getProperty(InternalConfig.INTERNAL_KEY_AGENT_DIR);
         int healthTTL = DEFAULT_TTL;
         String ttlStr = System.getProperty(AgentConfig.KEY_HEALTH_TTL);
         if (null != ttlStr && ttlStr.length() > 0) {
@@ -64,6 +66,17 @@ public class PolarisConfig {
             }
         }
         this.ttl = healthTTL;
+
+        int refreshInterval = DEFAULT_REFRESH_INTERVAL;
+        String refreshIntervalStr = System.getProperty(AgentConfig.KEY_REFRESH_INTERVAL);
+        if (null != refreshIntervalStr && refreshIntervalStr.length() > 0) {
+            try {
+                refreshInterval = Integer.parseInt(refreshIntervalStr);
+            } catch (Exception e) {
+                LOG.info("[Common] fail to convert refreshIntervalStr {}", refreshIntervalStr, e);
+            }
+        }
+        this.refreshInterval = refreshInterval;
         LOG.info("[Common] construct polarisConfig, namespace {}, service {}, registryAddress {}, agentDir {}",
                 namespace, service, registryAddress, agentDir);
 
@@ -93,7 +106,7 @@ public class PolarisConfig {
         return ttl;
     }
 
-    public String getVersion() {
-        return version;
+    public int getRefreshInterval() {
+        return refreshInterval;
     }
 }
