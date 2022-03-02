@@ -129,7 +129,7 @@ public class PolarisRegistry extends FailbackRegistry {
             List<?> instances = PolarisSingleton.getPolarisOperation().getAvailableInstances(service, null);
             if (null != instances) {
                 // 刷新invoker信息
-                LOGGER.info("[POLARIS] update instances count: {}, service: {}", instances.size(), service);
+                LOGGER.debug("[POLARIS] update instances count: {}, service: {}", instances.size(), service);
                 List<URL> urls = new ArrayList<>();
                 for (Object instance : instances) {
                     String host = PolarisSingleton.getPolarisOperation().getHost(instance);
