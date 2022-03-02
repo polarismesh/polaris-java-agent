@@ -39,3 +39,33 @@
   通过浏览器打开```https://${collector安装IP}:10010```，选择demo-consumer.default应用，可以看到调用关系拓扑。
   
   ![](pic/pinpoint-trace.png)    
+
+## 路由熔断
+
+#### 路由
+
+1. 启动`dubbo-demo-provider-1`与`dubbo-demo-provider-2`
+
+2. 启动`dubbo-demo-consumer-1`
+
+3. 打开北极星控制台，打开服务名为`com.alibaba.dubbo.demo.bid.BidService`的服务，在路由规则处新建路由规则
+
+    ![](pic/polaris-server-services-routing.png)  
+     
+4. 分别新建路由规则如下：
+
+    ![](pic/polaris-routing-1.png)   
+
+    ![](pic/polaris-routing-2.png)  
+
+5. 观察`consumer`端输出：`v1`请求永远路由至`20880`端口，`v2`请求永远路由至`20890`端口，表示路由规则生效
+
+    ![](pic/polaris-routing-result.png)  
+
+#### 熔断
+
+1. 启动`dubbo-demo-provider-1`与`dubbo-demo-provider-2`
+
+2. 启动`dubbo-demo-consumer-1`
+
+3. 关闭其中一个`provider`，所有请求将会导入另一个`provider`
