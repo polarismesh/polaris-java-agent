@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
  * 服务注册拦截器
  */
 public class DubboRegistryInterceptor implements AbstractInterceptor {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DubboRegistryInterceptor.class);
 
     @Override
@@ -20,7 +21,7 @@ public class DubboRegistryInterceptor implements AbstractInterceptor {
      */
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        LOGGER.info("set {}.registryFactory as PolarisRegistryFactory", target.getClass());
+        LOGGER.info("[POLARIS] set {}.registryFactory as PolarisRegistryFactory", target.getClass());
         ReflectUtil.setValueByFieldName(target, "registryFactory", new PolarisRegistryFactory());
     }
 }

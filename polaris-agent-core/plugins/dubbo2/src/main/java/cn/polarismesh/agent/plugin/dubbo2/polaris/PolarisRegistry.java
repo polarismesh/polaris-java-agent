@@ -1,25 +1,28 @@
 package cn.polarismesh.agent.plugin.dubbo2.polaris;
 
+import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.FILTERED_PARAMS_IF_EMPTY;
+
 import cn.polarismesh.agent.plugin.dubbo2.entity.Properties;
 import cn.polarismesh.agent.plugin.dubbo2.utils.PolarisUtil;
 import com.tencent.polaris.api.exception.PolarisException;
 import com.tencent.polaris.api.pojo.Instance;
 import com.tencent.polaris.api.pojo.ServiceInstances;
 import com.tencent.polaris.api.utils.StringUtils;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.utils.ConcurrentHashSet;
 import org.apache.dubbo.registry.NotifyListener;
 import org.apache.dubbo.registry.support.FailbackRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.FILTERED_PARAMS_IF_EMPTY;
 
 /**
  * 服务注册中心，提供服务注册，服务发现相关功能
@@ -61,7 +64,9 @@ public class PolarisRegistry extends FailbackRegistry {
             return;
         }
         ScheduledExecutorService subscribeExecutor = Executors.newSingleThreadScheduledExecutor();
-        subscribeExecutor.scheduleWithFixedDelay(new PolarisRegistry.SubscribeTask(url, listener, namespace, service), 0, SUBSCRIBE_DELAY, TimeUnit.SECONDS);
+        subscribeExecutor
+                .scheduleWithFixedDelay(new PolarisRegistry.SubscribeTask(url, listener, namespace, service), 0,
+                        SUBSCRIBE_DELAY, TimeUnit.SECONDS);
         SUBSCRIBE_SET.add(service);
         EXECUTOR_MAP.put(url, subscribeExecutor);
     }
@@ -91,7 +96,7 @@ public class PolarisRegistry extends FailbackRegistry {
 
         @Override
         public void run() {
-            LOGGER.info("[polaris] update instances info, namespace: {}, service: {}", namespace, service);
+            LOGGER.debug("[polaris] update instances info, namespace: {}, service: {}", namespace, service);
             ServiceInstances serviceInstances;
             try {
                 serviceInstances = PolarisUtil.getAllInstances(namespace, service);
@@ -107,7 +112,7 @@ public class PolarisRegistry extends FailbackRegistry {
             // 记录hashCode
             cachedHashCode = serviceInstances.hashCode();
             // 刷新invoker信息
-            LOGGER.info("update instances count: {}", serviceInstances.getInstances().size());
+            LOGGER.debug("update instances count: {}", serviceInstances.getInstances().size());
             List<URL> urls = new ArrayList<>();
             for (Instance instance : serviceInstances.getInstances()) {
                 urls.add(buildURL(instance));

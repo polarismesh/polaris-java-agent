@@ -20,14 +20,6 @@ public interface PolarisReflectConst {
 
     String METHOD_GET_INSTANCES = "getInstances";
 
-    String PLACE_HOLDER_ADDRESS = "${POLARIS_ADDRESS}";
-
-    String CONFIG_TEMPLATE =
-            "global:\n"
-                    + "  serverConnector:\n"
-                    + "    addresses:\n"
-                    + "      - ${POLARIS_ADDRESS}";
-
     String CLAZZ_INSTANCE_PARSER = "com.tencent.polaris.factory.api.APIFacade.InstanceParser";
 
     String METHOD_GET_HOST = "getHost";
@@ -38,5 +30,13 @@ public interface PolarisReflectConst {
 
     String METHOD_GET_METADATA = "getMetadata";
 
+    String METHOD_GET_WEIGHT = "getWeight";
+
     String METHOD_DESTROY = "destroy";
+
+    String TEMPLATE_PATH = "conf/polaris-template.yaml";
+
+    String PLACE_HOLDER_ADDRESS = "${POLARIS_ADDRESS}";
+
+    String PLACE_REFRESH_INTERVAL = "${REFRESH_INTERVAL}";
 }

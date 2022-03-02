@@ -54,7 +54,7 @@ public class PolarisDirectory<T> extends RegistryDirectory<T> {
                 String host = PolarisSingleton.getPolarisOperation().getHost(instance);
                 int port = PolarisSingleton.getPolarisOperation().getPort(instance);
                 String address = StringUtil.buildAdress(host, port);
-                Invoker invoker = InvokerMap.get(address);
+                Invoker<T> invoker = InvokerMap.get(address);
                 if (invoker != null) {
                     invokers.add(invoker);
                 } else {

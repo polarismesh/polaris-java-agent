@@ -21,6 +21,7 @@ import cn.polarismesh.agent.bootstrap.extension.BootStrapStarter;
 import cn.polarismesh.agent.bootstrap.util.AgentDirUtils;
 import cn.polarismesh.agent.bootstrap.util.PropertyUtils;
 import cn.polarismesh.agent.common.config.AgentConfig;
+import cn.polarismesh.agent.common.config.InternalConfig;
 import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
@@ -86,8 +87,10 @@ public class PolarisAgentBootStrap {
         replaceProperty(polarisProperties, AgentConfig.KEY_SERVICE);
         replaceProperty(polarisProperties, AgentConfig.KEY_TOKEN);
         replaceProperty(polarisProperties, AgentConfig.KEY_REGISTRY);
-        System.setProperty(AgentConfig.INTERNAL_KEY_AGENT_DIR, agentDirPath);
-        System.setProperty(AgentConfig.INTERNAL_POLARIS_LOG_HOME, agentDirPath);
+        replaceProperty(polarisProperties, AgentConfig.KEY_REFRESH_INTERVAL);
+        replaceProperty(polarisProperties, AgentConfig.KEY_HEALTH_TTL);
+        System.setProperty(InternalConfig.INTERNAL_KEY_AGENT_DIR, agentDirPath);
+        System.setProperty(InternalConfig.INTERNAL_POLARIS_LOG_HOME, agentDirPath);
 
         // load starter
         BootStrapStarter starter = loadStarters();
