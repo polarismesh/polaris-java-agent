@@ -34,7 +34,7 @@ public class DubboClusterInvokerInterceptor implements AbstractInterceptor {
             return;
         }
         URL url = (URL) args[1];
-        PolarisDirectory newDirectory = new PolarisDirectory<>(RegistryService.class, url);
+        PolarisDirectory newDirectory = new PolarisDirectory<>((RegistryDirectory)args[0],RegistryService.class, url);
         ReflectUtil.setSuperValueByFieldName(target, "directory", newDirectory);
         LOGGER.info("change directory to PolarisDirectory done");
     }
