@@ -42,11 +42,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-all</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-commons</artifactId>
             <scope>provided</scope>
@@ -68,9 +63,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.10</version>
+            <groupId>com.tencent.polaris</groupId>
+            <artifactId>polaris-agent-core-common-polaris</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

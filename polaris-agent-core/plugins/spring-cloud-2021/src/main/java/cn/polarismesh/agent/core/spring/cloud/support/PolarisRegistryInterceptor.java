@@ -2,7 +2,6 @@ package cn.polarismesh.agent.core.spring.cloud.support;
 
 import cn.polarismesh.agent.core.spring.cloud.AfterPolarisInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.context.PolarisAgentProperties;
-import cn.polarismesh.agent.core.spring.cloud.context.PolarisContext;
 import cn.polarismesh.agent.core.spring.cloud.registry.PolarisRegistration;
 import cn.polarismesh.agent.core.spring.cloud.registry.PolarisServiceRegistry;
 import cn.polarismesh.agent.core.spring.cloud.registry.Registry;
@@ -11,7 +10,7 @@ import org.springframework.boot.web.reactive.context.GenericReactiveWebApplicati
 import org.springframework.web.context.support.GenericWebApplicationContext;
 
 /**
- * Polaris Ribbon Server 实现类
+ * Polaris 服务注册 实现类
  */
 public class PolarisRegistryInterceptor implements AfterPolarisInterceptor, Registry {
 
@@ -22,8 +21,7 @@ public class PolarisRegistryInterceptor implements AfterPolarisInterceptor, Regi
         try {
             if (target instanceof GenericWebApplicationContext || target instanceof GenericReactiveWebApplicationContext) {
                 LogUtils.logTargetFound(target);
-                PolarisContext polarisContext = new PolarisContext(polarisAgentProperties);
-                initFromContext(polarisContext);
+                initFromContext(polarisAgentProperties);
                 interceptorInner();
             }
         } catch (Throwable e) {
@@ -41,8 +39,8 @@ public class PolarisRegistryInterceptor implements AfterPolarisInterceptor, Regi
         Runtime.getRuntime().addShutdownHook(new Thread(registry::deregister));
     }
 
-    private void initFromContext(PolarisContext polarisContext) {
-        PolarisRegistration registration = new PolarisRegistration(polarisContext);
+    private void initFromContext(PolarisAgentProperties agentProperties) {
+        PolarisRegistration registration = new PolarisRegistration(agentProperties);
         registry = new PolarisServiceRegistry(registration);
     }
 

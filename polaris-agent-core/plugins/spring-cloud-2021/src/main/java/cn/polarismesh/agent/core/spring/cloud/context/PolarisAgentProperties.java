@@ -1,8 +1,6 @@
 package cn.polarismesh.agent.core.spring.cloud.context;
 
 
-import com.tencent.polaris.api.utils.StringUtils;
-
 /**
  * Polaris服务属性实体类
  *
@@ -44,6 +42,16 @@ public class PolarisAgentProperties {
      * 协议
      */
     private String protocol;
+
+    /**
+     * 版本
+     */
+    private String version;
+
+    /**
+     * 心跳间隔
+     */
+    private Integer ttl;
 
     private PolarisAgentProperties() {
     }
@@ -88,8 +96,18 @@ public class PolarisAgentProperties {
          */
         private String protocol = "grpc";
 
+        /**
+         * 版本
+         */
+        private String version = "1.0.0";
+
+        /**
+         * 心跳间隔
+         */
+        private String ttl = "5";
+
         public Builder withNamespace(String namespace) {
-            if (!StringUtils.isEmpty(namespace)) {
+            if (namespace != null && !"".equals(namespace)) {
                 this.namespace = namespace;
             }
             return this;
@@ -106,7 +124,7 @@ public class PolarisAgentProperties {
         }
 
         public Builder withPort(String port) {
-            if (!StringUtils.isEmpty(port)) {
+            if (port != null && !"".equals(port)) {
                 this.port = port;
             }
             return this;
@@ -123,8 +141,22 @@ public class PolarisAgentProperties {
         }
 
         public Builder withProtocol(String protocol) {
-            if (!StringUtils.isEmpty(protocol)) {
+            if (protocol != null && !"".equals(protocol)) {
                 this.protocol = protocol;
+            }
+            return this;
+        }
+
+        public Builder withVersion(String version) {
+            if (version != null && !"".equals(version)) {
+                this.version = version;
+            }
+            return this;
+        }
+
+        public Builder withTtl(String ttl) {
+            if (ttl != null && !"".equals(ttl)) {
+                this.ttl = ttl;
             }
             return this;
         }
@@ -138,6 +170,8 @@ public class PolarisAgentProperties {
             polarisAgentProperties.setProtocol(this.protocol);
             polarisAgentProperties.setServerAddress(this.serverAddress);
             polarisAgentProperties.setServerToken(this.serverToken);
+            polarisAgentProperties.setVersion(this.version);
+            polarisAgentProperties.setTtl(Integer.valueOf(this.ttl));
             return polarisAgentProperties;
         }
     }
@@ -198,6 +232,22 @@ public class PolarisAgentProperties {
         this.protocol = protocol;
     }
 
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public Integer getTtl() {
+        return ttl;
+    }
+
+    public void setTtl(Integer ttl) {
+        this.ttl = ttl;
+    }
+
     @Override
     public String toString() {
         return "PolarisAgentProperties{" +
@@ -208,6 +258,8 @@ public class PolarisAgentProperties {
                 ", serverToken='" + serverToken + '\'' +
                 ", serverAddress='" + serverAddress + '\'' +
                 ", protocol='" + protocol + '\'' +
+                ", version='" + version + '\'' +
+                ", ttl=" + ttl +
                 '}';
     }
 }

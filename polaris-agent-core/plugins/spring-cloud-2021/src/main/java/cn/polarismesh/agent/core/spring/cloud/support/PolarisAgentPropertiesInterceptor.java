@@ -1,13 +1,11 @@
 package cn.polarismesh.agent.core.spring.cloud.support;
 
+import cn.polarismesh.agent.common.config.AgentConfig;
 import cn.polarismesh.agent.core.spring.cloud.BeforePolarisInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.context.PolarisAgentProperties;
-import cn.polarismesh.agent.core.spring.cloud.context.PolarisContext;
-import cn.polarismesh.agent.core.spring.cloud.context.factory.PolarisAPIFactory;
 import cn.polarismesh.agent.core.spring.cloud.context.factory.PolarisAgentPropertiesFactory;
 import cn.polarismesh.agent.core.spring.cloud.util.HostUtils;
 import cn.polarismesh.agent.core.spring.cloud.util.LogUtils;
-import com.tencent.polaris.api.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.reactive.context.GenericReactiveWebApplicationContext;
@@ -49,16 +47,14 @@ public class PolarisAgentPropertiesInterceptor implements BeforePolarisIntercept
 
             // get init info from system
             String host = HostUtils.getHost();
-            String namespace = System.getProperty("polaris.namespace");
-            String serverAddress = System.getProperty("polaris.server.address");
-            String protocol = System.getProperty("polaris.server.protocol");
+            String namespace = System.getProperty(AgentConfig.KEY_NAMESPACE);
+            String serverAddress = System.getProperty(AgentConfig.KEY_REGISTRY);
+//            String version = System.getProperty(AgentConfig.KEY_VERSION);
+            String ttl = System.getProperty(AgentConfig.KEY_HEALTH_TTL);
+            String token = System.getProperty(AgentConfig.KEY_TOKEN);
             Assert.notNull(serverAddress, "the polaris server address can't be null, please check your polaris agent parameter");
-            if (StringUtils.isEmpty(namespace)) {
+            if (namespace == null || "".equals(namespace)) {
                 log.warn("the input namespace is empty, use 'default' instead");
-            }
-
-            if (StringUtils.isEmpty(protocol)) {
-                log.warn("the input protocol is empty, use 'grpc' instead");
             }
 
             // init polaris config and reserve
@@ -66,16 +62,14 @@ public class PolarisAgentPropertiesInterceptor implements BeforePolarisIntercept
                     PolarisAgentProperties.builder()
                             .withHost(host)
                             .withPort(PORT)
-                            .withProtocol(protocol)
                             .withServerAddress(serverAddress)
                             .withNamespace(namespace)
                             .withService(SERVICE)
+//                            .withVersion(version)
+                            .withServerToken(token)
+                            .withTtl(ttl)
                             .build();
             PolarisAgentPropertiesFactory.setPolarisAgentProperties(polarisAgentProperties);
-
-            // init polarisContext and api
-            PolarisContext polarisContext = new PolarisContext(polarisAgentProperties);
-            PolarisAPIFactory.init(polarisContext);
         }
     }
 }

@@ -1,7 +1,7 @@
 package cn.polarismesh.agent.core.spring.cloud.discovery;
 
-import com.tencent.polaris.api.pojo.Instance;
-import org.apache.commons.lang3.StringUtils;
+import cn.polarismesh.agent.core.spring.cloud.polaris.PolarisSingleton;
+import cn.polarismesh.common.polaris.PolarisOperator;
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 
@@ -13,15 +13,28 @@ import java.util.Map;
  */
 public class PolarisServiceInstance implements ServiceInstance {
 
-    private final Instance instance;
+    private final Object instance;
+
+    private final String serviceId;
+
+    private final String host;
+
+    private final Integer port;
+
+    private final Map<String, String> metadata;
 
     private final boolean isSecure;
 
     private final String scheme;
 
-    public PolarisServiceInstance(Instance instance) {
+    public PolarisServiceInstance(Object instance, String serviceId) {
+        PolarisOperator polarisOperation = PolarisSingleton.getPolarisOperation();
+        this.serviceId = serviceId;
+        this.host = polarisOperation.getHost(instance);
+        this.port = polarisOperation.getPort(instance);
+        this.metadata = polarisOperation.getMetadata(instance);
         this.instance = instance;
-        this.isSecure = StringUtils.equalsIgnoreCase(instance.getProtocol(), "https");
+        this.isSecure = "https".equalsIgnoreCase(polarisOperation.getProtocol(instance));
         if (isSecure) {
             scheme = "https";
         } else {
@@ -29,23 +42,19 @@ public class PolarisServiceInstance implements ServiceInstance {
         }
     }
 
-    public Instance getPolarisInstance() {
-        return instance;
-    }
-
     @Override
     public String getServiceId() {
-        return instance.getService();
+        return serviceId;
     }
 
     @Override
     public String getHost() {
-        return instance.getHost();
+        return host;
     }
 
     @Override
     public int getPort() {
-        return instance.getPort();
+        return port;
     }
 
     @Override
@@ -60,7 +69,7 @@ public class PolarisServiceInstance implements ServiceInstance {
 
     @Override
     public Map<String, String> getMetadata() {
-        return instance.getMetadata();
+        return metadata;
     }
 
     @Override
