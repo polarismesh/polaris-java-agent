@@ -52,6 +52,8 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.alibaba.dubbo.rpc.protocol.thrift.ThriftProtocol", ProtocolTransform.class);
 
         transformTemplate.transform("com.alibaba.dubbo.rpc.cluster.support.AbstractClusterInvoker", AbstractClusterInvokerTransform.class);
+
+        transformTemplate.transform("com.alibaba.dubbo.rpc.protocol.AbstractExporter", AbstractExporterTransform.class);
     }
 
     public static class RegistryProtocolTransform implements TransformCallback {
@@ -89,6 +91,18 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
             InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "com.alibaba.dubbo.rpc.Invocation");
             if (invokeMethod != null) {
                 invokeMethod.addInterceptor(DubboInvokeInterceptor.class);
+            }
+            return target.toBytecode();
+        }
+    }
+
+    public static class AbstractExporterTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            InstrumentMethod constructor = target.getConstructor("com.alibaba.dubbo.rpc.Invoker");
+            if (constructor != null) {
+                constructor.addInterceptor(DubboExporterInterceptor.class);
             }
             return target.toBytecode();
         }

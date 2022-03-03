@@ -20,6 +20,8 @@ public interface PolarisReflectConst {
 
     String METHOD_GET_INSTANCES = "getInstances";
 
+    String METHOD_GET_QUOTA = "getQuota";
+
     String CLAZZ_INSTANCE_PARSER = "com.tencent.polaris.factory.api.APIFacade.InstanceParser";
 
     String METHOD_GET_HOST = "getHost";

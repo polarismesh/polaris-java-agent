@@ -1,6 +1,5 @@
 package cn.polarismesh.agent.plugin.dubbox.polaris;
 
-import cn.polarismesh.agent.plugin.dubbox.entity.InvokerMap;
 import cn.polarismesh.agent.plugin.dubbox.utils.StringUtil;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.registry.integration.RegistryDirectory;
@@ -8,12 +7,13 @@ import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.RpcException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 继承Dubbo的RegistryDirectory类，重写list方法
@@ -23,9 +23,11 @@ import org.slf4j.LoggerFactory;
 public class PolarisDirectory<T> extends RegistryDirectory<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PolarisDirectory.class);
+    private RegistryDirectory<T> originalRegistryDirectory;
 
-    public PolarisDirectory(Class<T> serviceType, URL url) {
+    public PolarisDirectory(RegistryDirectory<T> originalRegistryDirectory, Class<T> serviceType, URL url) {
         super(serviceType, url);
+        this.originalRegistryDirectory = originalRegistryDirectory;
     }
 
     /**
@@ -48,25 +50,35 @@ public class PolarisDirectory<T> extends RegistryDirectory<T> {
         srcLabels.put("method", invocation.getMethodName());
         List<?> instances = PolarisSingleton.getPolarisOperation()
                 .getAvailableInstances(service, srcLabels);
-        List<Invoker<T>> invokers = new ArrayList<>();
+        List<Invoker<T>> newInvokers = new ArrayList<>();
+        //原invoker
+        List<Invoker<T>> originalInvokers = originalRegistryDirectory.doList(invocation);
+        LOGGER.info("[POLARIS] originalInvokers count:{}", originalInvokers.size());
         if (null != instances) {
+            LOGGER.info("[POLARIS] getAvailableInstances count:{}",instances.size());
             for (Object instance : instances) {
                 String host = PolarisSingleton.getPolarisOperation().getHost(instance);
                 int port = PolarisSingleton.getPolarisOperation().getPort(instance);
                 String address = StringUtil.buildAdress(host, port);
-                Invoker<T> invoker = InvokerMap.get(address);
-                if (invoker != null) {
-                    invokers.add(invoker);
+                Invoker<T> newInvoker = null;
+                for(Invoker<T> invoker : originalInvokers) {
+                    if(invoker.getUrl().getAddress().equals(address)) {
+                        newInvoker = invoker;
+                    }
+                }
+//                Invoker<T> invoker = InvokerMap.get(address);
+                if (newInvoker != null) {
+                    newInvokers.add(newInvoker);
                 } else {
                     LOGGER.error("can not find invoker in InvokerMap, address is: {}", address);
                 }
             }
         }
-        if (invokers.isEmpty()) {
+        if (newInvokers.isEmpty()) {
             LOGGER.error("invokers build fail, invokers is empty");
-            return super.list(invocation);
+            return originalRegistryDirectory.list(invocation);
         }
-        return invokers;
+        return newInvokers;
     }
 
     @Override
