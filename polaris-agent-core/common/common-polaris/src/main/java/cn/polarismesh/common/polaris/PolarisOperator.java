@@ -100,6 +100,11 @@ public class PolarisOperator {
                         Map.class);
         methods.put(PolarisReflectConst.METHOD_GET_INSTANCES, getInstancesMethod);
 
+        Method getQuotaMethod = ClassUtils
+                .getMethod(clazz, PolarisReflectConst.METHOD_GET_QUOTA, String.class, String.class, String.class,
+                        Map.class, int.class);
+        methods.put(PolarisReflectConst.METHOD_GET_QUOTA, getQuotaMethod);
+
         Method deleteMethod = ClassUtils.getMethod(clazz, PolarisReflectConst.METHOD_DESTROY);
         methods.put(PolarisReflectConst.METHOD_DESTROY, deleteMethod);
 
@@ -338,6 +343,28 @@ public class PolarisOperator {
         });
     }
 
+    /**
+     * 调用LIMIT_API进行服务限流
+     *
+     * @param count 本次请求的配额
+     * @return 是否通过，为false则需要对本次请求限流
+     */
+    public boolean getQuota(String service, String method, Map<String, String> labels, int count) {
+        init();
+        if (!inited.get()) {
+            LOGGER.error("[POLARIS] fail to get quota, service:{}, method:{}, polaris init failed", service, method);
+            throw new RuntimeException("polaris init failed");
+        }
+        return (boolean) clazzLoaderTemplate.execute("getQuota", new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                String namespace = polarisConfig.getNamespace();
+                Method getQuotaMethod = methods.get(PolarisReflectConst.METHOD_GET_QUOTA);
+                return ReflectionUtils.invokeMethod(getQuotaMethod, null, namespace, service, method, labels, count);
+            }
+        });
+    }
+
     public String getHost(Object instance) {
         return (String) clazzLoaderTemplate.execute("getHost", new Callable<Object>() {
             @Override
@@ -437,5 +464,9 @@ public class PolarisOperator {
         }
         return new BufferedReader(new InputStreamReader(tmplStream))
                 .lines().collect(Collectors.joining("\n"));
+    }
+
+    public PolarisConfig getPolarisConfig(){
+        return polarisConfig;
     }
 }

@@ -40,7 +40,7 @@
   
   ![](pic/pinpoint-trace.png)    
 
-## 路由熔断
+## 路由、熔断、限流
 
 #### 路由
 
@@ -69,3 +69,23 @@
 2. 启动`dubbo-demo-consumer-1`
 
 3. 关闭其中一个`provider`，所有请求将会导入另一个`provider`
+
+#### 限流
+
+1. 启动`dubbo-demo-provider-1`
+
+
+
+2. 打开北极星控制台，打开服务名为`com.alibaba.dubbo.demo.bid.BidService`的服务，在限流规则处新建限流规则
+
+    ![](pic/polaris-server-services-ratelimit.png)  
+    
+3. 新建限流规则，可以根据请求标签进行限流，并设定限流规则，新建规则后即可生效
+
+    ![](pic/polaris-ratelimit.png) 
+    
+4. 可以选择调整`dubbo-demo-consumer-1`中的请求速率，使之匹配或超出限流规则
+
+5. 启动`dubbo-demo-consumer-1`，若请求速率超出限流规则，可以看到相应报错
+
+    ![](pic/polaris-ratelimit-result.png) 
