@@ -92,7 +92,7 @@ public class PolarisOperator {
 
         Method updateMethod = ClassUtils
                 .getMethod(clazz, PolarisReflectConst.METHOD_UPDATE_SERVICE_CALL_RESULT, String.class,
-                        String.class, String.class, int.class, long.class, boolean.class, int.class);
+                        String.class, String.class, String.class, int.class, long.class, boolean.class, int.class);
         methods.put(PolarisReflectConst.METHOD_UPDATE_SERVICE_CALL_RESULT, updateMethod);
 
         Method getInstancesMethod = ClassUtils
@@ -318,7 +318,7 @@ public class PolarisOperator {
      *
      * @param delay 本次服务调用延迟，单位ms
      */
-    public void reportInvokeResult(String service, String host, int port, long delay, boolean success,
+    public void reportInvokeResult(String service, String method, String host, int port, long delay, boolean success,
             int code) {
         init();
         if (!inited.get()) {
@@ -332,7 +332,7 @@ public class PolarisOperator {
                 String namespace = polarisConfig.getNamespace();
                 Method updateMethod = methods.get(PolarisReflectConst.METHOD_UPDATE_SERVICE_CALL_RESULT);
                 ReflectionUtils.invokeMethod(
-                        updateMethod, null, namespace, service, host, port, delay, success, code);
+                        updateMethod, null, namespace, service, method, host, port, delay, success, code);
                 return null;
             }
         });
