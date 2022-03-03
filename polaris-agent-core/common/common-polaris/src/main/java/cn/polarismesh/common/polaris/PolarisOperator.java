@@ -184,30 +184,15 @@ public class PolarisOperator {
         }
         List<URL> urls = new ArrayList<>();
         for (File polarisDependency : polarisDependencies) {
-            String filePath = agentDir + File.separator + PolarisReflectConst.POLARIS_LIB_DIR + File.separator
-                    + polarisDependency.getName();
-            if (polarisDependency.isDirectory()) {
-                filePath += File.separator;
-            }
-            URL url = null;
             try {
-                url = new URL("file:/" + filePath);
+                URL url = polarisDependency.toURI().toURL();
+                urls.add(url);
             } catch (MalformedURLException e) {
-                LOGGER.error("[POLARIS] fail to convert {} to url", filePath, e);
+                LOGGER.error("[POLARIS] fail to convert {} to url", polarisDependency, e);
                 return null;
             }
-            urls.add(url);
         }
         ClassLoader clazzLoader = new URLClassLoader(urls.toArray(new URL[0]), Object.class.getClassLoader());
-//        InputStream logbackStream = clazzLoader.getResourceAsStream("logback.xml");
-//        System.out.println("polaris logback xml is " + logbackStream);
-//        Class<?> aClass = null;
-//        try {
-//            aClass = clazzLoader.loadClass(PolarisReflectConst.CLAZZ_FACADE);
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//        System.out.println("aClass is " + aClass);
         return clazzLoader;
     }
 
@@ -466,7 +451,7 @@ public class PolarisOperator {
                 .lines().collect(Collectors.joining("\n"));
     }
 
-    public PolarisConfig getPolarisConfig(){
+    public PolarisConfig getPolarisConfig() {
         return polarisConfig;
     }
 }
