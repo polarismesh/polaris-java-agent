@@ -43,7 +43,8 @@ mvn -B package --file pom.xml
 pushd target
 echo "start to copy bootstrap"
 boot_jar_name=$(ls -1 | grep pinpoint-polaris-bootstrap | head -1)
-cp "${boot_jar_name}" "${workdir}"/pinpoint-agent-2.3.3/
+mv "${boot_jar_name}" pinpoint-polaris-bootstrap.jar
+cp pinpoint-polaris-bootstrap.jar "${workdir}"/pinpoint-agent-2.3.3/
 
 #copy plugin
 echo "start to copy plugin"

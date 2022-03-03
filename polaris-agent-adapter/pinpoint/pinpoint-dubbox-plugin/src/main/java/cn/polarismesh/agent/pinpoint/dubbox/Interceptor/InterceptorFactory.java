@@ -1,15 +1,8 @@
 package cn.polarismesh.agent.pinpoint.dubbox.Interceptor;
 
 import cn.polarismesh.agent.plugin.dubbox.interceptor.AbstractInterceptor;
-import java.io.File;
-import java.lang.management.ManagementFactory;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 class InterceptorFactory {
 
@@ -26,6 +19,8 @@ class InterceptorFactory {
                 new cn.polarismesh.agent.plugin.dubbox.interceptor.DubboRegistryInterceptor());
         interceptorCache.put(DubboExporterInterceptor.class,
                 new cn.polarismesh.agent.plugin.dubbox.interceptor.DubboExporterInterceptor());
+        interceptorCache.put(DubboUrlInterceptor.class,
+                new cn.polarismesh.agent.plugin.dubbox.interceptor.DubboUrlInterceptor());
     }
 
     static AbstractInterceptor getInterceptor(Class<?> clazz) {
