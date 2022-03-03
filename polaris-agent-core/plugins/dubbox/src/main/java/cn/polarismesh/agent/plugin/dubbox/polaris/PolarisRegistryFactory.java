@@ -2,11 +2,17 @@ package cn.polarismesh.agent.plugin.dubbox.polaris;
 
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.registry.Registry;
-import com.alibaba.dubbo.registry.RegistryFactory;
+import com.alibaba.dubbo.registry.support.AbstractRegistryFactory;
 
-public class PolarisRegistryFactory implements RegistryFactory {
+public class PolarisRegistryFactory extends AbstractRegistryFactory {
+
+//    @Override
+//    public Registry getRegistry(URL url) {
+//        return new PolarisRegistry(url);
+//    }
+
     @Override
-    public Registry getRegistry(URL url) {
+    protected Registry createRegistry(URL url) {
         return new PolarisRegistry(url);
     }
 }
