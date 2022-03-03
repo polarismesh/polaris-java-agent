@@ -30,8 +30,8 @@ public class DubboInvokeInterceptor implements AbstractInterceptor {
         long delay = System.currentTimeMillis() - this.startTimeMilli.get();
         Invocation invocation = (Invocation) args[0];
         URL url = invocation.getInvoker().getUrl();
-        PolarisSingleton.getPolarisOperation().reportInvokeResult(
-                url.getServiceInterface(), url.getHost(), url.getPort(), delay, null == throwable,
-                null != throwable ? -1 : 0);
+        PolarisSingleton.getPolarisOperation()
+                .reportInvokeResult(url.getServiceInterface(), invocation.getMethodName(), url.getHost(), url.getPort(),
+                        delay, null == throwable, null != throwable ? -1 : 0);
     }
 }

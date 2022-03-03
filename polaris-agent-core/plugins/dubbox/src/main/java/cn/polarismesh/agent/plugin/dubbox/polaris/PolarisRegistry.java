@@ -6,10 +6,13 @@ import cn.polarismesh.common.polaris.PolarisConfig;
 import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.common.extension.ExtensionLoader;
+import com.alibaba.dubbo.common.utils.ConcurrentHashSet;
 import com.alibaba.dubbo.registry.NotifyListener;
 import com.alibaba.dubbo.registry.support.FailbackRegistry;
 import com.alibaba.dubbo.rpc.Protocol;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +39,10 @@ public class PolarisRegistry extends FailbackRegistry {
     private final ScheduledExecutorService subscribeExecutor = Executors.newSingleThreadScheduledExecutor();
 
     private final PolarisConfig polarisConfig;
+
+    private final Set<URL> registeredInstances = new ConcurrentHashSet<>();
+
+    private final AtomicBoolean destroyed = new AtomicBoolean(false);
 
     public PolarisRegistry(URL url) {
         super(url);
@@ -69,6 +77,7 @@ public class PolarisRegistry extends FailbackRegistry {
             PolarisSingleton.getPolarisOperation()
                     .register(url.getServiceInterface(), url.getHost(), port, url.getProtocol(), version, weight,
                             metadata);
+            registeredInstances.add(url);
         }
     }
 
@@ -77,15 +86,23 @@ public class PolarisRegistry extends FailbackRegistry {
         LOGGER.info("[POLARIS] unregister service from polaris: {}", url.toString());
         int port = parsePort(url.getProtocol(), url.getPort());
         if (port > 0) {
-            PolarisSingleton.getPolarisOperation().deregister(url.getServiceInterface(), url.getHost(), url.getPort());
+            PolarisSingleton.getPolarisOperation()
+                    .deregister(url.getServiceInterface(), url.getHost(), url.getPort());
+            registeredInstances.remove(url);
         }
     }
 
     @Override
     public void destroy() {
-        super.destroy();
-        subscribeExecutor.shutdown();
-        PolarisSingleton.getPolarisOperation().destroy();
+        if (destroyed.compareAndSet(false, true)) {
+            super.destroy();
+            Collection<URL> urls = Collections.unmodifiableCollection(registeredInstances);
+            for (URL url : urls) {
+                doUnregister(url);
+            }
+            subscribeExecutor.shutdown();
+            PolarisSingleton.getPolarisOperation().destroy();
+        }
     }
 
     @Override
