@@ -16,7 +16,7 @@ class InterceptorFactory {
     private static final Map<Class<?>, AroundPolarisInterceptor> interceptorCache = new HashMap<>();
 
     static {
-        addURLClassloader();
+//        addURLClassloader();
         interceptorCache.put(PolarisAgentPropertiesInterceptor.class, new cn.polarismesh.agent.core.spring.cloud.support.PolarisAgentPropertiesInterceptor());
         interceptorCache.put(PolarisDiscoveryInterceptor.class, new cn.polarismesh.agent.core.spring.cloud.support.PolarisDiscoveryInterceptor());
         interceptorCache.put(PolarisRegistryInterceptor.class, new cn.polarismesh.agent.core.spring.cloud.support.PolarisRegistryInterceptor());
@@ -26,7 +26,6 @@ class InterceptorFactory {
         interceptorCache.put(PolarisFeignExecuteInterceptor.class, new cn.polarismesh.agent.core.spring.cloud.support.PolarisFeignExecuteInterceptor());
         interceptorCache.put(PolarisDiscoveryCacheInterceptor.class, new cn.polarismesh.agent.core.spring.cloud.support.PolarisCacheManagerInterceptor());
         interceptorCache.put(PolarisRestTemplateHeadersInterceptor.class, new cn.polarismesh.agent.core.spring.cloud.support.PolarisRestTemplateHeadersInterceptor());
-//        interceptorCache.put(PolarisRibbonInterceptor.class, new cn.polarismesh.agent.core.spring.cloud.support.PolarisRibbonInterceptor());
     }
 
     /**

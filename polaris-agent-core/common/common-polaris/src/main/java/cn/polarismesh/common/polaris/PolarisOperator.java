@@ -19,6 +19,9 @@ package cn.polarismesh.common.polaris;
 
 import cn.polarismesh.agent.common.tools.ClassUtils;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
@@ -27,20 +30,10 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PolarisOperator {
 
@@ -179,16 +172,11 @@ public class PolarisOperator {
         }
         List<URL> urls = new ArrayList<>();
         for (File polarisDependency : polarisDependencies) {
-            String filePath = agentDir + File.separator + PolarisReflectConst.POLARIS_LIB_DIR + File.separator
-                    + polarisDependency.getName();
-            if (polarisDependency.isDirectory()) {
-                filePath += File.separator;
-            }
             URL url = null;
             try {
-                url = new URL("file:/" + filePath);
+                url = polarisDependency.toURI().toURL();
             } catch (MalformedURLException e) {
-                LOGGER.error("[POLARIS] fail to convert {} to url", filePath, e);
+                LOGGER.error("[POLARIS] fail to convert {} to url", polarisDependency, e);
                 return null;
             }
             urls.add(url);

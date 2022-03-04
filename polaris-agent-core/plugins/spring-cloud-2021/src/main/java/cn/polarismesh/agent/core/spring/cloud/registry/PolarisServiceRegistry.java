@@ -42,7 +42,6 @@ public class PolarisServiceRegistry implements ServiceRegistry<Registration>, Re
             // TODO: 2022/3/1 注册到Polaris上的服务协议
             PolarisSingleton.getPolarisOperation().register(
                     serviceId, polarisRegistration.getHost(), polarisRegistration.getPort(), polarisProperties.getProtocol(), null, 1, null);
-            log.info("Polaris register success with address host:{}, port:{}", polarisRegistration.getHost(), polarisRegistration.getPort());
         } catch (Exception e) {
             log.error("polaris registry, {} register failed...{},", serviceId, polarisRegistration, e);
             rethrowRuntimeException(e);
