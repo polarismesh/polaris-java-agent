@@ -1,5 +1,6 @@
 package cn.polarismesh.agent.core.spring.cloud.router;
 
+import cn.polarismesh.agent.core.spring.cloud.discovery.PolarisServiceDiscovery;
 import org.springframework.cloud.loadbalancer.cache.DefaultLoadBalancerCache;
 
 /**
@@ -8,6 +9,8 @@ import org.springframework.cloud.loadbalancer.cache.DefaultLoadBalancerCache;
  * @author zhuyuhan
  */
 public class PolarisLoadBalancerCache extends DefaultLoadBalancerCache {
+
+    private final PolarisServiceDiscovery polarisServiceDiscovery = new PolarisServiceDiscovery();
 
     public PolarisLoadBalancerCache(String name) {
         super(name);
@@ -23,6 +26,6 @@ public class PolarisLoadBalancerCache extends DefaultLoadBalancerCache {
 
     @Override
     public <T> T get(Object key, Class<T> type) {
-        return (T) (PolarisServiceRouter.getInstances((String) key));
+        return (T) (polarisServiceDiscovery.getInstances((String) key));
     }
 }
