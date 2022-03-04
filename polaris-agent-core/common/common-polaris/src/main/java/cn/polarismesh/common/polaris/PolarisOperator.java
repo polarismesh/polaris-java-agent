@@ -19,9 +19,6 @@ package cn.polarismesh.common.polaris;
 
 import cn.polarismesh.agent.common.tools.ClassUtils;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
@@ -30,10 +27,20 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PolarisOperator {
 
@@ -92,6 +99,11 @@ public class PolarisOperator {
                 .getMethod(clazz, PolarisReflectConst.METHOD_GET_INSTANCES, String.class, String.class, Map.class,
                         Map.class);
         methods.put(PolarisReflectConst.METHOD_GET_INSTANCES, getInstancesMethod);
+
+        Method getQuotaMethod = ClassUtils
+                .getMethod(clazz, PolarisReflectConst.METHOD_GET_QUOTA, String.class, String.class, String.class,
+                        Map.class, int.class);
+        methods.put(PolarisReflectConst.METHOD_GET_QUOTA, getQuotaMethod);
 
         Method deleteMethod = ClassUtils.getMethod(clazz, PolarisReflectConst.METHOD_DESTROY);
         methods.put(PolarisReflectConst.METHOD_DESTROY, deleteMethod);
@@ -172,25 +184,15 @@ public class PolarisOperator {
         }
         List<URL> urls = new ArrayList<>();
         for (File polarisDependency : polarisDependencies) {
-            URL url = null;
             try {
-                url = polarisDependency.toURI().toURL();
+                URL url = polarisDependency.toURI().toURL();
+                urls.add(url);
             } catch (MalformedURLException e) {
                 LOGGER.error("[POLARIS] fail to convert {} to url", polarisDependency, e);
                 return null;
             }
-            urls.add(url);
         }
         ClassLoader clazzLoader = new URLClassLoader(urls.toArray(new URL[0]), Object.class.getClassLoader());
-//        InputStream logbackStream = clazzLoader.getResourceAsStream("logback.xml");
-//        System.out.println("polaris logback xml is " + logbackStream);
-//        Class<?> aClass = null;
-//        try {
-//            aClass = clazzLoader.loadClass(PolarisReflectConst.CLAZZ_FACADE);
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//        System.out.println("aClass is " + aClass);
         return clazzLoader;
     }
 
@@ -326,6 +328,28 @@ public class PolarisOperator {
         });
     }
 
+    /**
+     * 调用LIMIT_API进行服务限流
+     *
+     * @param count 本次请求的配额
+     * @return 是否通过，为false则需要对本次请求限流
+     */
+    public boolean getQuota(String service, String method, Map<String, String> labels, int count) {
+        init();
+        if (!inited.get()) {
+            LOGGER.error("[POLARIS] fail to get quota, service:{}, method:{}, polaris init failed", service, method);
+            throw new RuntimeException("polaris init failed");
+        }
+        return (boolean) clazzLoaderTemplate.execute("getQuota", new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                String namespace = polarisConfig.getNamespace();
+                Method getQuotaMethod = methods.get(PolarisReflectConst.METHOD_GET_QUOTA);
+                return ReflectionUtils.invokeMethod(getQuotaMethod, null, namespace, service, method, labels, count);
+            }
+        });
+    }
+
     public String getHost(Object instance) {
         return (String) clazzLoaderTemplate.execute("getHost", new Callable<Object>() {
             @Override
@@ -425,5 +449,9 @@ public class PolarisOperator {
         }
         return new BufferedReader(new InputStreamReader(tmplStream))
                 .lines().collect(Collectors.joining("\n"));
+    }
+
+    public PolarisConfig getPolarisConfig() {
+        return polarisConfig;
     }
 }
