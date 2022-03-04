@@ -16,12 +16,21 @@
 
 package cn.polarismesh.agent.pinpoint.dubbox;
 
-import cn.polarismesh.agent.pinpoint.dubbox.Interceptor.DubboClusterInvokerInterceptor;
-import cn.polarismesh.agent.pinpoint.dubbox.Interceptor.DubboExporterInterceptor;
-import cn.polarismesh.agent.pinpoint.dubbox.Interceptor.DubboInvokeInterceptor;
-import cn.polarismesh.agent.pinpoint.dubbox.Interceptor.DubboInvokerInterceptor;
-import cn.polarismesh.agent.pinpoint.dubbox.Interceptor.DubboRegistryInterceptor;
-import cn.polarismesh.agent.pinpoint.dubbox.Interceptor.DubboUrlInterceptor;
+import cn.polarismesh.agent.pinpoint.dubbox.Interceptor.*;
+import com.alibaba.dubbo.common.URL;
+import com.alibaba.dubbo.registry.RegistryFactory;
+import com.alibaba.dubbo.registry.integration.RegistryProtocol;
+import com.alibaba.dubbo.rpc.Invocation;
+import com.alibaba.dubbo.rpc.Invoker;
+import com.alibaba.dubbo.rpc.cluster.Directory;
+import com.alibaba.dubbo.rpc.cluster.support.AbstractClusterInvoker;
+import com.alibaba.dubbo.rpc.protocol.AbstractExporter;
+import com.alibaba.dubbo.rpc.protocol.AbstractProxyProtocol;
+import com.alibaba.dubbo.rpc.protocol.dubbo.DubboProtocol;
+import com.alibaba.dubbo.rpc.protocol.injvm.InjvmProtocol;
+import com.alibaba.dubbo.rpc.protocol.memcached.MemcachedProtocol;
+import com.alibaba.dubbo.rpc.protocol.redis.RedisProtocol;
+import com.alibaba.dubbo.rpc.protocol.thrift.ThriftProtocol;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -31,6 +40,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+
 import java.security.ProtectionDomain;
 import java.util.Map;
 
@@ -59,9 +69,9 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.alibaba.dubbo.rpc.protocol.thrift.ThriftProtocol", ProtocolTransform.class);
 
         transformTemplate.transform("com.alibaba.dubbo.rpc.cluster.support.AbstractClusterInvoker",
-                AbstractClusterInvokerTransform.class);
+                ClusterInvokerTransform.class);
 
-        transformTemplate.transform("com.alibaba.dubbo.rpc.protocol.AbstractExporter", AbstractExporterTransform.class);
+        transformTemplate.transform("com.alibaba.dubbo.rpc.protocol.AbstractExporter", ExporterTransform.class);
 
         transformTemplate.transform("com.alibaba.dubbo.common.URL", UrlConstructorTransform.class);
     }
@@ -74,7 +84,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
                 throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             InstrumentMethod invokeMethod = target
-                    .getDeclaredMethod("setRegistryFactory", "com.alibaba.dubbo.registry.RegistryFactory");
+                    .getDeclaredMethod("setRegistryFactory", RegistryFactory.class.getCanonicalName());
             if (invokeMethod != null) {
                 invokeMethod.addInterceptor(DubboRegistryInterceptor.class);
             }
@@ -90,7 +100,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
                 throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             InstrumentMethod invokeMethod = target
-                    .getDeclaredMethod("refer", "java.lang.Class", "com.alibaba.dubbo.common.URL");
+                    .getDeclaredMethod("refer", Class.class.getCanonicalName(), URL.class.getCanonicalName());
             if (invokeMethod != null) {
                 invokeMethod.addInterceptor(DubboInvokerInterceptor.class);
             }
@@ -98,7 +108,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    public static class AbstractClusterInvokerTransform implements TransformCallback {
+    public static class ClusterInvokerTransform implements TransformCallback {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
@@ -106,11 +116,11 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
                 throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             InstrumentMethod constructor = target
-                    .getConstructor("com.alibaba.dubbo.rpc.cluster.Directory", "com.alibaba.dubbo.common.URL");
+                    .getConstructor(Directory.class.getCanonicalName(), URL.class.getCanonicalName());
             if (constructor != null) {
                 constructor.addInterceptor(DubboClusterInvokerInterceptor.class);
             }
-            InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "com.alibaba.dubbo.rpc.Invocation");
+            InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", Invocation.class.getCanonicalName());
             if (invokeMethod != null) {
                 invokeMethod.addInterceptor(DubboInvokeInterceptor.class);
             }
@@ -118,14 +128,14 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    public static class AbstractExporterTransform implements TransformCallback {
+    public static class ExporterTransform implements TransformCallback {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
                 Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            InstrumentMethod constructor = target.getConstructor("com.alibaba.dubbo.rpc.Invoker");
+            InstrumentMethod constructor = target.getConstructor(Invoker.class.getCanonicalName());
             if (constructor != null) {
                 constructor.addInterceptor(DubboExporterInterceptor.class);
             }
