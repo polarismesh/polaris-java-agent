@@ -56,6 +56,9 @@ public class PolarisDirectory<T> extends RegistryDirectory<T> {
             if (ignoreRouteKeys.contains(entry.getKey())) {
                 continue;
             }
+            if (Constants.ANY_VALUE.equals(entry.getValue())) {
+                continue;
+            }
             routeParameters.put(entry.getKey(), entry.getValue());
         }
     }
@@ -86,7 +89,8 @@ public class PolarisDirectory<T> extends RegistryDirectory<T> {
         List<Invoker<T>> originalInvokers = originalRegistryDirectory.doList(invocation);
         LOGGER.debug("[POLARIS] originalInvokers count:{}", originalInvokers.size());
         if (null != instances) {
-            LOGGER.info("[POLARIS] getAvailableInstances count:{}", instances.size());
+            LOGGER.info("[POLARIS] getAvailableInstances count:{}, service {}, labels {}", instances.size(), service,
+                    srcLabels);
             for (Object instance : instances) {
                 String host = PolarisSingleton.getPolarisOperation().getHost(instance);
                 int port = PolarisSingleton.getPolarisOperation().getPort(instance);
