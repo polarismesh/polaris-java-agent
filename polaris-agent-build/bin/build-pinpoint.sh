@@ -52,15 +52,17 @@ cp "${dubbox_jar_name}" "${workdir}"/pinpoint-agent-2.3.3/plugin
 popd
 
 #copy polaris dependencies
-echo "start to copy polaris dependencies"
+echo "start to copy polaris"
 mkdir -p "${workdir}"/pinpoint-agent-2.3.3/polaris/lib/classes
 mkdir -p "${workdir}"/pinpoint-agent-2.3.3/polaris/log
+mkdir -p "${workdir}"/pinpoint-agent-2.3.3/polaris/conf
 pushd polaris-agent-build
 mvn dependency:copy-dependencies
 pushd target/dependency
 cp ./*.jar "${workdir}"/pinpoint-agent-2.3.3/polaris/lib/
 popd
 cp config/logback.xml "${workdir}"/pinpoint-agent-2.3.3/polaris/lib/classes/
+cp config/polaris.yml "${workdir}"/pinpoint-agent-2.3.3/polaris/conf/
 popd
 
 # do package

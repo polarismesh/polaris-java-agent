@@ -19,15 +19,15 @@ package cn.polarismesh.common.polaris;
 
 import cn.polarismesh.agent.common.tools.ClassUtils;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
-import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +38,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +63,7 @@ public class PolarisOperator {
 
     private final Map<InstanceIdentifier, ScheduledFuture<?>> scheduledFutures = new HashMap<>();
 
+
     private boolean initReflectMethods() {
         ClassLoader clazzLoader = Thread.currentThread().getContextClassLoader();
         Class<?> clazz = null;
@@ -74,7 +74,7 @@ public class PolarisOperator {
                     ((URLClassLoader) clazzLoader).getURLs(), e);
             return false;
         }
-        Method initMethod = ClassUtils.getMethod(clazz, PolarisReflectConst.METHOD_INIT, String.class);
+        Method initMethod = ClassUtils.getMethod(clazz, PolarisReflectConst.METHOD_INIT, Object.class);
         methods.put(PolarisReflectConst.METHOD_INIT, initMethod);
 
         Method registerMethod = ClassUtils.getMethod(clazz, PolarisReflectConst.METHOD_REGISTER, String.class,
@@ -119,6 +119,28 @@ public class PolarisOperator {
             Method method = ClassUtils.getMethod(parserClazz, parserMethod, Object.class);
             methods.put(parserMethod, method);
         }
+
+        Class<?> configFactoryClazz = null;
+        try {
+            configFactoryClazz = ClassUtils.forName(PolarisReflectConst.CLAZZ_CONFIG_FACTORY, clazzLoader);
+        } catch (Exception e) {
+            LOGGER.error("[POLARIS] fail to resolve clazz {}", PolarisReflectConst.CLAZZ_CONFIG_FACTORY, e);
+            return false;
+        }
+        Method loadConfigMethod = ClassUtils
+                .getMethod(configFactoryClazz, PolarisReflectConst.METHOD_LOAD_CONFIG, InputStream.class);
+        methods.put(PolarisReflectConst.METHOD_LOAD_CONFIG, loadConfigMethod);
+
+        Class<?> configModifierClazz = null;
+        try {
+            configModifierClazz = ClassUtils.forName(PolarisReflectConst.CLAZZ_CONFIG_MODIFIER, clazzLoader);
+        } catch (Exception e) {
+            LOGGER.error("[POLARIS] fail to resolve clazz {}", PolarisReflectConst.CLAZZ_CONFIG_MODIFIER, e);
+            return false;
+        }
+        Method setAddressesMethod = ClassUtils
+                .getMethod(configModifierClazz, PolarisReflectConst.METHOD_SET_ADDRESSES, Object.class, List.class);
+        methods.put(PolarisReflectConst.METHOD_SET_ADDRESSES, setAddressesMethod);
         return true;
     }
 
@@ -139,23 +161,29 @@ public class PolarisOperator {
                     if (!initMethodsResult) {
                         return null;
                     }
-                    String configStr = "";
-                    String configTemplate = loadPolarisConfigTemplate();
-                    if (null != configTemplate) {
-                        configStr = configTemplate
-                                .replace(PolarisReflectConst.PLACE_HOLDER_ADDRESS, polarisConfig.getRegistryAddress())
-                                .replace(PolarisReflectConst.PLACE_REFRESH_INTERVAL,
-                                        Integer.toString(polarisConfig.getRefreshInterval()));
-                    }
-                    LOGGER.info("[POLARIS] polaris config is \n{}", configStr);
+                    Object sdkConfig = loadPolarisConfig(polarisConfig.getAgentDir());
+                    Method setAddressesMethod = methods.get(PolarisReflectConst.METHOD_SET_ADDRESSES);
+                    ReflectionUtils.invokeMethod(setAddressesMethod, null, sdkConfig,
+                            Collections.singletonList(polarisConfig.getRegistryAddress()));
+                    LOGGER.info("[POLARIS] polaris config is \n{}", sdkConfig);
                     Method initMethod = methods.get(PolarisReflectConst.METHOD_INIT);
-                    ReflectionUtils.invokeMethod(initMethod, null, configStr);
+                    ReflectionUtils.invokeMethod(initMethod, null, sdkConfig);
                     inited.set(true);
                     return null;
                 }
             });
         }
     }
+
+    private Object loadPolarisConfig(String agentDir) throws Exception {
+        String polarisConfigFile = agentDir + File.separator + PolarisReflectConst.POLARIS_CONF_DIR + File.separator
+                + PolarisReflectConst.POLARIS_CONF_FILE;
+        try (InputStream inputStream = new FileInputStream(polarisConfigFile)) {
+            Method loadConfMethod = methods.get(PolarisReflectConst.METHOD_LOAD_CONFIG);
+            return ReflectionUtils.invokeMethod(loadConfMethod, null, inputStream);
+        }
+    }
+
 
     public void destroy() {
         synchronized (lock) {
@@ -438,17 +466,6 @@ public class PolarisOperator {
         public int hashCode() {
             return Objects.hash(service, host, port);
         }
-    }
-
-    public static String loadPolarisConfigTemplate() {
-        ClassLoader classLoader = PolarisOperator.class.getClassLoader();
-        InputStream tmplStream = classLoader.getResourceAsStream(PolarisReflectConst.TEMPLATE_PATH);
-        if (null == tmplStream) {
-            LOGGER.error("[POLARIS] fail to load {}, file not exists", PolarisReflectConst.TEMPLATE_PATH);
-            return null;
-        }
-        return new BufferedReader(new InputStreamReader(tmplStream))
-                .lines().collect(Collectors.joining("\n"));
     }
 
     public PolarisConfig getPolarisConfig() {
