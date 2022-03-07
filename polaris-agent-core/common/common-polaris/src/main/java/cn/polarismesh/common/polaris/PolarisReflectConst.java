@@ -6,9 +6,13 @@ public interface PolarisReflectConst {
 
     String POLARIS_LIB_DIR = "polaris" + File.separator + "lib";
 
+    String POLARIS_CONF_DIR = "polaris" + File.separator + "conf";
+
+    String POLARIS_CONF_FILE = "polaris.yml";
+
     String CLAZZ_FACADE = "com.tencent.polaris.factory.api.APIFacade";
 
-    String METHOD_INIT = "initByConfigText";
+    String METHOD_INIT = "initByConfiguration";
 
     String METHOD_REGISTER = "register";
 
@@ -36,9 +40,12 @@ public interface PolarisReflectConst {
 
     String METHOD_DESTROY = "destroy";
 
-    String TEMPLATE_PATH = "conf/polaris-template.yaml";
+    String CLAZZ_CONFIG_FACTORY = "com.tencent.polaris.factory.ConfigAPIFactory";
 
-    String PLACE_HOLDER_ADDRESS = "${POLARIS_ADDRESS}";
+    String METHOD_LOAD_CONFIG = "loadConfig";
 
-    String PLACE_REFRESH_INTERVAL = "${REFRESH_INTERVAL}";
+    String CLAZZ_CONFIG_MODIFIER = "com.tencent.polaris.factory.api.APIFacade.ConfigurationModifier";
+
+    String METHOD_SET_ADDRESSES = "setAddresses";
+
 }
