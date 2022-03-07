@@ -12,7 +12,7 @@ public interface PolarisReflectConst {
 
     String CLAZZ_FACADE = "com.tencent.polaris.factory.api.APIFacade";
 
-    String METHOD_INIT = "initByConfigText";
+    String METHOD_INIT = "initByConfiguration";
 
     String METHOD_REGISTER = "register";
 
