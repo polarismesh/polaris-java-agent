@@ -14,6 +14,13 @@
     <name>Pinpoint Dubbox Plugin</name>
 
     <dependencies>
+        <!-- dubbo -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo</artifactId>
+            <version>${alibaba.dubbo.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.tencent.polaris</groupId>
             <artifactId>polaris-agent-dubbox-plugin</artifactId>

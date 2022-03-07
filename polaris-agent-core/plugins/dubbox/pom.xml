@@ -14,16 +14,12 @@
 
     <name>Polaris Agent Dubbox Plugin</name>
 
-    <properties>
-        <dubbo.version>2.6.12</dubbo.version>
-    </properties>
-
     <dependencies>
         <!-- dubbo -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>dubbo</artifactId>
-            <version>${dubbo.version}</version>
+            <version>${alibaba.dubbo.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
