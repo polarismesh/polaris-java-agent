@@ -10,7 +10,10 @@ import feign.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Polaris Feign 服务调用响应状态获取拦截类
@@ -23,6 +26,7 @@ public class PolarisFeignExecuteInterceptor implements AroundPolarisInterceptor 
 
     @Override
     public void beforeInterceptor(Object target, Object[] args, PolarisAgentProperties polarisAgentProperties) {
+        InvokeContext invokeContext = InvokeContextHolder.get();
         // add headers to polaris metadata
         if (args[0] instanceof Request) {
             Request request = (Request) args[0];
@@ -33,7 +37,7 @@ public class PolarisFeignExecuteInterceptor implements AroundPolarisInterceptor 
                     metadata.put(header.getKey(), new ArrayList<>(header.getValue()).get(0));
                 }
             }
-            InvokeContextHolder.get().setMetadata(metadata);
+            invokeContext.setMetadata(metadata);
             LOGGER.info("success to set Polaris router metadata from header of Feign");
         }
     }

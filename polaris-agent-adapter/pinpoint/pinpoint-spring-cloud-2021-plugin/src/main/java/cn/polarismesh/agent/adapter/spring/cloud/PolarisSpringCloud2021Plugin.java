@@ -150,6 +150,11 @@ public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTe
                 method.addInterceptor(PolarisFeignInvokeInterceptor.class);
             }
 
+            InstrumentMethod executeAndDecode = target.getDeclaredMethod("executeAndDecode", "feign.RequestTemplate", "feign.Request$Options");
+            if (executeAndDecode != null) {
+                executeAndDecode.addInterceptor(PolarisFeignLabelsInterceptor.class);
+            }
+
             return target.toBytecode();
         }
 
@@ -166,6 +171,11 @@ public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTe
             InstrumentMethod method = target.getDeclaredMethod("handleResponse", "java.net.URI", "org.springframework.http.HttpMethod", "org.springframework.http.client.ClientHttpResponse");
             if (method != null) {
                 method.addInterceptor(PolarisFeignInvokeInterceptor.class);
+            }
+
+            InstrumentMethod doExecute = target.getDeclaredMethod("doExecute", "java.net.URI", "org.springframework.http.HttpMethod", "org.springframework.web.client.RequestCallback", "org.springframework.web.client.ResponseExtractor");
+            if (doExecute != null) {
+                doExecute.addInterceptor(PolarisRestTemplateLabelsInterceptor.class);
             }
 
             return target.toBytecode();
