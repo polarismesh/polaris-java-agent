@@ -4,7 +4,7 @@ global:
     plugin:
       prometheus:
         pushgatewayAddress: 127.0.0.1:9091
-        pushInterval: 10s
+        pushInterval: 30s
 consumer:
   localCache:
     serviceRefreshInterval: 2s
