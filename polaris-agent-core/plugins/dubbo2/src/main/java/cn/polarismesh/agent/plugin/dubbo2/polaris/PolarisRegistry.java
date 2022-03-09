@@ -1,28 +1,26 @@
 package cn.polarismesh.agent.plugin.dubbo2.polaris;
 
-import static cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants.FILTERED_PARAMS_IF_EMPTY;
+import cn.polarismesh.common.polaris.PolarisConfig;
+import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.extension.ExtensionLoader;
+import org.apache.dubbo.common.utils.ConcurrentHashSet;
+import org.apache.dubbo.registry.NotifyListener;
+import org.apache.dubbo.registry.support.FailbackRegistry;
+import org.apache.dubbo.rpc.Protocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import cn.polarismesh.agent.plugin.dubbo2.entity.Properties;
-import cn.polarismesh.agent.plugin.dubbo2.utils.PolarisUtil;
-import com.tencent.polaris.api.exception.PolarisException;
-import com.tencent.polaris.api.pojo.Instance;
-import com.tencent.polaris.api.pojo.ServiceInstances;
-import com.tencent.polaris.api.utils.StringUtils;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.apache.dubbo.common.URL;
-import org.apache.dubbo.common.utils.ConcurrentHashSet;
-import org.apache.dubbo.registry.NotifyListener;
-import org.apache.dubbo.registry.support.FailbackRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.apache.dubbo.common.constants.CommonConstants.PATH_KEY;
+import static org.apache.dubbo.common.constants.CommonConstants.VERSION_KEY;
+import static org.apache.dubbo.rpc.cluster.Constants.DEFAULT_WEIGHT;
+import static org.apache.dubbo.rpc.cluster.Constants.WEIGHT_KEY;
 
 /**
  * 服务注册中心，提供服务注册，服务发现相关功能
@@ -31,43 +29,91 @@ public class PolarisRegistry extends FailbackRegistry {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PolarisDirectory.class);
 
-    private static final int SUBSCRIBE_DELAY = 5;
-
-    private static final Set<String> SUBSCRIBE_SET = new ConcurrentHashSet<>();
-
     private static final Map<URL, ScheduledExecutorService> EXECUTOR_MAP = new ConcurrentHashMap<>();
+
+    private final Map<String, Protocol> protocols = new HashMap<>();
+
+    private final ScheduledExecutorService subscribeExecutor = Executors.newSingleThreadScheduledExecutor();
+
+    private final PolarisConfig polarisConfig;
+
+    private final Set<URL> registeredInstances = new ConcurrentHashSet<>();
+
+    private final AtomicBoolean destroyed = new AtomicBoolean(false);
 
     public PolarisRegistry(URL url) {
         super(url);
+        ExtensionLoader<Protocol> extensionLoader = ExtensionLoader.getExtensionLoader(Protocol.class);
+        Set<String> supportedExtensions = extensionLoader.getSupportedExtensions();
+        for (String supportedExtension : supportedExtensions) {
+            protocols.put(supportedExtension, extensionLoader.getExtension(supportedExtension));
+        }
+        polarisConfig = new PolarisConfig();
+    }
+
+    private int parsePort(String protocolStr, int port) {
+        if (port > 0) {
+            return port;
+        }
+        Protocol protocol = protocols.get(protocolStr);
+        if (null == protocol) {
+            return 0;
+        }
+        return protocol.getDefaultPort();
     }
 
     @Override
     public void doRegister(URL url) {
-        LOGGER.info("[polaris] register service to polaris: {}", url.toString());
-        PolarisUtil.register(url);
+        LOGGER.info("[POLARIS] register service to polaris: {}", url.toString());
+        Map<String, String> metadata = new HashMap<>(url.getParameters());
+        metadata.put(PATH_KEY, url.getPath());
+        int port = parsePort(url.getProtocol(), url.getPort());
+        if (port > 0) {
+            int weight = url.getParameter(WEIGHT_KEY, DEFAULT_WEIGHT);
+            String version = url.getParameter(VERSION_KEY, "");
+            PolarisSingleton.getPolarisOperation()
+                    .register(url.getServiceInterface(), url.getHost(), port, url.getProtocol(), version, weight,
+                            metadata);
+            registeredInstances.add(url);
+        }
     }
 
     @Override
     public void doUnregister(URL url) {
-        LOGGER.info("[polaris] unregister service from polaris: {}", url.toString());
-        PolarisUtil.shutdown(url);
+        LOGGER.info("[POLARIS] unregister service from polaris: {}", url.toString());
+        int port = parsePort(url.getProtocol(), url.getPort());
+        if (port > 0) {
+            PolarisSingleton.getPolarisOperation()
+                    .deregister(url.getServiceInterface(), url.getHost(), url.getPort());
+            registeredInstances.remove(url);
+        }
+    }
+
+    @Override
+    public void destroy() {
+        if (destroyed.compareAndSet(false, true)) {
+            super.destroy();
+            Collection<URL> urls = Collections.unmodifiableCollection(registeredInstances);
+            for (URL url : urls) {
+                doUnregister(url);
+            }
+            subscribeExecutor.shutdown();
+            PolarisSingleton.getPolarisOperation().destroy();
+        }
     }
 
     @Override
     public void doSubscribe(final URL url, final NotifyListener listener) {
-        LOGGER.info("[polaris] subscribe service: {}", url.toString());
-        String namespace = Properties.getInstance().getNamespace();
+        //String namespace = Properties.getInstance().getNamespace();
         String service = url.getServiceInterface();
-        //  如果目标service已经有线程负责了，则无需新起一个线程
-        if (SUBSCRIBE_SET.contains(service)) {
-            LOGGER.info("service: {} has subscribed", service);
-            return;
-        }
-        ScheduledExecutorService subscribeExecutor = Executors.newSingleThreadScheduledExecutor();
+        // 先更新一次
+        SubscribeTask subscribeTask = new SubscribeTask(url, listener, service);
+        subscribeTask.run();
+        // 再让定时线程执行
+        LOGGER.info("[POLARIS] subscribe task scheduled with interval {}, url {}", polarisConfig.getRefreshInterval(),
+                url);
         subscribeExecutor
-                .scheduleWithFixedDelay(new PolarisRegistry.SubscribeTask(url, listener, namespace, service), 0,
-                        SUBSCRIBE_DELAY, TimeUnit.SECONDS);
-        SUBSCRIBE_SET.add(service);
+                .scheduleWithFixedDelay(subscribeTask, 0, polarisConfig.getRefreshInterval(), TimeUnit.SECONDS);
         EXECUTOR_MAP.put(url, subscribeExecutor);
     }
 
@@ -80,62 +126,60 @@ public class PolarisRegistry extends FailbackRegistry {
 
         private final NotifyListener listener;
 
-        private final String namespace;
-
         private final String service;
 
-        private int cachedHashCode;
+        // private int cachedHashCode;
 
-        private SubscribeTask(URL url, NotifyListener listener, String namespace, String service) {
+        private SubscribeTask(URL url, NotifyListener listener, String service) {
             this.url = url;
             this.listener = listener;
-            this.namespace = namespace;
             this.service = service;
-            this.cachedHashCode = -1;
+            //this.cachedHashCode = -1;
         }
 
         @Override
         public void run() {
-            LOGGER.debug("[polaris] update instances info, namespace: {}, service: {}", namespace, service);
-            ServiceInstances serviceInstances;
-            try {
-                serviceInstances = PolarisUtil.getAllInstances(namespace, service);
-            } catch (PolarisException e) {
-                LOGGER.error("update instance fail, exception: {}", e.getMessage());
-                return;
+            //cachedHashCode = serviceInstances.hashCode();
+            List<?> instances = PolarisSingleton.getPolarisOperation().getAvailableInstances(service, null);
+            if (null != instances) {
+                // 刷新invoker信息
+                LOGGER.debug("[POLARIS] update instances count: {}, service: {}", instances.size(), service);
+                List<URL> urls = new ArrayList<>();
+                for (Object instance : instances) {
+                    String host = PolarisSingleton.getPolarisOperation().getHost(instance);
+                    int port = PolarisSingleton.getPolarisOperation().getPort(instance);
+                    int weight = PolarisSingleton.getPolarisOperation().getWeight(instance);
+                    String protocolStr = PolarisSingleton.getPolarisOperation().getProtocol(instance);
+                    Map<String, String> metadata = PolarisSingleton.getPolarisOperation().getMetadata(instance);
+                    URL url = buildURL(host, port, protocolStr, weight, metadata);
+                    urls.add(url);
+                }
+                PolarisRegistry.this.notify(url, listener, urls);
             }
-            // TODO hashCode相同，说明两次更新Instance未发生变化，不做任何操作
-//            if (cachedHashCode == serviceInstances.hashCode()) {
-//                LOGGER.info("instances has no change");
-//                return;
-//            }
-            // 记录hashCode
-            cachedHashCode = serviceInstances.hashCode();
-            // 刷新invoker信息
-            LOGGER.debug("update instances count: {}", serviceInstances.getInstances().size());
-            List<URL> urls = new ArrayList<>();
-            for (Instance instance : serviceInstances.getInstances()) {
-                urls.add(buildURL(instance));
-            }
-            PolarisRegistry.this.notify(url, listener, urls);
         }
 
-        private URL buildURL(Instance instance) {
-            Map<String, String> metadata = new HashMap<>(instance.getMetadata());
-            // 清理protocol version的键值信息如果对应的value值为空
-            for (String key : FILTERED_PARAMS_IF_EMPTY) {
-                if (StringUtils.isEmpty(metadata.get(key))) {
-                    metadata.remove(key);
+        private URL buildURL(String host, int port, String protocol, int weight, Map<String, String> metadata) {
+            Map<String, String> newMetadata = metadata;
+            boolean hasWeight = false;
+            if (metadata.containsKey(WEIGHT_KEY)) {
+                String weightStr = metadata.get(WEIGHT_KEY);
+                try {
+                    int weightValue = Integer.parseInt(weightStr);
+                    if (weightValue == weight) {
+                        hasWeight = true;
+                    }
+                } catch (Exception ignored) {
                 }
             }
-
-            return new URL(instance.getProtocol(),
-                    null,
-                    null,
-                    instance.getHost(),
-                    instance.getPort(),
-                    instance.getService(),
-                    metadata);
+            if (!hasWeight) {
+                newMetadata = new HashMap<>(metadata);
+                newMetadata.put(WEIGHT_KEY, Integer.toString(weight));
+            }
+            return new URL(protocol,
+                    host,
+                    port,
+                    newMetadata.get(PATH_KEY),
+                    newMetadata);
         }
     }
 

@@ -28,7 +28,7 @@ public class DubboInvokerInterceptor implements AbstractInterceptor {
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         Invoker invoker = (Invoker) result;
         String address = invoker.getUrl().getAddress();
+        LOGGER.info("[POLARIS] add invoker {}, address {}", address, invoker);
         InvokerMap.put(address, invoker);
-        LOGGER.info("put {} invoker to the map", address);
     }
 }

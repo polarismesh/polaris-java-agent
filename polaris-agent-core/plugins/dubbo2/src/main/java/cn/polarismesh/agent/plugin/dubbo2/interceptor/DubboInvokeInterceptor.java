@@ -1,14 +1,22 @@
 package cn.polarismesh.agent.plugin.dubbo2.interceptor;
 
-import cn.polarismesh.agent.plugin.dubbo2.utils.PolarisUtil;
+import cn.polarismesh.agent.plugin.dubbo2.polaris.PolarisSingleton;
 import org.apache.dubbo.common.URL;
+import org.apache.dubbo.rpc.AppResponse;
+import org.apache.dubbo.rpc.AsyncRpcResult;
 import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.Result;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * 统计时延信息、上报服务调用结果
  */
 public class DubboInvokeInterceptor implements AbstractInterceptor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DubboInvokeInterceptor.class);
+
     private ThreadLocal<Long> startTimeMilli = new ThreadLocal<>();
 
     @Override
@@ -30,6 +38,24 @@ public class DubboInvokeInterceptor implements AbstractInterceptor {
         long delay = System.currentTimeMillis() - this.startTimeMilli.get();
         Invocation invocation = (Invocation) args[0];
         URL url = invocation.getInvoker().getUrl();
-        PolarisUtil.reportInvokeResult(url, delay, (Result) result, throwable);
+        if (result instanceof AsyncRpcResult) {
+            // 异步
+            CompletableFuture<AppResponse> future = ((AsyncRpcResult) result).getResponseFuture();
+            future.whenComplete((rpcResult, exception) -> {
+                boolean isSuccess = throwable == null && null == exception && null != rpcResult && !rpcResult.hasException();
+                this.report(url, invocation, delay, isSuccess);
+            });
+        } else {
+            // 同步
+            Result rpcResult = (Result) result;
+            boolean isSuccess = null == throwable && null != rpcResult && !rpcResult.hasException();
+            this.report(url, invocation, delay, isSuccess);
+        }
+    }
+
+    private void report(URL url, Invocation invocation, long delay, boolean isSuccess) {
+        PolarisSingleton.getPolarisOperation()
+                .reportInvokeResult(url.getServiceInterface(), invocation.getMethodName(), url.getHost(), url.getPort(),
+                        delay, isSuccess, isSuccess ? 0 : -1);
     }
 }

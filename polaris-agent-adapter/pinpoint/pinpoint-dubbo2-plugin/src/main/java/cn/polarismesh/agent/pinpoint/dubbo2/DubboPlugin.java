@@ -17,6 +17,7 @@
 package cn.polarismesh.agent.pinpoint.dubbo2;
 
 import cn.polarismesh.agent.pinpoint.dubbo2.Interceptor.*;
+import org.apache.dubbo.rpc.Invoker;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -26,8 +27,13 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import org.apache.dubbo.common.URL;
+import org.apache.dubbo.registry.RegistryFactory;
+import org.apache.dubbo.rpc.Invocation;
+import org.apache.dubbo.rpc.cluster.Directory;
 
 import java.security.ProtectionDomain;
+import java.util.Map;
 
 /**
  * @author K
@@ -44,8 +50,10 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
     private void addTransformers() {
         transformTemplate.transform("org.apache.dubbo.config.context.ConfigManager", ConfigManagerTransform.class);
         transformTemplate.transform("org.apache.dubbo.registry.integration.RegistryProtocol", RegistryProtocolTransform.class);
-        transformTemplate.transform("org.apache.dubbo.rpc.protocol.AbstractProtocol", AbstractProtocolTransform.class);
-        transformTemplate.transform("org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker", AbstractClusterInvokerTransform.class);
+        transformTemplate.transform("org.apache.dubbo.rpc.protocol.AbstractProtocol", ProtocolTransform.class);
+        transformTemplate.transform("org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker", ClusterInvokerTransform.class);
+        transformTemplate.transform("org.apache.dubbo.rpc.protocol.AbstractExporter", ExporterTransform.class);
+        transformTemplate.transform("org.apache.dubbo.common.URL", UrlConstructorTransform.class);
     }
 
     public static class ConfigManagerTransform implements TransformCallback {
@@ -68,7 +76,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            InstrumentMethod invokeMethod = target.getDeclaredMethod("setRegistryFactory", "org.apache.dubbo.registry.RegistryFactory");
+            InstrumentMethod invokeMethod = target.getDeclaredMethod("setRegistryFactory", RegistryFactory.class.getCanonicalName());
             if (invokeMethod != null) {
                 invokeMethod.addInterceptor(DubboRegistryInterceptor.class);
             }
@@ -76,11 +84,11 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    public static class AbstractProtocolTransform implements TransformCallback {
+    public static class ProtocolTransform implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            InstrumentMethod invokeMethod = target.getDeclaredMethod("refer", "java.lang.Class", "org.apache.dubbo.common.URL");
+            InstrumentMethod invokeMethod = target.getDeclaredMethod("refer", Class.class.getCanonicalName(), URL.class.getCanonicalName());
             if (invokeMethod != null) {
                 invokeMethod.addInterceptor(DubboInvokerInterceptor.class);
             }
@@ -88,21 +96,57 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    public static class AbstractClusterInvokerTransform implements TransformCallback {
+    public static class ClusterInvokerTransform implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            InstrumentMethod constructor = target.getConstructor("org.apache.dubbo.rpc.cluster.Directory", "org.apache.dubbo.common.URL");
+            InstrumentMethod constructor = target.getConstructor(Directory.class.getCanonicalName(), URL.class.getCanonicalName());
             if (constructor != null) {
                 constructor.addInterceptor(DubboClusterInvokerInterceptor.class);
             }
-            InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "org.apache.dubbo.rpc.Invocation");
+            InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", Invocation.class.getCanonicalName());
             if (invokeMethod != null) {
                 invokeMethod.addInterceptor(DubboInvokeInterceptor.class);
             }
             return target.toBytecode();
         }
     }
+
+
+    public static class ExporterTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            InstrumentMethod constructor = target.getConstructor(Invoker.class.getCanonicalName());
+            if (constructor != null) {
+                constructor.addInterceptor(DubboExporterInterceptor.class);
+            }
+            return target.toBytecode();
+        }
+    }
+
+    public static class UrlConstructorTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            InstrumentMethod constructor = target
+                    .getConstructor(String.class.getCanonicalName(), String.class.getCanonicalName(),
+                            String.class.getCanonicalName(), String.class.getCanonicalName(),
+                            int.class.getCanonicalName(), String.class.getCanonicalName(),
+                            Map.class.getCanonicalName());
+            if (constructor != null) {
+                constructor.addInterceptor(DubboUrlInterceptor.class);
+            }
+            return target.toBytecode();
+        }
+    }
+
 
     @Override
     public void setTransformTemplate(TransformTemplate transformTemplate) {

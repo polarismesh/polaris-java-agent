@@ -14,6 +14,13 @@
     <name>Polaris Agent Pinpoint Dubbo2 Plugin</name>
 
     <dependencies>
+        <!-- dubbo -->
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo</artifactId>
+            <version>${apache.dubbo.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.tencent.polaris</groupId>
             <artifactId>polaris-agent-dubbo2-plugin</artifactId>

@@ -23,9 +23,14 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-all</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tencent.polaris</groupId>
+            <artifactId>polaris-agent-core-common-polaris</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

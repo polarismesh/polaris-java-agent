@@ -33,10 +33,8 @@ public class DubboClusterInvokerInterceptor implements AbstractInterceptor {
         if (!(args[0] instanceof RegistryDirectory)) {
             return;
         }
-        RegistryDirectory directory = (RegistryDirectory) args[0];
         URL url = (URL) args[1];
-        PolarisDirectory newDirectory = new PolarisDirectory<>(RegistryService.class, url);
-        newDirectory.setRouterChain(directory.getRouterChain());
+        PolarisDirectory newDirectory = new PolarisDirectory<>((RegistryDirectory) args[0], RegistryService.class, url);
         ReflectUtil.setSuperValueByFieldName(target, "directory", newDirectory);
         LOGGER.info("change directory to PolarisDirectory done");
     }
