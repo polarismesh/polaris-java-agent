@@ -19,6 +19,9 @@ package cn.polarismesh.common.polaris;
 
 import cn.polarismesh.agent.common.tools.ClassUtils;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -26,20 +29,9 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PolarisOperator {
 
@@ -99,6 +91,19 @@ public class PolarisOperator {
                 .getMethod(clazz, PolarisReflectConst.METHOD_GET_INSTANCES, String.class, String.class, Map.class,
                         Map.class);
         methods.put(PolarisReflectConst.METHOD_GET_INSTANCES, getInstancesMethod);
+
+        Method getAllInstancesMethod = ClassUtils
+                .getMethod(clazz, PolarisReflectConst.METHOD_GET_ALL_INSTANCES, String.class, String.class);
+        methods.put(PolarisReflectConst.METHOD_GET_ALL_INSTANCES, getAllInstancesMethod);
+
+        Method watchServiceMethod = ClassUtils
+                .getMethod(clazz, PolarisReflectConst.METHOD_WATCH_SERVICE, String.class, String.class, Object.class,
+                        Method.class);
+        methods.put(PolarisReflectConst.METHOD_WATCH_SERVICE, watchServiceMethod);
+
+        Method unWatchServiceMethod = ClassUtils
+                .getMethod(clazz, PolarisReflectConst.METHOD_UNWATCH_SERVICE, String.class, String.class);
+        methods.put(PolarisReflectConst.METHOD_UNWATCH_SERVICE, unWatchServiceMethod);
 
         Method getQuotaMethod = ClassUtils
                 .getMethod(clazz, PolarisReflectConst.METHOD_GET_QUOTA, String.class, String.class, String.class,
@@ -327,6 +332,75 @@ public class PolarisOperator {
                 Method getInstancesMethod = methods.get(PolarisReflectConst.METHOD_GET_INSTANCES);
                 return ReflectionUtils.invokeMethod(
                         getInstancesMethod, null, namespace, service, srcLabels, null);
+            }
+        });
+    }
+
+    /**
+     * 调用CONSUMER_API获取全量实例信息
+     *
+     * @param service 服务的service
+     * @return Polaris选择的Instance对象
+     */
+    public List<?> getAllInstances(String service) {
+        init();
+        if (!inited.get()) {
+            LOGGER.error("[POLARIS] fail to getAllInstances {}, polaris init failed", service);
+            return null;
+        }
+        return (List<?>) clazzLoaderTemplate.execute("getAllInstances", new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                // get all instances
+                String namespace = polarisConfig.getNamespace();
+                Method getAllInstancesMethod = methods.get(PolarisReflectConst.METHOD_GET_ALL_INSTANCES);
+                return ReflectionUtils.invokeMethod(
+                        getAllInstancesMethod, null, namespace, service);
+            }
+        });
+    }
+
+    /**
+     * 订阅，监听服务变化
+     *
+     * @param service  服务名
+     * @param listener 自定义listener
+     * @param method   更新事件发生时执行的方法
+     * @return 全量instances列表
+     */
+    public List<?> watchService(String service, Object listener, Method method) {
+        init();
+        if (!inited.get()) {
+            LOGGER.error("[POLARIS] fail to watchService {}, polaris init failed", service);
+            return null;
+        }
+        return (List<?>) clazzLoaderTemplate.execute("watchService", new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                String namespace = polarisConfig.getNamespace();
+                Method watchServiceMethod = methods.get(PolarisReflectConst.METHOD_WATCH_SERVICE);
+                return ReflectionUtils.invokeMethod(
+                        watchServiceMethod, null, namespace, service, listener, method);
+            }
+        });
+    }
+
+    /**
+     * 取消订阅
+     */
+    public boolean unWatchService(String service) {
+        init();
+        if (!inited.get()) {
+            LOGGER.error("[POLARIS] fail to unWatchService {}, polaris init failed", service);
+            return false;
+        }
+        return (boolean) clazzLoaderTemplate.execute("unWatchService", new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                String namespace = polarisConfig.getNamespace();
+                Method unWatchServiceMethod = methods.get(PolarisReflectConst.METHOD_UNWATCH_SERVICE);
+                return ReflectionUtils.invokeMethod(
+                        unWatchServiceMethod, null, namespace, service);
             }
         });
     }
