@@ -76,7 +76,22 @@ Polaris-Java-Agent支持用户通过以下标签来进行规则匹配：
 5. 观察`consumer`端输出：`v1`请求永远路由至`20880`端口，`v2`请求永远路由至`20890`端口，表示路由规则生效
 
     ![](pic/polaris-routing-result.png)  
+    
+### 负载均衡
 
+北极星远程负载均衡配置还不支持远程配置，当前可以通过修改客户端配置的方式使用北极星北极星的负载均衡。
+
+可以修改polaris.yml的配置内容：
+
+````
+#描述: 主调端配置
+consumer:
+  #描述:负载均衡相关配置
+  loadbalancer:
+    #描述: 当前支持weightedRandom（权重随机），ringHash（一致性hash）
+    type: weightedRandom  
+````
+    
 ### 熔断
 
 1. 启动`dubbo-demo-provider-1`与`dubbo-demo-provider-2`
