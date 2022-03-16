@@ -225,10 +225,11 @@ public class PolarisWatcher {
         return consumerAPI.watchService(watchServiceRequest).isResult();
     }
 
-    public void unwatchService(String service) {
+    public void unwatchService(String service, ServiceListener serviceListener) {
         WatchServiceRequest watchServiceRequest = new WatchServiceRequest();
         watchServiceRequest.setNamespace(polarisConfig.getNamespace());
         watchServiceRequest.setService(service);
+        watchServiceRequest.setListeners(Collections.singletonList(serviceListener));
         consumerAPI.unWatchService(watchServiceRequest);
     }
 

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -43,6 +44,8 @@ public class PolarisRegistry extends FailbackRegistry {
     private final Set<URL> registeredInstances = new ConcurrentHashSet<>();
 
     private final AtomicBoolean destroyed = new AtomicBoolean(false);
+
+    private final Map<NotifyListener, ServiceListener> serviceListeners = new ConcurrentHashMap<>();
 
     public PolarisRegistry(URL url) {
         super(url);
@@ -118,10 +121,13 @@ public class PolarisRegistry extends FailbackRegistry {
 
         private final ServiceListener serviceListener;
 
+        private final NotifyListener listener;
+
         private final FetchTask fetchTask;
 
         public WatchTask(URL url, NotifyListener listener, String service) {
             this.service = service;
+            this.listener = listener;
             fetchTask = new FetchTask(url, listener);
             serviceListener = new ServiceListener() {
                 @Override
@@ -135,6 +141,7 @@ public class PolarisRegistry extends FailbackRegistry {
         public void run() {
             boolean result = PolarisSingleton.getPolarisWatcher().watchService(service, serviceListener);
             if (result) {
+                serviceListeners.put(listener, serviceListener);
                 PolarisRegistry.taskScheduler.submitFetchTask(fetchTask);
                 return;
             }
@@ -265,7 +272,10 @@ public class PolarisRegistry extends FailbackRegistry {
         taskScheduler.submitWatchTask(new Runnable() {
             @Override
             public void run() {
-                PolarisSingleton.getPolarisWatcher().unwatchService(url.getServiceInterface());
+                ServiceListener serviceListener = serviceListeners.get(listener);
+                if (null != serviceListener) {
+                    PolarisSingleton.getPolarisWatcher().unwatchService(url.getServiceInterface(), serviceListener);
+                }
             }
         });
     }
