@@ -31,7 +31,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -62,7 +61,6 @@ public class PolarisOperator {
     private final ScheduledExecutorService heartbeatExecutor = Executors.newSingleThreadScheduledExecutor();
 
     private final Map<InstanceIdentifier, ScheduledFuture<?>> scheduledFutures = new HashMap<>();
-
 
     private boolean initReflectMethods() {
         ClassLoader clazzLoader = Thread.currentThread().getContextClassLoader();
@@ -432,40 +430,6 @@ public class PolarisOperator {
                         method, null, instance);
             }
         });
-    }
-
-    private static class InstanceIdentifier {
-
-        private final String service;
-
-        private final String host;
-
-        private final int port;
-
-        public InstanceIdentifier(String service, String host, int port) {
-            this.service = service;
-            this.host = host;
-            this.port = port;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof InstanceIdentifier)) {
-                return false;
-            }
-            InstanceIdentifier that = (InstanceIdentifier) o;
-            return port == that.port &&
-                    Objects.equals(service, that.service) &&
-                    Objects.equals(host, that.host);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(service, host, port);
-        }
     }
 
     public PolarisConfig getPolarisConfig() {

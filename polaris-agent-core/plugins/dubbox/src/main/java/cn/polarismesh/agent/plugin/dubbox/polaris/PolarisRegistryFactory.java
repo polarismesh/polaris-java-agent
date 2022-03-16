@@ -6,11 +6,6 @@ import com.alibaba.dubbo.registry.support.AbstractRegistryFactory;
 
 public class PolarisRegistryFactory extends AbstractRegistryFactory {
 
-//    @Override
-//    public Registry getRegistry(URL url) {
-//        return new PolarisRegistry(url);
-//    }
-
     @Override
     protected Registry createRegistry(URL url) {
         return new PolarisRegistry(url);

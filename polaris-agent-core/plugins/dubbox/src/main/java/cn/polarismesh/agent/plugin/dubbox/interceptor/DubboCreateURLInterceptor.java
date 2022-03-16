@@ -5,13 +5,18 @@ import static com.alibaba.dubbo.common.Constants.CONSUMER_PROTOCOL;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
 import cn.polarismesh.agent.common.tools.ReflectionUtils.FieldCallback;
 import cn.polarismesh.agent.common.tools.ReflectionUtils.FieldFilter;
+import cn.polarismesh.common.interceptor.AbstractInterceptor;
 import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.URL;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DubboUrlInterceptor implements AbstractInterceptor {
+/**
+ * interceptor for com.alibaba.dubbo.common.URL#URL(java.lang.String, java.lang.String, java.lang.String,
+ * java.lang.String, int, java.lang.String, java.util.Map)
+ */
+public class DubboCreateURLInterceptor implements AbstractInterceptor {
 
     @Override
     public void before(Object target, Object[] args) {

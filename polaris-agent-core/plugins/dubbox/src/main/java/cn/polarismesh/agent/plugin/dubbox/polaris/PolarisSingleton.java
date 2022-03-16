@@ -1,12 +1,21 @@
 package cn.polarismesh.agent.plugin.dubbox.polaris;
 
-import cn.polarismesh.common.polaris.PolarisOperator;
+import cn.polarismesh.common.polaris.PolarisConfig;
+import cn.polarismesh.common.polaris.PolarisWatcher;
 
 public class PolarisSingleton {
 
-    private static final PolarisOperator polarisOperation = new PolarisOperator();
+    private static final PolarisConfig polarisConfig = new PolarisConfig();
 
-    public static PolarisOperator getPolarisOperation() {
-        return polarisOperation;
+    private static final PolarisWatcher polarisWatcher = new PolarisWatcher(getPolarisConfig());
+
+    public static PolarisWatcher getPolarisWatcher() {
+        return polarisWatcher;
     }
+
+    public static PolarisConfig getPolarisConfig() {
+        return polarisConfig;
+    }
+
+
 }

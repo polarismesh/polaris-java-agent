@@ -27,12 +27,15 @@ import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.util.Properties;
 import java.util.ServiceLoader;
+import java.util.jar.JarFile;
 
 public class PolarisAgentBootStrap {
 
     private static final BootLogger logger = BootLogger.getLogger(PolarisAgentBootStrap.class);
 
     public static final String CONFIG_FILE_NAME = "polaris.config";
+
+    private static final String POLARIS_LIB_DIR = "polaris" + File.separator + "lib";
 
     public static boolean isAttach = false;
 
@@ -90,7 +93,10 @@ public class PolarisAgentBootStrap {
         replaceProperty(polarisProperties, AgentConfig.KEY_REFRESH_INTERVAL);
         replaceProperty(polarisProperties, AgentConfig.KEY_HEALTH_TTL);
         System.setProperty(InternalConfig.INTERNAL_KEY_AGENT_DIR, agentDirPath);
-        System.setProperty(InternalConfig.INTERNAL_POLARIS_LOG_HOME, agentDirPath);
+        System.setProperty(InternalConfig.INTERNAL_POLARIS_LOG_HOME,
+                agentDirPath + File.separator + "polaris" + File.separator + "logs");
+
+        instrumentPolarisDependencies(instrumentation, agentDirPath);
 
         // load starter
         BootStrapStarter starter = loadStarters();
@@ -100,6 +106,29 @@ public class PolarisAgentBootStrap {
         }
         logger.info(String.format("[Bootstrap] start bootStrapStarter:%s", starter.name()));
         starter.start(agentDirPath, polarisProperties, agentArgs, instrumentation);
+    }
+
+    public static void instrumentPolarisDependencies(Instrumentation instrumentation, String agentDir) {
+        logger.info("[Bootstrap] start to instrumentation polaris dependencies");
+        String libPath = agentDir + File.separator + POLARIS_LIB_DIR;
+        File[] polarisDependencies = (new File(libPath)).listFiles();
+        if (null == polarisDependencies || polarisDependencies.length == 0) {
+            return;
+        }
+        for (File polarisDependency : polarisDependencies) {
+            if (polarisDependency.getName().endsWith(".jar")) {
+                logger.info(String.format("[Bootstrap] instrument polaris jar %s", polarisDependency));
+                JarFile jarFile;
+                try {
+                    jarFile = new JarFile(polarisDependency);
+                } catch (IOException e) {
+                    logger.error(String.format("[Bootstrap] fail to parse file %s to jar: %s", polarisDependency,
+                            e.getMessage()));
+                    continue;
+                }
+                instrumentation.appendToSystemClassLoaderSearch(jarFile);
+            }
+        }
     }
 
     private static void replaceProperty(Properties polarisProperties, String key) {

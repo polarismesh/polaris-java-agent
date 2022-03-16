@@ -19,6 +19,7 @@ package cn.polarismesh.common.polaris;
 
 import cn.polarismesh.agent.common.config.AgentConfig;
 import cn.polarismesh.agent.common.config.InternalConfig;
+import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,8 +78,7 @@ public class PolarisConfig {
             }
         }
         this.refreshInterval = refreshInterval;
-        LOG.info("[Common] construct polarisConfig, namespace {}, service {}, registryAddress {}, agentDir {}",
-                namespace, service, registryAddress, agentDir);
+        LOG.info("[Common] construct polarisConfig {}", this);
 
     }
 
@@ -108,5 +108,18 @@ public class PolarisConfig {
 
     public int getRefreshInterval() {
         return refreshInterval;
+    }
+
+    @Override
+    public String toString() {
+        return "PolarisConfig{" +
+                "namespace='" + namespace + '\'' +
+                ", service='" + service + '\'' +
+                ", registryAddress='" + registryAddress + '\'' +
+                ", token='" + token + '\'' +
+                ", agentDir='" + agentDir + '\'' +
+                ", ttl=" + ttl +
+                ", refreshInterval=" + refreshInterval +
+                '}';
     }
 }
