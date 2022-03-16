@@ -33,6 +33,10 @@
         <maven.shaded.plugin.version>3.2.4</maven.shaded.plugin.version>
         <org.codehaus.mojo.version>3.0.0</org.codehaus.mojo.version>
         <slf4j.vesion>1.7.30</slf4j.vesion>
+        <!-- alibaba dubbo (dubbox) -->
+        <alibaba.dubbo.version>2.6.12</alibaba.dubbo.version>
+        <!-- apache dubbo (dubbo2) -->
+        <apache.dubbo.version>>2.7.15</apache.dubbo.version>
     </properties>
 
     <dependencyManagement>

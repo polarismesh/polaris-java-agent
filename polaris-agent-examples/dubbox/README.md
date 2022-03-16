@@ -117,7 +117,6 @@ global:
       prometheus:
         # pushgateway地址
         pushgatewayAddress: 127.0.0.1:9091
-        pushInterval: 10s
 ```
 
 2. 登录到北极星控制台，在左边栏可观测性可以看到监控图表数据。

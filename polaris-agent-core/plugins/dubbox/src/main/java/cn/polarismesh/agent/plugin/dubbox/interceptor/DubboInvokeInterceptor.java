@@ -3,6 +3,7 @@ package cn.polarismesh.agent.plugin.dubbox.interceptor;
 import cn.polarismesh.agent.plugin.dubbox.polaris.PolarisSingleton;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.rpc.Invocation;
+import com.alibaba.dubbo.rpc.RpcResult;
 
 /**
  * 统计时延信息、上报服务调用结果
@@ -32,6 +33,6 @@ public class DubboInvokeInterceptor implements AbstractInterceptor {
         URL url = invocation.getInvoker().getUrl();
         PolarisSingleton.getPolarisOperation()
                 .reportInvokeResult(url.getServiceInterface(), invocation.getMethodName(), url.getHost(), url.getPort(),
-                        delay, null == throwable, null != throwable ? -1 : 0);
+                        delay, null == throwable && !((RpcResult) result).hasException(), null != throwable || ((RpcResult) result).hasException() ? -1 : 0);
     }
 }
