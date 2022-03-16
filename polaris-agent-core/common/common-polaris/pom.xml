@@ -21,6 +21,11 @@
         </dependency>
         <dependency>
             <groupId>com.tencent.polaris</groupId>
+            <artifactId>polaris-all</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tencent.polaris</groupId>
             <artifactId>polaris-agent-core-common-tools</artifactId>
             <version>${project.version}</version>
         </dependency>
