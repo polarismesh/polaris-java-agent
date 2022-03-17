@@ -62,7 +62,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             InstrumentMethod invokeMethod = target
@@ -78,7 +78,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             InstrumentMethod invokeMethod = target.getDeclaredMethod("toInvokers", List.class.getCanonicalName());
@@ -93,7 +93,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             InstrumentMethod invokeMethod = target
@@ -109,7 +109,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             InstrumentMethod invokeMethod = target
@@ -125,7 +125,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", ClassNames.INVOCATION_NAME);
@@ -140,7 +140,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             InstrumentMethod constructor = target.getConstructor(ClassNames.RPC_INVOKER_NAME);
@@ -155,7 +155,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             InstrumentMethod constructor = target
