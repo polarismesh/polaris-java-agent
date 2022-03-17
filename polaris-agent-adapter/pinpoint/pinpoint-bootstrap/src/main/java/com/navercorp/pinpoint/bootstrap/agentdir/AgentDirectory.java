@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.bootstrap.agentdir;
 
 
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.net.URL;
@@ -47,11 +46,11 @@ public class AgentDirectory {
 
 
     public AgentDirectory(String agentJarName,
-                          String agentJarFullPath,
-                          String agentDirPath,
-                          BootDir bootDir,
-                          List<URL> libs,
-                          List<String> plugins) {
+            String agentJarFullPath,
+            String agentDirPath,
+            BootDir bootDir,
+            List<URL> libs,
+            List<String> plugins) {
 
         this.agentJarName = agentJarName;
         this.agentJarFullPath = agentJarFullPath;
@@ -130,5 +129,17 @@ public class AgentDirectory {
             return new String[0];
         }
         return profileDirs;
+    }
+
+    @Override
+    public String toString() {
+        return "AgentDirectory{" +
+                "agentJarName='" + agentJarName + '\'' +
+                ", agentJarFullPath='" + agentJarFullPath + '\'' +
+                ", agentDirPath='" + agentDirPath + '\'' +
+                ", bootDir=" + bootDir +
+                ", plugins=" + plugins +
+                ", libs=" + libs +
+                '}';
     }
 }

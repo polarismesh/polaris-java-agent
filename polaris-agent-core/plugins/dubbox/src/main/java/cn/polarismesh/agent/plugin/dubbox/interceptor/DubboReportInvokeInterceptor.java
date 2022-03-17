@@ -1,14 +1,20 @@
 package cn.polarismesh.agent.plugin.dubbox.interceptor;
 
 import cn.polarismesh.agent.plugin.dubbox.polaris.PolarisSingleton;
+import cn.polarismesh.common.interceptor.AbstractInterceptor;
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.rpc.Invocation;
+import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.RpcResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * 统计时延信息、上报服务调用结果
+ * interceptor for com.alibaba.dubbo.rpc.cluster.support.AbstractClusterInvoker#invoke(com.alibaba.dubbo.rpc.Invocation)
  */
-public class DubboInvokeInterceptor implements AbstractInterceptor {
+public class DubboReportInvokeInterceptor implements AbstractInterceptor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DubboRegistryInterceptor.class);
 
     private final ThreadLocal<Long> startTimeMilli = new ThreadLocal<>();
 
@@ -30,9 +36,15 @@ public class DubboInvokeInterceptor implements AbstractInterceptor {
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         long delay = System.currentTimeMillis() - this.startTimeMilli.get();
         Invocation invocation = (Invocation) args[0];
-        URL url = invocation.getInvoker().getUrl();
-        PolarisSingleton.getPolarisOperation()
+        Invoker<?> invoker = invocation.getInvoker();
+        if (null == invoker) {
+            LOGGER.info("[POLARIS] invoker is null, ignore report result");
+            return;
+        }
+        URL url = invoker.getUrl();
+        PolarisSingleton.getPolarisWatcher()
                 .reportInvokeResult(url.getServiceInterface(), invocation.getMethodName(), url.getHost(), url.getPort(),
-                        delay, null == throwable && !((RpcResult) result).hasException(), null != throwable || ((RpcResult) result).hasException() ? -1 : 0);
+                        delay, null == throwable && !((RpcResult) result).hasException(),
+                        null != throwable || ((RpcResult) result).hasException() ? -1 : 0);
     }
 }

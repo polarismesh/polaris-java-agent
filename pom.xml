@@ -14,14 +14,14 @@
     <url>https://github.com/polarismesh/polaris-java-agent</url>
 
     <properties>
-        <polaris.version>1.2.4-SNAPSHOT</polaris.version>
+        <polaris.version>1.2.5-SNAPSHOT</polaris.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.maven.deploy>false</skip.maven.deploy>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <revision>1.0.2-SNAPSHOT</revision>
+        <revision>1.0.4-SNAPSHOT</revision>
         <!-- Maven Plugin Versions -->
         <jacoco.version>0.8.3</jacoco.version>
         <maven-source-plugin.version>3.2.0</maven-source-plugin.version>

@@ -10,5 +10,5 @@ public interface InternalConfig {
     /**
      * polaris logging home
      */
-    String INTERNAL_POLARIS_LOG_HOME = "polaris.logback.home";
+    String INTERNAL_POLARIS_LOG_HOME = "polaris.log.home";
 }
