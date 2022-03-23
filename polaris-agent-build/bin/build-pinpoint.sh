@@ -55,6 +55,7 @@ popd
 echo "start to copy polaris"
 mkdir -p "${workdir}"/pinpoint-agent-2.3.3/polaris/logs
 mkdir -p "${workdir}"/pinpoint-agent-2.3.3/polaris/conf
+mkdir -p "${workdir}"/pinpoint-agent-2.3.3/polaris/lib
 pushd polaris-agent-build
 mvn dependency:copy-dependencies
 pushd target/dependency
