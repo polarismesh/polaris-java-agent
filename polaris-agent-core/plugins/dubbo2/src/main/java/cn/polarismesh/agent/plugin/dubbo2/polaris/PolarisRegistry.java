@@ -1,6 +1,12 @@
 package cn.polarismesh.agent.plugin.dubbo2.polaris;
 
-import cn.polarismesh.common.polaris.PolarisConfig;
+import cn.polarismesh.agent.plugin.dubbo2.constants.PolarisConstants;
+import cn.polarismesh.agent.plugin.dubbo2.entity.InstanceInvoker;
+import com.tencent.polaris.api.exception.PolarisException;
+import com.tencent.polaris.api.listener.ServiceListener;
+import com.tencent.polaris.api.pojo.Instance;
+import com.tencent.polaris.api.pojo.ServiceChangeEvent;
+import com.tencent.polaris.client.util.NamedThreadFactory;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.ExtensionLoader;
 import org.apache.dubbo.common.utils.ConcurrentHashSet;
@@ -12,9 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.apache.dubbo.common.constants.CommonConstants.PATH_KEY;
@@ -27,19 +32,17 @@ import static org.apache.dubbo.rpc.cluster.Constants.WEIGHT_KEY;
  */
 public class PolarisRegistry extends FailbackRegistry {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PolarisDirectory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PolarisRegistry.class);
 
-    private static final Map<URL, ScheduledExecutorService> EXECUTOR_MAP = new ConcurrentHashMap<>();
+    private static final TaskScheduler taskScheduler = new TaskScheduler();
 
     private final Map<String, Protocol> protocols = new HashMap<>();
-
-    private final ScheduledExecutorService subscribeExecutor = Executors.newSingleThreadScheduledExecutor();
-
-    private final PolarisConfig polarisConfig;
 
     private final Set<URL> registeredInstances = new ConcurrentHashSet<>();
 
     private final AtomicBoolean destroyed = new AtomicBoolean(false);
+
+    private final Map<NotifyListener, ServiceListener> serviceListeners = new ConcurrentHashMap<>();
 
     public PolarisRegistry(URL url) {
         super(url);
@@ -48,7 +51,6 @@ public class PolarisRegistry extends FailbackRegistry {
         for (String supportedExtension : supportedExtensions) {
             protocols.put(supportedExtension, extensionLoader.getExtension(supportedExtension));
         }
-        polarisConfig = new PolarisConfig();
     }
 
     private int parsePort(String protocolStr, int port) {
@@ -71,7 +73,7 @@ public class PolarisRegistry extends FailbackRegistry {
         if (port > 0) {
             int weight = url.getParameter(WEIGHT_KEY, DEFAULT_WEIGHT);
             String version = url.getParameter(VERSION_KEY, "");
-            PolarisSingleton.getPolarisOperation()
+            PolarisSingleton.getPolarisWatcher()
                     .register(url.getServiceInterface(), url.getHost(), port, url.getProtocol(), version, weight,
                             metadata);
             registeredInstances.add(url);
@@ -83,7 +85,7 @@ public class PolarisRegistry extends FailbackRegistry {
         LOGGER.info("[POLARIS] unregister service from polaris: {}", url.toString());
         int port = parsePort(url.getProtocol(), url.getPort());
         if (port > 0) {
-            PolarisSingleton.getPolarisOperation()
+            PolarisSingleton.getPolarisWatcher()
                     .deregister(url.getServiceInterface(), url.getHost(), url.getPort());
             registeredInstances.remove(url);
         }
@@ -97,96 +99,182 @@ public class PolarisRegistry extends FailbackRegistry {
             for (URL url : urls) {
                 doUnregister(url);
             }
-            subscribeExecutor.shutdown();
-            PolarisSingleton.getPolarisOperation().destroy();
+            PolarisSingleton.getPolarisWatcher().destroy();
         }
     }
 
     @Override
     public void doSubscribe(final URL url, final NotifyListener listener) {
-        //String namespace = Properties.getInstance().getNamespace();
         String service = url.getServiceInterface();
-        // 先更新一次
-        SubscribeTask subscribeTask = new SubscribeTask(url, listener, service);
-        subscribeTask.run();
-        // 再让定时线程执行
-        LOGGER.info("[POLARIS] subscribe task scheduled with interval {}, url {}", polarisConfig.getRefreshInterval(),
-                url);
-        subscribeExecutor
-                .scheduleWithFixedDelay(subscribeTask, 0, polarisConfig.getRefreshInterval(), TimeUnit.SECONDS);
-        EXECUTOR_MAP.put(url, subscribeExecutor);
+        Instance[] instances = PolarisSingleton.getPolarisWatcher().getAvailableInstances(service);
+        onInstances(url, listener, instances);
+        LOGGER.info("[POLARIS] submit watch task for service {}", service);
+        taskScheduler.submitWatchTask(new WatchTask(url, listener, service));
     }
 
-    /**
-     * 定时线程，实时更新instance信息
-     */
-    private class SubscribeTask implements Runnable {
+    private class WatchTask implements Runnable {
+
+        private final String service;
+
+        private final ServiceListener serviceListener;
+
+        private final NotifyListener listener;
+
+        private final FetchTask fetchTask;
+
+        public WatchTask(URL url, NotifyListener listener, String service) {
+            this.service = service;
+            this.listener = listener;
+            fetchTask = new FetchTask(url, listener);
+            serviceListener = new ServiceListener() {
+                @Override
+                public void onEvent(ServiceChangeEvent event) {
+                    PolarisRegistry.taskScheduler.submitFetchTask(fetchTask);
+                }
+            };
+        }
+
+        @Override
+        public void run() {
+            boolean result = PolarisSingleton.getPolarisWatcher().watchService(service, serviceListener);
+            if (result) {
+                serviceListeners.put(listener, serviceListener);
+                PolarisRegistry.taskScheduler.submitFetchTask(fetchTask);
+                return;
+            }
+            PolarisRegistry.taskScheduler.submitWatchTask(this);
+        }
+    }
+
+    private class FetchTask implements Runnable {
+
+        private final String service;
 
         private final URL url;
 
         private final NotifyListener listener;
 
-        private final String service;
-
-        // private int cachedHashCode;
-
-        private SubscribeTask(URL url, NotifyListener listener, String service) {
+        public FetchTask(URL url, NotifyListener listener) {
+            this.service = url.getServiceInterface();
             this.url = url;
             this.listener = listener;
-            this.service = service;
-            //this.cachedHashCode = -1;
         }
 
         @Override
         public void run() {
-            //cachedHashCode = serviceInstances.hashCode();
-            List<?> instances = PolarisSingleton.getPolarisOperation().getAvailableInstances(service, null);
-            if (null != instances) {
-                // 刷新invoker信息
-                LOGGER.debug("[POLARIS] update instances count: {}, service: {}", instances.size(), service);
-                List<URL> urls = new ArrayList<>();
-                for (Object instance : instances) {
-                    String host = PolarisSingleton.getPolarisOperation().getHost(instance);
-                    int port = PolarisSingleton.getPolarisOperation().getPort(instance);
-                    int weight = PolarisSingleton.getPolarisOperation().getWeight(instance);
-                    String protocolStr = PolarisSingleton.getPolarisOperation().getProtocol(instance);
-                    Map<String, String> metadata = PolarisSingleton.getPolarisOperation().getMetadata(instance);
-                    URL url = buildURL(host, port, protocolStr, weight, metadata);
-                    urls.add(url);
+            Instance[] instances;
+            try {
+                instances = PolarisSingleton.getPolarisWatcher().getAvailableInstances(service);
+            } catch (PolarisException e) {
+                LOGGER.error("[POLARIS] fail to fetch instances for service {}: {}", service, e.toString());
+                return;
+            }
+            onInstances(url, listener, instances);
+        }
+    }
+
+    private void onInstances(URL url, NotifyListener listener, Instance[] instances) {
+        LOGGER.info("[POLARIS] update instances count: {}, service: {}", null == instances ? 0 : instances.length,
+                url.getServiceInterface());
+        List<URL> urls = new ArrayList<>();
+        if (null != instances) {
+            for (Instance instance : instances) {
+                urls.add(instanceToURL(instance));
+            }
+        }
+        PolarisRegistry.this.notify(url, listener, urls);
+    }
+
+    private static URL instanceToURL(Instance instance) {
+        Map<String, String> newMetadata = new HashMap<>(instance.getMetadata());
+        boolean hasWeight = false;
+        if (newMetadata.containsKey(WEIGHT_KEY)) {
+            String weightStr = newMetadata.get(WEIGHT_KEY);
+            try {
+                int weightValue = Integer.parseInt(weightStr);
+                if (weightValue == instance.getWeight()) {
+                    hasWeight = true;
                 }
-                PolarisRegistry.this.notify(url, listener, urls);
+            } catch (Exception ignored) {
+            }
+        }
+        if (!hasWeight) {
+            newMetadata.put(WEIGHT_KEY, Integer.toString(instance.getWeight()));
+        }
+        newMetadata.put(PolarisConstants.KEY_ID, instance.getId());
+        newMetadata.put(PolarisConstants.KEY_HEALTHY, Boolean.toString(instance.isHealthy()));
+        newMetadata.put(PolarisConstants.KEY_ISOLATED, Boolean.toString(instance.isIsolated()));
+        newMetadata.put(PolarisConstants.KEY_CIRCUIT_BREAKER, InstanceInvoker.circuitBreakersToString(instance));
+        return new URL(instance.getProtocol(),
+                instance.getHost(),
+                instance.getPort(),
+                newMetadata.get(PATH_KEY),
+                newMetadata);
+    }
+
+    private static class TaskScheduler {
+
+        private final ExecutorService fetchExecutor = Executors
+                .newSingleThreadExecutor(new NamedThreadFactory("agent-fetch"));
+
+        private final ExecutorService watchExecutor = Executors
+                .newSingleThreadExecutor(new NamedThreadFactory("agent-retry-watch"));
+
+        private final AtomicBoolean executorDestroyed = new AtomicBoolean(false);
+
+        private final Object lock = new Object();
+
+        void submitFetchTask(Runnable fetchTask) {
+            if (executorDestroyed.get()) {
+                return;
+            }
+            synchronized (lock) {
+                if (executorDestroyed.get()) {
+                    return;
+                }
+                fetchExecutor.submit(fetchTask);
             }
         }
 
-        private URL buildURL(String host, int port, String protocol, int weight, Map<String, String> metadata) {
-            Map<String, String> newMetadata = metadata;
-            boolean hasWeight = false;
-            if (metadata.containsKey(WEIGHT_KEY)) {
-                String weightStr = metadata.get(WEIGHT_KEY);
-                try {
-                    int weightValue = Integer.parseInt(weightStr);
-                    if (weightValue == weight) {
-                        hasWeight = true;
-                    }
-                } catch (Exception ignored) {
+        void submitWatchTask(Runnable watchTask) {
+            if (executorDestroyed.get()) {
+                return;
+            }
+            synchronized (lock) {
+                if (executorDestroyed.get()) {
+                    return;
+                }
+                watchExecutor.submit(watchTask);
+            }
+        }
+
+
+        boolean isDestroyed() {
+            return executorDestroyed.get();
+        }
+
+        void destroy() {
+            synchronized (lock) {
+                if (executorDestroyed.compareAndSet(false, true)) {
+                    fetchExecutor.shutdown();
+                    watchExecutor.shutdown();
                 }
             }
-            if (!hasWeight) {
-                newMetadata = new HashMap<>(metadata);
-                newMetadata.put(WEIGHT_KEY, Integer.toString(weight));
-            }
-            return new URL(protocol,
-                    host,
-                    port,
-                    newMetadata.get(PATH_KEY),
-                    newMetadata);
         }
     }
 
     @Override
     public void doUnsubscribe(URL url, NotifyListener listener) {
         LOGGER.info("[polaris] unsubscribe service: {}", url.toString());
-        EXECUTOR_MAP.get(url).shutdown();
+        taskScheduler.submitWatchTask(new Runnable() {
+            @Override
+            public void run() {
+                ServiceListener serviceListener = serviceListeners.get(listener);
+                if (null != serviceListener) {
+                    PolarisSingleton.getPolarisWatcher().unwatchService(url.getServiceInterface(), serviceListener);
+                }
+            }
+        });
     }
 
     @Override

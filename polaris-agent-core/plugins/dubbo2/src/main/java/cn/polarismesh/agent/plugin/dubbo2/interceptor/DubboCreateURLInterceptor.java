@@ -3,6 +3,7 @@ package cn.polarismesh.agent.plugin.dubbo2.interceptor;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
 import cn.polarismesh.agent.common.tools.ReflectionUtils.FieldCallback;
 import cn.polarismesh.agent.common.tools.ReflectionUtils.FieldFilter;
+import cn.polarismesh.common.interceptor.AbstractInterceptor;
 import org.apache.dubbo.common.URL;
 
 import java.lang.reflect.Field;
@@ -12,7 +13,11 @@ import java.util.Map;
 import static org.apache.dubbo.common.constants.CommonConstants.*;
 import static org.apache.dubbo.registry.Constants.CONSUMER_PROTOCOL;
 
-public class DubboUrlInterceptor implements AbstractInterceptor {
+/**
+ * interceptor for org.apache.dubbo.common.URL#URL(java.lang.String, java.lang.String, java.lang.String,
+ * java.lang.String, int, java.lang.String, java.util.Map)
+ */
+public class DubboCreateURLInterceptor implements AbstractInterceptor {
 
     @Override
     public void before(Object target, Object[] args) {

@@ -1,5 +1,5 @@
 package cn.polarismesh.agent.pinpoint.dubbo2.Interceptor;
 
-public class DubboUrlInterceptor extends DubboInterceptorTemplate {
+public class DubboUrlInterceptor extends AbstractDubboInterceptor {
 
 }

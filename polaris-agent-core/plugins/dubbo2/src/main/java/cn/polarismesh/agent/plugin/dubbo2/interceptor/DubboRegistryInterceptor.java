@@ -2,15 +2,17 @@ package cn.polarismesh.agent.plugin.dubbo2.interceptor;
 
 import cn.polarismesh.agent.plugin.dubbo2.polaris.PolarisRegistryFactory;
 import cn.polarismesh.agent.plugin.dubbo2.utils.ReflectUtil;
+import cn.polarismesh.common.interceptor.AbstractInterceptor;
 import org.apache.dubbo.registry.RegistryFactory;
 import org.apache.dubbo.registry.integration.InterfaceCompatibleRegistryProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 服务注册拦截器
+ * interceptor for org.apache.dubbo.registry.integration.RegistryProtocol#setRegistryFactory(org.apache.dubbo.registry.RegistryFactory)
  */
 public class DubboRegistryInterceptor implements AbstractInterceptor {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DubboRegistryInterceptor.class);
 
     @Override
@@ -23,7 +25,7 @@ public class DubboRegistryInterceptor implements AbstractInterceptor {
      */
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        LOGGER.info("[POLARIS] set {}.registryFactory as PolarisRegistryFactory", target.getClass());
+        LOGGER.debug("[POLARIS] set {}.registryFactory as PolarisRegistryFactory", target.getClass());
         if(target instanceof InterfaceCompatibleRegistryProtocol){
             ReflectUtil.setSuperValueByFieldName(target, "registryFactory", new PolarisRegistryFactory((RegistryFactory) args[0]));
         }else{

@@ -1,4 +1,4 @@
-package cn.polarismesh.agent.plugin.dubbox.constants;
+package cn.polarismesh.agent.plugin.dubbo2.constants;
 
 /**
  * Polaris相关常量

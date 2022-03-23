@@ -1,6 +1,7 @@
 package cn.polarismesh.agent.plugin.dubbo2.interceptor;
 
 import cn.polarismesh.agent.plugin.dubbo2.polaris.PolarisSingleton;
+import cn.polarismesh.common.interceptor.AbstractInterceptor;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.rpc.AppResponse;
 import org.apache.dubbo.rpc.AsyncRpcResult;
@@ -12,10 +13,11 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * 统计时延信息、上报服务调用结果
+ * interceptor for org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker#invoke(org.apache.dubbo.rpc.Invocation)
  */
-public class DubboInvokeInterceptor implements AbstractInterceptor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DubboInvokeInterceptor.class);
+public class DubboReportInvokeInterceptor implements AbstractInterceptor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DubboReportInvokeInterceptor.class);
 
     private ThreadLocal<Long> startTimeMilli = new ThreadLocal<>();
 
@@ -54,7 +56,7 @@ public class DubboInvokeInterceptor implements AbstractInterceptor {
     }
 
     private void report(URL url, Invocation invocation, long delay, boolean isSuccess) {
-        PolarisSingleton.getPolarisOperation()
+        PolarisSingleton.getPolarisWatcher()
                 .reportInvokeResult(url.getServiceInterface(), invocation.getMethodName(), url.getHost(), url.getPort(),
                         delay, isSuccess, isSuccess ? 0 : -1);
     }

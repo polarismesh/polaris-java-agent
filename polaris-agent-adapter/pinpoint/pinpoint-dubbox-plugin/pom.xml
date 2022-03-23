@@ -21,7 +21,7 @@
             <version>${alibaba.dubbo.version}</version>
             <scope>provided</scope>
         </dependency>
-	<!-- polaris-plugins-->
+	    <!-- polaris-plugins-->
         <dependency>
             <groupId>com.tencent.polaris</groupId>
             <artifactId>polaris-agent-dubbox-plugin</artifactId>
