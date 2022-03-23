@@ -24,12 +24,6 @@ public interface PolarisReflectConst {
 
     String METHOD_GET_INSTANCES = "getInstances";
 
-    String METHOD_GET_ALL_INSTANCES = "getAllInstances";
-
-    String METHOD_WATCH_SERVICE = "watchService";
-
-    String METHOD_UNWATCH_SERVICE = "unWatchService";
-
     String METHOD_GET_QUOTA = "getQuota";
 
     String CLAZZ_INSTANCE_PARSER = "com.tencent.polaris.factory.api.APIFacade.InstanceParser";
