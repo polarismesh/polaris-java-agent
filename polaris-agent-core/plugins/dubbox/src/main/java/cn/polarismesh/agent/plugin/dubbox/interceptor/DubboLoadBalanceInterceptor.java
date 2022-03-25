@@ -6,7 +6,7 @@ import com.alibaba.dubbo.common.Constants;
 import com.alibaba.dubbo.common.extension.ExtensionLoader;
 
 /**
- * interceptor for com.alibaba.dubbo.common.extension.ExtensionLoader#loadExtensionClasses()
+ * interceptor for com.alibaba.dubbo.common.extension.ExtensionLoader#createExtension(java.lang.String)
  */
 public class DubboLoadBalanceInterceptor implements AbstractInterceptor {
 

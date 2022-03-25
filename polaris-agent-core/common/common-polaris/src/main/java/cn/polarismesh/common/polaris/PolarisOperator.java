@@ -226,7 +226,7 @@ public class PolarisOperator {
      * 服务注册
      */
     public void register(String service, String host, int port, String protocol, String version, int weight,
-            Map<String, String> metadata) {
+                         Map<String, String> metadata) {
         init();
         if (!inited.get()) {
             LOGGER.error("[POLARIS] fail to register address {}:{} to {}, polaris init failed", host, port, service);
@@ -335,7 +335,7 @@ public class PolarisOperator {
      * @param delay 本次服务调用延迟，单位ms
      */
     public void reportInvokeResult(String service, String method, String host, int port, long delay, boolean success,
-            int code) {
+                                   int code) {
         init();
         if (!inited.get()) {
             LOGGER.error("[POLARIS] fail to getInstances {}, polaris init failed", service);

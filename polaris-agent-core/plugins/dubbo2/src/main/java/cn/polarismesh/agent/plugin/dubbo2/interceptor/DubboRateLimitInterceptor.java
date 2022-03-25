@@ -1,14 +1,14 @@
-package cn.polarismesh.agent.plugin.dubbox.interceptor;
+package cn.polarismesh.agent.plugin.dubbo2.interceptor;
 
-import cn.polarismesh.agent.plugin.dubbox.polaris.PolarisFilterWrapper;
-import cn.polarismesh.agent.plugin.dubbox.utils.ReflectUtil;
+import cn.polarismesh.agent.plugin.dubbo2.polaris.PolarisFilterWrapper;
+import cn.polarismesh.agent.plugin.dubbo2.utils.ReflectUtil;
 import cn.polarismesh.common.interceptor.AbstractInterceptor;
-import com.alibaba.dubbo.rpc.Invoker;
+import org.apache.dubbo.rpc.Invoker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * interceptor for com.alibaba.dubbo.rpc.protocol.AbstractExporter#AbstractExporter(com.alibaba.dubbo.rpc.Invoker)
+ * interceptor for org.apache.dubbo.rpc.protocol.AbstractExporter#AbstractExporter(org.apache.dubbo.rpc.Invoker)
  */
 public class DubboRateLimitInterceptor implements AbstractInterceptor {
 
@@ -19,7 +19,7 @@ public class DubboRateLimitInterceptor implements AbstractInterceptor {
     }
 
     /**
-     * 拦截com.alibaba.dubbo.rpc.protocol.AbstractExporter的构造器
+     * 拦截org.apache.dubbo.rpc.protocol.AbstractExporter的构造器
      * 替换其invoker对象为自定义的invoker对象，用于接入限流功能
      */
     @SuppressWarnings("unchecked")

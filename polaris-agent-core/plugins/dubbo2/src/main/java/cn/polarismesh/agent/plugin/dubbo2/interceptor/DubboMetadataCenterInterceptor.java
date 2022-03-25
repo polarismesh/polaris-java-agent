@@ -1,6 +1,7 @@
 package cn.polarismesh.agent.plugin.dubbo2.interceptor;
 
 import cn.polarismesh.agent.plugin.dubbo2.utils.ReflectUtil;
+import cn.polarismesh.common.interceptor.AbstractInterceptor;
 import org.apache.dubbo.config.AbstractConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,16 +9,16 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 /**
- * ConfigManager拦截器
+ * interceptor for org.apache.dubbo.config.context.ConfigManager#getMetadataConfigs()
  */
-public class DubboConfigInterceptor implements AbstractInterceptor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DubboConfigInterceptor.class);
+public class DubboMetadataCenterInterceptor implements AbstractInterceptor {
 
-    private static final String CONFIG_CENTER_KEY = "config-center";
+    private static final Logger LOGGER = LoggerFactory.getLogger(DubboMetadataCenterInterceptor.class);
 
+    private static final String METADATA_REPORT_KEY = "metadata-report";
 
     /**
-     * 在getConfigCenters()处拦截，清除掉configsCache中关于config-center的信息
+     * 在getMetadataConfigs()处拦截，清除掉configsCache中关于metadata-report的信息
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -25,11 +26,11 @@ public class DubboConfigInterceptor implements AbstractInterceptor {
         Map<String, Map<String, AbstractConfig>> configsCache =
                 (Map<String, Map<String, AbstractConfig>>) ReflectUtil.getObjectByFieldName(target, "configsCache");
         if (null == configsCache) {
-            LOGGER.error("config-center: get configsCache fail, object is null");
+            LOGGER.error("metadata-report: get configsCache fail, object is null");
             return;
         }
-        configsCache.remove(CONFIG_CENTER_KEY);
-        LOGGER.info("clean config-center key in dubbo ConfigManager");
+        configsCache.remove(METADATA_REPORT_KEY);
+        LOGGER.info("clean metadata-report key in dubbo ConfigManager");
     }
 
     @Override

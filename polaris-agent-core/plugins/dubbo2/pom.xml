@@ -22,10 +22,5 @@
             <version>${apache.dubbo.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-all</artifactId>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 </project>

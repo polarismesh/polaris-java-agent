@@ -1,6 +1,5 @@
 package cn.polarismesh.agent.plugin.dubbo2.polaris;
 
-import com.tencent.polaris.api.utils.StringUtils;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.ExtensionLoader;
 import org.apache.dubbo.registry.ListenerRegistryWrapper;
@@ -19,7 +18,7 @@ public class PolarisRegistryFactory implements RegistryFactory {
     @Override
     public Registry getRegistry(URL url) {
         String protocol = url.getProtocol();
-        if (StringUtils.isNotBlank(protocol) && protocol.equals("zookeeper")) {
+        if (null != protocol && protocol.equals("zookeeper")) {
             return new PolarisRegistry(url);
         }
         return new ListenerRegistryWrapper(this.registryFactory.getRegistry(url),

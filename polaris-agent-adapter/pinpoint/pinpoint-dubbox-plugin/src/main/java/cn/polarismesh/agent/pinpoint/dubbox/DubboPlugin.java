@@ -51,11 +51,11 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
     private void addTransformers() {
         transformTemplate.transform(ClassNames.REGISTRY_PROTOCOL_NAME, RegistryProtocolTransform.class);
         transformTemplate.transform(ClassNames.REGISTRY_DIRECTORY_NAME, RegistryDirectoryTransform.class);
-        transformTemplate.transform(ClassNames.ABSTRACT_EXPORTER_NAME, AbstractExporterTransform.class);
+        transformTemplate.transform(ClassNames.ABSTRACT_EXPORTER_NAME, ExporterTransform.class);
         transformTemplate.transform(ClassNames.URL_NAME, UrlConstructorTransform.class);
         transformTemplate.transform(ClassNames.CLUSTER_INVOKER_NAME, ClusterInvokerTransform.class);
-        transformTemplate.transform(ClassNames.DIRECTORY_NAME, AbstractDirectoryTransform.class);
-        transformTemplate.transform(ClassNames.EXTENSION_LOADER_NAME, AbstractExtensionLoaderTransform.class);
+        transformTemplate.transform(ClassNames.DIRECTORY_NAME, DirectoryTransform.class);
+        transformTemplate.transform(ClassNames.EXTENSION_LOADER_NAME, ExtensionLoaderTransform.class);
     }
 
     public static class RegistryProtocolTransform implements TransformCallback {
@@ -89,7 +89,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    public static class AbstractExtensionLoaderTransform implements TransformCallback {
+    public static class ExtensionLoaderTransform implements TransformCallback {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
@@ -105,7 +105,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    public static class AbstractDirectoryTransform implements TransformCallback {
+    public static class DirectoryTransform implements TransformCallback {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
@@ -136,7 +136,7 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    public static class AbstractExporterTransform implements TransformCallback {
+    public static class ExporterTransform implements TransformCallback {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
