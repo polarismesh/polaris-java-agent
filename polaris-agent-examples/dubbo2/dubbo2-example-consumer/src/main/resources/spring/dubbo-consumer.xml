@@ -29,7 +29,7 @@
 
     <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
 
-    <dubbo:reference id="demoService" check="false" interface="cn.polarismesh.dubbo2.demo.DemoService"/>
+    <dubbo:reference id="demoService" check="false" interface="cn.polarismesh.dubbo2.api.DemoService"/>
 
     <dubbo:consumer timeout="50000000"/>
 </beans>

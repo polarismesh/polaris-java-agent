@@ -38,3 +38,6 @@ applog/
 dependency-reduced-pom.xml
 
 backup/
+
+*.tar.gz
+*.zip

@@ -19,11 +19,13 @@
         <target.level>1.8</target.level>
         <skip_maven_deploy>true</skip_maven_deploy>
         <dubbo.compiler.version>0.0.2</dubbo.compiler.version>
-        <dubbo.version>2.7.14</dubbo.version>
+        <dubbo.version>${apache.dubbo.version}</dubbo.version>
         <spring.version>4.3.16.RELEASE</spring.version>
+        <logback.version>1.2.9</logback.version>
     </properties>
 
     <modules>
+        <module>dubbo2-example-api</module>
         <module>dubbo2-example-provider</module>
         <module>dubbo2-example-consumer</module>
     </modules>
@@ -44,6 +46,7 @@
                 <version>${dubbo.version}</version>
                 <type>pom</type>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -64,50 +67,6 @@
                     <source>${source.level}</source>
                     <target>${target.level}</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.xolstice.maven.plugins</groupId>
-                <artifactId>protobuf-maven-plugin</artifactId>
-                <version>0.5.1</version>
-                <configuration>
-                    <protocArtifact>com.google.protobuf:protoc:3.7.1:exe:${os.detected.classifier}</protocArtifact>
-                    <outputDirectory>build/generated/source/proto/main/java</outputDirectory>
-                    <clearOutputDirectory>false</clearOutputDirectory>
-                    <protocPlugins>
-                        <protocPlugin>
-                            <id>dubbo</id>
-                            <groupId>org.apache.dubbo</groupId>
-                            <artifactId>dubbo-compiler</artifactId>
-                            <version>${dubbo.compiler.version}</version>
-                            <mainClass>org.apache.dubbo.gen.dubbo.Dubbo3Generator</mainClass>
-                        </protocPlugin>
-                    </protocPlugins>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>test-compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>build/generated/source/proto/main/java</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

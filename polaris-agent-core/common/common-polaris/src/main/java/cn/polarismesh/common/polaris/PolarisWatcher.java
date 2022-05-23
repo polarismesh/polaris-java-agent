@@ -35,6 +35,7 @@ import com.tencent.polaris.api.rpc.InstanceRegisterRequest;
 import com.tencent.polaris.api.rpc.InstanceRegisterResponse;
 import com.tencent.polaris.api.rpc.InstancesResponse;
 import com.tencent.polaris.api.rpc.ServiceCallResult;
+import com.tencent.polaris.api.rpc.UnWatchServiceRequest;
 import com.tencent.polaris.api.rpc.WatchServiceRequest;
 import com.tencent.polaris.client.api.SDKContext;
 import com.tencent.polaris.factory.ConfigAPIFactory;
@@ -222,14 +223,15 @@ public class PolarisWatcher {
         watchServiceRequest.setNamespace(polarisConfig.getNamespace());
         watchServiceRequest.setService(service);
         watchServiceRequest.setListeners(Collections.singletonList(listener));
-        return consumerAPI.watchService(watchServiceRequest).isResult();
+        return consumerAPI.watchService(watchServiceRequest).isSuccess();
     }
 
     public void unwatchService(String service, ServiceListener serviceListener) {
-        WatchServiceRequest watchServiceRequest = new WatchServiceRequest();
-        watchServiceRequest.setNamespace(polarisConfig.getNamespace());
-        watchServiceRequest.setService(service);
-        watchServiceRequest.setListeners(Collections.singletonList(serviceListener));
+        UnWatchServiceRequest watchServiceRequest = UnWatchServiceRequest.UnWatchServiceRequestBuilder.anUnWatchServiceRequest()
+                .namespace(polarisConfig.getNamespace())
+                .service(service)
+                .listeners(Collections.singletonList(serviceListener))
+                .build();
         consumerAPI.unWatchService(watchServiceRequest);
     }
 

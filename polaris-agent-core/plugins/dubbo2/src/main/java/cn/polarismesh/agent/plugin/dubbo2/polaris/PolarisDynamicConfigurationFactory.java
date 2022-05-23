@@ -15,8 +15,19 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.pinpoint.dubbo2.Interceptor;
+package cn.polarismesh.agent.plugin.dubbo2.polaris;
 
-public class DubboRegistryDirectoryInterceptor extends AbstractDubboInterceptor {
+import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.config.configcenter.DynamicConfiguration;
+import org.apache.dubbo.common.config.configcenter.DynamicConfigurationFactory;
 
+/**
+ * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
+ */
+public class PolarisDynamicConfigurationFactory implements DynamicConfigurationFactory {
+
+    @Override
+    public DynamicConfiguration getDynamicConfiguration(URL url) {
+        return new PolarisDynamicConfiguration(url);
+    }
 }

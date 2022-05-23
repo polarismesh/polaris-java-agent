@@ -14,13 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cn.polarismesh.dubbo2.demo.provider;
+
+package cn.polarismesh.dubbo2.demo.server;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.concurrent.CountDownLatch;
 
 public class Application {
+
     public static void main(String[] args) throws Exception {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("spring/dubbo-provider.xml");
         context.start();
@@ -29,4 +31,5 @@ public class Application {
         System.out.println("dubbo service started");
         new CountDownLatch(1).await();
     }
+
 }

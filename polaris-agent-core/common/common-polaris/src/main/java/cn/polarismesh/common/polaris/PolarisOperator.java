@@ -152,23 +152,20 @@ public class PolarisOperator {
             }
             ClassLoader clazzLoader = generatePolarisLoader(polarisConfig.getAgentDir());
             clazzLoaderTemplate = new ContextClassLoaderExecuteTemplate(clazzLoader);
-            clazzLoaderTemplate.execute("init polaris context", new Callable<Object>() {
-                @Override
-                public Object call() throws Exception {
-                    boolean initMethodsResult = initReflectMethods();
-                    if (!initMethodsResult) {
-                        return null;
-                    }
-                    Object sdkConfig = loadPolarisConfig(polarisConfig.getAgentDir());
-                    Method setAddressesMethod = methods.get(PolarisReflectConst.METHOD_SET_ADDRESSES);
-                    ReflectionUtils.invokeMethod(setAddressesMethod, null, sdkConfig,
-                            Collections.singletonList(polarisConfig.getRegistryAddress()));
-                    LOGGER.info("[POLARIS] polaris config is \n{}", sdkConfig);
-                    Method initMethod = methods.get(PolarisReflectConst.METHOD_INIT);
-                    ReflectionUtils.invokeMethod(initMethod, null, sdkConfig);
-                    inited.set(true);
+            clazzLoaderTemplate.execute("init polaris context", () -> {
+                boolean initMethodsResult = initReflectMethods();
+                if (!initMethodsResult) {
                     return null;
                 }
+                Object sdkConfig = loadPolarisConfig(polarisConfig.getAgentDir());
+                Method setAddressesMethod = methods.get(PolarisReflectConst.METHOD_SET_ADDRESSES);
+                ReflectionUtils.invokeMethod(setAddressesMethod, null, sdkConfig,
+                        Collections.singletonList(polarisConfig.getRegistryAddress()));
+                LOGGER.info("[POLARIS] polaris config is \n{}", sdkConfig);
+                Method initMethod = methods.get(PolarisReflectConst.METHOD_INIT);
+                ReflectionUtils.invokeMethod(initMethod, null, sdkConfig);
+                inited.set(true);
+                return null;
             });
         }
     }

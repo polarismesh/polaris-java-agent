@@ -15,29 +15,17 @@
  * limitations under the License.
  */
 
-package cn.polarismesh.dubbo2.samples;
+package cn.polarismesh.dubbo2.demo.server;
 
 import cn.polarismesh.dubbo2.api.DemoService;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.apache.dubbo.rpc.RpcContext;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath*:spring/dubbo-consumer.xml"})
-public class DubboProtobufIT {
+public class DemoServiceImpl implements DemoService {
 
-    @Autowired
-    @Qualifier("demoService")
-    private DemoService demoService;
-
-    @Test
-    public void testGreeting() throws Exception {
-        String resp = demoService.sayHello("world");
-        Assert.assertTrue(resp.startsWith("Hello world"));
+    @Override
+    public String sayHello(String name) {
+        System.out.println("Hello " + name + ", request from consumer: " + RpcContext.getContext().getRemoteAddress());
+        return "Hello " + name + ", response from provider: "
+                        + RpcContext.getContext().getLocalAddress();
     }
 }
-

@@ -36,7 +36,7 @@ public class PolarisRegistry extends FailbackRegistry {
 
     private static final TaskScheduler taskScheduler = new TaskScheduler();
 
-    private final Map<String, Protocol> protocols = new HashMap<>();
+    private final Map<String, Integer> protocols = new HashMap<>();
 
     private final Set<URL> registeredInstances = new ConcurrentHashSet<>();
 
@@ -44,24 +44,50 @@ public class PolarisRegistry extends FailbackRegistry {
 
     private final Map<NotifyListener, ServiceListener> serviceListeners = new ConcurrentHashMap<>();
 
+    /**
+     * dubbo=org.apache.dubbo.rpc.protocol.dubbo.DubboProtocol
+     * injvm=org.apache.dubbo.rpc.protocol.injvm.InjvmProtocol
+     * http=org.apache.dubbo.rpc.protocol.http.HttpProtocol
+     * rmi=org.apache.dubbo.rpc.protocol.rmi.RmiProtocol
+     * hessian=org.apache.dubbo.rpc.protocol.hessian.HessianProtocol
+     * webservice=org.apache.dubbo.rpc.protocol.webservice.WebServiceProtocol
+     * thrift=org.apache.dubbo.rpc.protocol.thrift.ThriftProtocol
+     * native-thrift=org.apache.dubbo.rpc.protocol.nativethrift.ThriftProtocol
+     * memcached=org.apache.dubbo.rpc.protocol.memcached.MemcachedProtocol
+     * redis=org.apache.dubbo.rpc.protocol.redis.RedisProtocol
+     * rest=org.apache.dubbo.rpc.protocol.rest.RestProtocol
+     * xmlrpc=org.apache.dubbo.xml.rpc.protocol.xmlrpc.XmlRpcProtocol
+     * grpc=org.apache.dubbo.rpc.protocol.grpc.GrpcProtocol
+     */
+    {
+        protocols.put("dubbo", 20880);
+        protocols.put("injvm", 0);
+        protocols.put("http", 80);
+        protocols.put("rmi", 1099);
+        protocols.put("hessian", 80);
+        protocols.put("webservice", 80);
+        protocols.put("thrift", 40880);
+        protocols.put("native-thrift", 40880);
+        protocols.put("memcached", 11211);
+        protocols.put("redis", 9090);
+        protocols.put("rest", 80);
+        protocols.put("xmlrpc", 80);
+        protocols.put("grpc", 50051);
+    }
+
     public PolarisRegistry(URL url) {
         super(url);
-        ExtensionLoader<Protocol> extensionLoader = ExtensionLoader.getExtensionLoader(Protocol.class);
-        Set<String> supportedExtensions = extensionLoader.getSupportedExtensions();
-        for (String supportedExtension : supportedExtensions) {
-            protocols.put(supportedExtension, extensionLoader.getExtension(supportedExtension));
-        }
     }
 
     private int parsePort(String protocolStr, int port) {
         if (port > 0) {
             return port;
         }
-        Protocol protocol = protocols.get(protocolStr);
-        if (null == protocol) {
+        Integer protocolPort = protocols.get(protocolStr);
+        if (null == protocolPort) {
             return 0;
         }
-        return protocol.getDefaultPort();
+        return protocolPort;
     }
 
     @Override
