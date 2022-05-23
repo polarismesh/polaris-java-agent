@@ -79,7 +79,7 @@ public class PolarisRouter implements Router {
         LOGGER.debug("[POLARIS] list service {}, method {}, attachment {}, labels {}, url {}", service,
                 invocation.getMethodName(),
                 attachments, srcLabels, url);
-        List<Instance> resultInstances = PolarisSingleton.getPolarisWatcher()
+        List<Instance> resultInstances = PolarisSingleton.getPolarisOperator()
                 .route(service, invocation.getMethodName(), srcLabels, instances);
         return (List<Invoker<T>>) ((List<?>) resultInstances);
     }

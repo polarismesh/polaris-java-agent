@@ -18,20 +18,20 @@
 package cn.polarismesh.agent.plugin.dubbo2.polaris;
 
 import cn.polarismesh.common.polaris.PolarisConfig;
-import cn.polarismesh.common.polaris.PolarisWatcher;
+import cn.polarismesh.common.polaris.PolarisOperator;
 
 public class PolarisSingleton {
 
-    private static final PolarisConfig polarisConfig = new PolarisConfig();
+    private static final PolarisConfig POLARIS_CONFIG = new PolarisConfig();
 
-    private static final PolarisWatcher polarisWatcher = new PolarisWatcher(getPolarisConfig());
+    private static final PolarisOperator POLARIS_OPERATOR = new PolarisOperator(getPolarisConfig());
 
-    public static PolarisWatcher getPolarisWatcher() {
-        return polarisWatcher;
+    public static PolarisOperator getPolarisOperator() {
+        return POLARIS_OPERATOR;
     }
 
     public static PolarisConfig getPolarisConfig() {
-        return polarisConfig;
+        return POLARIS_CONFIG;
     }
 
 }

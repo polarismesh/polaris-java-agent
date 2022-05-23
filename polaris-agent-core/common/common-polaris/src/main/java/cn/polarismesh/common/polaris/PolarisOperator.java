@@ -17,21 +17,48 @@
 
 package cn.polarismesh.common.polaris;
 
-import cn.polarismesh.agent.common.tools.ClassUtils;
-import cn.polarismesh.agent.common.tools.ReflectionUtils;
+import com.tencent.polaris.api.config.Configuration;
+import com.tencent.polaris.api.core.ConsumerAPI;
+import com.tencent.polaris.api.core.ProviderAPI;
+import com.tencent.polaris.api.listener.ServiceListener;
+import com.tencent.polaris.api.pojo.DefaultServiceInstances;
+import com.tencent.polaris.api.pojo.Instance;
+import com.tencent.polaris.api.pojo.RetStatus;
+import com.tencent.polaris.api.pojo.ServiceInfo;
+import com.tencent.polaris.api.pojo.ServiceKey;
+import com.tencent.polaris.api.rpc.Criteria;
+import com.tencent.polaris.api.rpc.GetInstancesRequest;
+import com.tencent.polaris.api.rpc.InstanceDeregisterRequest;
+import com.tencent.polaris.api.rpc.InstanceHeartbeatRequest;
+import com.tencent.polaris.api.rpc.InstanceRegisterRequest;
+import com.tencent.polaris.api.rpc.InstanceRegisterResponse;
+import com.tencent.polaris.api.rpc.InstancesResponse;
+import com.tencent.polaris.api.rpc.ServiceCallResult;
+import com.tencent.polaris.api.rpc.UnWatchServiceRequest;
+import com.tencent.polaris.api.rpc.WatchServiceRequest;
+import com.tencent.polaris.client.api.SDKContext;
+import com.tencent.polaris.factory.ConfigAPIFactory;
+import com.tencent.polaris.factory.api.DiscoveryAPIFactory;
+import com.tencent.polaris.factory.api.RouterAPIFactory;
+import com.tencent.polaris.factory.config.ConfigurationImpl;
+import com.tencent.polaris.ratelimit.api.core.LimitAPI;
+import com.tencent.polaris.ratelimit.api.rpc.QuotaRequest;
+import com.tencent.polaris.ratelimit.api.rpc.QuotaResponse;
+import com.tencent.polaris.ratelimit.api.rpc.QuotaResultCode;
+import com.tencent.polaris.ratelimit.factory.LimitAPIFactory;
+import com.tencent.polaris.router.api.core.RouterAPI;
+import com.tencent.polaris.router.api.rpc.ProcessLoadBalanceRequest;
+import com.tencent.polaris.router.api.rpc.ProcessLoadBalanceResponse;
+import com.tencent.polaris.router.api.rpc.ProcessRoutersRequest;
+import com.tencent.polaris.router.api.rpc.ProcessRoutersResponse;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -44,16 +71,6 @@ public class PolarisOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PolarisOperator.class);
 
-    private static final String[] PARSER_METHOD_NAMES = new String[]{PolarisReflectConst.METHOD_GET_HOST,
-            PolarisReflectConst.METHOD_GET_PORT, PolarisReflectConst.METHOD_GET_PROTOCOL,
-            PolarisReflectConst.METHOD_GET_METADATA, PolarisReflectConst.METHOD_GET_WEIGHT};
-
-    private ContextClassLoaderExecuteTemplate clazzLoaderTemplate;
-
-    private final Map<String, Method> methods = new HashMap<>();
-
-    private final PolarisConfig polarisConfig = new PolarisConfig();
-
     private final Object lock = new Object();
 
     private final AtomicBoolean inited = new AtomicBoolean(false);
@@ -62,84 +79,20 @@ public class PolarisOperator {
 
     private final Map<InstanceIdentifier, ScheduledFuture<?>> scheduledFutures = new HashMap<>();
 
-    private boolean initReflectMethods() {
-        ClassLoader clazzLoader = Thread.currentThread().getContextClassLoader();
-        Class<?> clazz = null;
-        try {
-            clazz = ClassUtils.forName(PolarisReflectConst.CLAZZ_FACADE, clazzLoader);
-        } catch (Exception e) {
-            LOGGER.error("[POLARIS] fail to resolve clazz {}, classloader {}", PolarisReflectConst.CLAZZ_FACADE,
-                    ((URLClassLoader) clazzLoader).getURLs(), e);
-            return false;
-        }
-        Method initMethod = ClassUtils.getMethod(clazz, PolarisReflectConst.METHOD_INIT, Object.class);
-        methods.put(PolarisReflectConst.METHOD_INIT, initMethod);
+    private final PolarisConfig polarisConfig;
 
-        Method registerMethod = ClassUtils.getMethod(clazz, PolarisReflectConst.METHOD_REGISTER, String.class,
-                String.class, String.class, int.class, String.class, String.class, int.class, Map.class, int.class,
-                String.class);
-        methods.put(PolarisReflectConst.METHOD_REGISTER, registerMethod);
+    private SDKContext sdkContext;
 
-        Method deregisterMethod = ClassUtils.getMethod(clazz, PolarisReflectConst.METHOD_DEREGISTER, String.class,
-                String.class, String.class, int.class, String.class);
-        methods.put(PolarisReflectConst.METHOD_DEREGISTER, deregisterMethod);
+    private ConsumerAPI consumerAPI;
 
-        Method heartbeatMethod = ClassUtils.getMethod(clazz, PolarisReflectConst.METHOD_HEARTBEAT, String.class,
-                String.class, String.class, int.class, String.class);
-        methods.put(PolarisReflectConst.METHOD_HEARTBEAT, heartbeatMethod);
+    private ProviderAPI providerAPI;
 
-        Method updateMethod = ClassUtils
-                .getMethod(clazz, PolarisReflectConst.METHOD_UPDATE_SERVICE_CALL_RESULT, String.class,
-                        String.class, String.class, String.class, int.class, long.class, boolean.class, int.class);
-        methods.put(PolarisReflectConst.METHOD_UPDATE_SERVICE_CALL_RESULT, updateMethod);
+    private LimitAPI limitAPI;
 
-        Method getInstancesMethod = ClassUtils
-                .getMethod(clazz, PolarisReflectConst.METHOD_GET_INSTANCES, String.class, String.class, Map.class,
-                        Map.class);
-        methods.put(PolarisReflectConst.METHOD_GET_INSTANCES, getInstancesMethod);
+    private RouterAPI routerAPI;
 
-        Method getQuotaMethod = ClassUtils
-                .getMethod(clazz, PolarisReflectConst.METHOD_GET_QUOTA, String.class, String.class, String.class,
-                        Map.class, int.class);
-        methods.put(PolarisReflectConst.METHOD_GET_QUOTA, getQuotaMethod);
-
-        Method deleteMethod = ClassUtils.getMethod(clazz, PolarisReflectConst.METHOD_DESTROY);
-        methods.put(PolarisReflectConst.METHOD_DESTROY, deleteMethod);
-
-        Class<?> parserClazz = null;
-        try {
-            parserClazz = ClassUtils.forName(PolarisReflectConst.CLAZZ_INSTANCE_PARSER, clazzLoader);
-        } catch (Exception e) {
-            LOGGER.error("[POLARIS] fail to resolve clazz {}", PolarisReflectConst.CLAZZ_INSTANCE_PARSER, e);
-            return false;
-        }
-        for (String parserMethod : PARSER_METHOD_NAMES) {
-            Method method = ClassUtils.getMethod(parserClazz, parserMethod, Object.class);
-            methods.put(parserMethod, method);
-        }
-
-        Class<?> configFactoryClazz = null;
-        try {
-            configFactoryClazz = ClassUtils.forName(PolarisReflectConst.CLAZZ_CONFIG_FACTORY, clazzLoader);
-        } catch (Exception e) {
-            LOGGER.error("[POLARIS] fail to resolve clazz {}", PolarisReflectConst.CLAZZ_CONFIG_FACTORY, e);
-            return false;
-        }
-        Method loadConfigMethod = ClassUtils
-                .getMethod(configFactoryClazz, PolarisReflectConst.METHOD_LOAD_CONFIG, InputStream.class);
-        methods.put(PolarisReflectConst.METHOD_LOAD_CONFIG, loadConfigMethod);
-
-        Class<?> configModifierClazz = null;
-        try {
-            configModifierClazz = ClassUtils.forName(PolarisReflectConst.CLAZZ_CONFIG_MODIFIER, clazzLoader);
-        } catch (Exception e) {
-            LOGGER.error("[POLARIS] fail to resolve clazz {}", PolarisReflectConst.CLAZZ_CONFIG_MODIFIER, e);
-            return false;
-        }
-        Method setAddressesMethod = ClassUtils
-                .getMethod(configModifierClazz, PolarisReflectConst.METHOD_SET_ADDRESSES, Object.class, List.class);
-        methods.put(PolarisReflectConst.METHOD_SET_ADDRESSES, setAddressesMethod);
-        return true;
+    public PolarisOperator(PolarisConfig polarisConfig) {
+        this.polarisConfig = polarisConfig;
     }
 
     public void init() {
@@ -150,35 +103,33 @@ public class PolarisOperator {
             if (inited.get()) {
                 return;
             }
-            ClassLoader clazzLoader = generatePolarisLoader(polarisConfig.getAgentDir());
-            clazzLoaderTemplate = new ContextClassLoaderExecuteTemplate(clazzLoader);
-            clazzLoaderTemplate.execute("init polaris context", () -> {
-                boolean initMethodsResult = initReflectMethods();
-                if (!initMethodsResult) {
-                    return null;
-                }
-                Object sdkConfig = loadPolarisConfig(polarisConfig.getAgentDir());
-                Method setAddressesMethod = methods.get(PolarisReflectConst.METHOD_SET_ADDRESSES);
-                ReflectionUtils.invokeMethod(setAddressesMethod, null, sdkConfig,
-                        Collections.singletonList(polarisConfig.getRegistryAddress()));
-                LOGGER.info("[POLARIS] polaris config is \n{}", sdkConfig);
-                Method initMethod = methods.get(PolarisReflectConst.METHOD_INIT);
-                ReflectionUtils.invokeMethod(initMethod, null, sdkConfig);
-                inited.set(true);
-                return null;
-            });
+            String agentDir = polarisConfig.getAgentDir();
+            Configuration configuration;
+            try {
+                configuration = loadPolarisConfig(agentDir);
+            } catch (IOException e) {
+                LOGGER.error("fail to load polaris config: {}", e.getMessage());
+                return;
+            }
+            ((ConfigurationImpl) configuration).setDefault();
+            ((ConfigurationImpl) configuration).getGlobal().getServerConnector()
+                    .setAddresses(Collections.singletonList(polarisConfig.getRegistryAddress()));
+            sdkContext = SDKContext.initContextByConfig(configuration);
+            consumerAPI = DiscoveryAPIFactory.createConsumerAPIByContext(sdkContext);
+            providerAPI = DiscoveryAPIFactory.createProviderAPIByContext(sdkContext);
+            limitAPI = LimitAPIFactory.createLimitAPIByContext(sdkContext);
+            routerAPI = RouterAPIFactory.createRouterAPIByContext(sdkContext);
+            inited.set(true);
         }
     }
 
-    private Object loadPolarisConfig(String agentDir) throws Exception {
+    private Configuration loadPolarisConfig(String agentDir) throws IOException {
         String polarisConfigFile = agentDir + File.separator + PolarisReflectConst.POLARIS_CONF_DIR + File.separator
                 + PolarisReflectConst.POLARIS_CONF_FILE;
         try (InputStream inputStream = new FileInputStream(polarisConfigFile)) {
-            Method loadConfMethod = methods.get(PolarisReflectConst.METHOD_LOAD_CONFIG);
-            return ReflectionUtils.invokeMethod(loadConfMethod, null, inputStream);
+            return ConfigAPIFactory.loadConfig(inputStream);
         }
     }
-
 
     public void destroy() {
         synchronized (lock) {
@@ -186,44 +137,16 @@ public class PolarisOperator {
                 return;
             }
             heartbeatExecutor.shutdown();
-            clazzLoaderTemplate.execute("init polaris context", new Callable<Object>() {
-
-                @Override
-                public Object call() throws Exception {
-                    Method method = methods.get(PolarisReflectConst.METHOD_DESTROY);
-                    ReflectionUtils.invokeMethod(method, null);
-                    inited.set(false);
-                    return null;
-                }
-            });
+            sdkContext.close();
+            inited.set(false);
         }
-    }
-
-    public static ClassLoader generatePolarisLoader(String agentDir) {
-        String libPath = agentDir + File.separator + PolarisReflectConst.POLARIS_LIB_DIR;
-        File[] polarisDependencies = (new File(libPath)).listFiles();
-        if (null == polarisDependencies || polarisDependencies.length == 0) {
-            return null;
-        }
-        List<URL> urls = new ArrayList<>();
-        for (File polarisDependency : polarisDependencies) {
-            try {
-                URL url = polarisDependency.toURI().toURL();
-                urls.add(url);
-            } catch (MalformedURLException e) {
-                LOGGER.error("[POLARIS] fail to convert {} to url", polarisDependency, e);
-                return null;
-            }
-        }
-        ClassLoader clazzLoader = new URLClassLoader(urls.toArray(new URL[0]), Object.class.getClassLoader());
-        return clazzLoader;
     }
 
     /**
      * 服务注册
      */
     public void register(String service, String host, int port, String protocol, String version, int weight,
-                         Map<String, String> metadata) {
+            Map<String, String> metadata) {
         init();
         if (!inited.get()) {
             LOGGER.error("[POLARIS] fail to register address {}:{} to {}, polaris init failed", host, port, service);
@@ -232,34 +155,33 @@ public class PolarisOperator {
         LOGGER.info(
                 "[POLARIS] start to register: service {}, host {}, port {}， protocol {}, version {}, weight {}, metadata {}",
                 service, host, port, protocol, version, weight, metadata);
-        clazzLoaderTemplate.execute("register", new Callable<Object>() {
+        String namespace = polarisConfig.getNamespace();
+        int ttl = polarisConfig.getTtl();
+        String token = polarisConfig.getToken();
+        InstanceRegisterRequest instanceRegisterRequest = new InstanceRegisterRequest();
+        instanceRegisterRequest.setNamespace(namespace);
+        instanceRegisterRequest.setService(service);
+        instanceRegisterRequest.setHost(host);
+        instanceRegisterRequest.setPort(port);
+        instanceRegisterRequest.setWeight(weight);
+        instanceRegisterRequest.setVersion(version);
+        instanceRegisterRequest.setTtl(ttl);
+        instanceRegisterRequest.setMetadata(metadata);
+        instanceRegisterRequest.setProtocol(protocol);
+        instanceRegisterRequest.setToken(token);
+        InstanceRegisterResponse response = providerAPI.register(instanceRegisterRequest);
+        LOGGER.info("register result is {} for service {}", response, service);
+        // 注册完成后执行心跳上报
+        LOGGER.info("heartbeat task start, ttl is {}", ttl);
+        Runnable heartbeatTask = new Runnable() {
             @Override
-            public Object call() throws Exception {
-                String namespace = polarisConfig.getNamespace();
-                int ttl = polarisConfig.getTtl();
-                String token = polarisConfig.getToken();
-                Method registerMethod = methods.get(PolarisReflectConst.METHOD_REGISTER);
-                boolean result = (boolean) ReflectionUtils
-                        .invokeMethod(registerMethod, null, namespace,
-                                service, host, port, protocol, version, weight, metadata, ttl,
-                                token);
-                LOGGER.info("register result is {} for service {}", result, service);
-                if (result) {
-                    // 注册完成后执行心跳上报
-                    LOGGER.info("heartbeat task start, ttl is {}", ttl);
-                    Runnable heartbeatTask = new Runnable() {
-                        @Override
-                        public void run() {
-                            heartbeat(service, host, port);
-                        }
-                    };
-                    ScheduledFuture<?> future = heartbeatExecutor.scheduleWithFixedDelay(heartbeatTask, ttl, ttl,
-                            TimeUnit.SECONDS);
-                    scheduledFutures.put(new InstanceIdentifier(service, host, port), future);
-                }
-                return null;
+            public void run() {
+                heartbeat(service, host, port);
             }
-        });
+        };
+        ScheduledFuture<?> future = heartbeatExecutor.scheduleWithFixedDelay(heartbeatTask, ttl, ttl,
+                TimeUnit.SECONDS);
+        scheduledFutures.put(new InstanceIdentifier(service, host, port), future);
     }
 
     public void deregister(String service, String host, int port) {
@@ -269,37 +191,46 @@ public class PolarisOperator {
             return;
         }
         LOGGER.info("[POLARIS] start to deregister: service {}, host {}, port {}", service, host, port);
-        clazzLoaderTemplate.execute("deregister", new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                ScheduledFuture<?> future = scheduledFutures
-                        .get(new InstanceIdentifier(service, host, port));
-                if (null != future) {
-                    future.cancel(true);
-                }
-                String namespace = polarisConfig.getNamespace();
-                String token = polarisConfig.getToken();
-                Method deregisterMethod = methods.get(PolarisReflectConst.METHOD_DEREGISTER);
-                boolean result = (boolean) ReflectionUtils
-                        .invokeMethod(deregisterMethod, null, namespace, service, host, port, token);
-                LOGGER.info("[POLARIS] deregister result is {} for service {}", result, service);
-                return null;
-            }
-        });
+        ScheduledFuture<?> future = scheduledFutures
+                .get(new InstanceIdentifier(service, host, port));
+        if (null != future) {
+            future.cancel(true);
+        }
+        InstanceDeregisterRequest instanceDeregisterRequest = new InstanceDeregisterRequest();
+        instanceDeregisterRequest.setNamespace(polarisConfig.getNamespace());
+        instanceDeregisterRequest.setService(service);
+        instanceDeregisterRequest.setPort(port);
+        instanceDeregisterRequest.setHost(host);
+        instanceDeregisterRequest.setToken(polarisConfig.getToken());
+        providerAPI.deRegister(instanceDeregisterRequest);
+        LOGGER.info("[POLARIS] deregister service {}", service);
     }
 
     private void heartbeat(String service, String host, int port) {
-        clazzLoaderTemplate.execute("deregister", new Callable<Object>() {
+        InstanceHeartbeatRequest instanceHeartbeatRequest = new InstanceHeartbeatRequest();
+        instanceHeartbeatRequest.setNamespace(polarisConfig.getNamespace());
+        instanceHeartbeatRequest.setService(service);
+        instanceHeartbeatRequest.setHost(host);
+        instanceHeartbeatRequest.setPort(port);
+        instanceHeartbeatRequest.setToken(polarisConfig.getToken());
+        providerAPI.heartbeat(instanceHeartbeatRequest);
+    }
 
-            @Override
-            public Object call() throws Exception {
-                String namespace = polarisConfig.getNamespace();
-                String token = polarisConfig.getToken();
-                Method heartbeatMethod = methods.get(PolarisReflectConst.METHOD_HEARTBEAT);
-                ReflectionUtils.invokeMethod(heartbeatMethod, null, namespace, service, host, port, token);
-                return null;
-            }
-        });
+    public boolean watchService(String service, ServiceListener listener) {
+        WatchServiceRequest watchServiceRequest = new WatchServiceRequest();
+        watchServiceRequest.setNamespace(polarisConfig.getNamespace());
+        watchServiceRequest.setService(service);
+        watchServiceRequest.setListeners(Collections.singletonList(listener));
+        return consumerAPI.watchService(watchServiceRequest).isSuccess();
+    }
+
+    public void unwatchService(String service, ServiceListener serviceListener) {
+        UnWatchServiceRequest watchServiceRequest = UnWatchServiceRequest.UnWatchServiceRequestBuilder.anUnWatchServiceRequest()
+                .namespace(polarisConfig.getNamespace())
+                .service(service)
+                .listeners(Collections.singletonList(serviceListener))
+                .build();
+        consumerAPI.unWatchService(watchServiceRequest);
     }
 
     /**
@@ -308,22 +239,17 @@ public class PolarisOperator {
      * @param service 服务的service
      * @return Polaris选择的Instance对象
      */
-    public List<?> getAvailableInstances(String service, Map<String, String> srcLabels) {
+    public Instance[] getAvailableInstances(String service) {
         init();
         if (!inited.get()) {
             LOGGER.error("[POLARIS] fail to getInstances {}, polaris init failed", service);
             return null;
         }
-        return (List<?>) clazzLoaderTemplate.execute("getInstances", new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                // get available instances
-                String namespace = polarisConfig.getNamespace();
-                Method getInstancesMethod = methods.get(PolarisReflectConst.METHOD_GET_INSTANCES);
-                return ReflectionUtils.invokeMethod(
-                        getInstancesMethod, null, namespace, service, srcLabels, null);
-            }
-        });
+        GetInstancesRequest request = new GetInstancesRequest();
+        request.setNamespace(polarisConfig.getNamespace());
+        request.setService(service);
+        InstancesResponse instances = consumerAPI.getInstances(request);
+        return instances.getInstances();
     }
 
     /**
@@ -332,23 +258,50 @@ public class PolarisOperator {
      * @param delay 本次服务调用延迟，单位ms
      */
     public void reportInvokeResult(String service, String method, String host, int port, long delay, boolean success,
-                                   int code) {
+            int code) {
         init();
         if (!inited.get()) {
             LOGGER.error("[POLARIS] fail to getInstances {}, polaris init failed", service);
             return;
         }
-        clazzLoaderTemplate.execute("reportInvokeResult", new Callable<Object>() {
+        ServiceCallResult serviceCallResult = new ServiceCallResult();
+        serviceCallResult.setNamespace(polarisConfig.getNamespace());
+        serviceCallResult.setService(service);
+        serviceCallResult.setMethod(method);
+        serviceCallResult.setHost(host);
+        serviceCallResult.setPort(port);
+        serviceCallResult.setDelay(delay);
+        serviceCallResult.setRetStatus(success ? RetStatus.RetSuccess : RetStatus.RetFail);
+        serviceCallResult.setRetCode(code);
+        consumerAPI.updateServiceCallResult(serviceCallResult);
+    }
 
-            @Override
-            public Object call() throws Exception {
-                String namespace = polarisConfig.getNamespace();
-                Method updateMethod = methods.get(PolarisReflectConst.METHOD_UPDATE_SERVICE_CALL_RESULT);
-                ReflectionUtils.invokeMethod(
-                        updateMethod, null, namespace, service, method, host, port, delay, success, code);
-                return null;
-            }
-        });
+    public List<Instance> route(String service, String method, Map<String, String> labels, List<Instance> instances) {
+        ServiceKey serviceKey = new ServiceKey(polarisConfig.getNamespace(), service);
+        DefaultServiceInstances defaultServiceInstances = new DefaultServiceInstances(serviceKey, instances);
+        ServiceInfo serviceInfo = null;
+        if (null != labels && labels.size() > 0) {
+            serviceInfo = new ServiceInfo();
+            serviceInfo.setMetadata(labels);
+        }
+        ProcessRoutersRequest request = new ProcessRoutersRequest();
+        request.setDstInstances(defaultServiceInstances);
+        request.setMethod(method);
+        request.setSourceService(serviceInfo);
+        ProcessRoutersResponse processRoutersResponse = routerAPI.processRouters(request);
+        return processRoutersResponse.getServiceInstances().getInstances();
+    }
+
+    public Instance loadBalance(String service, String hashKey, List<Instance> instances) {
+        ServiceKey serviceKey = new ServiceKey(polarisConfig.getNamespace(), service);
+        DefaultServiceInstances defaultServiceInstances = new DefaultServiceInstances(serviceKey, instances);
+        ProcessLoadBalanceRequest processLoadBalanceRequest = new ProcessLoadBalanceRequest();
+        processLoadBalanceRequest.setDstInstances(defaultServiceInstances);
+        Criteria criteria = new Criteria();
+        criteria.setHashKey(hashKey);
+        processLoadBalanceRequest.setCriteria(criteria);
+        ProcessLoadBalanceResponse processLoadBalanceResponse = routerAPI.processLoadBalance(processLoadBalanceRequest);
+        return processLoadBalanceResponse.getTargetInstance();
     }
 
     /**
@@ -363,73 +316,13 @@ public class PolarisOperator {
             LOGGER.error("[POLARIS] fail to get quota, service:{}, method:{}, polaris init failed", service, method);
             throw new RuntimeException("polaris init failed");
         }
-        return (boolean) clazzLoaderTemplate.execute("getQuota", new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                String namespace = polarisConfig.getNamespace();
-                Method getQuotaMethod = methods.get(PolarisReflectConst.METHOD_GET_QUOTA);
-                return ReflectionUtils.invokeMethod(getQuotaMethod, null, namespace, service, method, labels, count);
-            }
-        });
-    }
-
-    public String getHost(Object instance) {
-        return (String) clazzLoaderTemplate.execute("getHost", new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                Method method = methods.get(PolarisReflectConst.METHOD_GET_HOST);
-                return ReflectionUtils.invokeMethod(
-                        method, null, instance);
-            }
-        });
-    }
-
-    public int getPort(Object instance) {
-        return (int) clazzLoaderTemplate.execute("getPort", new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                Method method = methods.get(PolarisReflectConst.METHOD_GET_PORT);
-                return ReflectionUtils.invokeMethod(
-                        method, null, instance);
-            }
-        });
-    }
-
-    public String getProtocol(Object instance) {
-        return (String) clazzLoaderTemplate.execute("getProtocol", new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                Method method = methods.get(PolarisReflectConst.METHOD_GET_PROTOCOL);
-                return ReflectionUtils.invokeMethod(
-                        method, null, instance);
-            }
-        });
-    }
-
-    public int getWeight(Object instance) {
-        return (int) clazzLoaderTemplate.execute("getWeight", new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                Method method = methods.get(PolarisReflectConst.METHOD_GET_WEIGHT);
-                return ReflectionUtils.invokeMethod(
-                        method, null, instance);
-            }
-        });
-    }
-
-    @SuppressWarnings("unchecked")
-    public Map<String, String> getMetadata(Object instance) {
-        return (Map<String, String>) clazzLoaderTemplate.execute("getMetadata", new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                Method method = methods.get(PolarisReflectConst.METHOD_GET_METADATA);
-                return ReflectionUtils.invokeMethod(
-                        method, null, instance);
-            }
-        });
-    }
-
-    public PolarisConfig getPolarisConfig() {
-        return polarisConfig;
+        QuotaRequest quotaRequest = new QuotaRequest();
+        quotaRequest.setNamespace(polarisConfig.getNamespace());
+        quotaRequest.setService(service);
+        quotaRequest.setMethod(method);
+        quotaRequest.setLabels(labels);
+        quotaRequest.setCount(count);
+        QuotaResponse quota = limitAPI.getQuota(quotaRequest);
+        return quota.getCode() == QuotaResultCode.QuotaResultOk;
     }
 }

@@ -73,7 +73,7 @@ public class DubboReportInvokeInterceptor implements AbstractInterceptor {
     }
 
     private void report(URL url, Invocation invocation, long delay, boolean isSuccess) {
-        PolarisSingleton.getPolarisWatcher()
+        PolarisSingleton.getPolarisOperator()
                 .reportInvokeResult(url.getServiceInterface(), invocation.getMethodName(), url.getHost(), url.getPort(),
                         delay, isSuccess, isSuccess ? 0 : -1);
     }

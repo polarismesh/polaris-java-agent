@@ -17,8 +17,13 @@
 
 package cn.polarismesh.agent.plugin.dubbo2.polaris;
 
-import cn.polarismesh.common.polaris.PolarisBlockException;
-import org.apache.dubbo.rpc.*;
+import cn.polarismesh.agent.plugin.dubbo2.exception.PolarisDubboRpcException;
+import org.apache.dubbo.rpc.AppResponse;
+import org.apache.dubbo.rpc.Filter;
+import org.apache.dubbo.rpc.Invocation;
+import org.apache.dubbo.rpc.Invoker;
+import org.apache.dubbo.rpc.Result;
+import org.apache.dubbo.rpc.RpcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,15 +36,20 @@ public class PolarisFilter implements Filter {
         String method = invocation.getMethodName();
         boolean result = true;
         try {
-            result = PolarisSingleton.getPolarisWatcher().getQuota(service, method, invocation.getAttachments(), 1);
+            result = PolarisSingleton.getPolarisOperator().getQuota(service, method, invocation.getAttachments(), 1);
         } catch (RuntimeException e) {
             LOGGER.error("[POLARIS] get quota fail, {}", e.getMessage());
         }
-        if (!result) {
-            // 请求被限流，则抛出异常
-            String namespace = PolarisSingleton.getPolarisConfig().getNamespace();
-            throw new PolarisBlockException("rate limit", namespace, service, method, invocation.getAttachments());
+        if (result) {
+            return invoker.invoke(invocation);
         }
-        return invoker.invoke(invocation);
+
+        String namespace = PolarisSingleton.getPolarisConfig().getNamespace();
+
+        LOGGER.error("[POLARIS] get quota has limited : namespace={}, service={}, method={}, attachments={}",
+                namespace, service, method, invocation.getAttachments());
+
+        // 请求被限流，则抛出异常
+        throw new PolarisDubboRpcException("rate limit", namespace, service, method, invocation.getAttachments());
     }
 }

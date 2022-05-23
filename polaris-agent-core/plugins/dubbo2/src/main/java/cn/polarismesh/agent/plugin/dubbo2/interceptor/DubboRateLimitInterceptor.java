@@ -43,7 +43,7 @@ public class DubboRateLimitInterceptor implements AbstractInterceptor {
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         LOGGER.debug("[POLARIS] set {}.invoker filter with rate limit", target.getClass());
-        Invoker invoker = PolarisFilterWrapper.buildInvokerChain((Invoker) args[0]);
+        Invoker<?> invoker = PolarisFilterWrapper.buildInvokerChain((Invoker<?>) args[0]);
         ReflectionUtils.setSuperValueByFieldName(target, "invoker", invoker);
     }
 }

@@ -218,6 +218,6 @@
         <module>polaris-agent-adapter</module>
         <module>polaris-agent-bootstrap</module>
         <module>polaris-agent-build</module>
-        <module>polaris-agent-examples</module>
+<!--        <module>polaris-agent-examples</module>-->
     </modules>
 </project>

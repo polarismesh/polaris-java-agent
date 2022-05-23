@@ -72,7 +72,11 @@ public class ConsumerApplication {
             throws UnsupportedEncodingException {
         Map<String, String> parameters = splitQuery(exchange.getRequestURI());
         String echoValue = parameters.get("value");
-        return demoService.sayHello(echoValue);
+        try {
+            return demoService.sayHello(echoValue);
+        } catch (Throwable ex) {
+            return ex.getMessage();
+        }
     }
 
     private static Map<String, String> splitQuery(URI uri) throws UnsupportedEncodingException {

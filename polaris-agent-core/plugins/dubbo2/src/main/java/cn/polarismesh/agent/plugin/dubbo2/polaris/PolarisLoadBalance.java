@@ -42,7 +42,7 @@ public class PolarisLoadBalance extends AbstractLoadBalance {
         LOGGER.info("[POLARIS] select instance for service {} by PolarisLoadBalance", service);
         String key = invokers.get(0).getUrl().getServiceKey() + "." + invocation.getMethodName();
         List<Instance> instances = (List<Instance>) ((List<?>) invokers);
-        Instance instance = PolarisSingleton.getPolarisWatcher().loadBalance(service, key, instances);
+        Instance instance = PolarisSingleton.getPolarisOperator().loadBalance(service, key, instances);
         return (InstanceInvoker<T>) instance;
     }
 }
