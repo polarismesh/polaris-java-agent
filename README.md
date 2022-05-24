@@ -1,47 +1,46 @@
+#polaris-java-agent
 
-# polaris-java-agent
+English | [中文](./README-zh.md)
 
-README：
+- [introduction](#introduction)
+- [Usage Guide](#Usage Guide)
 
-- [介绍](#介绍)
-- [使用指南](#使用指南)
+## Introduce
 
-## 介绍
+polaris-java-agent provides a non-invasive way for Java applications to connect with polaris for service management, and provides the following functions:
 
-polaris-java-agent提供无侵入的方式，供Java应用与polaris进行对接，进行服务治理，提供以下功能：
+- Service registration discovery
+- Dynamic routing and load balancing
+- The faulty node is blown
+- Service throttling [under development]
 
-- 服务注册发现
-- 动态路由及负载均衡
-- 故障节点熔断
-- 服务限流[开发中]
-
-当前支持基于以下框架开发的Java应用进行接入：
+Currently, Java applications developed based on the following frameworks are supported for access:
 
 - dubbox(version >= 2.8.4)
-- dubbo(version >= 2.7.0)[开发中]
-- spring-cloud(version >= 2020.0.0)[开发中]
+- dubbo2(version >= 2.7.0)
+- spring-cloud (version >= 2020.0.0) [under development]
 
-本文档介绍如何使用polaris-java-agent接入polaris服务治理。
+This document describes how to use polaris-java-agent to access polaris service governance.
 
-## 技术架构
+## Technology Architecture
 
-polaris-java-agent通过Java字节码增强技术，将拦截器注入到应用中，实现北极星服务治理能力的对接。
+polaris-java-agent injects interceptors into applications through Java bytecode enhancement technology to realize the docking of Polaris service governance capabilities.
 
 ![](pic/arch.png)
 
-## 配置项说明
+## Configuration item description
 
-polaris-java-agent提供以下配置项，所有的配置项都可以通过文件（polaris.config）以及系统变量（-D参数）的方式进行配置。
+polaris-java-agent provides the following configuration items, all of which can be configured through files (polaris.config) and system variables (-D parameters).
 
-| 配置项                            | 含义                     | 是否必填 | 默认值  |
+| Configuration item | Meaning | Required | Default value |
 | --------------------------------- | ------------------------ | -------- | ------- |
-| agent.application.namespace       | 服务的命名空间           | 否       | default |
-| agent.application.name            | 应用名，用于监控展示     | 是       | 无      |
-| agent.polaris.registry            | 北极星服务端IP地址       | 是       | 无      |
-| agent.application.healthcheck.ttl | 服务检查检查TTL，单位秒  | 否       | 5       |
-| agent.consumer.refresh.interval   | 服务列表刷新周期，单位秒 | 否       | 2       |
+| agent.application.namespace | namespace for the service | no | default |
+| agent.application.name | application name, used for monitoring display | yes | no |
+| agent.polaris.registry | Polaris server IP address | Yes | No |
+| agent.application.healthcheck.ttl | Service check check TTL, in seconds | no | 5 |
+| agent.consumer.refresh.interval | Service list refresh interval, in seconds | No | 2 |
 
+## User Guidance
 
-## 使用指南
-
-- [dubbox应用接入](./polaris-agent-examples/dubbox/README.md)
+- [dubbo2](./polaris-agent-examples/dubbo2/README.md)
+- [dubbox](./polaris-agent-examples/dubbox/README.md)

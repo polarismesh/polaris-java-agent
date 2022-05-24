@@ -1,137 +1,138 @@
-
 # dubbox-example
 
-## 安装服务端
+English | [中文](./README-zh.md)
 
-需要先安装北极星服务端，可参考[安装指南](https://polarismesh.cn/zh/doc/快速入门/安装服务端/安装单机版.html)
+## Install server
 
-## 安装调用链组件
+You need to install the Polaris server first, you can refer to [Installation Guide](https://polarismesh.cn/zh/doc/Quick Start/Install Server/Install Standalone.html)
 
-需要安装collector以及hbase组件，可参考[安装指南](https://github.com/polarismesh/polaris-java-agent/issues/20)
+## Install call chain components
 
-## 配置java-agent软件包
+Collector and hbase components need to be installed, please refer to [Installation Guide](https://github.com/polarismesh/polaris-java-agent/issues/20)
 
-- 软件包下载：从[release](https://github.com/polarismesh/polaris-java-agent/releases/tag/v1.0.0)下载最新版本的polaris-pinpoint-agent-${version}.zip，并解压。
-- 配置北极星服务端地址：进入polaris-pinpoint-agent-${version}目录，打开polaris.config文件，修改agent.polaris.registry配置项为北极星服务端IP端口地址，端口使用8091。
-- 配置collector地址：进入polaris-pinpoint-agent-${version}目录，打开pinpoint-root.config，修改profiler.transport.grpc.collector.ip为collector的IP地址。
+## Configure the java-agent package
 
-## 启动dubbox应用
+- Package download: Download the latest version of **polaris-pinpoint-agent-${version}.zip** from [release](https://github.com/polarismesh/polaris-java-agent/releases/tag/v1.0.0) , and unzip it.
+- Configure the Polaris server address: enter the **polaris-pinpoint-agent-${version}** directory, open the polaris.config file, and modify the agent.polaris.registry configuration item to the Polaris server IP port address, and the port uses 8091.
+- Configure the collector address: Enter the **polaris-pinpoint-agent-${version}** directory, open pinpoint-root.config, and modify profiler.transport.grpc.collector.ip to the collector's IP address.
 
-- 下载dubbox的样例：[dubbox-2.8.4](https://github.com/dangdangdotcom/dubbox/tree/dubbox-2.8.4)
+## Start the dubbox application
 
-- 增加java-agent启动参数，并启动样例：
-  
+- Download the dubbox example: [dubbox-2.8.4](https://github.com/dangdangdotcom/dubbox/tree/dubbox-2.8.4)
+
+- Add java-agent startup parameters and start the sample:
+
   ![pinpoint-startup](./pic/pinpoint-startup.png)
-  
-  - DemoProvider：-javaagent:${java-agent安装目录}/polaris-java-agent-v1.0.0/pinpoint-polaris-bootstrap-1.0.0-SNAPSHOT.jar -Dagent.application.name=demo-provider
-  - DemoConsumer：-javaagent:${java-agent安装目录}/polaris-java-agent-v1.0.0/pinpoint-polaris-bootstrap-1.0.0-SNAPSHOT.jar -Dagent.application.name=demo-consumer
 
-## 安装验证
+    - DemoProvider: -javaagent:${java-agent installation directory}/polaris-java-agent-v1.0.0/pinpoint-polaris-bootstrap-1.0.0-SNAPSHOT.jar -Dagent.application.name=demo-provider
+    - DemoConsumer: -javaagent:${java-agent installation directory}/polaris-java-agent-v1.0.0/pinpoint-polaris-bootstrap-1.0.0-SNAPSHOT.jar -Dagent.application.name=demo-consumer
 
-- 检查服务是否已经注册到北极星：
+## Installation verification
 
-  通过浏览器打开```https://${北极星服务端IP}:8080```，打开北极星控制台，可以看到demo注册的服务，假如服务下存在健康实例，则证明服务注册成功。
+- Check if the service is registered to Polaris:
 
-  ![](pic/polaris-server-services.png)    
+  Open ```https://${Polaris server IP}:8080``` through the browser, open the Polaris console, you can see the demo registered service, if there is a healthy instance under the service, it proves that the service registration is successful.
 
-- 检查调用跟踪：
+  ![](pic/polaris-server-services.png)
 
-  通过浏览器打开```https://${collector安装IP}:10010```，选择demo-consumer.default应用，可以看到调用关系拓扑。
-  
-  ![](pic/pinpoint-trace.png)    
-  
-## 功能使用
+- Check the call trace:
 
-### 服务路由
+  Open ```https://${collector installation IP}:10010``` through a browser, select the demo-consumer.default application, and you can see the calling relationship topology.
 
-北极星支持服务路由能力，通过设置路由规则，支持根据主调方的请求标签的匹配关系，寻址到带有特定标签的被调方实例列表，可支持版本灰度，金丝雀测试，A/B测试等场景诉求。
+  ![](pic/pinpoint-trace.png)
 
-Polaris-Java-Agent支持用户通过以下标签来进行规则匹配：
+## Function usage
 
-- 主调方标签
-  - 方法名：本次调用的目标方法名，key为method
-  - 默认静态标签：dubbo的默认静态标签，包括application, interface, path, version, protocol。
-  - 自定义静态标签：通过在reference中添加<dubbo:parameter>方式配置的静态标签
-  - 动态标签：服务调用的附件数据，可通过RPCContext.setAttachment的方式传入。
+### Service routing
 
-- 被调方标签
-  - 实例元数据信息：通过service中添加<dubbo:parameter>配置的标签数据。
+Polaris supports service routing capabilities. By setting routing rules, it supports addressing the list of dispatched instances with specific labels according to the matching relationship between the request labels of the main dispatcher. It can support version grayscale, canary testing, A/ Scenario demands such as B testing.
 
-使用样例：
+Polaris-Java-Agent supports users to match rules through the following tags:
 
-1. 启动`dubbo-demo-provider-1`与`dubbo-demo-provider-2`
+- Key Dispatcher tab
+    - Method name: the target method name of this call, the key is method
+    - Default static label: The default static label of dubbo, including application, interface, path, version, protocol.
+    - Custom static tags: static tags configured by adding <dubbo:parameter> to the reference
+    - Dynamic tags: Attachment data for service calls, which can be passed in through RPCContext.setAttachment.
 
-2. 启动`dubbo-demo-consumer-1`
+- Scheduled label
+    - Instance metadata information: add the tag data configured by <dubbo:parameter> in the service.
 
-3. 打开北极星控制台，打开服务名为`com.alibaba.dubbo.demo.bid.BidService`的服务，在路由规则处新建路由规则
+Example of use:
 
-    ![](pic/polaris-server-services-routing.png)  
-    
-4. 分别新建路由规则如下：
+1. Start `dubbo-demo-provider-1` and `dubbo-demo-provider-2`
 
-    ![](pic/polaris-routing-1.png)   
+2. Start `dubbo-demo-consumer-1`
 
-    ![](pic/polaris-routing-2.png)  
+3. Open the Polaris console, open the service named `com.alibaba.dubbo.demo.bid.BidService`, and create a new routing rule at the routing rule
 
-5. 观察`consumer`端输出：`v1`请求永远路由至`20880`端口，`v2`请求永远路由至`20890`端口，表示路由规则生效
+   ![](pic/polaris-server-services-routing.png)
 
-    ![](pic/polaris-routing-result.png)  
-    
-### 负载均衡
+4. Create new routing rules as follows:
 
-北极星远程负载均衡配置还不支持远程配置，当前可以通过修改客户端配置的方式使用北极星北极星的负载均衡。
+   ![](pic/polaris-routing-1.png)
 
-可以修改polaris.yml的配置内容：
+   ![](pic/polaris-routing-2.png)
+
+5. Observe the output of `consumer`: `v1` requests are always routed to `20880` port, `v2` requests are always routed to `20890` port, indicating that the routing rules are in effect
+
+   ![](pic/polaris-routing-result.png)
+
+### Load Balancing
+
+Polaris remote load balancing configuration does not yet support remote configuration. Currently, Polaris and Polaris load balancing can be used by modifying the client configuration.
+
+You can modify the configuration content of polaris.yml:
 
 ````
-#描述: 主调端配置
+#Description: Host configuration
 consumer:
-  #描述:负载均衡相关配置
+  #Description: Load balancing related configuration
   loadbalancer:
-    #描述: 当前支持weightedRandom（权重随机），ringHash（一致性hash）
-    type: weightedRandom  
+    #Description: Currently supports weightedRandom (weighted random), ringHash (consistent hash)
+    type: weightedRandom
 ````
-    
-### 熔断
 
-1. 启动`dubbo-demo-provider-1`与`dubbo-demo-provider-2`
+### Fusing
 
-2. 启动`dubbo-demo-consumer-1`
+1. Start `dubbo-demo-provider-1` and `dubbo-demo-provider-2`
 
-3. 关闭其中一个`provider`，所有请求将会导入另一个`provider`
+2. Start `dubbo-demo-consumer-1`
 
-### 限流
+3. Close one of the `provider`, all requests will import the other `provider`
 
-1. 启动`dubbo-demo-provider-1`
+### Limiting
+
+1. Start `dubbo-demo-provider-1`
 
 
 
-2. 打开北极星控制台，打开服务名为`com.alibaba.dubbo.demo.bid.BidService`的服务，在限流规则处新建限流规则
+2. Open the Polaris console, open the service named `com.alibaba.dubbo.demo.bid.BidService`, and create a new current limiting rule at the current limiting rule
 
-    ![](pic/polaris-server-services-ratelimit.png)  
-    
-3. 新建限流规则，可以根据请求标签进行限流，并设定限流规则，新建规则后即可生效
+   ![](pic/polaris-server-services-ratelimit.png)
 
-    ![](pic/polaris-ratelimit.png) 
-    
-4. 可以选择调整`dubbo-demo-consumer-1`中的请求速率，使之匹配或超出限流规则
+3. Create a new current limiting rule, you can limit the current according to the request label, and set the current limiting rule, which will take effect after the new rule is created.
 
-5. 启动`dubbo-demo-consumer-1`，若请求速率超出限流规则，可以看到相应报错
+   ![](pic/polaris-ratelimit.png)
 
-    ![](pic/polaris-ratelimit-result.png) 
-    
-### 服务治理监控
+4. You can choose to adjust the request rate in `dubbo-demo-consumer-1` to match or exceed the current limit rule
 
-1. 需要到`$polaris-java-agent安装目录/polaris/conf`目录中，修改polaris.yml配置，开启监控数据上报：
+5. Start `dubbo-demo-consumer-1`, if the request rate exceeds the current limit rule, you can see the corresponding error
+
+   ![](pic/polaris-ratelimit-result.png)
+
+### Service governance monitoring
+
+1. You need to go to the `$polaris-java-agent installation directory/polaris/conf` directory, modify the polaris.yml configuration, and enable monitoring data reporting:
 ````
 global:
   statReporter:
-    # 开启监控数据上报
+    # Enable monitoring data reporting
     enable: true
     plugin:
       prometheus:
-        # pushgateway地址
+        # pushgateway address
         pushgatewayAddress: 127.0.0.1:9091
-```
+````
 
-2. 登录到北极星控制台，在左边栏可观测性可以看到监控图表数据。
+2. Log in to the Polaris console, and you can see the monitoring chart data in the left column of Observability.
