@@ -1,13 +1,13 @@
-#polaris-java-agent
+# polaris-java-agent
 
 English | [中文](./README-zh.md)
 
-- [Introduction](#Introduce)
-- [Technology Architecture](#Technology Architecture)
-- [Configuration Description](#Configuration Description)
-- [Usage Guide](#User Guide)
+- [Introduction](#Introduction)
+- [Architecture](#Architecture)
+- [ConfigDescription](#ConfigDescription)
+- [User-Guide](#Guide)
 
-## Introduce
+## Introduction
 
 polaris-java-agent provides a non-invasive way for Java applications to connect with polaris for service management, and provides the following functions:
 
@@ -24,13 +24,13 @@ Currently, Java applications developed based on the following frameworks are sup
 
 This document describes how to use polaris-java-agent to access polaris service governance.
 
-## Technology Architecture
+## Architecture
 
 polaris-java-agent injects interceptors into applications through Java bytecode enhancement technology to realize the docking of Polaris service governance capabilities.
 
 ![](pic/arch.png)
 
-## Configuration Description
+## ConfigDescription
 
 polaris-java-agent provides the following configuration items, all of which can be configured through files (polaris.config) and system variables (-D parameters).
 
@@ -42,7 +42,7 @@ polaris-java-agent provides the following configuration items, all of which can 
 | agent.application.healthcheck.ttl | Service check check TTL, in seconds | no | 5 |
 | agent.consumer.refresh.interval | Service list refresh interval, in seconds | No | 2 |
 
-## User Guide
+## Guide
 
 - [dubbo2 access](./polaris-agent-examples/dubbo2/README.md)
 - [dubbox access](./polaris-agent-examples/dubbox/README.md)
