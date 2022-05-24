@@ -17,7 +17,7 @@ polaris-java-agent提供无侵入的方式，供Java应用与polaris进行对接
 当前支持基于以下框架开发的Java应用进行接入：
 
 - dubbox(version >= 2.8.4)
-- dubbo(version >= 2.7.0)[开发中]
+- dubbo(version >= 2.7.0)
 - spring-cloud(version >= 2020.0.0)[开发中]
 
 本文档介绍如何使用polaris-java-agent接入polaris服务治理。
@@ -43,4 +43,5 @@ polaris-java-agent提供以下配置项，所有的配置项都可以通过文�
 
 ## 使用指南
 
-- [dubbox应用接入](./polaris-agent-examples/dubbox/README.md)
+- [dubbo2](./polaris-agent-examples/dubbo2/README.md)
+- [dubbox](./polaris-agent-examples/dubbox/README.md)

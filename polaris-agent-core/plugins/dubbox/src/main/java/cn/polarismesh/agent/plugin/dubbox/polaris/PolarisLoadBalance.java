@@ -31,6 +31,7 @@ public class PolarisLoadBalance extends AbstractLoadBalance {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PolarisLoadBalance.class);
 
+    @SuppressWarnings("unchecked")
     @Override
     protected <T> Invoker<T> doSelect(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         if (null == invokers || invokers.size() == 0) {

@@ -54,13 +54,14 @@ public class PolarisRouter implements Router {
 
     @Override
     public int compareTo(Router o) {
-        return (this.getPriority() < o.getPriority()) ? -1 : ((this.getPriority() == o.getPriority()) ? 0 : 1);
+        return Integer.compare(this.getPriority(), o.getPriority());
     }
 
     public int getPriority() {
         return priority;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> List<Invoker<T>> route(List<Invoker<T>> invokers, URL url, Invocation invocation) throws RpcException {
         if (null == invokers || invokers.size() == 0) {
