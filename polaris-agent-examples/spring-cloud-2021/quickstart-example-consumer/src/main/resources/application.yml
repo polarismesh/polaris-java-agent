@@ -1,8 +1,0 @@
-server:
-  port: 36667
-spring:
-  application:
-    name: DiscoveryCallerService
-  cloud:
-    loadbalancer:
-      configurations: default

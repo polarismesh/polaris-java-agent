@@ -1,3 +1,20 @@
+/*
+ * Tencent is pleased to support the open source community by making Polaris available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the BSD 3-Clause License (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://opensource.org/licenses/BSD-3-Clause
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
+
 package cn.polarismesh.agent.plugin.dubbox.polaris;
 
 import com.alibaba.dubbo.common.Constants;
@@ -60,7 +77,7 @@ public class PolarisRouter implements Router {
         LOGGER.debug("[POLARIS] list service {}, method {}, attachment {}, labels {}, url {}", service,
                 invocation.getMethodName(),
                 attachments, srcLabels, url);
-        List<Instance> resultInstances = PolarisSingleton.getPolarisWatcher()
+        List<Instance> resultInstances = PolarisSingleton.getPolarisOperator()
                 .route(service, invocation.getMethodName(), srcLabels, instances);
         return (List<Invoker<T>>) ((List<?>) resultInstances);
     }

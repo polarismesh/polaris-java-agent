@@ -17,8 +17,7 @@
 
 package cn.polarismesh.agent.plugin.dubbo2.polaris;
 
-import cn.polarismesh.agent.plugin.dubbo2.exception.PolarisDubboRpcException;
-import org.apache.dubbo.rpc.AppResponse;
+import cn.polarismesh.common.polaris.PolarisBlockException;
 import org.apache.dubbo.rpc.Filter;
 import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.Invoker;
@@ -50,6 +49,6 @@ public class PolarisFilter implements Filter {
                 namespace, service, method, invocation.getAttachments());
 
         // 请求被限流，则抛出异常
-        throw new PolarisDubboRpcException("rate limit", namespace, service, method, invocation.getAttachments());
+        throw new PolarisBlockException("rate limit", namespace, service, method, invocation.getAttachments());
     }
 }

@@ -1,3 +1,20 @@
+/*
+ * Tencent is pleased to support the open source community by making Polaris available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the BSD 3-Clause License (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://opensource.org/licenses/BSD-3-Clause
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
+
 package cn.polarismesh.agent.plugin.dubbox.polaris;
 
 import static com.alibaba.dubbo.common.Constants.PATH_KEY;
@@ -76,7 +93,7 @@ public class PolarisRegistry extends FailbackRegistry {
         if (port > 0) {
             int weight = url.getParameter(Constants.WEIGHT_KEY, Constants.DEFAULT_WEIGHT);
             String version = url.getParameter(Constants.VERSION_KEY, "");
-            PolarisSingleton.getPolarisWatcher()
+            PolarisSingleton.getPolarisOperator()
                     .register(url.getServiceInterface(), url.getHost(), port, url.getProtocol(), version, weight,
                             metadata);
             registeredInstances.add(url);
@@ -88,7 +105,7 @@ public class PolarisRegistry extends FailbackRegistry {
         LOGGER.info("[POLARIS] unregister service from polaris: {}", url.toString());
         int port = parsePort(url.getProtocol(), url.getPort());
         if (port > 0) {
-            PolarisSingleton.getPolarisWatcher()
+            PolarisSingleton.getPolarisOperator()
                     .deregister(url.getServiceInterface(), url.getHost(), url.getPort());
             registeredInstances.remove(url);
         }
@@ -102,14 +119,14 @@ public class PolarisRegistry extends FailbackRegistry {
             for (URL url : urls) {
                 doUnregister(url);
             }
-            PolarisSingleton.getPolarisWatcher().destroy();
+            PolarisSingleton.getPolarisOperator().destroy();
         }
     }
 
     @Override
     public void doSubscribe(final URL url, final NotifyListener listener) {
         String service = url.getServiceInterface();
-        Instance[] instances = PolarisSingleton.getPolarisWatcher().getAvailableInstances(service);
+        Instance[] instances = PolarisSingleton.getPolarisOperator().getAvailableInstances(service);
         onInstances(url, listener, instances);
         LOGGER.info("[POLARIS] submit watch task for service {}", service);
         taskScheduler.submitWatchTask(new WatchTask(url, listener, service));
@@ -139,7 +156,7 @@ public class PolarisRegistry extends FailbackRegistry {
 
         @Override
         public void run() {
-            boolean result = PolarisSingleton.getPolarisWatcher().watchService(service, serviceListener);
+            boolean result = PolarisSingleton.getPolarisOperator().watchService(service, serviceListener);
             if (result) {
                 serviceListeners.put(listener, serviceListener);
                 PolarisRegistry.taskScheduler.submitFetchTask(fetchTask);
@@ -167,7 +184,7 @@ public class PolarisRegistry extends FailbackRegistry {
         public void run() {
             Instance[] instances;
             try {
-                instances = PolarisSingleton.getPolarisWatcher().getAvailableInstances(service);
+                instances = PolarisSingleton.getPolarisOperator().getAvailableInstances(service);
             } catch (PolarisException e) {
                 LOGGER.error("[POLARIS] fail to fetch instances for service {}: {}", service, e.toString());
                 return;
@@ -274,7 +291,7 @@ public class PolarisRegistry extends FailbackRegistry {
             public void run() {
                 ServiceListener serviceListener = serviceListeners.get(listener);
                 if (null != serviceListener) {
-                    PolarisSingleton.getPolarisWatcher().unwatchService(url.getServiceInterface(), serviceListener);
+                    PolarisSingleton.getPolarisOperator().unwatchService(url.getServiceInterface(), serviceListener);
                 }
             }
         });

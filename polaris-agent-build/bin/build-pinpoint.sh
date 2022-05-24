@@ -3,13 +3,13 @@
 set -e
 
 # generate version
-if [ $# != 2 ]; then
-  echo -e "invalid args, eg.bash $0 version plugin_name"
+if [ $# != 1 ]; then
+  echo -e "invalid args, eg.bash $0 version"
   exit 1
 fi
 
 version="$1"
-plugin_name="$2"
+plugin_list=$(cat "plugins")
 
 # workdir root
 cd ../..
@@ -17,7 +17,7 @@ workdir=$(pwd)
 echo "workdir is ${workdir}"
 
 # init variables
-folder_name=polaris-pinpoint-${plugin_name}-agent-"${version}"
+folder_name=polaris-pinpoint-agent-"${version}"
 package_name="${folder_name}".zip
 
 # download pinpoint
@@ -48,8 +48,13 @@ cp "${boot_jar_name}" "${workdir}"/pinpoint-agent-2.3.3/
 #copy plugin
 echo "start to copy plugin"
 ls -lstrh
-plugin_jar_name=$(ls -1 | grep pinpoint-polaris-${plugin_name} | head -1)
-cp "${plugin_jar_name}" "${workdir}"/pinpoint-agent-2.3.3/plugin
+
+for line in ${plugin_list}
+do
+  plugin_name=${line}
+  plugin_jar_name=$(ls -1 | grep pinpoint-polaris-${plugin_name} | head -1)
+  cp -rf "${plugin_jar_name}" "${workdir}"/pinpoint-agent-2.3.3/plugin
+done
 popd
 
 #copy polaris dependencies

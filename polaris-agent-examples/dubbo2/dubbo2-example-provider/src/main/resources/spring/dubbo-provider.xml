@@ -25,9 +25,9 @@
 
     <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
 
-    <dubbo:protocol name="dubbo" port="20880" host="127.0.0.1" />
+    <dubbo:protocol name="dubbo" port="20881" host="10.68.104.33" />
 
-    <dubbo:service interface="cn.polarismesh.dubbo2.api.DemoService" ref="demoServiceImpl"/>
+    <dubbo:service interface="cn.polarismesh.dubbo2.api.DemoService" ref="demoServiceImpl" version="v1.0.0" />
 
     <bean id="demoServiceImpl" class="cn.polarismesh.dubbo2.demo.server.DemoServiceImpl"/>
 
