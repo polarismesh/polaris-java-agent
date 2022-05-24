@@ -61,7 +61,6 @@ public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTe
         transformTemplate.transform("org.springframework.cloud.openfeign.loadbalancer.FeignBlockingLoadBalancerClient", PolarisFeignInvokeStatusTransform.class);
         transformTemplate.transform("org.springframework.cloud.loadbalancer.cache.DefaultLoadBalancerCacheManager", PolarisCacheManagerTransform.class);
         transformTemplate.transform("org.springframework.http.client.AbstractClientHttpRequest", PolarisRestTemplateHeadersTransform.class);
-        transformTemplate.transform("com.netflix.loadbalancer.LoadBalancerContext", PolarisLoadBalancerTransform.class);
     }
 
     public static class PolarisAgentPropertiesTransform implements TransformCallback {
@@ -118,25 +117,6 @@ public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTe
 
     }
 
-    public static class PolarisLoadBalancerTransform implements TransformCallback {
-
-        @Override
-        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-                                    byte[] classfileBuffer) throws InstrumentException {
-
-
-            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            InstrumentMethod method = target.getDeclaredMethod("<init>", "com.netflix.loadbalancer.ILoadBalancer", "com.netflix.client.config.IClientConfig");
-            if (method != null) {
-                method.addInterceptor(PolarisRibbonInterceptor.class);
-            }
-
-            return target.toBytecode();
-        }
-
-    }
-
     public static class PolarisServiceInfoTransform implements TransformCallback {
 
         @Override
@@ -170,6 +150,11 @@ public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTe
                 method.addInterceptor(PolarisFeignInvokeInterceptor.class);
             }
 
+            InstrumentMethod executeAndDecode = target.getDeclaredMethod("executeAndDecode", "feign.RequestTemplate", "feign.Request$Options");
+            if (executeAndDecode != null) {
+                executeAndDecode.addInterceptor(PolarisFeignLabelsInterceptor.class);
+            }
+
             return target.toBytecode();
         }
 
@@ -186,6 +171,11 @@ public class PolarisSpringCloud2021Plugin implements ProfilerPlugin, TransformTe
             InstrumentMethod method = target.getDeclaredMethod("handleResponse", "java.net.URI", "org.springframework.http.HttpMethod", "org.springframework.http.client.ClientHttpResponse");
             if (method != null) {
                 method.addInterceptor(PolarisFeignInvokeInterceptor.class);
+            }
+
+            InstrumentMethod doExecute = target.getDeclaredMethod("doExecute", "java.net.URI", "org.springframework.http.HttpMethod", "org.springframework.web.client.RequestCallback", "org.springframework.web.client.ResponseExtractor");
+            if (doExecute != null) {
+                doExecute.addInterceptor(PolarisRestTemplateLabelsInterceptor.class);
             }
 
             return target.toBytecode();

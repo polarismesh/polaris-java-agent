@@ -1,9 +1,7 @@
 package cn.polarismesh.agent.core.spring.cloud.discovery;
 
+import cn.polarismesh.agent.core.spring.cloud.polaris.PolarisSingleton;
 import cn.polarismesh.agent.core.spring.cloud.util.LogUtils;
-import com.tencent.polaris.api.exception.PolarisException;
-import com.tencent.polaris.api.pojo.Instance;
-import com.tencent.polaris.api.pojo.ServiceInstances;
 import org.springframework.cloud.client.ServiceInstance;
 
 import java.util.ArrayList;
@@ -15,30 +13,27 @@ import java.util.List;
  */
 public class PolarisServiceDiscovery {
 
-    private final PolarisDiscoveryHandler polarisDiscoveryHandler = new PolarisDiscoveryHandler();
-
     /**
      * Return all instances for the given service.
      *
      * @param serviceId id of service
      * @return list of instances
-     * @throws PolarisException polarisException
      */
-    public List<ServiceInstance> getInstances(String serviceId) throws PolarisException {
+    public List<ServiceInstance> getInstances(String serviceId) {
         LogUtils.logInvoke(this, "getInstances");
         List<ServiceInstance> instances = new ArrayList<>();
-        ServiceInstances serviceInstances = polarisDiscoveryHandler.getFilteredInstances(serviceId);
-        for (Instance instance : serviceInstances.getInstances()) {
-            instances.add(new PolarisServiceInstance(instance));
+        List<?> availableInstances = PolarisSingleton.getPolarisOperation().getAvailableInstances(serviceId, null);
+
+        for (Object availableInstance : availableInstances) {
+            instances.add(new PolarisServiceInstance(availableInstance, serviceId));
         }
         return instances;
     }
 
     /**
      * @return list of service names
-     * @throws PolarisException polarisException
      */
-    public List<String> getServices() throws PolarisException {
+    public List<String> getServices() {
         LogUtils.logInvoke(this, "getServices");
         return Collections.emptyList();
     }

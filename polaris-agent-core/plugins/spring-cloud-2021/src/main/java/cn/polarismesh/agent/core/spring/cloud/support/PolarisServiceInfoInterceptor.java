@@ -1,8 +1,10 @@
 package cn.polarismesh.agent.core.spring.cloud.support;
 
 import cn.polarismesh.agent.core.spring.cloud.AfterPolarisInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.context.InvokeContext;
 import cn.polarismesh.agent.core.spring.cloud.context.InvokeContextHolder;
 import cn.polarismesh.agent.core.spring.cloud.context.PolarisAgentProperties;
+import cn.polarismesh.agent.core.spring.cloud.ratelimit.PolarisRateLimit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.client.ServiceInstance;
@@ -23,8 +25,11 @@ public class PolarisServiceInfoInterceptor implements AfterPolarisInterceptor {
             LOGGER.info("fail to reserve ServiceInstance for current thread");
             return;
         }
-        InvokeContextHolder.get().setServiceInstance(instance);
+        InvokeContext invokeContext = InvokeContextHolder.get();
+        invokeContext.setServiceInstance(instance);
         LOGGER.info("success to reserve ServiceInstance: {} for current thread", instance.getServiceId() + ":" + instance.getHost() + ":" + instance.getPort());
+        // judge rate limit info
+        PolarisRateLimit.judge(invokeContext);
     }
 
 }

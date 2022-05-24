@@ -1,8 +1,6 @@
 package cn.polarismesh.agent.core.spring.cloud.registry;
 
 import cn.polarismesh.agent.core.spring.cloud.context.PolarisAgentProperties;
-import cn.polarismesh.agent.core.spring.cloud.context.PolarisContext;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.serviceregistry.Registration;
@@ -18,8 +16,8 @@ public class PolarisRegistration implements Registration, ServiceInstance {
 
     private final PolarisAgentProperties polarisProperties;
 
-    public PolarisRegistration(PolarisContext polarisContext) {
-        this.polarisProperties = polarisContext.getPolarisContextAgentProperties();
+    public PolarisRegistration(PolarisAgentProperties polarisAgentProperties) {
+        this.polarisProperties = polarisAgentProperties;
     }
 
     @Override
@@ -43,8 +41,8 @@ public class PolarisRegistration implements Registration, ServiceInstance {
 
     @Override
     public boolean isSecure() {
-        return StringUtils.equalsIgnoreCase(polarisProperties.getProtocol(), "https") ||
-                StringUtils.equalsIgnoreCase(polarisProperties.getProtocol(), "grpc");
+        return "https".equalsIgnoreCase(polarisProperties.getProtocol()) ||
+                "grpc".equalsIgnoreCase(polarisProperties.getProtocol());
     }
 
     @Override
