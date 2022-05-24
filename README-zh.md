@@ -9,16 +9,16 @@
 
 polaris-java-agent提供无侵入的方式，供Java应用与polaris进行对接，进行服务治理，提供以下功能：
 
-- 服务注册发现
-- 动态路由及负载均衡
-- 故障节点熔断
-- 服务限流[开发中]
+- [x] 服务注册发现
+- [x] 动态路由及负载均衡
+- [x] 故障节点熔断
+- [x] 服务限流
 
 当前支持基于以下框架开发的Java应用进行接入：
 
-- dubbox(version >= 2.8.4)
-- dubbo(version >= 2.7.0)
-- spring-cloud(version >= 2020.0.0)[开发中]
+- [x] dubbox(version >= 2.8.4)
+- [x] dubbo(version >= 2.7.0)
+- [ ] spring-cloud(version >= 2020.0.0)
 
 本文档介绍如何使用polaris-java-agent接入polaris服务治理。
 
@@ -43,5 +43,5 @@ polaris-java-agent提供以下配置项，所有的配置项都可以通过文�
 
 ## 使用指南
 
-- [dubbo2](./polaris-agent-examples/dubbo2/README.md)
-- [dubbox](./polaris-agent-examples/dubbox/README.md)
+- [dubbo2 接入](./polaris-agent-examples/dubbo2/README.md)
+- [dubbox 接入](./polaris-agent-examples/dubbox/README.md)

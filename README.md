@@ -9,16 +9,16 @@ English | [中文](./README-zh.md)
 
 polaris-java-agent provides a non-invasive way for Java applications to connect with polaris for service management, and provides the following functions:
 
-- Service registration discovery
-- Dynamic routing and load balancing
-- The faulty node is blown
-- Service throttling [under development]
+- [x] Service registration discovery
+- [x] Dynamic routing and load balancing
+- [x] The faulty node is blown
+- [x] Service throttling
 
 Currently, Java applications developed based on the following frameworks are supported for access:
 
-- dubbox(version >= 2.8.4)
-- dubbo2(version >= 2.7.0)
-- spring-cloud (version >= 2020.0.0) [under development]
+- [x] dubbox(version >= 2.8.4)
+- [x] dubbo(version >= 2.7.0)
+- [ ] spring-cloud(version >= 2020.0.0)
 
 This document describes how to use polaris-java-agent to access polaris service governance.
 
@@ -42,5 +42,5 @@ polaris-java-agent provides the following configuration items, all of which can 
 
 ## User Guidance
 
-- [dubbo2](./polaris-agent-examples/dubbo2/README.md)
-- [dubbox](./polaris-agent-examples/dubbox/README.md)
+- [dubbo2 access](./polaris-agent-examples/dubbo2/README.md)
+- [dubbox access](./polaris-agent-examples/dubbox/README.md)
