@@ -2,8 +2,10 @@
 
 English | [中文](./README-zh.md)
 
-- [introduction](#introduction)
-- [Usage Guide](#Usage Guide)
+- [Introduction](#Introduce)
+- [Technology Architecture](#Technology Architecture)
+- [Configuration Description](#Configuration Description)
+- [Usage Guide](#User Guide)
 
 ## Introduce
 
@@ -28,7 +30,7 @@ polaris-java-agent injects interceptors into applications through Java bytecode 
 
 ![](pic/arch.png)
 
-## Configuration item description
+## Configuration Description
 
 polaris-java-agent provides the following configuration items, all of which can be configured through files (polaris.config) and system variables (-D parameters).
 
@@ -40,7 +42,7 @@ polaris-java-agent provides the following configuration items, all of which can 
 | agent.application.healthcheck.ttl | Service check check TTL, in seconds | no | 5 |
 | agent.consumer.refresh.interval | Service list refresh interval, in seconds | No | 2 |
 
-## User Guidance
+## User Guide
 
 - [dubbo2 access](./polaris-agent-examples/dubbo2/README.md)
 - [dubbox access](./polaris-agent-examples/dubbox/README.md)
