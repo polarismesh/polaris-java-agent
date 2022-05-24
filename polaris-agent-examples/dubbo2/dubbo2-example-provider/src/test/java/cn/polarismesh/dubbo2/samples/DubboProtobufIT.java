@@ -17,10 +17,7 @@
 
 package cn.polarismesh.dubbo2.samples;
 
-import cn.polarismesh.dubbo2.demo.DemoService;
-import cn.polarismesh.dubbo2.demo.HelloReply;
-import cn.polarismesh.dubbo2.demo.HelloRequest;
-
+import cn.polarismesh.dubbo2.api.DemoService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,8 +36,8 @@ public class DubboProtobufIT {
 
     @Test
     public void testGreeting() throws Exception {
-        HelloReply helloReply = demoService.sayHello(HelloRequest.newBuilder().setName("world").build());
-        Assert.assertTrue(helloReply.getMessage().startsWith("Hello world"));
+        String resp = demoService.sayHello("world");
+        Assert.assertTrue(resp.startsWith("Hello world"));
     }
 }
 

@@ -1,8 +1,0 @@
-server:
-  port: 36666
-spring:
-  application:
-    name: DiscoveryCalleeService
-  cloud:
-    loadbalancer:
-      configurations: default

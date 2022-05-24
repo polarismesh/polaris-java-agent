@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 import java.security.ProtectionDomain;
 import java.util.List;
 import java.util.Map;
@@ -117,17 +118,21 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer)
                 throws InstrumentException {
-            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            InstrumentMethod constructor = target
-                    .getConstructor(String.class.getCanonicalName(), String.class.getCanonicalName(),
-                            String.class.getCanonicalName(), String.class.getCanonicalName(),
-                            int.class.getCanonicalName(), String.class.getCanonicalName(),
-                            Map.class.getCanonicalName());
+
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, protectionDomain, classFileBuffer);
+
+            String[] paramTypes = new String[]{String.class.getCanonicalName(), String.class.getCanonicalName(),
+                    String.class.getCanonicalName(), String.class.getCanonicalName(),
+                    int.class.getCanonicalName(), String.class.getCanonicalName(),
+                    Map.class.getCanonicalName()};
+
+            InstrumentMethod constructor = InstrumentUtils.findConstructor(target, paramTypes);
             if (constructor != null) {
                 constructor.addInterceptor(DubboUrlInterceptor.class);
             }
+
             return target.toBytecode();
         }
     }

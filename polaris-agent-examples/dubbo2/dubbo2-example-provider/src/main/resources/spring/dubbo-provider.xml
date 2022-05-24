@@ -21,17 +21,14 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
        http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
 
-    <dubbo:application name="demo-provider"/>
-
-    <dubbo:provider token="true" timeout="50000000"/>
+    <dubbo:application name="DubboProvider"/>
 
     <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
 
-    <dubbo:protocol name="dubbo"/>
+    <dubbo:protocol name="dubbo" port="20881" host="10.68.104.33" />
 
-    <bean id="demoServiceImpl" class="cn.polarismesh.dubbo2.demo.provider.DemoServiceImpl"/>
+    <dubbo:service interface="cn.polarismesh.dubbo2.api.DemoService" ref="demoServiceImpl" version="v1.0.0" />
 
-    <dubbo:service serialization="protobuf" interface="cn.polarismesh.dubbo2.demo.DemoService"
-                   ref="demoServiceImpl"/>
+    <bean id="demoServiceImpl" class="cn.polarismesh.dubbo2.demo.server.DemoServiceImpl"/>
 
 </beans>

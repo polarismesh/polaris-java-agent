@@ -14,47 +14,80 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package cn.polarismesh.dubbo2.demo.consumer;
 
-import cn.polarismesh.dubbo2.demo.DemoService;
-import cn.polarismesh.dubbo2.demo.HelloReply;
-import cn.polarismesh.dubbo2.demo.HelloRequest;
+import cn.polarismesh.dubbo2.api.DemoService;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.util.concurrent.CompletableFuture;
-
 public class ConsumerApplication {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsumerApplication.class);
+
+    private static final int LISTEN_PORT = 15700;
+
     public static void main(String[] args) throws Exception {
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("spring/dubbo-consumer.xml");
-        context.start();
-        DemoService demoService = context.getBean("demoService", DemoService.class);
-        for(int i = 0; i < 5; i++){
-            doRequest(demoService);
-            System.out.println("===========================================");
-            doRequestAsync(demoService);
-            System.out.println("===========================================");
-            Thread.sleep(1000);
-        }
-        System.in.read();
-        for(int i = 0; i < 5; i++){
-            doRequest(demoService);
-            System.out.println("===========================================");
-            doRequestAsync(demoService);
-            System.out.println("===========================================");
-            Thread.sleep(1000);
-        }
-        System.in.read();
+        HttpServer server = HttpServer.create(new InetSocketAddress(LISTEN_PORT), 0);
+        server.createContext("/echo", new EchoClientHandler());
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            server.stop(1);
+        }));
+        server.start();
     }
 
-    private static void doRequest(DemoService demoService){
-        HelloRequest request = HelloRequest.newBuilder().setName("Hello").build();
-        HelloReply reply = demoService.sayHello(request);
-        System.out.println("result: " + reply.getMessage());
+    private static class EchoClientHandler implements HttpHandler {
+
+        private final DemoService demoService;
+
+        public EchoClientHandler() {
+            ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("spring/dubbo-consumer.xml");
+            context.start();
+            demoService = context.getBean("demoService", DemoService.class);
+        }
+
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            String resp = doRequest(exchange, demoService);
+            exchange.sendResponseHeaders(200, 0);
+            OutputStream os = exchange.getResponseBody();
+            os.write(resp.getBytes());
+            os.close();
+        }
     }
 
-    private static void doRequestAsync(DemoService demoService) throws Exception {
-        HelloRequest asyncRequest = HelloRequest.newBuilder().setName("async").build();
-        CompletableFuture<HelloReply> asyncReply = demoService.sayHelloAsync(asyncRequest);
-        System.out.println("result: " + asyncReply.get());
+    private static String doRequest(HttpExchange exchange, DemoService demoService)
+            throws UnsupportedEncodingException {
+        Map<String, String> parameters = splitQuery(exchange.getRequestURI());
+        String echoValue = parameters.get("value");
+        try {
+            return demoService.sayHello(echoValue);
+        } catch (Throwable ex) {
+            return ex.getMessage();
+        }
+    }
+
+    private static Map<String, String> splitQuery(URI uri) throws UnsupportedEncodingException {
+        Map<String, String> query_pairs = new LinkedHashMap<>();
+        String query = uri.getQuery();
+        String[] pairs = query.split("&");
+        for (String pair : pairs) {
+            int idx = pair.indexOf("=");
+            query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"),
+                    URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+        }
+        return query_pairs;
     }
 }
