@@ -14,9 +14,11 @@
     <name>Polaris Agent Adapter Pinpoint</name>
     <modules>
         <!--<module>pinpoint-spring-cloud-2021-plugin</module>-->
+        <module>pinpoint-nacosv1-plugin</module>
         <module>pinpoint-dubbo2-plugin</module>
         <module>pinpoint-dubbox-plugin</module>
         <module>pinpoint-bootstrap</module>
+        <module>pinpoint-common</module>
         <module>pinpoint-common</module>
     </modules>
 

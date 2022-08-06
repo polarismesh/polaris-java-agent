@@ -18,6 +18,7 @@
     <modules>
         <module>dubbo2</module>
         <module>dubbox</module>
+        <module>nacosv1</module>
 <!--        <module>spring-cloud-2021</module>-->
     </modules>
 
