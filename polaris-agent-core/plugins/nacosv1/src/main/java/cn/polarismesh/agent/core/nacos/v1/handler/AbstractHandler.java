@@ -34,26 +34,20 @@ public abstract class AbstractHandler {
         Map<String, String> params = (Map<String, String>)args[1];
         Map<String, String> body = (Map<String, String>)args[2];
         String method = (String)args[4];
-        String nacosDomain = System.getProperty(NacosConstants.TSE_NACOS_SERVER_ADDR);
+        String nacosDomain = System.getProperty(NacosConstants.TARGET_NACOS_SERVER_ADDR);
         Objects.requireNonNull(nacosDomain);
 
         //4.执行调用
         for (int i = 0; i < maxRetry; i++) {
             try {
                 //1.请求另外一个nacos server
-                Object secondResult = namingProxy.callServer(api, params, body, nacosDomain, method);
-                //2.merge两次调用的结果
-                mergeResult(result, secondResult);
+                namingProxy.callServer(api, params, body, nacosDomain, method);
             } catch (NacosException e) {
                 if (NAMING_LOGGER.isDebugEnabled()) {
-                    NAMING_LOGGER.debug("request {} failed.", nacosDomain, e);
+                    NAMING_LOGGER.debug("AbstractHandler handle request {} failed.", nacosDomain, e);
                 }
             }
         }
-    }
-
-    void mergeResult(Object result, Object secondResult){
-
     }
 
 }

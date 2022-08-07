@@ -2,6 +2,7 @@ package cn.polarismesh.agent.adapter.nacos.v1;
 
 
 import cn.polarismesh.agent.adapter.nacos.v1.interceptor.NacosNamingProxyInterceptor;
+import cn.polarismesh.agent.adapter.nacos.v1.interceptor.NacosNamingServiceInterceptor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -38,7 +39,7 @@ public class NacosDoubleRegistyPlugin implements ProfilerPlugin, TransformTempla
      */
     private void addNacosTransformers() {
         transformTemplate.transform(ClassNames.NACOS_NAMING_PROXY, NacosNamingProxyTransform.class);
-//        transformTemplate.transform(ClassNames.NACOS_NAMING_SERVICE, NacosDoubleRegistryTransform.class);
+        transformTemplate.transform(ClassNames.NACOS_NAMING_SERVICE, NacosNamingServiceTransform.class);
 
     }
 
@@ -53,6 +54,23 @@ public class NacosDoubleRegistyPlugin implements ProfilerPlugin, TransformTempla
             InstrumentMethod method = target.getDeclaredMethod("reqApi", "java.lang.String", "java.util.Map", "java.util.Map", "java.util.List", "java.lang.String");
             if (method != null) {
                 method.addInterceptor(NacosNamingProxyInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+
+    }
+    public static class NacosNamingServiceTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+                byte[] classfileBuffer) throws InstrumentException {
+
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            InstrumentMethod method = target.getDeclaredMethod("init", "java.util.Properties");
+            if (method != null) {
+                method.addInterceptor(NacosNamingServiceInterceptor.class);
             }
 
             return target.toBytecode();

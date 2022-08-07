@@ -17,18 +17,4 @@ public class NacosQueryListHandler extends AbstractHandler {
         return NacosConstants.QUERY_LIST;
     }
 
-    @Override
-    void mergeResult(Object result, Object secondResult) {
-        String resultStr = (String)result;
-        String secondResultStr = (String)secondResult;
-
-        ServiceInfo serviceInfo = null;
-        ServiceInfo secondServiceInfo = null;
-        if (StringUtils.isNotEmpty(resultStr)) {
-            serviceInfo = JacksonUtils.toObj(resultStr, ServiceInfo.class);
-        }
-        if (StringUtils.isNotEmpty(secondResultStr)) {
-            secondServiceInfo = JacksonUtils.toObj(secondResultStr, ServiceInfo.class);
-        }
-    }
 }

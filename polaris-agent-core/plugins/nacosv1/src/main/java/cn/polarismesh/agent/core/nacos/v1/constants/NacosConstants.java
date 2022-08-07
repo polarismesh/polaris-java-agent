@@ -28,10 +28,25 @@ import com.alibaba.nacos.common.utils.HttpMethod;
 public class NacosConstants {
 
     //tse nacos server address
-    public static final String TSE_NACOS_SERVER_ADDR = "tse.nacos.server.addr";
+    public static final String TARGET_NACOS_SERVER_ADDR = "target.nacos.server.addr";
 
-    //nacos sdk maxRetry
-    public static final String MAX_RETRY = "maxRetry";
+    //反射所有属性名称
+    public static final String MAX_RETRY = "maxRetry";//nacos sdk maxRetry
+    public static final String CACHE_DIR = "cacheDir";
+    public static final String NAMESPACE = "namespace";
+    public static final String ENDPOINT = "endpoint";
+    public static final String SERVER_LIST = "serverList";
+
+    public static final String SERVER_PROXY = "serverProxy";
+    public static final String BEAT_REACTOR = "beatReactor";
+    public static final String HOST_REACTOR = "hostReactor";
+
+    //反射所用方法名称
+    public static final String METHDO_INIT_CLIENT_BEAT_THREAD_COUNT = "initClientBeatThreadCount";
+    public static final String METHDO_IS_LOAD_CACHE_AT_START = "isLoadCacheAtStart";
+    public static final String METHDO_INIT_POLLING_THREAD_COUNT = "initPollingThreadCount";
+    public static final String METHDO_IS_PUSH_EMPTY_PROTECT = "isPushEmptyProtect";
+
 
     public static final String LINK_FLAG = "@";
 

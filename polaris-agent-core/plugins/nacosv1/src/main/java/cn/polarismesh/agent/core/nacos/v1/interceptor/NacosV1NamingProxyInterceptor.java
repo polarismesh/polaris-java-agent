@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * nacos sdk1.x版本双注册拦截类
+ * nacos sdk1.x版本NamingProxy拦截类
  *
  * @author bruceppeng
  */
