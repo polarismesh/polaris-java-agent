@@ -1,7 +1,7 @@
 package cn.polarismesh.agent.adapter.nacos.v1;
 
 
-import cn.polarismesh.agent.adapter.nacos.v1.interceptor.NacosDoubleRegistryInterceptor;
+import cn.polarismesh.agent.adapter.nacos.v1.interceptor.NacosNamingProxyInterceptor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -37,11 +37,12 @@ public class NacosDoubleRegistyPlugin implements ProfilerPlugin, TransformTempla
      * add nacos transformers
      */
     private void addNacosTransformers() {
-        transformTemplate.transform(ClassNames.NACOS_DOUBLE_REGISTRY, NacosDoubleRegistryTransform.class);
+        transformTemplate.transform(ClassNames.NACOS_NAMING_PROXY, NacosNamingProxyTransform.class);
+//        transformTemplate.transform(ClassNames.NACOS_NAMING_SERVICE, NacosDoubleRegistryTransform.class);
 
     }
 
-    public static class NacosDoubleRegistryTransform implements TransformCallback {
+    public static class NacosNamingProxyTransform implements TransformCallback {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
@@ -51,7 +52,7 @@ public class NacosDoubleRegistyPlugin implements ProfilerPlugin, TransformTempla
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
             InstrumentMethod method = target.getDeclaredMethod("reqApi", "java.lang.String", "java.util.Map", "java.util.Map", "java.util.List", "java.lang.String");
             if (method != null) {
-                method.addInterceptor(NacosDoubleRegistryInterceptor.class);
+                method.addInterceptor(NacosNamingProxyInterceptor.class);
             }
 
             return target.toBytecode();
@@ -61,7 +62,8 @@ public class NacosDoubleRegistyPlugin implements ProfilerPlugin, TransformTempla
 
     public interface ClassNames {
 
-        String NACOS_DOUBLE_REGISTRY = "com.alibaba.nacos.client.naming.net.NamingProxy";
+        String NACOS_NAMING_PROXY = "com.alibaba.nacos.client.naming.net.NamingProxy";
+        String NACOS_NAMING_SERVICE = "com.alibaba.nacos.client.naming.NacosNamingService.NacosNamingService";
 
     }
 

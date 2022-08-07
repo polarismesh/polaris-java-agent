@@ -18,7 +18,7 @@
 package cn.polarismesh.agent.adapter.nacos.v1.interceptor;
 
 
-import cn.polarismesh.agent.core.nacos.v1.interceptor.NacosV1DoubleRegistryInterceptor;
+import cn.polarismesh.agent.core.nacos.v1.interceptor.NacosV1NamingProxyInterceptor;
 import cn.polarismesh.pinpoint.common.InterceptorFactory;
 
 /**
@@ -29,10 +29,10 @@ import cn.polarismesh.pinpoint.common.InterceptorFactory;
 public class InterceptorBuilder {
 
     static void buildInterceptors() {
-        NacosV1DoubleRegistryInterceptor nacosV1DoubleRegistryInterceptor = new NacosV1DoubleRegistryInterceptor();
+        NacosV1NamingProxyInterceptor NacosV1NamingProxyInterceptor = new NacosV1NamingProxyInterceptor();
 
 
-        InterceptorFactory.addInterceptor(NacosDoubleRegistryInterceptor.class, nacosV1DoubleRegistryInterceptor);
+        InterceptorFactory.addInterceptor(NacosNamingProxyInterceptor.class, NacosV1NamingProxyInterceptor);
 
     }
 }

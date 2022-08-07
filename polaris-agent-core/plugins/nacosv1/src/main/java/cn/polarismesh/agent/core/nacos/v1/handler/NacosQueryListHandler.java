@@ -1,13 +1,16 @@
 package cn.polarismesh.agent.core.nacos.v1.handler;
 
 import cn.polarismesh.agent.core.nacos.v1.constants.NacosConstants;
+import com.alibaba.nacos.api.naming.pojo.ServiceInfo;
+import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.nacos.common.utils.StringUtils;
 
 /**
- * 针对各个接口的拦截处理类
+ * 针对查询服务实例的拦截处理类
  *
  * @author bruceppeng
  */
-public class NacosQueryListHandler implements AbstractHandler {
+public class NacosQueryListHandler extends AbstractHandler {
 
     @Override
     public String getName() {
@@ -15,7 +18,17 @@ public class NacosQueryListHandler implements AbstractHandler {
     }
 
     @Override
-    public Object handle(Object target, Object[] args, Object result) throws Exception {
-        return null;
+    void mergeResult(Object result, Object secondResult) {
+        String resultStr = (String)result;
+        String secondResultStr = (String)secondResult;
+
+        ServiceInfo serviceInfo = null;
+        ServiceInfo secondServiceInfo = null;
+        if (StringUtils.isNotEmpty(resultStr)) {
+            serviceInfo = JacksonUtils.toObj(resultStr, ServiceInfo.class);
+        }
+        if (StringUtils.isNotEmpty(secondResultStr)) {
+            secondServiceInfo = JacksonUtils.toObj(secondResultStr, ServiceInfo.class);
+        }
     }
 }

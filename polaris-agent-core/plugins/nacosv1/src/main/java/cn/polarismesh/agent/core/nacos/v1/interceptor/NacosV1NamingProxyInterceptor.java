@@ -29,13 +29,13 @@ import org.slf4j.LoggerFactory;
  *
  * @author bruceppeng
  */
-public class NacosV1DoubleRegistryInterceptor implements AbstractInterceptor {
+public class NacosV1NamingProxyInterceptor implements AbstractInterceptor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NacosV1DoubleRegistryInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NacosV1NamingProxyInterceptor.class);
 
     private HandlerManager handlerManager;
 
-    public NacosV1DoubleRegistryInterceptor() {
+    public NacosV1NamingProxyInterceptor() {
         handlerManager = new HandlerManager();
 
     }
@@ -57,7 +57,7 @@ public class NacosV1DoubleRegistryInterceptor implements AbstractInterceptor {
             try {
                 handlerManager.handler(handlerName,target,args,result);
             }catch (Exception exp){
-                LOGGER.error("NacosV1DoubleRegistryInterceptor after error, handlerName:{},errMsg:{}", handlerName, exp.getMessage());
+                LOGGER.error("NacosV1NamingProxyInterceptor after error, handlerName:{},errMsg:{}", handlerName, exp.getMessage());
             }
         }
     }

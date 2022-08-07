@@ -27,6 +27,12 @@ import com.alibaba.nacos.common.utils.HttpMethod;
  */
 public class NacosConstants {
 
+    //tse nacos server address
+    public static final String TSE_NACOS_SERVER_ADDR = "tse.nacos.server.addr";
+
+    //nacos sdk maxRetry
+    public static final String MAX_RETRY = "maxRetry";
+
     public static final String LINK_FLAG = "@";
 
     public static final String REGISTER_SERVICE = UtilAndComs.nacosUrlInstance + LINK_FLAG + HttpMethod.POST;

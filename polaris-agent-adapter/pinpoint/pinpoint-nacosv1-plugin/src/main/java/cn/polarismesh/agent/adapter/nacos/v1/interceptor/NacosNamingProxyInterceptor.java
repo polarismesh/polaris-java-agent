@@ -6,6 +6,6 @@ package cn.polarismesh.agent.adapter.nacos.v1.interceptor;
  *
  * @author bruceppeng
  */
-public class NacosDoubleRegistryInterceptor  extends AbstractNacosInterceptor {
+public class NacosNamingProxyInterceptor  extends AbstractNacosInterceptor {
 
 }

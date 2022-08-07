@@ -1,21 +1,20 @@
 package cn.polarismesh.agent.core.nacos.v1.handler;
 
+import static com.alibaba.nacos.client.utils.LogUtils.NAMING_LOGGER;
+
 import cn.polarismesh.agent.core.nacos.v1.constants.NacosConstants;
+import com.alibaba.nacos.api.exception.NacosException;
 
 /**
- * 针对各个接口的拦截处理类
+ * 针对注册的拦截处理类
  *
  * @author bruceppeng
  */
-public class NacosRegisterServiceHandler implements AbstractHandler {
+public class NacosRegisterServiceHandler extends AbstractHandler {
 
     @Override
     public String getName() {
         return NacosConstants.REGISTER_SERVICE;
     }
 
-    @Override
-    public Object handle(Object target, Object[] args, Object result) throws Exception {
-        return null;
-    }
 }
