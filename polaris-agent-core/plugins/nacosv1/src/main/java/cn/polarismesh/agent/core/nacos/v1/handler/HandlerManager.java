@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
  * Handler 管理类
  *
  * @author bruceppeng
- * @date 2022/8/6 14:14
  */
 public class HandlerManager {
 
@@ -27,12 +26,10 @@ public class HandlerManager {
         NacosRegisterServiceHandler nacosRegisterServiceHandler = new NacosRegisterServiceHandler();
         NacosDeregisterServiceHandler nacosDeregisterServiceHandler = new NacosDeregisterServiceHandler();
         NacosSendBeatHandler nacosSendBeatHandler = new NacosSendBeatHandler();
-        NacosQueryListHandler nacosQueryListHandler = new NacosQueryListHandler();
 
         nacosHandlerCache.put(nacosRegisterServiceHandler.getName(), nacosRegisterServiceHandler);
         nacosHandlerCache.put(nacosDeregisterServiceHandler.getName(), nacosDeregisterServiceHandler);
         nacosHandlerCache.put(nacosSendBeatHandler.getName(), nacosSendBeatHandler);
-        nacosHandlerCache.put(nacosQueryListHandler.getName(), nacosQueryListHandler);
     }
 
     public void handler(String handlerName, Object target, Object[] args, Object result){

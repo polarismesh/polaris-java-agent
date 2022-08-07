@@ -56,7 +56,4 @@ public class NacosConstants {
 
     public static final String SEND_BEAT = UtilAndComs.nacosUrlBase + "/instance/beat" + LINK_FLAG + HttpMethod.PUT;
 
-    public static final String QUERY_LIST = UtilAndComs.nacosUrlBase + "/instance/list" + LINK_FLAG + HttpMethod.GET;
-
-
 }
