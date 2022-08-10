@@ -10,9 +10,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>nacosv1-agent-double-registry-plugin</artifactId>
+    <artifactId>polaris-agent-nacosv1-plugin</artifactId>
 
-    <name>nacosv1 agent double registry plugin</name>
+    <name>Polaris Agent Nacosv1 Plugin</name>
 
     <properties>
         <spring.cloud.version>2021.0.0</spring.cloud.version>
