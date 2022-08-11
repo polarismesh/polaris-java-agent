@@ -122,7 +122,7 @@ public class NacosV1NamingProxy extends NamingProxy {
                     hosts.add(host);
                 }
             }
-
+            serviceInfo.setHosts(hosts);
             return JacksonUtils.toJson(serviceInfo);
         }catch(Exception exp){
             System.out.println("NacosV1NamingProxy mergeResult NacosException:"+exp.getMessage());
