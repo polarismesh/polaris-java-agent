@@ -1,8 +1,8 @@
 package cn.polarismesh.agent.adapter.nacos.v1;
 
 
+import cn.polarismesh.agent.adapter.nacos.v1.interceptor.NacosNamingFactoryInterceptor;
 import cn.polarismesh.agent.adapter.nacos.v1.interceptor.NacosNamingProxyInterceptor;
-import cn.polarismesh.agent.adapter.nacos.v1.interceptor.NacosNamingServiceInterceptor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -38,8 +38,8 @@ public class NacosDoubleRegistyPlugin implements ProfilerPlugin, TransformTempla
      * add nacos transformers
      */
     private void addNacosTransformers() {
-        transformTemplate.transform(ClassNames.NACOS_NAMING_PROXY, NacosNamingProxyTransform.class);
-        transformTemplate.transform(ClassNames.NACOS_NAMING_SERVICE, NacosNamingServiceTransform.class);
+//        transformTemplate.transform(ClassNames.NACOS_NAMING_PROXY, NacosNamingProxyTransform.class);
+        transformTemplate.transform(ClassNames.NACOS_NAMING_FACTORY, NacosNamingFactoryTransform.class);
 
     }
 
@@ -60,7 +60,7 @@ public class NacosDoubleRegistyPlugin implements ProfilerPlugin, TransformTempla
         }
 
     }
-    public static class NacosNamingServiceTransform implements TransformCallback {
+    public static class NacosNamingFactoryTransform implements TransformCallback {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
@@ -68,9 +68,9 @@ public class NacosDoubleRegistyPlugin implements ProfilerPlugin, TransformTempla
                 byte[] classfileBuffer) throws InstrumentException {
 
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-            InstrumentMethod method = target.getDeclaredMethod("init", "java.util.Properties");
+            InstrumentMethod method = target.getDeclaredMethod("createNamingService", "java.util.Properties");
             if (method != null) {
-                method.addInterceptor(NacosNamingServiceInterceptor.class);
+                method.addInterceptor(NacosNamingFactoryInterceptor.class);
             }
 
             return target.toBytecode();
@@ -81,7 +81,7 @@ public class NacosDoubleRegistyPlugin implements ProfilerPlugin, TransformTempla
     public interface ClassNames {
 
         String NACOS_NAMING_PROXY = "com.alibaba.nacos.client.naming.net.NamingProxy";
-        String NACOS_NAMING_SERVICE = "com.alibaba.nacos.client.naming.NacosNamingService.NacosNamingService";
+        String NACOS_NAMING_FACTORY = "com.alibaba.nacos.api.naming.NamingFactory";
 
     }
 

@@ -19,7 +19,7 @@ package cn.polarismesh.agent.adapter.nacos.v1.interceptor;
 
 
 import cn.polarismesh.agent.core.nacos.v1.interceptor.NacosV1NamingProxyInterceptor;
-import cn.polarismesh.agent.core.nacos.v1.interceptor.NacosV1NamingServiceInterceptor;
+import cn.polarismesh.agent.core.nacos.v1.interceptor.NacosV1NamingFactoryInterceptor;
 import cn.polarismesh.pinpoint.common.InterceptorFactory;
 
 /**
@@ -30,12 +30,12 @@ import cn.polarismesh.pinpoint.common.InterceptorFactory;
 public class InterceptorBuilder {
 
     static void buildInterceptors() {
-        NacosV1NamingProxyInterceptor NacosV1NamingProxyInterceptor = new NacosV1NamingProxyInterceptor();
-        NacosV1NamingServiceInterceptor nacosV1NamingServiceInterceptor = new NacosV1NamingServiceInterceptor();
+//        NacosV1NamingProxyInterceptor NacosV1NamingProxyInterceptor = new NacosV1NamingProxyInterceptor();
+        NacosV1NamingFactoryInterceptor nacosV1NamingFactoryInterceptor = new NacosV1NamingFactoryInterceptor();
 
 
-        InterceptorFactory.addInterceptor(NacosNamingProxyInterceptor.class, NacosV1NamingProxyInterceptor);
-        InterceptorFactory.addInterceptor(NacosNamingServiceInterceptor.class, nacosV1NamingServiceInterceptor);
+//        InterceptorFactory.addInterceptor(NacosNamingProxyInterceptor.class, NacosV1NamingProxyInterceptor);
+        InterceptorFactory.addInterceptor(NacosNamingFactoryInterceptor.class, nacosV1NamingFactoryInterceptor);
 
     }
 }

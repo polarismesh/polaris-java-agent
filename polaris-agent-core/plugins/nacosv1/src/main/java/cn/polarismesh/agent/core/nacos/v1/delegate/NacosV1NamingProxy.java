@@ -44,6 +44,7 @@ public class NacosV1NamingProxy extends NamingProxy {
                 String.valueOf(UtilAndComs.REQUEST_DOMAIN_RETRY_COUNT)));
 
         targetNacosDomain = System.getProperty(NacosConstants.TARGET_NACOS_SERVER_ADDR);
+        System.out.println("NacosV1NamingProxy targetNacosDomain:"+targetNacosDomain);
         Objects.requireNonNull(targetNacosDomain);
     }
 
@@ -70,12 +71,14 @@ public class NacosV1NamingProxy extends NamingProxy {
 
         String api = UtilAndComs.nacosUrlBase + "/instance/list";
         String result = reqApi(api, params, HttpMethod.GET);
-
+        System.out.println("NacosV1NamingProxy result:"+result);
         for (int i = 0; i < maxRetry; i++) {
             try {
                 String secondResult = callServer(api, params, Collections.EMPTY_MAP, targetNacosDomain, HttpMethod.GET);
+                System.out.println("NacosV1NamingProxy secondResult:"+secondResult);
                 return mergeResult(result, secondResult);
             } catch (NacosException e) {
+                System.out.println("NacosV1NamingProxy NacosException:"+e.getMessage());
                 if (NAMING_LOGGER.isDebugEnabled()) {
                     NAMING_LOGGER.debug("NacosV1NamingProxy queryList request {} failed.", targetNacosDomain, e);
                 }
@@ -122,6 +125,7 @@ public class NacosV1NamingProxy extends NamingProxy {
 
             return JacksonUtils.toJson(serviceInfo);
         }catch(Exception exp){
+            System.out.println("NacosV1NamingProxy mergeResult NacosException:"+exp.getMessage());
             NAMING_LOGGER.error("NacosV1NamingProxy mergeResult request {} failed.", targetNacosDomain, exp);
         }
         return result;
