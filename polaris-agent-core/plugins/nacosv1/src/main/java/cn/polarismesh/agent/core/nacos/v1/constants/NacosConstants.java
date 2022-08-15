@@ -31,7 +31,6 @@ public class NacosConstants {
     public static final String TARGET_NACOS_SERVER_ADDR = "target.nacos.server.addr";
 
     //反射所有属性名称
-    public static final String MAX_RETRY = "maxRetry";//nacos sdk maxRetry
     public static final String CACHE_DIR = "cacheDir";
     public static final String NAMESPACE = "namespace";
     public static final String ENDPOINT = "endpoint";
@@ -55,5 +54,7 @@ public class NacosConstants {
     public static final String DEREGISTER_SERVICE = UtilAndComs.nacosUrlInstance + LINK_FLAG + HttpMethod.DELETE;
 
     public static final String SEND_BEAT = UtilAndComs.nacosUrlBase + "/instance/beat" + LINK_FLAG + HttpMethod.PUT;
+
+    public static final String QUERY_LIST = UtilAndComs.nacosUrlBase + "/instance/list" + LINK_FLAG + HttpMethod.GET;
 
 }
