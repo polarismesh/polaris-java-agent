@@ -37,8 +37,8 @@
         <alibaba.dubbo.version>2.6.12</alibaba.dubbo.version>
         <!-- apache dubbo (dubbo2) -->
         <apache.dubbo.version>2.7.15</apache.dubbo.version>
-        <!-- nacos client (1.4.1) -->
-        <nacos.client.version>1.4.1</nacos.client.version>
+        <!-- nacos v1 client (1.4.1) -->
+        <nacos.v1.client.version>1.4.1</nacos.v1.client.version>
     </properties>
 
     <dependencyManagement>
