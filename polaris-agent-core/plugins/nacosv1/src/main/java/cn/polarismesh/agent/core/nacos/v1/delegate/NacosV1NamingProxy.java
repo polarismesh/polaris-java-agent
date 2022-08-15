@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+//import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,8 +45,7 @@ public class NacosV1NamingProxy extends NamingProxy {
                 String.valueOf(UtilAndComs.REQUEST_DOMAIN_RETRY_COUNT)));
 
         targetNacosDomain = System.getProperty(NacosConstants.TARGET_NACOS_SERVER_ADDR);
-        System.out.println("NacosV1NamingProxy targetNacosDomain:"+targetNacosDomain);
-        Objects.requireNonNull(targetNacosDomain);
+//        Objects.requireNonNull(targetNacosDomain);
 
         init();
     }
@@ -88,7 +87,6 @@ public class NacosV1NamingProxy extends NamingProxy {
         if (Strings.isNullOrEmpty(targetNacosDomain)){
             return result;
         }
-        System.out.println("NacosV1NamingProxy result:"+result);
 
         String secondResult = callServerForTarget(api, params, Collections.EMPTY_MAP, HttpMethod.GET);
 
@@ -133,7 +131,6 @@ public class NacosV1NamingProxy extends NamingProxy {
             serviceInfo.setHosts(hosts);
             return JacksonUtils.toJson(serviceInfo);
         }catch(Exception exp){
-            System.out.println("NacosV1NamingProxy mergeResult NacosException:"+exp.getMessage());
             NAMING_LOGGER.error("NacosV1NamingProxy mergeResult request {} failed.", targetNacosDomain, exp);
         }
         return result;
