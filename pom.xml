@@ -37,6 +37,8 @@
         <alibaba.dubbo.version>2.6.12</alibaba.dubbo.version>
         <!-- apache dubbo (dubbo2) -->
         <apache.dubbo.version>2.7.15</apache.dubbo.version>
+        <!-- nacos v1 client (1.4.1) -->
+        <nacos.v1.client.version>1.4.1</nacos.v1.client.version>
     </properties>
 
     <dependencyManagement>
@@ -218,6 +220,6 @@
         <module>polaris-agent-adapter</module>
         <module>polaris-agent-bootstrap</module>
         <module>polaris-agent-build</module>
-<!--        <module>polaris-agent-examples</module>-->
+        <!--        <module>polaris-agent-examples</module>-->
     </modules>
 </project>
