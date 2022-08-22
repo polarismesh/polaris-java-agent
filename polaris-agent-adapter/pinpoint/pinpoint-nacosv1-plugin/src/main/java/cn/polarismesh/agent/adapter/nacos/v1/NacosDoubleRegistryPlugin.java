@@ -19,7 +19,7 @@ import java.security.ProtectionDomain;
  *
  * @author bruceppeng
  */
-public class NacosDoubleRegistyPlugin implements ProfilerPlugin, TransformTemplateAware {
+public class NacosDoubleRegistryPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private TransformTemplate transformTemplate;
 
