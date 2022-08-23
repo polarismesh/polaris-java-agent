@@ -45,6 +45,25 @@ ls -lstrh
 boot_jar_name="pinpoint-polaris-bootstrap.jar"
 cp "${boot_jar_name}" "${workdir}"/pinpoint-agent-2.3.3/
 
+#remove unnecessary plug-ins
+rm -rf  "${workdir}"/pinpoint-agent-2.3.3/plugin/*
+echo "remove unnecessary plug-ins success"
+
+#modify log4j2.xml
+if [ $(uname) == "Darwin" ]
+then
+	echo "darwin"
+	sed -i "" "/<AppenderRef ref=\"console\"\/>/d"  "${workdir}"/pinpoint-agent-2.3.3/profiles/local/log4j2.xml
+	sed -i "" "/<AppenderRef ref=\"console\"\/>/d"  "${workdir}"/pinpoint-agent-2.3.3/profiles/release/log4j2.xml
+  echo "modify log4j2.xml success"
+elif [ $(expr substr $(uname -s) 1 5)  == "Linux" ]
+then
+	echo "linux"
+	sed -i  "/<AppenderRef ref=\"console\"\/>/d"  "${workdir}"/pinpoint-agent-2.3.3/profiles/local/log4j2.xml
+	sed -i  "/<AppenderRef ref=\"console\"\/>/d"  "${workdir}"/pinpoint-agent-2.3.3/profiles/release/log4j2.xml
+  echo "modify log4j2.xml success"
+fi
+
 #copy plugin
 echo "start to copy plugin"
 ls -lstrh
