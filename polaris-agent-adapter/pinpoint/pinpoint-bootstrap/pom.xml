@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>pinpoint-polaris-bootstrap</artifactId>
+    <artifactId>polaris-java-agent-bootstrap</artifactId>
     <name>Polaris Agent Pinpoint Bootstrap</name>
     <dependencies>
         <dependency>

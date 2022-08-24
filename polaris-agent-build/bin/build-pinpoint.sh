@@ -17,7 +17,7 @@ workdir=$(pwd)
 echo "workdir is ${workdir}"
 
 # init variables
-folder_name=polaris-pinpoint-agent-"${version}"
+folder_name=polaris-java-agent-"${version}"
 package_name="${folder_name}".zip
 
 # download pinpoint
@@ -42,7 +42,7 @@ mvn clean -B package --file pom.xml
 pushd target
 echo "start to copy bootstrap"
 ls -lstrh
-boot_jar_name="pinpoint-polaris-bootstrap.jar"
+boot_jar_name="polaris-java-agent-bootstrap.jar"
 cp "${boot_jar_name}" "${workdir}"/pinpoint-agent-2.3.3/
 
 #remove unnecessary plug-ins

@@ -12,9 +12,9 @@
 
 ## 配置java-agent软件包
 
-- 软件包下载：从 [release](https://github.com/polarismesh/polaris-java-agent/releases/tag/${version}) 下载最新版本的 **polaris-pinpoint-agent-${version}.zip** ，并解压。
-- 配置北极星服务端地址：进入 **polaris-pinpoint-agent-${version}** 目录，打开polaris.config文件，修改 **agent.polaris.registry** 配置项为北极星服务端IP端口地址，端口使用8091。
-- 配置collector地址：进入 **polaris-pinpoint-agent-${version}** 目录，打开pinpoint-root.config，修改 **profiler.transport.grpc.collector.ip** 为collector的IP地址。
+- 软件包下载：从 [release](https://github.com/polarismesh/polaris-java-agent/releases/tag/${version}) 下载最新版本的 **polaris-java-agent-${version}.zip** ，并解压。
+- 配置北极星服务端地址：进入 **polaris-java-agent-${version}** 目录，打开polaris.config文件，修改 **agent.polaris.registry** 配置项为北极星服务端IP端口地址，端口使用8091。
+- 配置collector地址：进入 **polaris-java-agent-${version}** 目录，打开pinpoint-root.config，修改 **profiler.transport.grpc.collector.ip** 为collector的IP地址。
 
 ## 启动dubbo2应用
 
@@ -24,13 +24,13 @@
 
 - DubboProvider
 ```shell
-java -javaagent:${java-agent安装目录}/polaris-java-agent-${version}/pinpoint-polaris-bootstrap-${version}.jar -Dagent.application.name=DubboProvider -jar xxx.jar
+java -javaagent:${java-agent安装目录}/polaris-java-agent-${version}/polaris-java-agent-bootstrap-${version}.jar -Dagent.application.name=DubboProvider -jar xxx.jar
 ```
 
 - DubboConsumer
 
 ```shell
-java -javaagent:${java-agent安装目录}/polaris-java-agent-${version}/pinpoint-polaris-bootstrap-${version}.jar -Dagent.application.name=DubboConsumer -jar xxx.jar
+java -javaagent:${java-agent安装目录}/polaris-java-agent-${version}/polaris-java-agent-bootstrap-${version}.jar -Dagent.application.name=DubboConsumer -jar xxx.jar
 ```
 
 ## 安装验证
