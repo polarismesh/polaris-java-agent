@@ -12,9 +12,9 @@ Collector and hbase components need to be installed, please refer to [Installati
 
 ## Configure the java-agent package
 
-- Package download: Download the latest version of **polaris-pinpoint-agent-${version}.zip** from [release](https://github.com/polarismesh/polaris-java-agent/releases/tag/v1.0.0) , and unzip it.
-- Configure the Polaris server address: enter the **polaris-pinpoint-agent-${version}** directory, open the polaris.config file, and modify the agent.polaris.registry configuration item to the Polaris server IP port address, and the port uses 8091.
-- Configure the collector address: Enter the **polaris-pinpoint-agent-${version}** directory, open pinpoint-root.config, and modify profiler.transport.grpc.collector.ip to the collector's IP address.
+- Package download: Download the latest version of **polaris-java-agent-${version}.zip** from [release](https://github.com/polarismesh/polaris-java-agent/releases/tag/v1.0.0) , and unzip it.
+- Configure the Polaris server address: enter the **polaris-java-agent-${version}** directory, open the polaris.config file, and modify the agent.polaris.registry configuration item to the Polaris server IP port address, and the port uses 8091.
+- Configure the collector address: Enter the **polaris-java-agent-${version}** directory, open pinpoint-root.config, and modify profiler.transport.grpc.collector.ip to the collector's IP address.
 
 ## Start the dubbox application
 
@@ -24,8 +24,8 @@ Collector and hbase components need to be installed, please refer to [Installati
 
   ![pinpoint-startup](./pic/pinpoint-startup.png)
 
-    - DemoProvider: -javaagent:${java-agent installation directory}/polaris-java-agent-v1.0.0/pinpoint-polaris-bootstrap-1.0.0-SNAPSHOT.jar -Dagent.application.name=demo-provider
-    - DemoConsumer: -javaagent:${java-agent installation directory}/polaris-java-agent-v1.0.0/pinpoint-polaris-bootstrap-1.0.0-SNAPSHOT.jar -Dagent.application.name=demo-consumer
+    - DemoProvider: -javaagent:${java-agent installation directory}/polaris-java-agent-v1.0.0/polaris-java-agent-bootstrap-1.0.0-SNAPSHOT.jar -Dagent.application.name=demo-provider
+    - DemoConsumer: -javaagent:${java-agent installation directory}/polaris-java-agent-v1.0.0/polaris-java-agent-bootstrap-1.0.0-SNAPSHOT.jar -Dagent.application.name=demo-consumer
 
 ## Installation verification
 

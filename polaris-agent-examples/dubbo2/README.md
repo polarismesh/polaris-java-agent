@@ -12,9 +12,9 @@ Collector and hbase components need to be installed, please refer to [Installati
 
 ## Configure the java-agent package
 
-- Package download: Download the latest version of **polaris-pinpoint-agent-${version}.zip** from [release](https://github.com/polarismesh/polaris-java-agent/releases/tag/${version}), and unzip it.
-- Configure the Polaris server address: enter the **polaris-pinpoint-agent-${version}** directory, open the polaris.config file, and modify the **agent.polaris.registry** configuration item to the Polaris server IP port address, The port uses 8091.
-- Configure the collector address: enter the **polaris-pinpoint-agent-${version}** directory, open pinpoint-root.config, and modify **profiler.transport.grpc.collector.ip** to the collector's IP address.
+- Package download: Download the latest version of **polaris-java-agent-${version}.zip** from [release](https://github.com/polarismesh/polaris-java-agent/releases/tag/${version}), and unzip it.
+- Configure the Polaris server address: enter the **polaris-java-agent-${version}** directory, open the polaris.config file, and modify the **agent.polaris.registry** configuration item to the Polaris server IP port address, The port uses 8091.
+- Configure the collector address: enter the **polaris-java-agent-${version}** directory, open pinpoint-root.config, and modify **profiler.transport.grpc.collector.ip** to the collector's IP address.
 
 ## Start the dubbo2 application
 
@@ -24,13 +24,13 @@ Collector and hbase components need to be installed, please refer to [Installati
 
 - DubboProvider
 ```shell
-java -javaagent:${java-agent installation directory}/polaris-java-agent-${version}/pinpoint-polaris-bootstrap-${version}.jar -Dagent.application.name=DubboProvider -jar xxx.jar
+java -javaagent:${java-agent installation directory}/polaris-java-agent-${version}/polaris-java-agent-bootstrap-${version}.jar -Dagent.application.name=DubboProvider -jar xxx.jar
 ````
 
 -DubboConsumer
 
 ```shell
-java -javaagent:${java-agent installation directory}/polaris-java-agent-${version}/pinpoint-polaris-bootstrap-${version}.jar -Dagent.application.name=DubboConsumer -jar xxx.jar
+java -javaagent:${java-agent installation directory}/polaris-java-agent-${version}/polaris-java-agent-bootstrap-${version}.jar -Dagent.application.name=DubboConsumer -jar xxx.jar
 ````
 
 ## Installation verification
