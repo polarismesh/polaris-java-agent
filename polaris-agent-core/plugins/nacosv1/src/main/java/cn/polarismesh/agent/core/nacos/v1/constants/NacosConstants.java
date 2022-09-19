@@ -35,6 +35,7 @@ public class NacosConstants {
     public static final String NAMESPACE = "namespace";
     public static final String ENDPOINT = "endpoint";
     public static final String SERVER_LIST = "serverList";
+    public static final String EVENT_DISPATCHER = "eventDispatcher";
 
     public static final String SERVER_PROXY = "serverProxy";
     public static final String BEAT_REACTOR = "beatReactor";

@@ -23,6 +23,7 @@ import cn.polarismesh.agent.core.nacos.v1.delegate.NacosV1NamingProxy;
 import cn.polarismesh.common.interceptor.AbstractInterceptor;
 import com.alibaba.nacos.client.naming.NacosNamingService;
 import com.alibaba.nacos.client.naming.beat.BeatReactor;
+import com.alibaba.nacos.client.naming.core.EventDispatcher;
 import com.alibaba.nacos.client.naming.core.HostReactor;
 import java.util.Properties;
 import org.slf4j.Logger;
@@ -65,10 +66,10 @@ public class NacosV1NamingFactoryInterceptor implements AbstractInterceptor {
 
         //构造HostReactor对象
         boolean loadCacheAtStart = (boolean)ReflectionUtils.invokeMethodByName(nacosNamingService, NacosConstants.METHDO_IS_LOAD_CACHE_AT_START, properties);
-        boolean pushEmptyProtection = (boolean)ReflectionUtils.invokeMethodByName(nacosNamingService, NacosConstants.METHDO_IS_PUSH_EMPTY_PROTECT, properties);
+        EventDispatcher eventDispatcher = (EventDispatcher)ReflectionUtils.getObjectByFieldName(nacosNamingService, NacosConstants.EVENT_DISPATCHER);
         int pollingThreadCount = (int)ReflectionUtils.invokeMethodByName(nacosNamingService, NacosConstants.METHDO_INIT_POLLING_THREAD_COUNT, properties);
         String cacheDir = (String)ReflectionUtils.getObjectByFieldName(nacosNamingService, NacosConstants.CACHE_DIR);
-        HostReactor hostReactor = new HostReactor(nacosV1NamingProxy, beatReactor, cacheDir, loadCacheAtStart, pushEmptyProtection, pollingThreadCount);
+        HostReactor hostReactor = new HostReactor(eventDispatcher, nacosV1NamingProxy, beatReactor, cacheDir, loadCacheAtStart, pollingThreadCount);
 
         //给nacosNamingService对象重新设置属性NamingProxy对象
         ReflectionUtils.setValueByFieldName(nacosNamingService, NacosConstants.SERVER_PROXY, nacosV1NamingProxy);
