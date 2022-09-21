@@ -3,7 +3,6 @@ package cn.polarismesh.agent.core.nacos.v1.delegate;
 import static com.alibaba.nacos.client.utils.LogUtils.NAMING_LOGGER;
 
 import cn.polarismesh.agent.core.nacos.v1.constants.NacosConstants;
-import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.CommonParams;
 import com.alibaba.nacos.api.naming.pojo.Instance;
@@ -11,7 +10,6 @@ import com.alibaba.nacos.api.naming.pojo.ServiceInfo;
 import com.alibaba.nacos.client.naming.net.NamingProxy;
 import com.alibaba.nacos.client.naming.utils.NetUtils;
 import com.alibaba.nacos.client.naming.utils.UtilAndComs;
-import com.alibaba.nacos.common.utils.ConvertUtils;
 import com.alibaba.nacos.common.utils.HttpMethod;
 import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
@@ -20,7 +18,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-//import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,8 +38,7 @@ public class NacosV1NamingProxy extends NamingProxy {
     public NacosV1NamingProxy(String namespaceId, String endpoint, String serverList, Properties properties) {
         super(namespaceId, endpoint, serverList, properties);
 
-        this.maxRetry = ConvertUtils.toInt(properties.getProperty(PropertyKeyConst.NAMING_REQUEST_DOMAIN_RETRY_COUNT,
-                String.valueOf(UtilAndComs.REQUEST_DOMAIN_RETRY_COUNT)));
+        this.maxRetry = UtilAndComs.REQUEST_DOMAIN_RETRY_COUNT;
 
         targetNacosDomain = System.getProperty(NacosConstants.TARGET_NACOS_SERVER_ADDR);
 //        Objects.requireNonNull(targetNacosDomain);
