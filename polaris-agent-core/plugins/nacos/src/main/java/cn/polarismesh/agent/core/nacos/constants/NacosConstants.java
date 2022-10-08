@@ -31,30 +31,9 @@ public class NacosConstants {
     public static final String TARGET_NACOS_SERVER_ADDR = "target.nacos.server.addr";
 
     //反射所有属性名称
-    public static final String CACHE_DIR = "cacheDir";
+    public static final String CLIENT_PROXY = "clientProxy";
     public static final String NAMESPACE = "namespace";
-    public static final String ENDPOINT = "endpoint";
-    public static final String SERVER_LIST = "serverList";
-
-    public static final String SERVER_PROXY = "serverProxy";
-    public static final String BEAT_REACTOR = "beatReactor";
-    public static final String HOST_REACTOR = "hostReactor";
-
-    //反射所用方法名称
-    public static final String METHDO_INIT_CLIENT_BEAT_THREAD_COUNT = "initClientBeatThreadCount";
-    public static final String METHDO_IS_LOAD_CACHE_AT_START = "isLoadCacheAtStart";
-    public static final String METHDO_INIT_POLLING_THREAD_COUNT = "initPollingThreadCount";
-    public static final String METHDO_IS_PUSH_EMPTY_PROTECT = "isPushEmptyProtect";
-
-
-    public static final String LINK_FLAG = "@";
-
-    public static final String REGISTER_SERVICE = UtilAndComs.nacosUrlInstance + LINK_FLAG + HttpMethod.POST;
-
-    public static final String DEREGISTER_SERVICE = UtilAndComs.nacosUrlInstance + LINK_FLAG + HttpMethod.DELETE;
-
-    public static final String SEND_BEAT = UtilAndComs.nacosUrlBase + "/instance/beat" + LINK_FLAG + HttpMethod.PUT;
-
-    public static final String QUERY_LIST = UtilAndComs.nacosUrlBase + "/instance/list" + LINK_FLAG + HttpMethod.GET;
+    public static final String SERVICE_INFO_HOLDER = "serviceInfoHolder";
+    public static final String CHANGE_NOTIFIER = "changeNotifier";
 
 }

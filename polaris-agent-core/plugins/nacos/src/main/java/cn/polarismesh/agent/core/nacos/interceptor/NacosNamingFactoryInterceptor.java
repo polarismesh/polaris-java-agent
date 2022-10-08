@@ -18,18 +18,19 @@
 package cn.polarismesh.agent.core.nacos.interceptor;
 
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
+import cn.polarismesh.agent.core.nacos.adapter.NamingClientProxyAdapter;
 import cn.polarismesh.agent.core.nacos.constants.NacosConstants;
-import cn.polarismesh.agent.core.nacos.delegate.NacosNamingProxy;
 import cn.polarismesh.common.interceptor.AbstractInterceptor;
+import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.client.naming.NacosNamingService;
-import com.alibaba.nacos.client.naming.beat.BeatReactor;
-import com.alibaba.nacos.client.naming.core.HostReactor;
+import com.alibaba.nacos.client.naming.cache.ServiceInfoHolder;
+import com.alibaba.nacos.client.naming.event.InstancesChangeNotifier;
 import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * nacos sdk1.x版本NamingService拦截类
+ * nacos sdk2.1版本NamingService拦截类
  *
  * @author bruceppeng
  */
@@ -52,31 +53,23 @@ public class NacosNamingFactoryInterceptor implements AbstractInterceptor {
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         NacosNamingService nacosNamingService = (NacosNamingService)result;
 
-        //构造NacosNamingProxy对象
+        //构造 NamingClientProxyAdapter 对象
         Properties properties = (Properties)args[0];
         String namespace = (String)ReflectionUtils.getObjectByFieldName(nacosNamingService, NacosConstants.NAMESPACE);
-        String endpoint = (String)ReflectionUtils.getObjectByFieldName(nacosNamingService, NacosConstants.ENDPOINT);
-        String serverList = (String)ReflectionUtils.getObjectByFieldName(nacosNamingService, NacosConstants.SERVER_LIST);
-        NacosNamingProxy NacosNamingProxy = new NacosNamingProxy(namespace, endpoint, serverList, properties);
+        ServiceInfoHolder serviceInfoHolder = (ServiceInfoHolder)ReflectionUtils.getObjectByFieldName(nacosNamingService, NacosConstants.SERVICE_INFO_HOLDER);
+        InstancesChangeNotifier changeNotifier = (InstancesChangeNotifier)ReflectionUtils.getObjectByFieldName(nacosNamingService, NacosConstants.CHANGE_NOTIFIER);
+        System.out.println("namespace: " + namespace);
 
-        //构造BeatReactor对象
-        int threadCount = (int)ReflectionUtils.invokeMethodByName(nacosNamingService, NacosConstants.METHDO_INIT_CLIENT_BEAT_THREAD_COUNT, properties);
-        BeatReactor beatReactor = new BeatReactor(NacosNamingProxy, threadCount);
-
-        //构造HostReactor对象
-        boolean loadCacheAtStart = (boolean)ReflectionUtils.invokeMethodByName(nacosNamingService, NacosConstants.METHDO_IS_LOAD_CACHE_AT_START, properties);
-        boolean pushEmptyProtection = (boolean)ReflectionUtils.invokeMethodByName(nacosNamingService, NacosConstants.METHDO_IS_PUSH_EMPTY_PROTECT, properties);
-        int pollingThreadCount = (int)ReflectionUtils.invokeMethodByName(nacosNamingService, NacosConstants.METHDO_INIT_POLLING_THREAD_COUNT, properties);
-        String cacheDir = (String)ReflectionUtils.getObjectByFieldName(nacosNamingService, NacosConstants.CACHE_DIR);
-        HostReactor hostReactor = new HostReactor(NacosNamingProxy, beatReactor, cacheDir, loadCacheAtStart, pushEmptyProtection, pollingThreadCount);
-
-        //给nacosNamingService对象重新设置属性NamingProxy对象
-        ReflectionUtils.setValueByFieldName(nacosNamingService, NacosConstants.SERVER_PROXY, NacosNamingProxy);
-
-        //给nacosNamingService对象重新设置属性BeatReactor对象
-        ReflectionUtils.setValueByFieldName(nacosNamingService, NacosConstants.BEAT_REACTOR, beatReactor);
+        NamingClientProxyAdapter clientProxy = null;
+        try {
+            System.out.println("step: " + 2);
+            clientProxy = new NamingClientProxyAdapter(namespace, serviceInfoHolder, properties, changeNotifier);
+        } catch (NacosException e) {
+            e.printStackTrace();
+            LOGGER.error("[Nacos] fail to create NamingClientProxyAdapter",e);
+        }
 
         //给nacosNamingService对象重新设置属性HostReactor对象
-        ReflectionUtils.setValueByFieldName(nacosNamingService, NacosConstants.HOST_REACTOR, hostReactor);
+        ReflectionUtils.setValueByFieldName(nacosNamingService, NacosConstants.CLIENT_PROXY, clientProxy);
     }
 }

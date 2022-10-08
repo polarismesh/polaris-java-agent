@@ -9,13 +9,14 @@ import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.alibaba.nacos.api.naming.pojo.ListView;
 import com.alibaba.nacos.api.naming.pojo.Service;
 import com.alibaba.nacos.api.naming.pojo.ServiceInfo;
-import com.alibaba.nacos.api.naming.utils.NamingUtils;
 import com.alibaba.nacos.api.selector.AbstractSelector;
 import com.alibaba.nacos.client.naming.cache.ServiceInfoHolder;
 import com.alibaba.nacos.client.naming.event.InstancesChangeNotifier;
 import com.alibaba.nacos.client.naming.remote.NamingClientProxy;
 import com.alibaba.nacos.client.naming.remote.NamingClientProxyDelegate;
-import com.alibaba.nacos.common.utils.ThreadUtils;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -35,19 +36,25 @@ public class NamingClientProxyAdapter implements NamingClientProxy {
     public NamingClientProxyAdapter(String namespace, ServiceInfoHolder serviceInfoHolder, Properties properties,
             InstancesChangeNotifier changeNotifier) throws NacosException {
         this.clientProxy = new NamingClientProxyDelegate(namespace, serviceInfoHolder, properties, changeNotifier);
-
+        System.out.println("step: " + 3);
         targetNacosDomain = System.getProperty(NacosConstants.TARGET_NACOS_SERVER_ADDR);
         //组装target nacos的properties配置信息
         Properties targetProperties = new Properties();
         targetProperties.putAll(properties);
         targetProperties.setProperty(PropertyKeyConst.SERVER_ADDR, targetNacosDomain);
+        System.out.println("step: " + 4);
         this.targetClientProxy = new NamingClientProxyDelegate(namespace, serviceInfoHolder, targetProperties, changeNotifier);
+        System.out.println("step: " + 5);
+
     }
 
     @Override
     public void registerService(String serviceName, String groupName, Instance instance) throws NacosException {
+        System.out.println("step: " + 6);
         clientProxy.registerService(serviceName, groupName, instance);
+        System.out.println("step: " + 7);
         targetClientProxy.registerService(serviceName, groupName, instance);
+        System.out.println("step: " + 8);
     }
 
     @Override
@@ -64,9 +71,48 @@ public class NamingClientProxyAdapter implements NamingClientProxy {
     @Override
     public ServiceInfo queryInstancesOfService(String serviceName, String groupName, String clusters, int udpPort,
             boolean healthyOnly) throws NacosException {
-        clientProxy.queryInstancesOfService(serviceName, groupName, clusters, udpPort, healthyOnly);
-        targetClientProxy.queryInstancesOfService(serviceName, groupName, clusters, udpPort, healthyOnly);
-        return ;
+        ServiceInfo serviceInfo = clientProxy.queryInstancesOfService(serviceName, groupName, clusters, udpPort, healthyOnly);
+        ServiceInfo targetServiceInfo = targetClientProxy.queryInstancesOfService(serviceName, groupName, clusters, udpPort, healthyOnly);
+
+        return mergeInstances(serviceInfo, targetServiceInfo);
+    }
+
+    /**
+     * 合并两个nacos server的实例列表
+     * @param serviceInfo
+     * @param secondServiceInfo
+     */
+    private ServiceInfo mergeInstances(ServiceInfo serviceInfo, ServiceInfo secondServiceInfo) {
+
+        if (secondServiceInfo == null) {
+            return serviceInfo;
+        }
+
+        if (serviceInfo == null) {
+            return secondServiceInfo;
+        }
+
+        try {
+            List<Instance> hosts =  serviceInfo.getHosts();
+            List<Instance> secondHosts =  secondServiceInfo.getHosts();
+
+            Map<String, Instance> hostMap = new HashMap<String, Instance>(hosts.size());
+            for (Instance host : hosts) {
+                hostMap.put(host.toInetAddr(), host);
+            }
+
+            for (Instance host : secondHosts) {
+                String inetAddr = host.toInetAddr();
+                if (hostMap.get(inetAddr) == null) {
+                    hosts.add(host);
+                }
+            }
+            serviceInfo.setHosts(hosts);
+        }catch(Exception exp){
+            NAMING_LOGGER.error("NamingClientProxyAdapter mergeInstances request {} failed.", targetNacosDomain, exp);
+        }
+        return serviceInfo;
+
     }
 
     @Override
@@ -92,16 +138,15 @@ public class NamingClientProxyAdapter implements NamingClientProxy {
     @Override
     public ListView<String> getServiceList(int pageNo, int pageSize, String groupName, AbstractSelector selector)
             throws NacosException {
-        ListView<String> result = clientProxy.getServiceList(pageNo, pageSize, groupName, selector);
-        ListView<String> targetResult = targetClientProxy.getServiceList(pageNo, pageSize, groupName, selector);
-        return ;
+        return clientProxy.getServiceList(pageNo, pageSize, groupName, selector);
     }
+
 
     @Override
     public ServiceInfo subscribe(String serviceName, String groupName, String clusters) throws NacosException {
-        clientProxy.subscribe(serviceName, groupName, clusters);
-        targetClientProxy.subscribe(serviceName, groupName, clusters);
-        return ;
+        ServiceInfo serviceInfo = clientProxy.subscribe(serviceName, groupName, clusters);
+        ServiceInfo targetServiceInfo = targetClientProxy.subscribe(serviceName, groupName, clusters);
+        return mergeInstances(serviceInfo, targetServiceInfo);
     }
 
     @Override
