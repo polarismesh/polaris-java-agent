@@ -8,14 +8,25 @@ import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.CommonParams;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.alibaba.nacos.api.naming.pojo.ServiceInfo;
+import com.alibaba.nacos.api.naming.remote.NamingRemoteConstants;
+import com.alibaba.nacos.api.naming.remote.request.AbstractNamingRequest;
+import com.alibaba.nacos.api.naming.remote.request.InstanceRequest;
 import com.alibaba.nacos.api.naming.utils.NamingUtils;
+import com.alibaba.nacos.api.remote.RemoteConstants;
+import com.alibaba.nacos.api.remote.response.Response;
+import com.alibaba.nacos.api.remote.response.ResponseCode;
 import com.alibaba.nacos.api.utils.NetUtils;
 import com.alibaba.nacos.client.naming.cache.ServiceInfoHolder;
 import com.alibaba.nacos.client.naming.core.ServerListManager;
 import com.alibaba.nacos.client.naming.remote.gprc.NamingGrpcClientProxy;
+import com.alibaba.nacos.client.naming.remote.gprc.NamingPushRequestHandler;
 import com.alibaba.nacos.client.naming.remote.http.NamingHttpClientProxy;
 import com.alibaba.nacos.client.naming.utils.UtilAndComs;
 import com.alibaba.nacos.client.security.SecurityProxy;
+import com.alibaba.nacos.common.notify.NotifyCenter;
+import com.alibaba.nacos.common.remote.ConnectionType;
+import com.alibaba.nacos.common.remote.client.RpcClient;
+import com.alibaba.nacos.common.remote.client.RpcClientFactory;
 import com.alibaba.nacos.common.remote.client.ServerListFactory;
 import com.alibaba.nacos.common.utils.ConvertUtils;
 import com.alibaba.nacos.common.utils.HttpMethod;
@@ -27,7 +38,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.beans.BeanUtils;
 
 //import java.util.Objects;
 
@@ -42,18 +55,41 @@ public class NacosNamingGrpcClientProxy extends NamingGrpcClientProxy {
 
     private String targetNacosDomain;
 
+    private final RpcClient targetRpcClient;
+
 
     private static final Map<String, Boolean> nacosCallCache = new ConcurrentHashMap<>(256);
 
     public NacosNamingGrpcClientProxy(String namespaceId, SecurityProxy securityProxy, ServerListFactory serverListFactory,
             Properties properties, ServiceInfoHolder serviceInfoHolder) throws NacosException {
-        super((namespaceId, securityProxy, serverListFactory, properties,serviceInfoHolder);
+        super(namespaceId, securityProxy, serverListFactory, properties,serviceInfoHolder);
 
         this.maxRetry = ConvertUtils.toInt(properties.getProperty(PropertyKeyConst.NAMING_REQUEST_DOMAIN_RETRY_COUNT,
                 String.valueOf(UtilAndComs.REQUEST_DOMAIN_RETRY_COUNT)));
 
         targetNacosDomain = System.getProperty(NacosConstants.TARGET_NACOS_SERVER_ADDR);
+
+        Map<String, String> labels = new HashMap<>();
+        labels.put(RemoteConstants.LABEL_SOURCE, RemoteConstants.LABEL_SOURCE_SDK);
+        labels.put(RemoteConstants.LABEL_MODULE, RemoteConstants.LABEL_MODULE_NAMING);
+        String uuid = UUID.randomUUID().toString();
+        this.targetRpcClient = RpcClientFactory.createClient(uuid, ConnectionType.GRPC, labels);
+
+        //组装target nacos的properties配置信息
+        Properties targetProperties = new Properties();
+        targetProperties.putAll(properties);
+        targetProperties.setProperty(PropertyKeyConst.SERVER_ADDR, targetNacosDomain);
+        ServerListFactory serverListManager = new ServerListManager(targetProperties, namespaceId);
+
+        start(serverListManager, serviceInfoHolder);
         init();
+    }
+
+    private void start(ServerListFactory serverListFactory, ServiceInfoHolder serviceInfoHolder) throws NacosException {
+        targetRpcClient.serverListFactory(serverListFactory);
+        targetRpcClient.registerServerRequestHandler(new NamingPushRequestHandler(serviceInfoHolder));
+        targetRpcClient.start();
+        NotifyCenter.registerSubscriber(this);
     }
 
     /**
@@ -65,6 +101,21 @@ public class NacosNamingGrpcClientProxy extends NamingGrpcClientProxy {
         nacosCallCache.put(NacosConstants.SEND_BEAT, true);
         nacosCallCache.put(NacosConstants.QUERY_LIST, true);
     }
+
+    /**
+     * Execute register operation.
+     *
+     * @param serviceName name of service
+     * @param groupName   group of service
+     * @param instance    instance to register
+     * @throws NacosException nacos exception
+     */
+    public void doRegisterService(String serviceName, String groupName, Instance instance) throws NacosException {
+        InstanceRequest request = new InstanceRequest(namespaceId, serviceName, groupName,
+                NamingRemoteConstants.REGISTER_INSTANCE, instance);
+        super.doRegisterService(serviceName, groupName, instance);
+    }
+
     /**
      * Query instance list.
      *
