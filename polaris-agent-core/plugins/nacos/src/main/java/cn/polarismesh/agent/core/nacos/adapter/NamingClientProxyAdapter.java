@@ -36,25 +36,19 @@ public class NamingClientProxyAdapter implements NamingClientProxy {
     public NamingClientProxyAdapter(String namespace, ServiceInfoHolder serviceInfoHolder, Properties properties,
             InstancesChangeNotifier changeNotifier) throws NacosException {
         this.clientProxy = new NamingClientProxyDelegate(namespace, serviceInfoHolder, properties, changeNotifier);
-        System.out.println("step: " + 3);
         targetNacosDomain = System.getProperty(NacosConstants.TARGET_NACOS_SERVER_ADDR);
         //组装target nacos的properties配置信息
         Properties targetProperties = new Properties();
         targetProperties.putAll(properties);
         targetProperties.setProperty(PropertyKeyConst.SERVER_ADDR, targetNacosDomain);
-        System.out.println("step: " + 4);
         this.targetClientProxy = new NamingClientProxyDelegate(namespace, serviceInfoHolder, targetProperties, changeNotifier);
-        System.out.println("step: " + 5);
 
     }
 
     @Override
     public void registerService(String serviceName, String groupName, Instance instance) throws NacosException {
-        System.out.println("step: " + 6);
         clientProxy.registerService(serviceName, groupName, instance);
-        System.out.println("step: " + 7);
         targetClientProxy.registerService(serviceName, groupName, instance);
-        System.out.println("step: " + 8);
     }
 
     @Override

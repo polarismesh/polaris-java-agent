@@ -30,16 +30,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * nacos sdk2.1版本NamingService拦截类
+ * nacos sdk2.1.0版本NamingService拦截类
  *
  * @author bruceppeng
  */
-public class NacosNamingFactoryInterceptor implements AbstractInterceptor {
+public class NacosV2NamingFactoryInterceptor implements AbstractInterceptor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NacosNamingFactoryInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NacosV2NamingFactoryInterceptor.class);
 
 
-    public NacosNamingFactoryInterceptor() {
+    public NacosV2NamingFactoryInterceptor() {
 
     }
 
@@ -58,11 +58,9 @@ public class NacosNamingFactoryInterceptor implements AbstractInterceptor {
         String namespace = (String)ReflectionUtils.getObjectByFieldName(nacosNamingService, NacosConstants.NAMESPACE);
         ServiceInfoHolder serviceInfoHolder = (ServiceInfoHolder)ReflectionUtils.getObjectByFieldName(nacosNamingService, NacosConstants.SERVICE_INFO_HOLDER);
         InstancesChangeNotifier changeNotifier = (InstancesChangeNotifier)ReflectionUtils.getObjectByFieldName(nacosNamingService, NacosConstants.CHANGE_NOTIFIER);
-        System.out.println("namespace: " + namespace);
 
         NamingClientProxyAdapter clientProxy = null;
         try {
-            System.out.println("step: " + 2);
             clientProxy = new NamingClientProxyAdapter(namespace, serviceInfoHolder, properties, changeNotifier);
         } catch (NacosException e) {
             e.printStackTrace();

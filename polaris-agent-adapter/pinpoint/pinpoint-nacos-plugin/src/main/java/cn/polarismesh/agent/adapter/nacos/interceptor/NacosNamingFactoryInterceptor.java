@@ -2,7 +2,7 @@ package cn.polarismesh.agent.adapter.nacos.interceptor;
 
 
 /**
- * nacos sdk1.x版本双注册拦截类
+ * nacos sdk2.x版本双注册拦截类
  *
  * @author bruceppeng
  */
