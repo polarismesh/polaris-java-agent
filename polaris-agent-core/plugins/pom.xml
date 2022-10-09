@@ -19,7 +19,7 @@
         <module>dubbo2</module>
         <module>dubbox</module>
 <!--        <module>spring-cloud-2021</module>-->
-        <module>nacosv1</module>
+        <module>nacos</module>
     </modules>
 
     <dependencies>
