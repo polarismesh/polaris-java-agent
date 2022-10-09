@@ -63,7 +63,6 @@ public class NacosV2NamingFactoryInterceptor implements AbstractInterceptor {
         try {
             clientProxy = new NamingClientProxyAdapter(namespace, serviceInfoHolder, properties, changeNotifier);
         } catch (NacosException e) {
-            e.printStackTrace();
             LOGGER.error("[Nacos] fail to create NamingClientProxyAdapter",e);
         }
 
