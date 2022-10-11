@@ -50,12 +50,12 @@ public class NacosConstants {
 
     public static final String LINK_FLAG = "@";
 
-    public static final String REGISTER_SERVICE = UtilAndComs.nacosUrlInstance + LINK_FLAG + HttpMethod.POST;
+    public static final String REGISTER_SERVICE = UtilAndComs.NACOS_URL_INSTANCE + LINK_FLAG + HttpMethod.POST;
 
-    public static final String DEREGISTER_SERVICE = UtilAndComs.nacosUrlInstance + LINK_FLAG + HttpMethod.DELETE;
+    public static final String DEREGISTER_SERVICE = UtilAndComs.NACOS_URL_INSTANCE + LINK_FLAG + HttpMethod.DELETE;
 
-    public static final String SEND_BEAT = UtilAndComs.nacosUrlBase + "/instance/beat" + LINK_FLAG + HttpMethod.PUT;
+    public static final String SEND_BEAT = UtilAndComs.NACOS_URL_BASE + "/instance/beat" + LINK_FLAG + HttpMethod.PUT;
 
-    public static final String QUERY_LIST = UtilAndComs.nacosUrlBase + "/instance/list" + LINK_FLAG + HttpMethod.GET;
+    public static final String QUERY_LIST = UtilAndComs.NACOS_URL_BASE + "/instance/list" + LINK_FLAG + HttpMethod.GET;
 
 }

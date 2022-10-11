@@ -69,7 +69,7 @@ public class NacosV1NamingFactoryInterceptor implements AbstractInterceptor {
         EventDispatcher eventDispatcher = (EventDispatcher)ReflectionUtils.getObjectByFieldName(nacosNamingService, NacosConstants.EVENT_DISPATCHER);
         int pollingThreadCount = (int)ReflectionUtils.invokeMethodByName(nacosNamingService, NacosConstants.METHDO_INIT_POLLING_THREAD_COUNT, properties);
         String cacheDir = (String)ReflectionUtils.getObjectByFieldName(nacosNamingService, NacosConstants.CACHE_DIR);
-        HostReactor hostReactor = new HostReactor(eventDispatcher, nacosV1NamingProxy, beatReactor, cacheDir, loadCacheAtStart, pollingThreadCount);
+        HostReactor hostReactor = new HostReactor(eventDispatcher, nacosV1NamingProxy, cacheDir, loadCacheAtStart, pollingThreadCount);
 
         //给nacosNamingService对象重新设置属性NamingProxy对象
         ReflectionUtils.setValueByFieldName(nacosNamingService, NacosConstants.SERVER_PROXY, nacosV1NamingProxy);
