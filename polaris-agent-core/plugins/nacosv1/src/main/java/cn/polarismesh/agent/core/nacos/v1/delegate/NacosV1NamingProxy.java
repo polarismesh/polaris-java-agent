@@ -77,14 +77,14 @@ public class NacosV1NamingProxy extends NamingProxy {
         params.put("clientIP", NetUtils.localIP());
         params.put("healthyOnly", String.valueOf(healthyOnly));
 
-        String api = UtilAndComs.nacosUrlBase + "/instance/list";
+        String api = UtilAndComs.NACOS_URL_BASE + "/instance/list";
 
-        String result = super.reqApi(api, params, HttpMethod.GET);
+        String result = super.reqAPI(api, params, HttpMethod.GET);
         if (Strings.isNullOrEmpty(targetNacosDomain)){
             return result;
         }
 
-        String secondResult = callServerForTarget(api, params, Collections.EMPTY_MAP, HttpMethod.GET);
+        String secondResult = callServerForTarget(api, params, StringUtils.EMPTY, HttpMethod.GET);
 
         return mergeResult(result, secondResult);
 
@@ -145,9 +145,9 @@ public class NacosV1NamingProxy extends NamingProxy {
      * @throws NacosException nacos exception
      */
     @Override
-    public String reqApi(String api, Map<String, String> params, Map<String, String> body, List<String> servers,
+    public String reqAPI(String api, Map<String, String> params, String body, List<String> servers,
             String method) throws NacosException {
-        String sourceResult = super.reqApi(api, params, body, servers, method);
+        String sourceResult = super.reqAPI(api, params, body, servers, method);
         //处理对目的地址的请求,即使报错也不能影响原有的server调用
         callServerForTarget(api, params, body, method);
         return sourceResult;
@@ -162,7 +162,7 @@ public class NacosV1NamingProxy extends NamingProxy {
      * @param method
      * @return
      */
-    private String callServerForTarget(String api, Map<String, String> params, Map<String, String> body, String method){
+    private String callServerForTarget(String api, Map<String, String> params, String body, String method){
         if (Strings.isNullOrEmpty(targetNacosDomain)){
             return StringUtils.EMPTY;
         }
