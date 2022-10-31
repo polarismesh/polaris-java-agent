@@ -37,6 +37,7 @@ import com.tencent.polaris.api.rpc.InstancesResponse;
 import com.tencent.polaris.api.rpc.ServiceCallResult;
 import com.tencent.polaris.api.rpc.UnWatchServiceRequest;
 import com.tencent.polaris.api.rpc.WatchServiceRequest;
+import com.tencent.polaris.api.utils.StringUtils;
 import com.tencent.polaris.client.api.SDKContext;
 import com.tencent.polaris.factory.ConfigAPIFactory;
 import com.tencent.polaris.factory.api.DiscoveryAPIFactory;
@@ -153,13 +154,14 @@ public class PolarisOperator {
         LOGGER.info("[POLARIS] start to register: instance {}", request);
         String namespace = polarisConfig.getNamespace();
         String token = polarisConfig.getToken();
-        InstanceRegisterRequest instanceRegisterRequest = new InstanceRegisterRequest();
-        instanceRegisterRequest.setNamespace(namespace);
-        if (request.getTtl() == null) {
-            instanceRegisterRequest.setTtl(polarisConfig.getTtl());
+        if (StringUtils.isBlank(request.getNamespace())) {
+            request.setNamespace(polarisConfig.getNamespace());
         }
-        instanceRegisterRequest.setToken(token);
-        InstanceRegisterResponse response = providerAPI.registerInstance(instanceRegisterRequest);
+        if (request.getTtl() == null) {
+            request.setTtl(polarisConfig.getTtl());
+        }
+        request.setToken(token);
+        InstanceRegisterResponse response = providerAPI.registerInstance(request);
         LOGGER.info("register result is {} for service {}", response, request.getService());
     }
 
@@ -170,10 +172,11 @@ public class PolarisOperator {
             return;
         }
         LOGGER.info("[POLARIS] start to deregister: service {}", request);
-        InstanceDeregisterRequest instanceDeregisterRequest = new InstanceDeregisterRequest();
-        instanceDeregisterRequest.setNamespace(polarisConfig.getNamespace());
-        instanceDeregisterRequest.setToken(polarisConfig.getToken());
-        providerAPI.deRegister(instanceDeregisterRequest);
+        if (StringUtils.isBlank(request.getNamespace())) {
+            request.setNamespace(polarisConfig.getNamespace());
+        }
+        request.setToken(polarisConfig.getToken());
+        providerAPI.deRegister(request);
         LOGGER.info("[POLARIS] deregister service {}", request);
     }
 
@@ -200,15 +203,19 @@ public class PolarisOperator {
      * @param service 服务的service
      * @return Polaris选择的Instance对象
      */
-    public Instance[] getAvailableInstances(String service) {
+    public Instance[] getAvailableInstances(String namespace, String service) {
         init();
         if (!inited.get()) {
             LOGGER.error("[POLARIS] fail to getInstances {}, polaris init failed", service);
             return null;
         }
         GetHealthyInstancesRequest request = new GetHealthyInstancesRequest();
-        request.setNamespace(polarisConfig.getNamespace());
+        request.setNamespace(namespace);
+        if (StringUtils.isBlank(namespace)) {
+            request.setNamespace(polarisConfig.getNamespace());
+        }
         request.setService(service);
+        LOGGER.info("[POLARIS] start to getInstances {} from polaris", request);
         InstancesResponse instances = consumerAPI.getHealthyInstances(request);
         return instances.getInstances();
     }

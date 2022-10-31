@@ -3,6 +3,7 @@ package cn.polarismesh.agent.core.spring.cloud.util;
 import cn.polarismesh.agent.common.exception.PolarisAgentException;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
 import cn.polarismesh.common.polaris.PolarisReflectConst;
+import com.tencent.polaris.api.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,23 @@ public class NacosUtils {
 		}
 		return "";
 	}
+
+	public static String resolveNamespace(Registration registration) {
+		try {
+			Object nacosDiscoveryProperties = ReflectionUtils
+					.invokeMethodByName(registration, "getNacosDiscoveryProperties", null);
+			if (null == nacosDiscoveryProperties) {
+				return "";
+			}
+			String namespace = (String) ReflectionUtils.invokeMethodByName(nacosDiscoveryProperties, "getNamespace", null);
+			return namespace;
+		}
+		catch (PolarisAgentException e) {
+			LOGGER.error("fail to resolve nacos namespace", e);
+		}
+		return "";
+	}
+
 
 	public static int resolveWeight(Registration registration) {
 		try {

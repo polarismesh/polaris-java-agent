@@ -17,6 +17,7 @@
 
 package cn.polarismesh.agent.core.spring.cloud.interceptor;
 
+import cn.polarismesh.agent.common.tools.ReflectionUtils;
 import cn.polarismesh.agent.core.spring.cloud.util.NacosUtils;
 import cn.polarismesh.common.interceptor.AbstractInterceptor;
 import cn.polarismesh.common.polaris.PolarisSingleton;
@@ -42,7 +43,7 @@ public class SpringCloudDeRegistryInterceptor implements AbstractInterceptor {
 	@Override
 	public void after(Object target, Object[] args, Object result, Throwable throwable) {
 		LOGGER.info("[PolarisAgent] de-registering from Polaris Server now...");
-		Registration registration = (Registration) args[0];
+		Registration registration = (Registration) ReflectionUtils.invokeMethodByName(target, "getRegistration", null);
 		String canonicalName = registration.getClass().getCanonicalName();
 		InstanceDeregisterRequest instanceObject;
 		if ("com.alibaba.cloud.nacos.registry.NacosRegistration".equals(canonicalName)) {
@@ -64,6 +65,7 @@ public class SpringCloudDeRegistryInterceptor implements AbstractInterceptor {
 
 	private static InstanceDeregisterRequest parseNacosDeRegistrationToInstance(Registration registration) {
 		InstanceDeregisterRequest instanceObject = parseDeRegistrationToInstance(registration);
+		String namespace = NacosUtils.resolveNamespace(registration);
 		String groupName = NacosUtils.resolveGroupName(registration);
 		String serviceName;
 		if (StringUtils.isBlank(groupName) || StringUtils.equals(NacosUtils.DEFAULT_GROUP, groupName)) {
@@ -71,6 +73,7 @@ public class SpringCloudDeRegistryInterceptor implements AbstractInterceptor {
 		} else {
 			serviceName = groupName + "__" + registration.getServiceId();
 		}
+		instanceObject.setNamespace(namespace);
 		instanceObject.setService(serviceName);
 		return instanceObject;
 	}

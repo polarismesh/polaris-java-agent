@@ -15,7 +15,7 @@
     <name>Polaris Agent Spring Cloud 2021 Plugin</name>
 
     <properties>
-        <spring.cloud.version>2021.0.0</spring.cloud.version>
+        <spring.cloud.version>2021.0.4</spring.cloud.version>
         <spring.vesion>5.3.13</spring.vesion>
         <spring.boot.vesion>2.6.0</spring.boot.vesion>
         <ribbon.vesion>2.2.10.RELEASE</ribbon.vesion>
@@ -36,12 +36,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>${spring.vesion}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>com.tencent.polaris</groupId>
             <artifactId>polaris-all</artifactId>
             <scope>provided</scope>
@@ -49,22 +43,6 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-commons</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
-            <version>${ribbon.vesion}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

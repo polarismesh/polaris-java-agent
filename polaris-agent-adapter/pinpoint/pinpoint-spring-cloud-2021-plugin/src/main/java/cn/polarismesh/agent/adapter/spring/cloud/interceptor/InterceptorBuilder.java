@@ -17,8 +17,6 @@
 
 package cn.polarismesh.agent.adapter.spring.cloud.interceptor;
 
-import cn.polarismesh.agent.adapter.spring.cloud.interceptor.nacos.CommonDiscoveryInterceptor;
-import cn.polarismesh.agent.adapter.spring.cloud.interceptor.nacos.NacosDiscoveryInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.interceptor.SpringCloudDeRegistryInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.interceptor.SpringCloudDiscoveryInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.interceptor.SpringCloudRegistryInterceptor;
@@ -27,13 +25,8 @@ import cn.polarismesh.pinpoint.common.InterceptorFactory;
 public class InterceptorBuilder {
 
     static void buildInterceptors() {
-
-        // 针对 Nacos 的服务注册发现需要特殊处理
-        InterceptorFactory.addInterceptor(NacosDiscoveryInterceptor.class, new SpringCloudDiscoveryInterceptor(
-                SpringCloudDiscoveryInterceptor.DiscoveryType.Nacos));
-        // eureka、consul 可以走共同的逻辑
-        InterceptorFactory.addInterceptor(CommonDiscoveryInterceptor.class, new SpringCloudDiscoveryInterceptor(
-                SpringCloudDiscoveryInterceptor.DiscoveryType.Common));
+        // nacos、eureka、consul 可以走共同的逻辑
+        InterceptorFactory.addInterceptor(DiscoveryInterceptor.class, new SpringCloudDiscoveryInterceptor());
 
         // 注册、反注册
         InterceptorFactory.addInterceptor(RegistryInterceptor.class, new SpringCloudRegistryInterceptor());

@@ -21,13 +21,14 @@ package cn.polarismesh.agent.core.spring.cloud.interceptor;
 
 import java.util.Map;
 
+import cn.polarismesh.agent.common.tools.ReflectionUtils;
 import cn.polarismesh.agent.core.spring.cloud.util.NacosUtils;
 import cn.polarismesh.common.interceptor.AbstractInterceptor;
 import cn.polarismesh.common.polaris.PolarisReflectConst;
 import cn.polarismesh.common.polaris.PolarisSingleton;
 import com.tencent.polaris.api.rpc.InstanceRegisterRequest;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.tencent.polaris.api.utils.MapUtils;
+import com.tencent.polaris.api.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,7 @@ public class SpringCloudRegistryInterceptor implements AbstractInterceptor {
             return;
         }
         LOGGER.info("[PolarisAgent] registering from Polaris Server now...");
-        Registration registration = (Registration) args[0];
+        Registration registration = (Registration) ReflectionUtils.invokeMethodByName(target, "getRegistration", null);
         String canonicalName = registration.getClass().getCanonicalName();
         InstanceRegisterRequest instanceObject;
         if ("com.alibaba.cloud.nacos.registry.NacosRegistration".equals(canonicalName)) {
@@ -67,6 +68,7 @@ public class SpringCloudRegistryInterceptor implements AbstractInterceptor {
 
     private static InstanceRegisterRequest parseNacosRegistrationToInstance(Registration registration) {
         InstanceRegisterRequest instanceObject = parseRegistrationToInstance(registration);
+        String namespace = NacosUtils.resolveNamespace(registration);
         String groupName = NacosUtils.resolveGroupName(registration);
         String serviceName;
         if (StringUtils.isBlank(groupName) || StringUtils.equals(NacosUtils.DEFAULT_GROUP, groupName)) {
@@ -75,6 +77,7 @@ public class SpringCloudRegistryInterceptor implements AbstractInterceptor {
             serviceName = groupName + "__" + registration.getServiceId();
         }
         instanceObject.setService(serviceName);
+        instanceObject.setNamespace(namespace);
         instanceObject.setWeight(NacosUtils.resolveWeight(registration));
         return instanceObject;
     }
