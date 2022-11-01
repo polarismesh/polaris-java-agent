@@ -82,19 +82,22 @@ public class PolarisAgentBootStrap {
         // load polaris Properties
         String defaultConfigPath = agentDirPath + SEPARATOR + CONFIG_FILE_NAME;
         final Properties polarisProperties = new Properties();
-        logger.info(String.format("[Bootstrap] load default config:%s", defaultConfigPath));
         if (!loadFileProperties(polarisProperties, defaultConfigPath)) {
             return;
         }
+
+        logger.info(String.format("[Bootstrap] load default config:%s, data : %s", defaultConfigPath, polarisProperties));
+
         replaceProperty(polarisProperties, AgentConfig.KEY_NAMESPACE);
         replaceProperty(polarisProperties, AgentConfig.KEY_SERVICE);
         replaceProperty(polarisProperties, AgentConfig.KEY_TOKEN);
-        replaceProperty(polarisProperties, AgentConfig.KEY_REGISTRY);
-        replaceProperty(polarisProperties, AgentConfig.KEY_REFRESH_INTERVAL);
+        replaceProperty(polarisProperties, AgentConfig.KEY_REGISTRY_ADDRESS);
         replaceProperty(polarisProperties, AgentConfig.KEY_HEALTH_TTL);
         System.setProperty(InternalConfig.INTERNAL_KEY_AGENT_DIR, agentDirPath);
         System.setProperty(InternalConfig.INTERNAL_POLARIS_LOG_HOME,
                 agentDirPath + File.separator + "polaris" + File.separator + "logs");
+
+        logger.info(String.format("[Bootstrap] load default config:%s", defaultConfigPath));
 
         instrumentPolarisDependencies(instrumentation, agentDirPath);
 

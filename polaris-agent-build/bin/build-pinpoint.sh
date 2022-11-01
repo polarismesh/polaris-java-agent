@@ -72,6 +72,7 @@ for line in ${plugin_list}
 do
   plugin_name=${line}
   plugin_jar_name=$(ls -1 | grep pinpoint-polaris-${plugin_name} | head -1)
+  zip -d ${plugin_jar_name} 'META-INF/.SF' 'META-INF/.RSA' 'META-INF/*SF'
   cp -rf "${plugin_jar_name}" "${workdir}"/pinpoint-agent-2.3.3/plugin
 done
 popd

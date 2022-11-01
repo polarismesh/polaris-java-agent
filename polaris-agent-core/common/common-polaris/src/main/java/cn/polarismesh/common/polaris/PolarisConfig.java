@@ -31,8 +31,6 @@ public class PolarisConfig {
 
     private static final int DEFAULT_TTL = 5;
 
-    private static final int DEFAULT_REFRESH_INTERVAL = 2;
-
     private final String namespace;
 
     private final String service;
@@ -45,8 +43,6 @@ public class PolarisConfig {
 
     private final int ttl;
 
-    private final int refreshInterval;
-
     public PolarisConfig() {
         String namespaceStr = System.getProperty(AgentConfig.KEY_NAMESPACE);
         if (null == namespaceStr || namespaceStr.length() == 0) {
@@ -55,7 +51,7 @@ public class PolarisConfig {
         this.namespace = namespaceStr;
         this.service = System.getProperty(AgentConfig.KEY_SERVICE);
         this.token = System.getProperty(AgentConfig.KEY_TOKEN);
-        this.registryAddress = System.getProperty(AgentConfig.KEY_REGISTRY);
+        this.registryAddress = System.getProperty(AgentConfig.KEY_REGISTRY_ADDRESS);
         this.agentDir = System.getProperty(InternalConfig.INTERNAL_KEY_AGENT_DIR);
         int healthTTL = DEFAULT_TTL;
         String ttlStr = System.getProperty(AgentConfig.KEY_HEALTH_TTL);
@@ -67,17 +63,6 @@ public class PolarisConfig {
             }
         }
         this.ttl = healthTTL;
-
-        int refreshInterval = DEFAULT_REFRESH_INTERVAL;
-        String refreshIntervalStr = System.getProperty(AgentConfig.KEY_REFRESH_INTERVAL);
-        if (null != refreshIntervalStr && refreshIntervalStr.length() > 0) {
-            try {
-                refreshInterval = Integer.parseInt(refreshIntervalStr);
-            } catch (Exception e) {
-                LOG.info("[Common] fail to convert refreshIntervalStr {}", refreshIntervalStr, e);
-            }
-        }
-        this.refreshInterval = refreshInterval;
         LOG.info("[Common] construct polarisConfig {}", this);
 
     }
@@ -106,9 +91,6 @@ public class PolarisConfig {
         return ttl;
     }
 
-    public int getRefreshInterval() {
-        return refreshInterval;
-    }
 
     @Override
     public String toString() {
@@ -119,7 +101,6 @@ public class PolarisConfig {
                 ", token='" + token + '\'' +
                 ", agentDir='" + agentDir + '\'' +
                 ", ttl=" + ttl +
-                ", refreshInterval=" + refreshInterval +
                 '}';
     }
 }

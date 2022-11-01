@@ -15,13 +15,12 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.adapter.spring.cloud.interceptor;
+package cn.polarismesh.agent.adapter.spring.cloud.interceptor.invoker;
+
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.AbstractSpringCloudInterceptor;
 
 /**
- * Spring Cloud Nacos/Eureka/Consul 服务发现拦截器
- *
- * @author zhuyuhan
+ * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class DiscoveryInterceptor extends AbstractSpringCloudInterceptor {
+public class RestTemplateInterceptor extends AbstractSpringCloudInterceptor {
 }
-

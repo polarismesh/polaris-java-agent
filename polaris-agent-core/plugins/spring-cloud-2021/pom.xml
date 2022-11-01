@@ -16,8 +16,9 @@
 
     <properties>
         <spring.cloud.version>2021.0.4</spring.cloud.version>
+        <spring.cloud.tencent.version>1.8.1-2021.0.3</spring.cloud.tencent.version>
         <spring.vesion>5.3.13</spring.vesion>
-        <spring.boot.vesion>2.6.0</spring.boot.vesion>
+        <spring.boot.vesion>2.6.10</spring.boot.vesion>
         <ribbon.vesion>2.2.10.RELEASE</ribbon.vesion>
         <slf4j.vesion>1.7.30</slf4j.vesion>
     </properties>
@@ -30,25 +31,38 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot</artifactId>
-            <version>${spring.boot.vesion}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>com.tencent.polaris</groupId>
             <artifactId>polaris-all</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-commons</artifactId>
-            <scope>provided</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.10</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.vesion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+            <version>${spring.boot.vesion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.tencent.cloud</groupId>
+            <artifactId>spring-cloud-starter-tencent-all</artifactId>
+            <type>pom</type>
         </dependency>
     </dependencies>
 
@@ -59,6 +73,13 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring.cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.tencent.cloud</groupId>
+                <artifactId>spring-cloud-tencent-dependencies</artifactId>
+                <version>${spring.cloud.tencent.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

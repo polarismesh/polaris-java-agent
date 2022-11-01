@@ -18,12 +18,14 @@
 
 package cn.polarismesh.agent.core.spring.cloud.model;
 
+import com.tencent.polaris.api.pojo.DefaultInstance;
 import com.tencent.polaris.api.pojo.Instance;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -37,6 +39,8 @@ public class PolarisServiceInstance implements ServiceInstance {
 
     private final String scheme;
 
+    private final Map<String, String> metadata;
+
     public PolarisServiceInstance(Instance instance) {
         this.instance = instance;
         this.isSecure = StringUtils.equalsIgnoreCase(instance.getProtocol(), "https");
@@ -45,6 +49,27 @@ public class PolarisServiceInstance implements ServiceInstance {
         } else {
             scheme = "http";
         }
+
+        this.metadata = new HashMap<>(instance.getMetadata());
+    }
+
+    public PolarisServiceInstance(ServiceInstance instance) {
+        DefaultInstance ins = new DefaultInstance();
+        ins.setService(instance.getServiceId());
+        ins.setId(instance.getInstanceId());
+        ins.setHost(instance.getHost());
+        ins.setPort(instance.getPort());
+        ins.setMetadata(instance.getMetadata());
+
+        this.instance = ins;
+        this.isSecure = instance.isSecure();
+        if (isSecure) {
+            scheme = "https";
+        } else {
+            scheme = "http";
+        }
+
+        this.metadata = new HashMap<>(instance.getMetadata());
     }
 
     public Instance getPolarisInstance() {
@@ -78,7 +103,18 @@ public class PolarisServiceInstance implements ServiceInstance {
 
     @Override
     public Map<String, String> getMetadata() {
-        return instance.getMetadata();
+        return metadata;
+    }
+
+    /**
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    public PolarisServiceInstance appendMetadata(String key, String value) {
+        metadata.put(key, value);
+        return this;
     }
 
     @Override

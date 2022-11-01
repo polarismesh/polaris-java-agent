@@ -17,20 +17,44 @@
 
 package cn.polarismesh.agent.adapter.spring.cloud.interceptor;
 
-import cn.polarismesh.agent.core.spring.cloud.interceptor.SpringCloudDeRegistryInterceptor;
-import cn.polarismesh.agent.core.spring.cloud.interceptor.SpringCloudDiscoveryInterceptor;
-import cn.polarismesh.agent.core.spring.cloud.interceptor.SpringCloudRegistryInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.DiscoveryInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.ReactiveDiscoveryInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.RegistryInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.filter.ReactiveWebFilterInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.filter.ServletWebFilterInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.invoker.FeignInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.invoker.RestTemplateInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.router.ServiceInstanceListSupplierBuilderInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.discovery.ScDiscoveryInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.discovery.reactive.ScReactiveDiscoveryInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.discovery.ScRegistryInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.filter.ScReactiveWebFilterInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.filter.ScServletWebFilterInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.invoker.ScFeignInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.invoker.ScRestTemplateInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.router.ScServiceInstanceListSupplierBuilderInterceptor;
 import cn.polarismesh.pinpoint.common.InterceptorFactory;
 
 public class InterceptorBuilder {
 
     static void buildInterceptors() {
         // nacos、eureka、consul 可以走共同的逻辑
-        InterceptorFactory.addInterceptor(DiscoveryInterceptor.class, new SpringCloudDiscoveryInterceptor());
+        InterceptorFactory.addInterceptor(DiscoveryInterceptor.class, new ScDiscoveryInterceptor());
+        InterceptorFactory.addInterceptor(ReactiveDiscoveryInterceptor.class, new ScReactiveDiscoveryInterceptor());
 
         // 注册、反注册
-        InterceptorFactory.addInterceptor(RegistryInterceptor.class, new SpringCloudRegistryInterceptor());
-        InterceptorFactory.addInterceptor(DeRegistryInterceptor.class, new SpringCloudDeRegistryInterceptor());
+        InterceptorFactory.addInterceptor(RegistryInterceptor.class, new ScRegistryInterceptor());
+
+        // 流量入口信息收集
+        InterceptorFactory.addInterceptor(ReactiveWebFilterInterceptor.class, new ScReactiveWebFilterInterceptor());
+        InterceptorFactory.addInterceptor(ServletWebFilterInterceptor.class, new ScServletWebFilterInterceptor());
+
+        // 路由能力
+        InterceptorFactory.addInterceptor(ServiceInstanceListSupplierBuilderInterceptor.class, new ScServiceInstanceListSupplierBuilderInterceptor());
+
+        // 请求发起 -- 针对 RestTemplate
+        InterceptorFactory.addInterceptor(RestTemplateInterceptor.class, new ScRestTemplateInterceptor());
+        InterceptorFactory.addInterceptor(FeignInterceptor.class, new ScFeignInterceptor());
     }
 
 }

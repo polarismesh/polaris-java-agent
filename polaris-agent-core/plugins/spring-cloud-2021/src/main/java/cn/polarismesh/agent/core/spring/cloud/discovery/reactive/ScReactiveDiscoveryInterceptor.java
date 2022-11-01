@@ -16,14 +16,16 @@
  */
 
 
-package cn.polarismesh.agent.core.spring.cloud.interceptor;
+package cn.polarismesh.agent.core.spring.cloud.discovery.reactive;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.polarismesh.agent.common.config.AgentConfig;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
+import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
 import cn.polarismesh.agent.core.spring.cloud.model.PolarisServiceInstance;
 import cn.polarismesh.agent.core.spring.cloud.util.NacosUtils;
 import cn.polarismesh.common.interceptor.AbstractInterceptor;
@@ -32,20 +34,20 @@ import com.tencent.polaris.api.pojo.Instance;
 import com.tencent.polaris.api.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Flux;
 import shade.polaris.com.google.gson.Gson;
-import shade.polaris.io.grpc.internal.JsonUtil;
 
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.discovery.ReactiveDiscoveryClient;
 
 /**
  * Spring Cloud 服务发现通用拦截器
  */
-public class SpringCloudDiscoveryInterceptor implements AbstractInterceptor {
+public class ScReactiveDiscoveryInterceptor implements AbstractInterceptor {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SpringCloudDiscoveryInterceptor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ScReactiveDiscoveryInterceptor.class);
 
-	private static final String NACOS_DISCOVERY_CLIENT_CLASS = "com.alibaba.cloud.nacos.discovery.NacosDiscoveryClient";
+	private static final String NACOS_DISCOVERY_CLIENT_CLASS = "com.alibaba.cloud.nacos.discovery.reactive.NacosReactiveDiscoveryClient";
 
 	@Override
 	public void before(Object target, Object[] args) {
@@ -55,21 +57,24 @@ public class SpringCloudDiscoveryInterceptor implements AbstractInterceptor {
 	public void after(Object target, Object[] args, Object result, Throwable throwable) {
 		ReflectionUtils.doWithFields(target.getClass(), field -> {
 			ReflectionUtils.makeAccessible(field);
-			List<DiscoveryClient> discoveryClients = (List<DiscoveryClient>) ReflectionUtils.getField(field, target);
-			List<DiscoveryClient> wraps = new ArrayList<>();
-			discoveryClients.forEach(discoveryClient -> wraps.add(new ProxyDiscoveryClient(discoveryClient)));
+			List<ReactiveDiscoveryClient> discoveryClients = (List<ReactiveDiscoveryClient>) ReflectionUtils.getField(field, target);
+			List<ReactiveDiscoveryClient> wraps = new ArrayList<>();
+			discoveryClients.forEach(discoveryClient -> wraps.add(new ProxyReactiveDiscoveryClient(discoveryClient)));
 			ReflectionUtils.setField(field, target, wraps);
 		}, field -> StringUtils.equals(field.getName(), "discoveryClients"));
 	}
 
-	public static class ProxyDiscoveryClient implements DiscoveryClient {
+	public static class ProxyReactiveDiscoveryClient implements ReactiveDiscoveryClient {
 
 		private final Map<String, Object> cacheValues = new ConcurrentHashMap<>();
 
-		private final DiscoveryClient target;
+		private final ReactiveDiscoveryClient target;
 
-		public ProxyDiscoveryClient(DiscoveryClient target) {
+		private Boolean enableDiscovery = false;
+
+		public ProxyReactiveDiscoveryClient(ReactiveDiscoveryClient target) {
 			this.target = target;
+			this.enableDiscovery = SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_DISCOVERY_ENABLE);
 		}
 
 		@Override
@@ -78,8 +83,15 @@ public class SpringCloudDiscoveryInterceptor implements AbstractInterceptor {
 		}
 
 		@Override
-		public List<ServiceInstance> getInstances(String serviceId) {
-			List<ServiceInstance> result = target.getInstances(serviceId);
+		public Flux<ServiceInstance> getInstances(String serviceId) {
+			Flux<ServiceInstance> result = Flux.empty();
+			if (SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_MULTI_REGISTER_ENABLE)) {
+				result = result.mergeWith(target.getInstances(serviceId));
+			}
+
+			if (!enableDiscovery) {
+				return result;
+			}
 
 			String namespace = "";
 
@@ -95,18 +107,19 @@ public class SpringCloudDiscoveryInterceptor implements AbstractInterceptor {
 			Instance[] serviceInstances = PolarisSingleton.getPolarisOperator()
 					.getAvailableInstances(namespace, serviceId);
 			for (Instance instance : serviceInstances) {
-				instances.add(new PolarisServiceInstance(instance));
+				PolarisServiceInstance serviceInstance = new PolarisServiceInstance(instance);
+				instances.add(serviceInstance);
 			}
 			if (LOGGER.isDebugEnabled()) {
 				Gson gson = new Gson();
 				LOGGER.debug("[POLARIS] to getInstances result from polaris {}", gson.toJson(serviceInstances));
 			}
-			result.addAll(instances);
-			return result;
+
+			return result.mergeWith(Flux.fromIterable(instances));
 		}
 
 		@Override
-		public List<String> getServices() {
+		public Flux<String> getServices() {
 			return target.getServices();
 		}
 

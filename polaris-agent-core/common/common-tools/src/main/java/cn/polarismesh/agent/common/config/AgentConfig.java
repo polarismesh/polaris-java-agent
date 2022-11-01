@@ -32,21 +32,59 @@ public interface AgentConfig {
     /**
      * token to validata
      */
-    String KEY_TOKEN = "agent.application.token";
-
-    /**
-     * polaris registry address
-     */
-    String KEY_REGISTRY = "agent.polaris.registry";
+    String KEY_TOKEN = "agent.polaris.token";
 
     /**
      * polaris healthcheck ttl seconds
      */
-    String KEY_HEALTH_TTL = "agent.application.healthcheck.ttl";
+    String KEY_HEALTH_TTL = "agent.polaris.instance.health.ttl";
 
     /**
-     * consumer subscribe refresh interval, seconds
+     * polaris registry center address
      */
-    String KEY_REFRESH_INTERVAL = "agent.consumer.refresh.interval";
+    String KEY_REGISTRY_ADDRESS = "agent.polaris.registry.address";
+
+    /**
+     * polaris config center address
+     */
+    String KEY_CONFIG_ADDRESS = "agent.polaris.config.address";
+
+    /**
+     * enable springcloud register injection
+     */
+    String KEY_PLUGIN_SPRINGCLOUD_REGISTER_ENABLE = "agent.plugin.springcloud.register.enable";
+
+    /**
+     * enable springcloud multi register injection
+     */
+    String KEY_PLUGIN_SPRINGCLOUD_MULTI_REGISTER_ENABLE = "agent.plugin.springcloud.multi.register.enable";
+
+    /**
+     * enable springcloud discovery injection
+     */
+    String KEY_PLUGIN_SPRINGCLOUD_DISCOVERY_ENABLE = "agent.plugin.springcloud.discovery.enable";
+
+    /**
+     * enable springcloud stainer injection
+     */
+    String KEY_PLUGIN_SPRINGCLOUD_STAINER_ENABLE = "agent.plugin.springcloud.stainer.enable";
+
+    /**
+     * enable springcloud router injection
+     */
+    String KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE = "agent.plugin.springcloud.router.enable";
+
+    /**
+     * enable springcloud limiter injection
+     */
+    String KEY_PLUGIN_SPRINGCLOUD_LIMITER_ENABLE = "agent.plugin.springcloud.limiter.enable";
+
+    /**
+     * all the reference keys
+     */
+    String[] KEYS = {KEY_NAMESPACE, KEY_SERVICE, KEY_TOKEN, KEY_REGISTRY_ADDRESS, KEY_CONFIG_ADDRESS, KEY_HEALTH_TTL,
+            KEY_PLUGIN_SPRINGCLOUD_REGISTER_ENABLE, KEY_PLUGIN_SPRINGCLOUD_MULTI_REGISTER_ENABLE,
+            KEY_PLUGIN_SPRINGCLOUD_DISCOVERY_ENABLE, KEY_PLUGIN_SPRINGCLOUD_STAINER_ENABLE, KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE,
+            KEY_PLUGIN_SPRINGCLOUD_LIMITER_ENABLE};
 
 }

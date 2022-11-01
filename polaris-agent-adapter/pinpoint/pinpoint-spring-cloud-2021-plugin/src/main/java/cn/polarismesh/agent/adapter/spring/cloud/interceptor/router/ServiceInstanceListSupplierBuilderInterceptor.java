@@ -15,14 +15,12 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.adapter.spring.cloud.interceptor;
+package cn.polarismesh.agent.adapter.spring.cloud.interceptor.router;
+
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.AbstractSpringCloudInterceptor;
 
 /**
- * SpringCloud 服务注册拦截器
- *
- * @author zhuyuhan
+ * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class RegistryInterceptor extends AbstractSpringCloudInterceptor {
-
+public class ServiceInstanceListSupplierBuilderInterceptor extends AbstractSpringCloudInterceptor {
 }
-
