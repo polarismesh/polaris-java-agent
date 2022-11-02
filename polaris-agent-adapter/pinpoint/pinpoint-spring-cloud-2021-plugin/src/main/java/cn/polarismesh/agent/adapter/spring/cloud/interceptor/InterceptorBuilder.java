@@ -17,19 +17,21 @@
 
 package cn.polarismesh.agent.adapter.spring.cloud.interceptor;
 
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.aware.ApplicationContextAwareInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.DiscoveryInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.ReactiveDiscoveryInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.RegistryInterceptor;
-import cn.polarismesh.agent.adapter.spring.cloud.interceptor.filter.ReactiveWebFilterInterceptor;
-import cn.polarismesh.agent.adapter.spring.cloud.interceptor.filter.ServletWebFilterInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.router.RouterReactiveWebFilterInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.router.RouterServletWebFilterInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.invoker.FeignInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.invoker.RestTemplateInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.router.ServiceInstanceListSupplierBuilderInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.aware.ApplicationContextAwareProcessorInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.discovery.ScDiscoveryInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.discovery.reactive.ScReactiveDiscoveryInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.discovery.ScRegistryInterceptor;
-import cn.polarismesh.agent.core.spring.cloud.filter.ScReactiveWebFilterInterceptor;
-import cn.polarismesh.agent.core.spring.cloud.filter.ScServletWebFilterInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.router.ScRouterReactiveWebFilterInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.router.ScRouterServletWebFilterInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.invoker.ScFeignInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.invoker.ScRestTemplateInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.router.ScServiceInstanceListSupplierBuilderInterceptor;
@@ -46,15 +48,24 @@ public class InterceptorBuilder {
         InterceptorFactory.addInterceptor(RegistryInterceptor.class, new ScRegistryInterceptor());
 
         // 流量入口信息收集
-        InterceptorFactory.addInterceptor(ReactiveWebFilterInterceptor.class, new ScReactiveWebFilterInterceptor());
-        InterceptorFactory.addInterceptor(ServletWebFilterInterceptor.class, new ScServletWebFilterInterceptor());
+        InterceptorFactory.addInterceptor(RouterReactiveWebFilterInterceptor.class, new ScRouterReactiveWebFilterInterceptor());
+        InterceptorFactory.addInterceptor(RouterServletWebFilterInterceptor.class, new ScRouterServletWebFilterInterceptor());
 
         // 路由能力
-        InterceptorFactory.addInterceptor(ServiceInstanceListSupplierBuilderInterceptor.class, new ScServiceInstanceListSupplierBuilderInterceptor());
+        InterceptorFactory.addInterceptor(ServiceInstanceListSupplierBuilderInterceptor.ServiceInstanceListSupplierBuilderBlockingInterceptor.class,
+                new ScServiceInstanceListSupplierBuilderInterceptor.ScServiceInstanceListSupplierBuilderBlockingInterceptor());
+        InterceptorFactory.addInterceptor(ServiceInstanceListSupplierBuilderInterceptor.ServiceInstanceListSupplierBuilderReactiveInterceptor.class,
+                new ScServiceInstanceListSupplierBuilderInterceptor.ScServiceInstanceListSupplierBuilderReactiveInterceptor());
+        // 使用路由能力的话，需要禁用 Loadbalancer 的 Cache 能力
+        InterceptorFactory.addInterceptor(ServiceInstanceListSupplierBuilderInterceptor.ServiceInstanceListSupplierBuilderDisableCachingInterceptor.class,
+                new ScServiceInstanceListSupplierBuilderInterceptor.ScServiceInstanceListSupplierBuilderDisableCachingInterceptor());
 
         // 请求发起 -- 针对 RestTemplate
         InterceptorFactory.addInterceptor(RestTemplateInterceptor.class, new ScRestTemplateInterceptor());
         InterceptorFactory.addInterceptor(FeignInterceptor.class, new ScFeignInterceptor());
+
+        // agent 中注入 Spring ApplicationContext
+        InterceptorFactory.addInterceptor(ApplicationContextAwareInterceptor.class, new ApplicationContextAwareProcessorInterceptor());
     }
 
 }

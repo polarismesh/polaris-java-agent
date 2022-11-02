@@ -15,25 +15,13 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.adapter.spring.cloud.interceptor.router;
+
+package cn.polarismesh.agent.adapter.spring.cloud.interceptor.ratelimit;
 
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.AbstractSpringCloudInterceptor;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class ServiceInstanceListSupplierBuilderInterceptor {
-
-	public static class ServiceInstanceListSupplierBuilderBlockingInterceptor extends AbstractSpringCloudInterceptor {
-
-	}
-
-	public static class ServiceInstanceListSupplierBuilderReactiveInterceptor extends AbstractSpringCloudInterceptor {
-
-	}
-
-	public static class ServiceInstanceListSupplierBuilderDisableCachingInterceptor extends AbstractSpringCloudInterceptor {
-
-	}
-
+public class LimitReactiveWebFilterInterceptor extends AbstractSpringCloudInterceptor {
 }

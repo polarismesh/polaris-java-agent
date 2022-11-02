@@ -17,11 +17,21 @@
 
 package cn.polarismesh.agent.core.spring.cloud.invoker;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-import cn.polarismesh.agent.core.spring.cloud.filter.ScServletWebFilterInterceptor;
-import cn.polarismesh.common.interceptor.AbstractInterceptor;
+import cn.polarismesh.agent.common.config.AgentConfig;
+import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
+import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.Holder;
+import cn.polarismesh.agent.core.spring.cloud.router.ScRouterServletWebFilterInterceptor;
+import cn.polarismesh.common.polaris.PolarisSingleton;
 import com.tencent.cloud.metadata.core.EncodeTransferMedataRestTemplateInterceptor;
+import com.tencent.cloud.polaris.context.ServiceRuleManager;
+import com.tencent.cloud.polaris.router.RouterRuleLabelResolver;
+import com.tencent.cloud.polaris.router.resttemplate.RouterLabelRestTemplateInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +40,9 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class ScRestTemplateInterceptor implements AbstractInterceptor {
+public class ScRestTemplateInterceptor extends BaseInterceptor {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ScServletWebFilterInterceptor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ScRouterServletWebFilterInterceptor.class);
 
 	@Override
 	public void before(Object target, Object[] args) {
@@ -41,11 +51,45 @@ public class ScRestTemplateInterceptor implements AbstractInterceptor {
 
 	@Override
 	public void after(Object target, Object[] args, Object result, Throwable throwable) {
-		LOGGER.info("[PolarisAgent] add RestTemplate to build traffic route ability");
+		if (!SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
+			LOGGER.debug("[PolarisAgent] {} disable build RestTemplate traffic route ability", target.getClass()
+					.getCanonicalName());
+			return;
+		}
+
 		List<ClientHttpRequestInterceptor> ret = (List<ClientHttpRequestInterceptor>) result;
-		ret.add(0, new ProxyClientHttpRequestInterceptor());
+
+		LOGGER.debug("[PolarisAgent] {} begin build RestTemplate invoke traffic route ability", target.getClass()
+				.getCanonicalName());
+
+		boolean find = false;
+		for (ClientHttpRequestInterceptor interceptor : ret) {
+			if (Objects.equals(interceptor.getClass()
+					.getCanonicalName(), EncodeTransferMedataRestTemplateInterceptor.class.getCanonicalName())) {
+				find = true;
+				break;
+			}
+		}
+
+		if (find) {
+			LOGGER.debug("[PolarisAgent] {} ignore to build RestTemplate invoke traffic route ability", target.getClass()
+					.getCanonicalName());
+			return;
+		}
+		List<ClientHttpRequestInterceptor> tmp = new ArrayList<>();
+		tmp.add(new EncodeTransferMedataRestTemplateInterceptor());
+		tmp.add(new RouterLabelRestTemplateInterceptor(
+				Collections.emptyList(),
+				Holder.getStaticMetadataManager(),
+				new RouterRuleLabelResolver(new ServiceRuleManager(PolarisSingleton.getPolarisOperator()
+						.getSdkContext())),
+				Holder.getPolarisContextProperties()
+		));
+		tmp.addAll(ret);
+		ret.clear();
+		ret.addAll(tmp);
+		LOGGER.debug("[PolarisAgent] {} add RestTemplate to build traffic route ability", target.getClass()
+				.getCanonicalName());
 	}
 
-	public static class ProxyClientHttpRequestInterceptor extends EncodeTransferMedataRestTemplateInterceptor {
-	}
 }

@@ -18,20 +18,47 @@
 package cn.polarismesh.agent.core.spring.cloud.util;
 
 import java.util.Map;
+import java.util.function.Function;
 
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
 import cn.polarismesh.common.polaris.PolarisReflectConst;
+import com.tencent.cloud.common.pojo.PolarisServiceInstance;
+import com.tencent.polaris.api.pojo.DefaultInstance;
 import com.tencent.polaris.api.rpc.InstanceDeregisterRequest;
 import com.tencent.polaris.api.rpc.InstanceRegisterRequest;
 import com.tencent.polaris.api.utils.MapUtils;
 import com.tencent.polaris.api.utils.StringUtils;
 
+import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.serviceregistry.Registration;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
 public class DiscoveryUtils {
+
+	public static Function<ServiceInstance, ServiceInstance> convertToPolarisServiceInstance() {
+		return serviceInstance -> {
+			DefaultInstance ins = new DefaultInstance();
+			ins.setService(serviceInstance.getServiceId());
+			ins.setId(serviceInstance.getInstanceId());
+			ins.setHost(serviceInstance.getHost());
+			ins.setPort(serviceInstance.getPort());
+			ins.setMetadata(serviceInstance.getMetadata());
+			if (serviceInstance.isSecure()) {
+				ins.setProtocol("https");
+			}
+			else {
+				ins.setProtocol("http");
+			}
+
+			// 这里由于 nacos 以及 polaris 获取到的都是处于健康状态的实例，因此这里强制设置为 true
+			ins.setIsolated(false);
+			ins.setHealthy(true);
+
+			return new PolarisServiceInstance(ins);
+		};
+	}
 
 	public static InstanceRegisterRequest parseNacosRegistrationToInstance(Registration registration) {
 		InstanceRegisterRequest instanceObject = parseRegistrationToInstance(registration);
@@ -40,12 +67,30 @@ public class DiscoveryUtils {
 		String serviceName;
 		if (StringUtils.isBlank(groupName) || StringUtils.equals(NacosUtils.DEFAULT_GROUP, groupName)) {
 			serviceName = registration.getServiceId();
-		} else {
+		}
+		else {
 			serviceName = groupName + "__" + registration.getServiceId();
 		}
 		instanceObject.setService(serviceName);
 		instanceObject.setNamespace(namespace);
 		instanceObject.setWeight(NacosUtils.resolveWeight(registration));
+
+		String protocol = "http";
+		String scheme = registration.getScheme();
+		if (null != scheme) {
+			protocol = scheme;
+		}
+		else if (registration.isSecure()) {
+			protocol = "https";
+		}
+		instanceObject.setProtocol(protocol);
+		String version = "";
+		Map<String, String> metadata = registration.getMetadata();
+		if (!MapUtils.isEmpty(metadata)) {
+			version = metadata.get("version");
+		}
+		instanceObject.setVersion(version);
+		instanceObject.setMetadata(registration.getMetadata());
 		return instanceObject;
 	}
 
@@ -58,7 +103,8 @@ public class DiscoveryUtils {
 		String scheme = registration.getScheme();
 		if (null != scheme) {
 			protocol = scheme;
-		} else if (registration.isSecure()) {
+		}
+		else if (registration.isSecure()) {
 			protocol = "https";
 		}
 		instanceObject.setProtocol(protocol);
@@ -87,7 +133,8 @@ public class DiscoveryUtils {
 		String serviceName;
 		if (org.apache.commons.lang3.StringUtils.isBlank(groupName) || org.apache.commons.lang3.StringUtils.equals(NacosUtils.DEFAULT_GROUP, groupName)) {
 			serviceName = registration.getServiceId();
-		} else {
+		}
+		else {
 			serviceName = groupName + "__" + registration.getServiceId();
 		}
 		instanceObject.setNamespace(namespace);

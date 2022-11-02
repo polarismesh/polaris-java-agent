@@ -3,7 +3,6 @@ package cn.polarismesh.agent.core.spring.cloud.util;
 import cn.polarismesh.agent.common.exception.PolarisAgentException;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
 import cn.polarismesh.common.polaris.PolarisReflectConst;
-import com.tencent.polaris.api.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

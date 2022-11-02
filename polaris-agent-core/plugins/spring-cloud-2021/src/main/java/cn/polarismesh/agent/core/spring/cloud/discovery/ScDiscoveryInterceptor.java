@@ -22,15 +22,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import cn.polarismesh.agent.common.config.AgentConfig;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
 import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
-import cn.polarismesh.agent.core.spring.cloud.model.PolarisServiceInstance;
+import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.util.DiscoveryUtils;
-import cn.polarismesh.agent.core.spring.cloud.util.NacosUtils;
-import cn.polarismesh.common.interceptor.AbstractInterceptor;
 import cn.polarismesh.common.polaris.PolarisSingleton;
+import com.tencent.cloud.common.pojo.PolarisServiceInstance;
 import com.tencent.polaris.api.pojo.Instance;
 import com.tencent.polaris.api.utils.StringUtils;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 /**
  * Spring Cloud 服务发现通用拦截器
  */
-public class ScDiscoveryInterceptor implements AbstractInterceptor {
+public class ScDiscoveryInterceptor extends BaseInterceptor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScDiscoveryInterceptor.class);
 
@@ -64,15 +64,15 @@ public class ScDiscoveryInterceptor implements AbstractInterceptor {
 		}, field -> StringUtils.equals(field.getName(), "discoveryClients"));
 	}
 
-	public static class ProxyDiscoveryClient<T extends DiscoveryClient> implements DiscoveryClient {
+	public static class ProxyDiscoveryClient implements DiscoveryClient {
 
 		private final Map<String, Object> cacheValues = new ConcurrentHashMap<>();
 
-		private final T target;
+		private final DiscoveryClient target;
 
 		private Boolean enableDiscovery = false;
 
-		public ProxyDiscoveryClient(T target) {
+		public ProxyDiscoveryClient(DiscoveryClient target) {
 			this.target = target;
 			this.enableDiscovery = SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_DISCOVERY_ENABLE, true);
 		}
@@ -85,8 +85,13 @@ public class ScDiscoveryInterceptor implements AbstractInterceptor {
 		@Override
 		public List<ServiceInstance> getInstances(String serviceId) {
 			List<ServiceInstance> result = new ArrayList<>();
-			if (SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_MULTI_REGISTER_ENABLE)) {
-				result.addAll(target.getInstances(serviceId));
+			if (SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_MULTI_REGISTER_ENABLE, true)) {
+				this.enableDiscovery = true;
+				List<ServiceInstance> tmp = target.getInstances(serviceId);
+				result.addAll(tmp);
+			}
+			else {
+				LOGGER.debug("[PolarisAgent] ignore get instance from {}", target.getClass().getCanonicalName());
 			}
 
 			if (!enableDiscovery) {
@@ -101,22 +106,26 @@ public class ScDiscoveryInterceptor implements AbstractInterceptor {
 				serviceId = tmp[1];
 			}
 
-			LOGGER.info("[PolarisAgent] get instances namespace={} service={}", namespace, serviceId);
-
 			List<ServiceInstance> instances = new ArrayList<>();
-			result.forEach(serviceInstance -> instances.add(new PolarisServiceInstance(serviceInstance)));
 
 			Instance[] serviceInstances = PolarisSingleton.getPolarisOperator()
 					.getAvailableInstances(namespace, serviceId);
 			for (Instance instance : serviceInstances) {
-				PolarisServiceInstance serviceInstance = new PolarisServiceInstance(instance);
-				instances.add(serviceInstance);
+				instances.add(new PolarisServiceInstance(instance));
 			}
 			if (LOGGER.isDebugEnabled()) {
 				Gson gson = new Gson();
 				LOGGER.debug("[POLARIS] to getInstances result from polaris {}", gson.toJson(serviceInstances));
 			}
+
+			Function<ServiceInstance, ServiceInstance> convert = DiscoveryUtils.convertToPolarisServiceInstance();
+			result.forEach(serviceInstance -> instances.add(convert.apply(serviceInstance)));
+
+			result.clear();
 			result.addAll(instances);
+
+			LOGGER.debug("[PolarisAgent] get instances from polaris namespace={} service={} instances={}", namespace, serviceId, result);
+
 			return result;
 		}
 

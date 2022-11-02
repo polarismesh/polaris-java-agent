@@ -16,23 +16,27 @@
  */
 
 
-package cn.polarismesh.agent.core.spring.cloud.filter;
+package cn.polarismesh.agent.core.spring.cloud.router;
 
-import javax.servlet.ServletContext;
+import java.util.List;
 
-import cn.polarismesh.common.interceptor.AbstractInterceptor;
-import com.tencent.cloud.metadata.core.DecodeTransferMetadataServletFilter;
+import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
+import com.tencent.cloud.metadata.core.DecodeTransferMetadataReactiveFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebHandler;
+import org.springframework.web.server.handler.FilteringWebHandler;
+
 /**
- * hack {@link org.springframework.web.context.AbstractContextLoaderInitializer#onStartup(ServletContext)}
+ * hack {@link FilteringWebHandler#FilteringWebHandler(WebHandler, List)}
  *
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class ScServletWebFilterInterceptor implements AbstractInterceptor {
+public class ScRouterReactiveWebFilterInterceptor extends BaseInterceptor {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ScServletWebFilterInterceptor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ScRouterReactiveWebFilterInterceptor.class);
 
 	/**
 	 * 针对入参的 List<WebFilter> filters 进行处理，添加自定义收集流量标签的 WebFilter
@@ -42,20 +46,13 @@ public class ScServletWebFilterInterceptor implements AbstractInterceptor {
 	 */
 	@Override
 	public void before(Object target, Object[] args) {
-		LOGGER.info("[PolarisAgent] add ServletFilter to build transfer metadata ability");
-		ServletContext context = (ServletContext) args[0];
-		context.addFilter(TrafficServletFilter.class.getCanonicalName(), new TrafficServletFilter());
+		List<WebFilter> filters = (List<WebFilter>) args[1];
+		filters.add(0, new DecodeTransferMetadataReactiveFilter());
+		LOGGER.debug("[PolarisAgent] add WebFilter to build transfer metadata ability");
 	}
 
 	@Override
 	public void after(Object target, Object[] args, Object result, Throwable throwable) {
-
-	}
-
-	/**
-	 * TrafficServletFilter
-	 */
-	public static class TrafficServletFilter extends DecodeTransferMetadataServletFilter {
 
 	}
 }

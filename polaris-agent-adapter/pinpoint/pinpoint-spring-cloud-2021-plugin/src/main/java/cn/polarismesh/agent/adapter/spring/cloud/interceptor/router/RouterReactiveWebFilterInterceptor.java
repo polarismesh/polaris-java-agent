@@ -16,12 +16,12 @@
  */
 
 
-package cn.polarismesh.agent.adapter.spring.cloud.interceptor.filter;
+package cn.polarismesh.agent.adapter.spring.cloud.interceptor.router;
 
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.AbstractSpringCloudInterceptor;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class ReactiveWebFilterInterceptor extends AbstractSpringCloudInterceptor {
+public class RouterReactiveWebFilterInterceptor extends AbstractSpringCloudInterceptor {
 }

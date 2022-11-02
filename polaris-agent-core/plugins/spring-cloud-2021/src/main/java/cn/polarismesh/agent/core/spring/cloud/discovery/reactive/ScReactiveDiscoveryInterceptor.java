@@ -19,17 +19,20 @@
 package cn.polarismesh.agent.core.spring.cloud.discovery.reactive;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import cn.polarismesh.agent.common.config.AgentConfig;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
 import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
-import cn.polarismesh.agent.core.spring.cloud.model.PolarisServiceInstance;
+import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.util.DiscoveryUtils;
 import cn.polarismesh.agent.core.spring.cloud.util.NacosUtils;
-import cn.polarismesh.common.interceptor.AbstractInterceptor;
 import cn.polarismesh.common.polaris.PolarisSingleton;
+import com.tencent.cloud.common.pojo.PolarisServiceInstance;
 import com.tencent.polaris.api.pojo.Instance;
 import com.tencent.polaris.api.utils.StringUtils;
 import org.slf4j.Logger;
@@ -39,11 +42,12 @@ import shade.polaris.com.google.gson.Gson;
 
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.ReactiveDiscoveryClient;
+import org.springframework.cloud.commons.publisher.CloudFlux;
 
 /**
  * Spring Cloud 服务发现通用拦截器
  */
-public class ScReactiveDiscoveryInterceptor implements AbstractInterceptor {
+public class ScReactiveDiscoveryInterceptor extends BaseInterceptor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScReactiveDiscoveryInterceptor.class);
 
@@ -74,7 +78,7 @@ public class ScReactiveDiscoveryInterceptor implements AbstractInterceptor {
 
 		public ProxyReactiveDiscoveryClient(ReactiveDiscoveryClient target) {
 			this.target = target;
-			this.enableDiscovery = SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_DISCOVERY_ENABLE);
+			this.enableDiscovery = SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_DISCOVERY_ENABLE, true);
 		}
 
 		@Override
@@ -84,13 +88,19 @@ public class ScReactiveDiscoveryInterceptor implements AbstractInterceptor {
 
 		@Override
 		public Flux<ServiceInstance> getInstances(String serviceId) {
-			Flux<ServiceInstance> result = Flux.empty();
-			if (SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_MULTI_REGISTER_ENABLE)) {
-				result = result.mergeWith(target.getInstances(serviceId));
+			List<Flux<ServiceInstance>> serviceInstances = new ArrayList<>();
+
+			if (SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_MULTI_REGISTER_ENABLE, true)) {
+				this.enableDiscovery = true;
+				serviceInstances.add(target.getInstances(serviceId).map(DiscoveryUtils.convertToPolarisServiceInstance()));
+			}
+			else {
+				LOGGER.debug("[PolarisAgent] ignore get instance by reactive from {}", target.getClass()
+						.getCanonicalName());
 			}
 
 			if (!enableDiscovery) {
-				return result;
+				return CloudFlux.firstNonEmpty(serviceInstances).map(DiscoveryUtils.convertToPolarisServiceInstance());
 			}
 
 			String namespace = "";
@@ -101,21 +111,17 @@ public class ScReactiveDiscoveryInterceptor implements AbstractInterceptor {
 				serviceId = tmp[1];
 			}
 
-			LOGGER.info("[PolarisAgent] get instances namespace={} service={}", namespace, serviceId);
+			LOGGER.debug("[PolarisAgent] get instances by reactive from polaris namespace={} service={}", namespace, serviceId);
 
-			List<ServiceInstance> instances = new ArrayList<>();
-			Instance[] serviceInstances = PolarisSingleton.getPolarisOperator()
-					.getAvailableInstances(namespace, serviceId);
-			for (Instance instance : serviceInstances) {
-				PolarisServiceInstance serviceInstance = new PolarisServiceInstance(instance);
-				instances.add(serviceInstance);
-			}
+			List<PolarisServiceInstance> polarisInstances = Arrays.stream(PolarisSingleton.getPolarisOperator()
+					.getAvailableInstances(namespace, serviceId)).map(PolarisServiceInstance::new).collect(Collectors.toList());
 			if (LOGGER.isDebugEnabled()) {
 				Gson gson = new Gson();
 				LOGGER.debug("[POLARIS] to getInstances result from polaris {}", gson.toJson(serviceInstances));
 			}
 
-			return result.mergeWith(Flux.fromIterable(instances));
+			serviceInstances.add(Flux.fromIterable(polarisInstances));
+			return CloudFlux.firstNonEmpty(serviceInstances);
 		}
 
 		@Override

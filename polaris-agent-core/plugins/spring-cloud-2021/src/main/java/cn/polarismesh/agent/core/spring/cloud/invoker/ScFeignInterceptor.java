@@ -17,12 +17,20 @@
 
 package cn.polarismesh.agent.core.spring.cloud.invoker;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
-import cn.polarismesh.agent.core.spring.cloud.filter.ScServletWebFilterInterceptor;
-import cn.polarismesh.common.interceptor.AbstractInterceptor;
+import cn.polarismesh.agent.common.config.AgentConfig;
+import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
+import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.Holder;
+import cn.polarismesh.agent.core.spring.cloud.router.ScRouterServletWebFilterInterceptor;
+import cn.polarismesh.common.polaris.PolarisSingleton;
 import com.tencent.cloud.metadata.core.EncodeTransferMedataFeignInterceptor;
+import com.tencent.cloud.polaris.context.ServiceRuleManager;
+import com.tencent.cloud.polaris.router.RouterRuleLabelResolver;
+import com.tencent.cloud.polaris.router.feign.RouterLabelFeignInterceptor;
 import feign.RequestInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +40,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class ScFeignInterceptor implements AbstractInterceptor {
+public class ScFeignInterceptor extends BaseInterceptor {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ScServletWebFilterInterceptor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ScRouterServletWebFilterInterceptor.class);
 
 	@Override
 	public void before(Object target, Object[] args) {
@@ -43,18 +51,28 @@ public class ScFeignInterceptor implements AbstractInterceptor {
 
 	@Override
 	public void after(Object target, Object[] args, Object result, Throwable throwable) {
+		if (!SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
+			LOGGER.debug("[PolarisAgent] {} disable build Feign traffic route ability", target.getClass()
+					.getCanonicalName());
+			return;
+		}
+
 		Class<?> cls = (Class<?>) args[1];
 
 		if (Objects.equals(cls.getCanonicalName(), RequestInterceptor.class.getCanonicalName())) {
-			LOGGER.info("[PolarisAgent] add Feign's RequestInterceptor to build traffic route ability");
+			LOGGER.debug("[PolarisAgent] {} build Feign traffic route ability", target.getClass()
+					.getCanonicalName());
 			Map<String, RequestInterceptor> ret = (Map<String, RequestInterceptor>) result;
-			ret.put(EncodeTransferMedataFeignInterceptor.class.getCanonicalName(), new ProxyRequestInterceptor());
+			ret.put(RouterLabelFeignInterceptor.class.getCanonicalName(), new RouterLabelFeignInterceptor(
+					Collections.emptyList(),
+					Holder.getStaticMetadataManager(),
+					new RouterRuleLabelResolver(new ServiceRuleManager(PolarisSingleton.getPolarisOperator()
+							.getSdkContext())),
+					Holder.getPolarisContextProperties()
+
+			));
+			ret.put(EncodeTransferMedataFeignInterceptor.class.getCanonicalName(), new EncodeTransferMedataFeignInterceptor());
 		}
 	}
-
-	public static class ProxyRequestInterceptor extends EncodeTransferMedataFeignInterceptor {
-
-	}
-
 
 }

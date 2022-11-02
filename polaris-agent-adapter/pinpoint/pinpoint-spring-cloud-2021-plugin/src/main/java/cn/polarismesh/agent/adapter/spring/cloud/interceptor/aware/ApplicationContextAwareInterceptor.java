@@ -15,29 +15,16 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.core.spring.cloud.aware;
+package cn.polarismesh.agent.adapter.spring.cloud.interceptor.aware;
 
-import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
-import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.AbstractSpringCloudInterceptor;
 
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
- * {@link org.springframework.context.support.ApplicationContextAwareProcessor#ApplicationContextAwareProcessor(ConfigurableApplicationContext)}
+ * {@link  ApplicationContextAwareProcessor#ApplicationContextAwareProcessor(ConfigurableApplicationContext)}
  *
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class ApplicationContextAwareProcessorInterceptor extends BaseInterceptor {
-
-	@Override
-	public void before(Object target, Object[] args) {
-
-	}
-
-	@Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
-		ConfigurableApplicationContext context = (ConfigurableApplicationContext) args[0];
-		ApplicationContextAwareUtils utils = new ApplicationContextAwareUtils();
-		utils.setApplicationContext(context);
-	}
+public class ApplicationContextAwareInterceptor extends AbstractSpringCloudInterceptor {
 }

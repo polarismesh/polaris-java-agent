@@ -195,23 +195,6 @@ public class PolarisOperator {
 		LOGGER.info("[POLARIS] deregister service {}", request);
 	}
 
-	public boolean watchService(String service, ServiceListener listener) {
-		WatchServiceRequest watchServiceRequest = new WatchServiceRequest();
-		watchServiceRequest.setNamespace(polarisConfig.getNamespace());
-		watchServiceRequest.setService(service);
-		watchServiceRequest.setListeners(Collections.singletonList(listener));
-		return consumerAPI.watchService(watchServiceRequest).isSuccess();
-	}
-
-	public void unwatchService(String service, ServiceListener serviceListener) {
-		UnWatchServiceRequest watchServiceRequest = UnWatchServiceRequest.UnWatchServiceRequestBuilder.anUnWatchServiceRequest()
-				.namespace(polarisConfig.getNamespace())
-				.service(service)
-				.listeners(Collections.singletonList(serviceListener))
-				.build();
-		consumerAPI.unWatchService(watchServiceRequest);
-	}
-
 	/**
 	 * 调用CONSUMER_API获取实例信息
 	 *
@@ -259,42 +242,4 @@ public class PolarisOperator {
 		consumerAPI.updateServiceCallResult(serviceCallResult);
 	}
 
-	public List<Instance> route(ProcessRoutersRequest request) {
-		ProcessRoutersResponse processRoutersResponse = routerAPI.processRouters(request);
-		return processRoutersResponse.getServiceInstances().getInstances();
-	}
-
-	public Instance loadBalance(String service, String hashKey, List<Instance> instances) {
-		ServiceKey serviceKey = new ServiceKey(polarisConfig.getNamespace(), service);
-		DefaultServiceInstances defaultServiceInstances = new DefaultServiceInstances(serviceKey, instances);
-		ProcessLoadBalanceRequest processLoadBalanceRequest = new ProcessLoadBalanceRequest();
-		processLoadBalanceRequest.setDstInstances(defaultServiceInstances);
-		Criteria criteria = new Criteria();
-		criteria.setHashKey(hashKey);
-		processLoadBalanceRequest.setCriteria(criteria);
-		ProcessLoadBalanceResponse processLoadBalanceResponse = routerAPI.processLoadBalance(processLoadBalanceRequest);
-		return processLoadBalanceResponse.getTargetInstance();
-	}
-
-	/**
-	 * 调用LIMIT_API进行服务限流
-	 *
-	 * @param count 本次请求的配额
-	 * @return 是否通过，为false则需要对本次请求限流
-	 */
-	public boolean getQuota(String service, String method, Map<String, String> labels, int count) {
-		init();
-		if (!inited.get()) {
-			LOGGER.error("[POLARIS] fail to get quota, service:{}, method:{}, polaris init failed", service, method);
-			throw new RuntimeException("polaris init failed");
-		}
-		QuotaRequest quotaRequest = new QuotaRequest();
-		quotaRequest.setNamespace(polarisConfig.getNamespace());
-		quotaRequest.setService(service);
-		quotaRequest.setMethod(method);
-		quotaRequest.setLabels(labels);
-		quotaRequest.setCount(count);
-		QuotaResponse quota = limitAPI.getQuota(quotaRequest);
-		return quota.getCode() == QuotaResultCode.QuotaResultOk;
-	}
 }

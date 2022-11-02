@@ -21,8 +21,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import cn.polarismesh.agent.common.config.AgentConfig;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
-import cn.polarismesh.common.interceptor.AbstractInterceptor;
+import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
+import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
 import cn.polarismesh.common.polaris.PolarisSingleton;
 import com.tencent.cloud.polaris.router.PolarisRouterServiceInstanceListSupplier;
 import com.tencent.cloud.polaris.router.config.properties.PolarisMetadataRouterProperties;
@@ -32,29 +34,72 @@ import com.tencent.cloud.polaris.router.interceptor.MetadataRouterRequestInterce
 import com.tencent.cloud.polaris.router.interceptor.NearbyRouterRequestInterceptor;
 import com.tencent.cloud.polaris.router.interceptor.RuleBasedRouterRequestInterceptor;
 import com.tencent.cloud.polaris.router.spi.RouterRequestInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.cloud.loadbalancer.core.ServiceInstanceListSupplier;
 import org.springframework.cloud.loadbalancer.core.ServiceInstanceListSupplierBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
- * 拦截 Spring Cloud 中 LoadBalancer 中的实例选择
+ * {@link ServiceInstanceListSupplierBuilder} 拦截 Spring Cloud 中 LoadBalancer 中的实例选择
  *
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class ScServiceInstanceListSupplierBuilderInterceptor implements AbstractInterceptor {
+public class ScServiceInstanceListSupplierBuilderInterceptor {
 
-	@Override
-	public void before(Object target, Object[] args) {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ScServiceInstanceListSupplierBuilderInterceptor.class);
 
+	public static class ScServiceInstanceListSupplierBuilderBlockingInterceptor extends BaseInterceptor {
+
+		@Override
+		public void before(Object target, Object[] args) {
+
+		}
+
+		@Override
+		public void after(Object target, Object[] args, Object result, Throwable throwable) {
+			if (SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
+				ServiceInstanceListSupplierBuilder.Creator creator =
+						(ServiceInstanceListSupplierBuilder.Creator) ReflectionUtils.getObjectByFieldName(target, "baseCreator");
+
+				ReflectionUtils.setValueByFieldName(target, "baseCreator", new ProxyCreator(creator));
+			}
+		}
 	}
 
-	@Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
-		ServiceInstanceListSupplierBuilder.Creator creator =
-				(ServiceInstanceListSupplierBuilder.Creator) ReflectionUtils.getObjectByFieldName(target, "baseCreator");
+	public static class ScServiceInstanceListSupplierBuilderReactiveInterceptor extends BaseInterceptor {
 
-		ReflectionUtils.setValueByFieldName(target, "baseCreator", new ProxyCreator(creator));
+		@Override
+		public void before(Object target, Object[] args) {
+
+		}
+
+		@Override
+		public void after(Object target, Object[] args, Object result, Throwable throwable) {
+			if (SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
+				ServiceInstanceListSupplierBuilder.Creator creator =
+						(ServiceInstanceListSupplierBuilder.Creator) ReflectionUtils.getObjectByFieldName(target, "baseCreator");
+
+				ReflectionUtils.setValueByFieldName(target, "baseCreator", new ProxyCreator(creator));
+			}
+		}
+	}
+
+	public static class ScServiceInstanceListSupplierBuilderDisableCachingInterceptor extends BaseInterceptor {
+
+		@Override
+		public void before(Object target, Object[] args) {
+
+		}
+
+		@Override
+		public void after(Object target, Object[] args, Object result, Throwable throwable) {
+			if (SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
+				LOGGER.info("[PolarisAgent] disable loadbalancer caching ability");
+				ReflectionUtils.setValueByFieldName(target, "cachingCreator", null);
+			}
+		}
 	}
 
 	public static class ProxyCreator implements ServiceInstanceListSupplierBuilder.Creator {
@@ -83,7 +128,8 @@ public class ScServiceInstanceListSupplierBuilderInterceptor implements Abstract
 		}
 
 		ProxyDiscoveryClientServiceInstanceListSupplier(ServiceInstanceListSupplier delegate, List<RouterRequestInterceptor> interceptors) {
-			super(delegate, PolarisSingleton.getPolarisOperator().getRouterAPI(), interceptors, Collections.emptyList());
+			super(delegate, PolarisSingleton.getPolarisOperator()
+					.getRouterAPI(), interceptors, Collections.emptyList());
 		}
 	}
 }
