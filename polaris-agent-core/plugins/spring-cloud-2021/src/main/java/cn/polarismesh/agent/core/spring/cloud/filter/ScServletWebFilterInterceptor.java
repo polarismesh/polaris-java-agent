@@ -15,13 +15,21 @@
  * specific language governing permissions and limitations under the License.
  */
 
+package cn.polarismesh.agent.core.spring.cloud.filter;
 
-package cn.polarismesh.agent.adapter.spring.cloud.interceptor.router;
-
-import cn.polarismesh.agent.adapter.spring.cloud.interceptor.AbstractSpringCloudInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class RouterServletWebFilterInterceptor extends AbstractSpringCloudInterceptor {
+public class ScServletWebFilterInterceptor extends BaseInterceptor {
+	@Override
+	public void before(Object target, Object[] args) {
+
+	}
+
+	@Override
+	public void after(Object target, Object[] args, Object result, Throwable throwable) {
+
+	}
 }

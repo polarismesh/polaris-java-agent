@@ -15,19 +15,20 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.core.spring.cloud.ratelimit;
+package cn.polarismesh.agent.core.spring.cloud.filter.ratelimit;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.polarismesh.agent.common.config.AgentConfig;
+import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
 import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
-import cn.polarismesh.agent.core.spring.cloud.router.ScRouterServletWebFilterInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.filter.router.ScRouterServletWebFilterInterceptor;
 import cn.polarismesh.common.polaris.PolarisSingleton;
 import com.tencent.cloud.common.metadata.MetadataContext;
 import com.tencent.cloud.common.util.expresstion.ServletExpressionLabelUtils;
@@ -45,6 +46,8 @@ import org.springframework.http.HttpStatus;
 import static com.tencent.cloud.polaris.ratelimit.constant.RateLimitConstant.LABEL_METHOD;
 
 /**
+ * {@link org.springframework.web.servlet.DispatcherServlet#doDispatch(HttpServletRequest, HttpServletResponse)}
+ *
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
 public class ScLimitServletFilterInterceptor extends BaseInterceptor {
@@ -55,6 +58,12 @@ public class ScLimitServletFilterInterceptor extends BaseInterceptor {
 
 	@Override
 	public void before(Object target, Object[] args) {
+		boolean enableRateLimit = SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_LIMITER_ENABLE);
+		if (!enableRateLimit) {
+			LOGGER.info("[PolarisAgent] {} disable add ServletFilter to build RateLimit ability", target.getClass().getCanonicalName());
+			return;
+		}
+		LOGGER.info("[PolarisAgent] {} enable add ServletFilter to build RateLimit ability", target.getClass().getCanonicalName());
 
 		reference.compareAndSet(null, new RateLimitRuleLabelResolver(new ServiceRuleManager(PolarisSingleton.getPolarisOperator()
 				.getSdkContext())));

@@ -21,10 +21,8 @@ import cn.polarismesh.agent.adapter.spring.cloud.interceptor.aware.ApplicationCo
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.DiscoveryInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.ReactiveDiscoveryInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.RegistryInterceptor;
-import cn.polarismesh.agent.adapter.spring.cloud.interceptor.ratelimit.LimitReactiveWebFilterInterceptor;
-import cn.polarismesh.agent.adapter.spring.cloud.interceptor.ratelimit.LimitServletWebFilterInterceptor;
-import cn.polarismesh.agent.adapter.spring.cloud.interceptor.router.RouterReactiveWebFilterInterceptor;
-import cn.polarismesh.agent.adapter.spring.cloud.interceptor.router.RouterServletWebFilterInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.filter.ReactiveWebFilterInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.filter.ServletWebFilterInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.invoker.FeignInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.invoker.RestTemplateInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.router.ServiceInstanceListSupplierBuilderInterceptor;
@@ -233,8 +231,7 @@ public class SpringCloud2021Plugin implements ProfilerPlugin, TransformTemplateA
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
             InstrumentMethod constructMethod = target.getConstructor("org.springframework.web.server.WebHandler", "java.util.List");
             if (constructMethod != null) {
-                constructMethod.addInterceptor(RouterReactiveWebFilterInterceptor.class);
-                constructMethod.addInterceptor(LimitReactiveWebFilterInterceptor.class);
+                constructMethod.addInterceptor(ReactiveWebFilterInterceptor.class);
             }
 
             return target.toBytecode();
@@ -252,8 +249,7 @@ public class SpringCloud2021Plugin implements ProfilerPlugin, TransformTemplateA
             InstrumentMethod constructMethod = target.getDeclaredMethod("doDispatch",
                     "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
             if (constructMethod != null) {
-                constructMethod.addInterceptor(RouterServletWebFilterInterceptor.class);
-                constructMethod.addInterceptor(LimitServletWebFilterInterceptor.class);
+                constructMethod.addInterceptor(ServletWebFilterInterceptor.class);
             }
 
             return target.toBytecode();

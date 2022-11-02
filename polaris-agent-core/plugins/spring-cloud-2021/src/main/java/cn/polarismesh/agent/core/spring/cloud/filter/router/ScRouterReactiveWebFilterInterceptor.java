@@ -16,10 +16,12 @@
  */
 
 
-package cn.polarismesh.agent.core.spring.cloud.router;
+package cn.polarismesh.agent.core.spring.cloud.filter.router;
 
 import java.util.List;
 
+import cn.polarismesh.agent.common.config.AgentConfig;
+import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
 import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
 import com.tencent.cloud.metadata.core.DecodeTransferMetadataReactiveFilter;
 import org.slf4j.Logger;
@@ -46,9 +48,15 @@ public class ScRouterReactiveWebFilterInterceptor extends BaseInterceptor {
 	 */
 	@Override
 	public void before(Object target, Object[] args) {
+		boolean enableRateLimit = SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE);
+		if (!enableRateLimit) {
+			LOGGER.info("[PolarisAgent] {} disable add WebFilter to build transfer metadata ability", target.getClass().getCanonicalName());
+			return;
+		}
+		LOGGER.info("[PolarisAgent] {} enable add WebFilter to build transfer metadata ability", target.getClass().getCanonicalName());
+
 		List<WebFilter> filters = (List<WebFilter>) args[1];
 		filters.add(0, new DecodeTransferMetadataReactiveFilter());
-		LOGGER.debug("[PolarisAgent] add WebFilter to build transfer metadata ability");
 	}
 
 	@Override

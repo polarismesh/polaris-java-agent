@@ -16,17 +16,18 @@
  */
 
 
-package cn.polarismesh.agent.core.spring.cloud.router;
+package cn.polarismesh.agent.core.spring.cloud.filter.router;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.polarismesh.agent.common.config.AgentConfig;
+import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
 import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
 import com.tencent.cloud.common.metadata.MetadataContextHolder;
 import com.tencent.cloud.common.util.JacksonUtils;
@@ -43,7 +44,7 @@ import static com.tencent.cloud.common.constant.MetadataConstant.HeaderName.CUST
 
 
 /**
- * hack {@link org.springframework.boot.web.servlet.RegistrationBean#onStartup(ServletContext)}
+ * hack {@link org.springframework.web.servlet.DispatcherServlet#doDispatch(HttpServletRequest, HttpServletResponse)}
  *
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
@@ -59,10 +60,16 @@ public class ScRouterServletWebFilterInterceptor extends BaseInterceptor {
 	 */
 	@Override
 	public void before(Object target, Object[] args) {
+		boolean enableRateLimit = SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE);
+		if (!enableRateLimit) {
+			LOGGER.info("[PolarisAgent] {} disable add ServletFilter to build transfer metadata ability", target.getClass().getCanonicalName());
+			return;
+		}
+		LOGGER.info("[PolarisAgent] {} enable add ServletFilter to build transfer metadata ability", target.getClass().getCanonicalName());
+
 		HttpServletRequest request = (HttpServletRequest) args[0];
 		HttpServletResponse response = (HttpServletResponse) args[1];
 
-		LOGGER.debug("[PolarisAgent] {} begin exec transfer metadata ability", target.getClass().getCanonicalName());
 		Map<String, String> internalTransitiveMetadata = getInternalMetadata(request, CUSTOM_METADATA);
 		Map<String, String> customTransitiveMetadata = CustomTransitiveMetadataResolver.resolve(request);
 
@@ -76,7 +83,6 @@ public class ScRouterServletWebFilterInterceptor extends BaseInterceptor {
 		MetadataContextHolder.init(mergedTransitiveMetadata, mergedDisposableMetadata);
 
 		TransHeadersTransfer.transfer(request);
-		LOGGER.debug("[PolarisAgent] {} finished exec transfer metadata ability", target.getClass().getCanonicalName());
 	}
 
 	@Override

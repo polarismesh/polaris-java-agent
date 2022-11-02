@@ -21,8 +21,8 @@ import cn.polarismesh.agent.adapter.spring.cloud.interceptor.aware.ApplicationCo
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.DiscoveryInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.ReactiveDiscoveryInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.RegistryInterceptor;
-import cn.polarismesh.agent.adapter.spring.cloud.interceptor.router.RouterReactiveWebFilterInterceptor;
-import cn.polarismesh.agent.adapter.spring.cloud.interceptor.router.RouterServletWebFilterInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.filter.ReactiveWebFilterInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.filter.ServletWebFilterInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.invoker.FeignInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.invoker.RestTemplateInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.router.ServiceInstanceListSupplierBuilderInterceptor;
@@ -30,8 +30,8 @@ import cn.polarismesh.agent.core.spring.cloud.aware.ApplicationContextAwareProce
 import cn.polarismesh.agent.core.spring.cloud.discovery.ScDiscoveryInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.discovery.reactive.ScReactiveDiscoveryInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.discovery.ScRegistryInterceptor;
-import cn.polarismesh.agent.core.spring.cloud.router.ScRouterReactiveWebFilterInterceptor;
-import cn.polarismesh.agent.core.spring.cloud.router.ScRouterServletWebFilterInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.filter.ScServletWebFilterInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.filter.router.ScRouterReactiveWebFilterInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.invoker.ScFeignInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.invoker.ScRestTemplateInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.router.ScServiceInstanceListSupplierBuilderInterceptor;
@@ -47,9 +47,9 @@ public class InterceptorBuilder {
         // 注册、反注册
         InterceptorFactory.addInterceptor(RegistryInterceptor.class, new ScRegistryInterceptor());
 
-        // 流量入口信息收集
-        InterceptorFactory.addInterceptor(RouterReactiveWebFilterInterceptor.class, new ScRouterReactiveWebFilterInterceptor());
-        InterceptorFactory.addInterceptor(RouterServletWebFilterInterceptor.class, new ScRouterServletWebFilterInterceptor());
+        // 服务路由 & 服务限流
+        InterceptorFactory.addInterceptor(ReactiveWebFilterInterceptor.class, new ScRouterReactiveWebFilterInterceptor());
+        InterceptorFactory.addInterceptor(ServletWebFilterInterceptor.class, new ScServletWebFilterInterceptor());
 
         // 路由能力
         InterceptorFactory.addInterceptor(ServiceInstanceListSupplierBuilderInterceptor.ServiceInstanceListSupplierBuilderBlockingInterceptor.class,

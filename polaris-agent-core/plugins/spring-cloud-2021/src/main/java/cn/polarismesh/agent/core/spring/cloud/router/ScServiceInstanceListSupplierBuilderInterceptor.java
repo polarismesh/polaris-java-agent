@@ -59,12 +59,14 @@ public class ScServiceInstanceListSupplierBuilderInterceptor {
 
 		@Override
 		public void after(Object target, Object[] args, Object result, Throwable throwable) {
-			if (SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
-				ServiceInstanceListSupplierBuilder.Creator creator =
-						(ServiceInstanceListSupplierBuilder.Creator) ReflectionUtils.getObjectByFieldName(target, "baseCreator");
-
-				ReflectionUtils.setValueByFieldName(target, "baseCreator", new ProxyCreator(creator));
+			if (!SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
+				return;
 			}
+			LOGGER.info("[PolarisAgent] build loadbalancer for BlockingClient ability");
+			ServiceInstanceListSupplierBuilder.Creator creator =
+					(ServiceInstanceListSupplierBuilder.Creator) ReflectionUtils.getObjectByFieldName(target, "baseCreator");
+
+			ReflectionUtils.setValueByFieldName(target, "baseCreator", new ProxyCreator(creator));
 		}
 	}
 
@@ -77,12 +79,14 @@ public class ScServiceInstanceListSupplierBuilderInterceptor {
 
 		@Override
 		public void after(Object target, Object[] args, Object result, Throwable throwable) {
-			if (SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
-				ServiceInstanceListSupplierBuilder.Creator creator =
-						(ServiceInstanceListSupplierBuilder.Creator) ReflectionUtils.getObjectByFieldName(target, "baseCreator");
-
-				ReflectionUtils.setValueByFieldName(target, "baseCreator", new ProxyCreator(creator));
+			if (!SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
+				return;
 			}
+			LOGGER.info("[PolarisAgent] build loadbalancer for ReactiveClient ability");
+			ServiceInstanceListSupplierBuilder.Creator creator =
+					(ServiceInstanceListSupplierBuilder.Creator) ReflectionUtils.getObjectByFieldName(target, "baseCreator");
+
+			ReflectionUtils.setValueByFieldName(target, "baseCreator", new ProxyCreator(creator));
 		}
 	}
 
@@ -95,10 +99,11 @@ public class ScServiceInstanceListSupplierBuilderInterceptor {
 
 		@Override
 		public void after(Object target, Object[] args, Object result, Throwable throwable) {
-			if (SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
-				LOGGER.info("[PolarisAgent] disable loadbalancer caching ability");
-				ReflectionUtils.setValueByFieldName(target, "cachingCreator", null);
+			if (!SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
+				return;
 			}
+			LOGGER.info("[PolarisAgent] disable loadbalancer caching ability");
+			ReflectionUtils.setValueByFieldName(target, "cachingCreator", null);
 		}
 	}
 

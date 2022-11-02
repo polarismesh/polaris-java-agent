@@ -93,6 +93,14 @@ public class PolarisAgentBootStrap {
         replaceProperty(polarisProperties, AgentConfig.KEY_TOKEN);
         replaceProperty(polarisProperties, AgentConfig.KEY_REGISTRY_ADDRESS);
         replaceProperty(polarisProperties, AgentConfig.KEY_HEALTH_TTL);
+
+        replaceProperty(polarisProperties, AgentConfig.KEY_PLUGIN_SPRINGCLOUD_MULTI_REGISTER_ENABLE);
+        replaceProperty(polarisProperties, AgentConfig.KEY_PLUGIN_SPRINGCLOUD_REGISTER_ENABLE);
+        replaceProperty(polarisProperties, AgentConfig.KEY_PLUGIN_SPRINGCLOUD_DISCOVERY_ENABLE);
+        replaceProperty(polarisProperties, AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE);
+        replaceProperty(polarisProperties, AgentConfig.KEY_PLUGIN_SPRINGCLOUD_LIMITER_ENABLE);
+        replaceProperty(polarisProperties, AgentConfig.KEY_PLUGIN_SPRINGCLOUD_STAINER_ENABLE);
+
         System.setProperty(InternalConfig.INTERNAL_KEY_AGENT_DIR, agentDirPath);
         System.setProperty(InternalConfig.INTERNAL_POLARIS_LOG_HOME,
                 agentDirPath + File.separator + "polaris" + File.separator + "logs");

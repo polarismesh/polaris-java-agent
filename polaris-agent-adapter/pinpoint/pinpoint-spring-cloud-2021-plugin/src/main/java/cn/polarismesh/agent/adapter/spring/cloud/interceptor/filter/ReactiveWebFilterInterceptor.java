@@ -16,12 +16,12 @@
  */
 
 
-package cn.polarismesh.agent.adapter.spring.cloud.interceptor.ratelimit;
+package cn.polarismesh.agent.adapter.spring.cloud.interceptor.filter;
 
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.AbstractSpringCloudInterceptor;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class LimitReactiveWebFilterInterceptor extends AbstractSpringCloudInterceptor {
+public class ReactiveWebFilterInterceptor extends AbstractSpringCloudInterceptor {
 }

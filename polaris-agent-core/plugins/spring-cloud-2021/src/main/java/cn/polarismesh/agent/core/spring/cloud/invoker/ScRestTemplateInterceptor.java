@@ -26,7 +26,7 @@ import cn.polarismesh.agent.common.config.AgentConfig;
 import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
 import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.Holder;
-import cn.polarismesh.agent.core.spring.cloud.router.ScRouterServletWebFilterInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.filter.router.ScRouterServletWebFilterInterceptor;
 import cn.polarismesh.common.polaris.PolarisSingleton;
 import com.tencent.cloud.metadata.core.EncodeTransferMedataRestTemplateInterceptor;
 import com.tencent.cloud.polaris.context.ServiceRuleManager;

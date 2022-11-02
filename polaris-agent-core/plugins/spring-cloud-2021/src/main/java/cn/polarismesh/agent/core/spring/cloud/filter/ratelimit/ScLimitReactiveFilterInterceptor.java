@@ -15,11 +15,13 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.core.spring.cloud.ratelimit;
+package cn.polarismesh.agent.core.spring.cloud.filter.ratelimit;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import cn.polarismesh.agent.common.config.AgentConfig;
+import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
 import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
 import cn.polarismesh.common.polaris.PolarisSingleton;
 import com.tencent.cloud.polaris.context.ServiceRuleManager;
@@ -38,8 +40,6 @@ public class ScLimitReactiveFilterInterceptor extends BaseInterceptor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScLimitReactiveFilterInterceptor.class);
 
-	private final AtomicReference<RateLimitRuleLabelResolver> reference = new AtomicReference<>();
-
 	@Override
 	public void before(Object target, Object[] args) {
 
@@ -48,16 +48,5 @@ public class ScLimitReactiveFilterInterceptor extends BaseInterceptor {
 	@Override
 	public void after(Object target, Object[] args, Object result, Throwable throwable) {
 
-		reference.compareAndSet(null, new RateLimitRuleLabelResolver(new ServiceRuleManager(PolarisSingleton.getPolarisOperator()
-				.getSdkContext())));
-
-		List<WebFilter> filters = (List<WebFilter>) args[1];
-		filters.add(0, new QuotaCheckReactiveFilter(
-				PolarisSingleton.getPolarisOperator().getLimitAPI(),
-				null,
-				new PolarisRateLimitProperties(),
-				reference.get()
-				));
-		LOGGER.debug("[PolarisAgent] {} add WebFilter to build RateLimit ability", target.getClass().getCanonicalName());
 	}
 }
