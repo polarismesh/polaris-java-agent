@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.cloud.openfeign.FeignContext;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
@@ -83,7 +84,7 @@ public class SpringCloud2021Plugin implements ProfilerPlugin, TransformTemplateA
     private static final String REACTIVE_WEB_FILTER = "org.springframework.web.server.handler.FilteringWebHandler";
 
     /**
-     * {@link org.springframework.web.servlet.DispatcherServlet#doDispatch(HttpServletRequest, HttpServletResponse)}
+     * {@link org.springframework.web.servlet.DispatcherServlet#initStrategies(ApplicationContext)}
      */
     private static final String SERVLET_WEB_FILTER = "org.springframework.web.servlet.DispatcherServlet";
 
@@ -246,8 +247,8 @@ public class SpringCloud2021Plugin implements ProfilerPlugin, TransformTemplateA
                 byte[] classFileBuffer) throws InstrumentException {
 
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
-            InstrumentMethod constructMethod = target.getDeclaredMethod("doDispatch",
-                    "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
+            InstrumentMethod constructMethod = target.getDeclaredMethod(/* "doDispatch" */ "initStrategies",
+                    "org.springframework.context.ApplicationContext");
             if (constructMethod != null) {
                 constructMethod.addInterceptor(ServletWebFilterInterceptor.class);
             }

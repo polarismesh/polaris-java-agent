@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
+
 package cn.polarismesh.agent.core.spring.cloud.filter.ratelimit;
 
 import java.util.HashMap;
@@ -25,9 +26,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.polarismesh.agent.common.config.AgentConfig;
-import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
-import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.filter.router.ScRouterServletWebFilterInterceptor;
 import cn.polarismesh.common.polaris.PolarisSingleton;
 import com.tencent.cloud.common.metadata.MetadataContext;
@@ -42,27 +40,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.servlet.HandlerAdapter;
+import org.springframework.web.servlet.ModelAndView;
 
 import static com.tencent.cloud.polaris.ratelimit.constant.RateLimitConstant.LABEL_METHOD;
 
 /**
- * {@link org.springframework.web.servlet.DispatcherServlet#doDispatch(HttpServletRequest, HttpServletResponse)}
- *
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class ScLimitServletFilterInterceptor extends BaseInterceptor {
+public class ScLimitHandlerAdapter implements HandlerAdapter {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ScRouterServletWebFilterInterceptor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ScLimitHandlerAdapter.class);
 
 	private final AtomicReference<RateLimitRuleLabelResolver> reference = new AtomicReference<>();
 
+	private final HandlerAdapter adapter;
+
+	public ScLimitHandlerAdapter(HandlerAdapter adapter) {
+		this.adapter = adapter;
+	}
+
 	@Override
-	public void before(Object target, Object[] args) {
+	public boolean supports(Object handler) {
+		return adapter.supports(handler);
+	}
+
+	@Override
+	public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		reference.compareAndSet(null, new RateLimitRuleLabelResolver(new ServiceRuleManager(PolarisSingleton.getPolarisOperator()
 				.getSdkContext())));
-
-		HttpServletRequest request = (HttpServletRequest) args[0];
-		HttpServletResponse response = (HttpServletResponse) args[1];
 
 		String localNamespace = MetadataContext.LOCAL_NAMESPACE;
 		String localService = MetadataContext.LOCAL_SERVICE;
@@ -75,7 +81,7 @@ public class ScLimitServletFilterInterceptor extends BaseInterceptor {
 
 			if (quotaResponse.getCode() == QuotaResultCode.QuotaResultLimited) {
 				response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-				return;
+				return null;
 			}
 			// Unirate
 			if (quotaResponse.getCode() == QuotaResultCode.QuotaResultOk && quotaResponse.getWaitMs() > 0) {
@@ -89,11 +95,13 @@ public class ScLimitServletFilterInterceptor extends BaseInterceptor {
 			// which should not affect the call of the business process.
 			LOGGER.error("fail to invoke getQuota, service is " + localService, t);
 		}
+
+		return adapter.handle(request, response, handler);
 	}
 
 	@Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
-
+	public long getLastModified(HttpServletRequest request, Object handler) {
+		return adapter.getLastModified(request, handler);
 	}
 
 	private Map<String, String> getRequestLabels(HttpServletRequest request, String localNamespace, String localService) {

@@ -52,7 +52,7 @@ public class ScFeignInterceptor extends BaseInterceptor {
 	@Override
 	public void after(Object target, Object[] args, Object result, Throwable throwable) {
 		if (!SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
-			LOGGER.debug("[PolarisAgent] {} disable build Feign traffic route ability", target.getClass()
+			LOGGER.info("[PolarisAgent] {} disable build Feign traffic route ability", target.getClass()
 					.getCanonicalName());
 			return;
 		}
@@ -60,7 +60,7 @@ public class ScFeignInterceptor extends BaseInterceptor {
 		Class<?> cls = (Class<?>) args[1];
 
 		if (Objects.equals(cls.getCanonicalName(), RequestInterceptor.class.getCanonicalName())) {
-			LOGGER.debug("[PolarisAgent] {} build Feign traffic route ability", target.getClass()
+			LOGGER.info("[PolarisAgent] {} build Feign traffic route ability", target.getClass()
 					.getCanonicalName());
 			Map<String, RequestInterceptor> ret = (Map<String, RequestInterceptor>) result;
 			ret.put(RouterLabelFeignInterceptor.class.getCanonicalName(), new RouterLabelFeignInterceptor(

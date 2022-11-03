@@ -17,19 +17,56 @@
 
 package cn.polarismesh.agent.core.spring.cloud.filter;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import cn.polarismesh.agent.common.config.AgentConfig;
+import cn.polarismesh.agent.common.tools.ReflectionUtils;
+import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
 import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.filter.ratelimit.ScLimitHandlerAdapter;
+import cn.polarismesh.agent.core.spring.cloud.filter.router.ScRouterHandlerAdapter;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.servlet.HandlerAdapter;
+
+import static com.tencent.cloud.polaris.util.OkHttpUtil.LOGGER;
 
 /**
+ * hack {@link org.springframework.web.servlet.DispatcherServlet#initStrategies(ApplicationContext)}
+ *
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
 public class ScServletWebFilterInterceptor extends BaseInterceptor {
+
 	@Override
 	public void before(Object target, Object[] args) {
-
 	}
 
 	@Override
 	public void after(Object target, Object[] args, Object result, Throwable throwable) {
+		List<HandlerAdapter> adapters = (List<HandlerAdapter>) ReflectionUtils.getObjectByFieldName(target, "handlerAdapters");
 
+		List<HandlerAdapter> newAdapters = new ArrayList<>();
+
+		adapters.forEach(handlerAdapter -> {
+			boolean enableRouter = SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE);
+			if (enableRouter) {
+				LOGGER.info("[PolarisAgent] {} enable add ServletFilter to build transfer metadata ability", target.getClass().getCanonicalName());
+				handlerAdapter = new ScRouterHandlerAdapter(handlerAdapter);
+			}
+
+			boolean enableRateLimit = SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_LIMITER_ENABLE);
+			if (enableRateLimit) {
+				LOGGER.info("[PolarisAgent] {} enable add ServletFilter to build RateLimit ability", target.getClass().getCanonicalName());
+				handlerAdapter = new ScLimitHandlerAdapter(handlerAdapter);
+			}
+
+			newAdapters.add(handlerAdapter);
+		});
+
+		ReflectionUtils.setValueByFieldName(target, "handlerAdapters", newAdapters);
 	}
+
+
 }

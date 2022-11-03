@@ -52,14 +52,14 @@ public class ScRestTemplateInterceptor extends BaseInterceptor {
 	@Override
 	public void after(Object target, Object[] args, Object result, Throwable throwable) {
 		if (!SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
-			LOGGER.debug("[PolarisAgent] {} disable build RestTemplate traffic route ability", target.getClass()
+			LOGGER.info("[PolarisAgent] {} disable build RestTemplate traffic route ability", target.getClass()
 					.getCanonicalName());
 			return;
 		}
 
 		List<ClientHttpRequestInterceptor> ret = (List<ClientHttpRequestInterceptor>) result;
 
-		LOGGER.debug("[PolarisAgent] {} begin build RestTemplate invoke traffic route ability", target.getClass()
+		LOGGER.info("[PolarisAgent] {} begin build RestTemplate invoke traffic route ability", target.getClass()
 				.getCanonicalName());
 
 		boolean find = false;
@@ -72,7 +72,7 @@ public class ScRestTemplateInterceptor extends BaseInterceptor {
 		}
 
 		if (find) {
-			LOGGER.debug("[PolarisAgent] {} ignore to build RestTemplate invoke traffic route ability", target.getClass()
+			LOGGER.info("[PolarisAgent] {} ignore to build RestTemplate invoke traffic route ability", target.getClass()
 					.getCanonicalName());
 			return;
 		}
@@ -88,7 +88,7 @@ public class ScRestTemplateInterceptor extends BaseInterceptor {
 		tmp.addAll(ret);
 		ret.clear();
 		ret.addAll(tmp);
-		LOGGER.debug("[PolarisAgent] {} add RestTemplate to build traffic route ability", target.getClass()
+		LOGGER.info("[PolarisAgent] {} add RestTemplate to build traffic route ability", target.getClass()
 				.getCanonicalName());
 	}
 

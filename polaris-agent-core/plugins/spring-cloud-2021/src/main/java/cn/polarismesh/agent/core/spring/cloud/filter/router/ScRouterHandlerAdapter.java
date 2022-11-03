@@ -1,21 +1,3 @@
-/*
- * Tencent is pleased to support the open source community by making Polaris available.
- *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
- *
- * Licensed under the BSD 3-Clause License (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * https://opensource.org/licenses/BSD-3-Clause
- *
- * Unless required by applicable law or agreed to in writing, software distributed
- * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
- * CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- */
-
-
 package cn.polarismesh.agent.core.spring.cloud.filter.router;
 
 import java.io.UnsupportedEncodingException;
@@ -26,9 +8,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.polarismesh.agent.common.config.AgentConfig;
-import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
-import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
 import com.tencent.cloud.common.metadata.MetadataContextHolder;
 import com.tencent.cloud.common.util.JacksonUtils;
 import com.tencent.cloud.metadata.core.CustomTransitiveMetadataResolver;
@@ -37,32 +16,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.HandlerAdapter;
+import org.springframework.web.servlet.ModelAndView;
 
 import static com.tencent.cloud.common.constant.ContextConstant.UTF_8;
 import static com.tencent.cloud.common.constant.MetadataConstant.HeaderName.CUSTOM_DISPOSABLE_METADATA;
 import static com.tencent.cloud.common.constant.MetadataConstant.HeaderName.CUSTOM_METADATA;
 
-
 /**
- * hack {@link org.springframework.web.servlet.DispatcherServlet#doDispatch(HttpServletRequest, HttpServletResponse)}
- *
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class ScRouterServletWebFilterInterceptor extends BaseInterceptor {
+public class ScRouterHandlerAdapter implements HandlerAdapter {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ScRouterServletWebFilterInterceptor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ScRouterHandlerAdapter.class);
 
-	/**
-	 * 针对入参的 List<WebFilter> filters 进行处理，添加自定义收集流量标签的 WebFilter
-	 *
-	 * @param target
-	 * @param args
-	 */
+	private final HandlerAdapter adapter;
+
+	public ScRouterHandlerAdapter(HandlerAdapter adapter) {
+		this.adapter = adapter;
+	}
+
 	@Override
-	public void before(Object target, Object[] args) {
-		HttpServletRequest request = (HttpServletRequest) args[0];
-		HttpServletResponse response = (HttpServletResponse) args[1];
+	public boolean supports(Object handler) {
+		return adapter.supports(handler);
+	}
 
+	@Override
+	public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		Map<String, String> internalTransitiveMetadata = getInternalMetadata(request, CUSTOM_METADATA);
 		Map<String, String> customTransitiveMetadata = CustomTransitiveMetadataResolver.resolve(request);
 
@@ -76,10 +56,12 @@ public class ScRouterServletWebFilterInterceptor extends BaseInterceptor {
 		MetadataContextHolder.init(mergedTransitiveMetadata, mergedDisposableMetadata);
 
 		TransHeadersTransfer.transfer(request);
+		return adapter.handle(request, response, handler);
 	}
 
 	@Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
+	public long getLastModified(HttpServletRequest request, Object handler) {
+		return adapter.getLastModified(request, handler);
 	}
 
 	/**
@@ -101,5 +83,4 @@ public class ScRouterServletWebFilterInterceptor extends BaseInterceptor {
 		// create custom metadata.
 		return JacksonUtils.deserialize2Map(customMetadataStr);
 	}
-
 }
