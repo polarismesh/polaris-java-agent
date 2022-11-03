@@ -91,7 +91,6 @@ public class PolarisConfig {
         return ttl;
     }
 
-
     @Override
     public String toString() {
         return "PolarisConfig{" +

@@ -16,7 +16,7 @@
  */
 
 
-package cn.polarismesh.agent.core.spring.cloud.discovery;
+package cn.polarismesh.agent.core.spring.cloud.serviceregistry;
 
 import cn.polarismesh.agent.common.config.AgentConfig;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;

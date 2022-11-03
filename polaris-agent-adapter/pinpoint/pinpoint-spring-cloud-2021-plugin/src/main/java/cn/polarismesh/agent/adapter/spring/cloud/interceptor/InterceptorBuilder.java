@@ -29,7 +29,7 @@ import cn.polarismesh.agent.adapter.spring.cloud.interceptor.router.ServiceInsta
 import cn.polarismesh.agent.core.spring.cloud.aware.ApplicationContextAwareProcessorInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.discovery.ScDiscoveryInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.discovery.reactive.ScReactiveDiscoveryInterceptor;
-import cn.polarismesh.agent.core.spring.cloud.discovery.ScRegistryInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.serviceregistry.ScRegistryInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.filter.ScServletWebFilterInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.filter.router.ScRouterReactiveWebFilterInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.invoker.ScFeignInterceptor;

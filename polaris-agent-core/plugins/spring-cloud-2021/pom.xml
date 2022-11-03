@@ -31,6 +31,18 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+            <version>${spring.boot.vesion}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.vesion}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.tencent.polaris</groupId>
             <artifactId>polaris-all</artifactId>
             <scope>provided</scope>

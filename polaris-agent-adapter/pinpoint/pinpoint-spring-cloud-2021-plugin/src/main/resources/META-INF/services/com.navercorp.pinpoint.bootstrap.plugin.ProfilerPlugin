@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 cn.polarismesh.agent.adapter.spring.cloud.SpringCloud2021Plugin
+=======
+cn.polarismesh.agent.adapter.spring.cloud.PolarisSpringCloud2021Plugin
+>>>>>>> 3167ffad56ab1d62baaa01d332192fec4a544186
