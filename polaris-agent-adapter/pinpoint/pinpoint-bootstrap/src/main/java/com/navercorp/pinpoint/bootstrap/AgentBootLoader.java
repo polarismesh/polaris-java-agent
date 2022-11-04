@@ -49,6 +49,8 @@ public class AgentBootLoader {
             public Object call() throws Exception {
                 try {
                     Constructor<?> constructor = bootStrapClazz.getDeclaredConstructor(AgentOption.class);
+                    constructor.setAccessible(true);
+                    System.out.println(constructor);
                     return constructor.newInstance(agentOption);
                 } catch (InstantiationException e) {
                     throw new BootStrapException("boot create failed. Error:" + e.getMessage(), e);

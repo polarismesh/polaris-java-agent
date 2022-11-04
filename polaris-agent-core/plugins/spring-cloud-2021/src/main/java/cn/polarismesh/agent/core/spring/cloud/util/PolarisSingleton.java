@@ -17,21 +17,21 @@
 
 package cn.polarismesh.agent.core.spring.cloud.util;
 
-import cn.polarismesh.agent.core.spring.cloud.Holder;
-import com.tencent.cloud.polaris.discovery.PolarisDiscoveryHandler;
+import com.tencent.polaris.api.config.Configuration;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class DiscoveryUtils {
+public class PolarisSingleton {
 
-	public static PolarisDiscoveryHandler buildDiscoveryHandler() {
-		return new PolarisDiscoveryHandler(
-				Holder.getDiscoveryProperties(),
-				PolarisSingleton.getPolarisOperator().getProviderAPI(),
-				PolarisSingleton.getPolarisOperator().getSdkContext(),
-				PolarisSingleton.getPolarisOperator().getConsumerAPI()
-		);
+	private static PolarisOperator POLARIS_OPERATOR;
+
+	public static PolarisOperator getPolarisOperator() {
+		return POLARIS_OPERATOR;
+	}
+
+	public static void init(Configuration configuration) {
+		POLARIS_OPERATOR = new PolarisOperator(configuration);
 	}
 
 }

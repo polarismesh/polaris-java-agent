@@ -15,22 +15,19 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.common.polaris;
+package cn.polarismesh.agent.adapter.spring.cloud.interceptor.disable.alibaba;
+
+import java.util.stream.Stream;
+
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.AbstractSpringCloudInterceptor;
 
 /**
+ * {@link org.springframework.boot.util.Instantiator#instantiate(Stream)}
+ *
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class PolarisSingleton {
+public class DisableSpringCloudAlibabaAbilityInterceptor extends AbstractSpringCloudInterceptor {
 
-	private static final PolarisConfig POLARIS_CONFIG = new PolarisConfig();
 
-	private static final PolarisOperator POLARIS_OPERATOR = new PolarisOperator(getPolarisConfig());
 
-	public static PolarisOperator getPolarisOperator() {
-		return POLARIS_OPERATOR;
-	}
-
-	public static PolarisConfig getPolarisConfig() {
-		return POLARIS_CONFIG;
-	}
 }

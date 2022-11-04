@@ -18,6 +18,7 @@
 package cn.polarismesh.agent.core.spring.cloud;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.polarismesh.agent.common.exception.PolarisAgentException;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
@@ -29,17 +30,24 @@ import com.tencent.cloud.common.metadata.MetadataContextHolder;
  */
 public abstract class BaseInterceptor implements AbstractInterceptor {
 
-	static {
-		try {
-			Field field = MetadataContextHolder.class.getDeclaredField("metadataLocalProperties");
-			field.setAccessible(true);
-			ReflectionUtils.setField(field, null, Holder.getLocalProperties());
+	private static final AtomicBoolean initialize = new AtomicBoolean(false);
 
-			field = MetadataContextHolder.class.getDeclaredField("staticMetadataManager");
-			field.setAccessible(true);
-			ReflectionUtils.setField(field, null, Holder.getStaticMetadataManager());
-		} catch (Exception e) {
-			throw new PolarisAgentException("setValueByFieldName", e);
+	static {
+		if (initialize.compareAndSet(false, true)) {
+			try {
+				Holder.init();
+
+				Field field = MetadataContextHolder.class.getDeclaredField("metadataLocalProperties");
+				field.setAccessible(true);
+				ReflectionUtils.setField(field, null, Holder.getLocalProperties());
+
+				field = MetadataContextHolder.class.getDeclaredField("staticMetadataManager");
+				field.setAccessible(true);
+				ReflectionUtils.setField(field, null, Holder.getStaticMetadataManager());
+			}
+			catch (Exception e) {
+				throw new PolarisAgentException("setValueByFieldName", e);
+			}
 		}
 	}
 

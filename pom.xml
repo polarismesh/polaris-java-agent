@@ -14,7 +14,7 @@
     <url>https://github.com/polarismesh/polaris-java-agent</url>
 
     <properties>
-        <polaris.version>1.9.1</polaris.version>
+        <polaris.version>1.10.0-SNAPSHOT</polaris.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.maven.deploy>false</skip.maven.deploy>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -38,11 +38,6 @@
     <dependencyManagement>
         <dependencies>
             <!-- polaris -->
-            <dependency>
-                <groupId>com.tencent.polaris</groupId>
-                <artifactId>polaris-all</artifactId>
-                <version>${polaris.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>

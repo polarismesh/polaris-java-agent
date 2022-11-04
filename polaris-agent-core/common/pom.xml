@@ -15,7 +15,6 @@
     <name>Polaris Agent Core Common</name>
     <modules>
         <module>common-tools</module>
-        <module>common-polaris</module>
         <module>common-interceptor</module>
     </modules>
 

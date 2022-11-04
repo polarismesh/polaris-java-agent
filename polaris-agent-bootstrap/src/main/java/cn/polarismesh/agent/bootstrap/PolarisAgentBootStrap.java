@@ -17,152 +17,128 @@
 
 package cn.polarismesh.agent.bootstrap;
 
-import cn.polarismesh.agent.bootstrap.extension.BootStrapStarter;
-import cn.polarismesh.agent.bootstrap.util.AgentDirUtils;
-import cn.polarismesh.agent.bootstrap.util.PropertyUtils;
-import cn.polarismesh.agent.common.config.AgentConfig;
-import cn.polarismesh.agent.common.config.InternalConfig;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.instrument.Instrumentation;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.jar.JarFile;
 
+import cn.polarismesh.agent.bootstrap.extension.BootStrapStarter;
+import cn.polarismesh.agent.bootstrap.util.AgentDirUtils;
+import cn.polarismesh.agent.bootstrap.util.PropertyUtils;
+import cn.polarismesh.agent.common.config.InternalConfig;
+import cn.polarismesh.agent.common.exception.PolarisAgentException;
+
 public class PolarisAgentBootStrap {
 
-    private static final BootLogger logger = BootLogger.getLogger(PolarisAgentBootStrap.class);
+	private static final BootLogger logger = BootLogger.getLogger(PolarisAgentBootStrap.class);
 
-    public static final String CONFIG_FILE_NAME = "polaris.config";
+	public static final String CONFIG_FILE_NAME = "application.config";
 
-    private static final String POLARIS_LIB_DIR = "polaris" + File.separator + "lib";
+	private static final String POLARIS_LIB_DIR = "polaris" + File.separator + "lib";
 
-    public static boolean isAttach = false;
+	private static final LoadState STATE = new LoadState();
 
-    private static final LoadState STATE = new LoadState();
+	private static final String SEPARATOR = File.separator;
 
-    private static final String SEPARATOR = File.separator;
+	static BootStrapStarter loadStarters() {
+		ServiceLoader<BootStrapStarter> starters = ServiceLoader.load(BootStrapStarter.class);
+		for (BootStrapStarter starter : starters) {
+			return starter;
+		}
+		return null;
+	}
 
-    static BootStrapStarter loadStarters() {
-        ServiceLoader<BootStrapStarter> starters = ServiceLoader.load(BootStrapStarter.class);
-        for (BootStrapStarter starter : starters) {
-            return starter;
-        }
-        return null;
-    }
+	public static void agentmain(String agentArgs, Instrumentation instrumentation) {
 
-    public static void agentmain(String agentArgs, Instrumentation instrumentation) {
+	}
 
-    }
+	public static void premain(String agentArgs, Instrumentation instrumentation) {
+		final boolean success = STATE.start();
+		if (!success) {
+			logger.warn("[Bootstrap] polaris-bootstrap already started. skipping agent loading.");
+			return;
+		}
 
-    public static void premain(String agentArgs, Instrumentation instrumentation) {
-        final boolean success = STATE.start();
-        if (!success) {
-            logger.warn("[Bootstrap] polaris-bootstrap already started. skipping agent loading.");
-            return;
-        }
+		logger.info("[Bootstrap] polaris-agent agentArgs:" + agentArgs);
+		logger.info("[Bootstrap] polarisAgentBootStrap.ClassLoader:" + PolarisAgentBootStrap.class.getClassLoader());
+		logger.info("[Bootstrap] contextClassLoader:" + Thread.currentThread().getContextClassLoader());
 
-        logger.info("[Bootstrap] polaris-agent agentArgs:" + agentArgs);
-        logger.info("[Bootstrap] polarisAgentBootStrap.ClassLoader:" + PolarisAgentBootStrap.class.getClassLoader());
-        logger.info("[Bootstrap] contextClassLoader:" + Thread.currentThread().getContextClassLoader());
+		final JavaAgentPathResolver javaAgentPathResolver = JavaAgentPathResolver.newJavaAgentPathResolver();
+		final String agentPath = javaAgentPathResolver.resolveJavaAgentPath();
+		logger.info("[Bootstrap] javaAgentPath:" + agentPath);
+		if (agentPath == null) {
+			logger.warn("[Bootstrap] agentPath not found path");
+		}
 
-        final JavaAgentPathResolver javaAgentPathResolver = JavaAgentPathResolver.newJavaAgentPathResolver();
-        final String agentPath = javaAgentPathResolver.resolveJavaAgentPath();
-        logger.info("[Bootstrap] javaAgentPath:" + agentPath);
-        if (agentPath == null) {
-            logger.warn("[Bootstrap] agentPath not found path");
-        }
+		if (Object.class.getClassLoader() != PolarisAgentBootStrap.class.getClassLoader()) {
+			logger.warn("[Bootstrap] invalid polaris-agent-bootstrap.jar:" + agentArgs);
+			return;
+		}
 
-        if (Object.class.getClassLoader() != PolarisAgentBootStrap.class.getClassLoader()) {
-            logger.warn("[Bootstrap] invalid polaris-agent-bootstrap.jar:" + agentArgs);
-            return;
-        }
+		String agentDirPath = AgentDirUtils.resolveAgentDir(agentPath);
+		// load polaris Properties
+		String defaultConfigPath = agentDirPath + SEPARATOR + CONFIG_FILE_NAME;
+		final Properties polarisProperties = loadFileProperties(defaultConfigPath);
 
-        String agentDirPath = AgentDirUtils.resolveAgentDir(agentPath);
-        // load polaris Properties
-        String defaultConfigPath = agentDirPath + SEPARATOR + CONFIG_FILE_NAME;
-        final Properties polarisProperties = new Properties();
-        if (!loadFileProperties(polarisProperties, defaultConfigPath)) {
-            return;
-        }
+		logger.info(String.format("[Bootstrap] load default config:%s, data : %s", defaultConfigPath, polarisProperties));
 
-        logger.info(String.format("[Bootstrap] load default config:%s, data : %s", defaultConfigPath, polarisProperties));
+		System.setProperty(InternalConfig.INTERNAL_KEY_AGENT_DIR, agentDirPath);
+		System.setProperty(InternalConfig.INTERNAL_POLARIS_LOG_HOME,
+				agentDirPath + File.separator + "polaris" + File.separator + "logs");
 
-        replaceProperty(polarisProperties, AgentConfig.KEY_NAMESPACE);
-        replaceProperty(polarisProperties, AgentConfig.KEY_SERVICE);
-        replaceProperty(polarisProperties, AgentConfig.KEY_TOKEN);
-        replaceProperty(polarisProperties, AgentConfig.KEY_REGISTRY_ADDRESS);
-        replaceProperty(polarisProperties, AgentConfig.KEY_HEALTH_TTL);
+		logger.info(String.format("[Bootstrap] load default config:%s", defaultConfigPath));
 
-        replaceProperty(polarisProperties, AgentConfig.KEY_PLUGIN_SPRINGCLOUD_MULTI_REGISTER_ENABLE);
-        replaceProperty(polarisProperties, AgentConfig.KEY_PLUGIN_SPRINGCLOUD_REGISTER_ENABLE);
-        replaceProperty(polarisProperties, AgentConfig.KEY_PLUGIN_SPRINGCLOUD_DISCOVERY_ENABLE);
-        replaceProperty(polarisProperties, AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE);
-        replaceProperty(polarisProperties, AgentConfig.KEY_PLUGIN_SPRINGCLOUD_LIMITER_ENABLE);
-        replaceProperty(polarisProperties, AgentConfig.KEY_PLUGIN_SPRINGCLOUD_STAINER_ENABLE);
+		instrumentPolarisDependencies(instrumentation, agentDirPath);
 
-        System.setProperty(InternalConfig.INTERNAL_KEY_AGENT_DIR, agentDirPath);
-        System.setProperty(InternalConfig.INTERNAL_POLARIS_LOG_HOME,
-                agentDirPath + File.separator + "polaris" + File.separator + "logs");
+		// load starter
+		BootStrapStarter starter = loadStarters();
+		if (null == starter) {
+			logger.warn("[Bootstrap] no starter found, exit agentmain");
+			return;
+		}
+		logger.info(String.format("[Bootstrap] start bootStrapStarter:%s", starter.name()));
+		starter.start(agentDirPath, polarisProperties, agentArgs, instrumentation);
+	}
 
-        logger.info(String.format("[Bootstrap] load default config:%s", defaultConfigPath));
+	public static void instrumentPolarisDependencies(Instrumentation instrumentation, String agentDir) {
+		logger.info("[Bootstrap] start to instrumentation polaris dependencies");
+		String libPath = agentDir + File.separator + POLARIS_LIB_DIR;
+		File[] polarisDependencies = (new File(libPath)).listFiles();
+		if (null == polarisDependencies || polarisDependencies.length == 0) {
+			return;
+		}
+		for (File polarisDependency : polarisDependencies) {
+			if (polarisDependency.getName().endsWith(".jar")) {
+				logger.info(String.format("[Bootstrap] instrument polaris jar %s", polarisDependency));
+				JarFile jarFile;
+				try {
+					jarFile = new JarFile(polarisDependency);
+				}
+				catch (IOException e) {
+					logger.error(String.format("[Bootstrap] fail to parse file %s to jar: %s", polarisDependency,
+							e.getMessage()));
+					continue;
+				}
+				instrumentation.appendToSystemClassLoaderSearch(jarFile);
+			}
+		}
+	}
 
-        instrumentPolarisDependencies(instrumentation, agentDirPath);
-
-        // load starter
-        BootStrapStarter starter = loadStarters();
-        if (null == starter) {
-            logger.warn("[Bootstrap] no starter found, exit agentmain");
-            return;
-        }
-        logger.info(String.format("[Bootstrap] start bootStrapStarter:%s", starter.name()));
-        starter.start(agentDirPath, polarisProperties, agentArgs, instrumentation);
-    }
-
-    public static void instrumentPolarisDependencies(Instrumentation instrumentation, String agentDir) {
-        logger.info("[Bootstrap] start to instrumentation polaris dependencies");
-        String libPath = agentDir + File.separator + POLARIS_LIB_DIR;
-        File[] polarisDependencies = (new File(libPath)).listFiles();
-        if (null == polarisDependencies || polarisDependencies.length == 0) {
-            return;
-        }
-        for (File polarisDependency : polarisDependencies) {
-            if (polarisDependency.getName().endsWith(".jar")) {
-                logger.info(String.format("[Bootstrap] instrument polaris jar %s", polarisDependency));
-                JarFile jarFile;
-                try {
-                    jarFile = new JarFile(polarisDependency);
-                } catch (IOException e) {
-                    logger.error(String.format("[Bootstrap] fail to parse file %s to jar: %s", polarisDependency,
-                            e.getMessage()));
-                    continue;
-                }
-                instrumentation.appendToSystemClassLoaderSearch(jarFile);
-            }
-        }
-    }
-
-    private static void replaceProperty(Properties polarisProperties, String key) {
-        String propertyValue = System.getProperty(key);
-        if (null == propertyValue || propertyValue.length() == 0) {
-            String service = polarisProperties.getProperty(key);
-            if (null != service) {
-                System.setProperty(key, service);
-            }
-        }
-    }
-
-    private static boolean loadFileProperties(Properties properties, String filePath) {
-        try {
-            PropertyUtils.FileInputStreamFactory fileInputStreamFactory = new PropertyUtils.FileInputStreamFactory(
-                    filePath);
-            PropertyUtils.loadProperty(properties, fileInputStreamFactory);
-            return true;
-        } catch (IOException e) {
-            logger.info(String.format("%s load fail Caused by:%s", filePath, e.getMessage()));
-        }
-        return false;
-    }
-
+	private static Properties loadFileProperties(String filePath) {
+		try {
+			Properties properties = new Properties();
+			return PropertyUtils.loadProperty(properties, new PropertyUtils.FileInputStreamFactory(filePath));
+		}
+		catch (IOException e) {
+            throw new PolarisAgentException(e);
+		}
+	}
 
 }

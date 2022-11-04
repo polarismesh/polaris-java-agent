@@ -15,23 +15,22 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.core.spring.cloud.util;
+package cn.polarismesh.agent.core.spring.cloud.configuration;
 
-import cn.polarismesh.agent.core.spring.cloud.Holder;
-import com.tencent.cloud.polaris.discovery.PolarisDiscoveryHandler;
+import com.tencent.cloud.polaris.ratelimit.config.PolarisRateLimitProperties;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class DiscoveryUtils {
+public class AgentPolarisRateLimitProperties extends PolarisRateLimitProperties {
 
-	public static PolarisDiscoveryHandler buildDiscoveryHandler() {
-		return new PolarisDiscoveryHandler(
-				Holder.getDiscoveryProperties(),
-				PolarisSingleton.getPolarisOperator().getProviderAPI(),
-				PolarisSingleton.getPolarisOperator().getSdkContext(),
-				PolarisSingleton.getPolarisOperator().getConsumerAPI()
-		);
+	private boolean enabled;
+
+	public boolean isEnabled() {
+		return enabled;
 	}
 
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 }

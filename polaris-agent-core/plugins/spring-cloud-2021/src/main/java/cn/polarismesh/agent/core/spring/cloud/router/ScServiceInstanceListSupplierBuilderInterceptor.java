@@ -21,11 +21,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import cn.polarismesh.agent.common.config.AgentConfig;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
 import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
 import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
-import cn.polarismesh.common.polaris.PolarisSingleton;
+import cn.polarismesh.agent.core.spring.cloud.Holder;
+import cn.polarismesh.agent.core.spring.cloud.util.PolarisSingleton;
 import com.tencent.cloud.polaris.router.PolarisRouterServiceInstanceListSupplier;
 import com.tencent.cloud.polaris.router.config.properties.PolarisMetadataRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisNearByRouterProperties;
@@ -59,7 +59,7 @@ public class ScServiceInstanceListSupplierBuilderInterceptor {
 
 		@Override
 		public void after(Object target, Object[] args, Object result, Throwable throwable) {
-			if (!SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
+			if (!Holder.getRouterProperties().isEnabled()) {
 				return;
 			}
 			LOGGER.info("[PolarisAgent] build loadbalancer for BlockingClient ability");
@@ -79,7 +79,7 @@ public class ScServiceInstanceListSupplierBuilderInterceptor {
 
 		@Override
 		public void after(Object target, Object[] args, Object result, Throwable throwable) {
-			if (!SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
+			if (!Holder.getRouterProperties().isEnabled()) {
 				return;
 			}
 			LOGGER.info("[PolarisAgent] build loadbalancer for ReactiveClient ability");
@@ -99,7 +99,7 @@ public class ScServiceInstanceListSupplierBuilderInterceptor {
 
 		@Override
 		public void after(Object target, Object[] args, Object result, Throwable throwable) {
-			if (!SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
+			if (!Holder.getRouterProperties().isEnabled()) {
 				return;
 			}
 			LOGGER.info("[PolarisAgent] disable loadbalancer caching ability");

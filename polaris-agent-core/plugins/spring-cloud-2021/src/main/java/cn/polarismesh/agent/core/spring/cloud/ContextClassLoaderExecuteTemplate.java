@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cn.polarismesh.common.polaris;
+package cn.polarismesh.agent.core.spring.cloud;
 
 import java.util.concurrent.Callable;
 import org.slf4j.Logger;

@@ -13,4 +13,8 @@
     <artifactId>polaris-agent-core-common-tools</artifactId>
     <name>Polaris Agent Core Common Tools</name>
 
+    <dependencies>
+
+    </dependencies>
+
 </project>

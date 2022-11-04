@@ -51,6 +51,10 @@ public class PinpointStarter {
     public static final String AGENT_TYPE = "AGENT_TYPE";
 
     public static final String DEFAULT_AGENT = "DEFAULT_AGENT";
+
+    /**
+     * {@link com.navercorp.pinpoint.profiler.DefaultAgent}
+     */
     public static final String BOOT_CLASS = "com.navercorp.pinpoint.profiler.DefaultAgent";
 
     public static final String PLUGIN_TEST_AGENT = "PLUGIN_TEST";

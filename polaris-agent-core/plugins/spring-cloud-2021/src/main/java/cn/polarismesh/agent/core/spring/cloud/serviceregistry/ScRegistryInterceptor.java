@@ -18,14 +18,15 @@
 
 package cn.polarismesh.agent.core.spring.cloud.serviceregistry;
 
-import cn.polarismesh.agent.common.config.AgentConfig;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
-import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
 import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.Holder;
 import cn.polarismesh.agent.core.spring.cloud.util.DiscoveryUtils;
-import cn.polarismesh.common.polaris.PolarisSingleton;
+import cn.polarismesh.agent.core.spring.cloud.util.PolarisSingleton;
+import com.tencent.cloud.polaris.PolarisDiscoveryProperties;
+import com.tencent.cloud.polaris.registry.PolarisRegistration;
+import com.tencent.cloud.polaris.registry.PolarisServiceRegistry;
 import com.tencent.polaris.api.rpc.InstanceDeregisterRequest;
-import com.tencent.polaris.api.rpc.InstanceRegisterRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +42,6 @@ import org.springframework.cloud.client.serviceregistry.ServiceRegistry;
 public class ScRegistryInterceptor extends BaseInterceptor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScRegistryInterceptor.class);
-
-	private static final String NACOS_REGISTRATION = "com.alibaba.cloud.nacos.registry.NacosRegistration";
 
 	@Override
 	public void before(Object target, Object[] args) {
@@ -69,74 +68,58 @@ public class ScRegistryInterceptor extends BaseInterceptor {
 
 		private final ServiceRegistry<Registration> target;
 
+		private final PolarisServiceRegistry polarisRegistry;
+
 		public ProxyServiceRegistry(ServiceRegistry<Registration> target) {
 			this.target = target;
+
+			this.polarisRegistry = new PolarisServiceRegistry(Holder.getDiscoveryProperties(),
+					DiscoveryUtils.buildDiscoveryHandler(), Holder.getStaticMetadataManager());
 		}
 
 		@Override
 		public void register(Registration registration) {
-			boolean regisToPolaris = SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_REGISTER_ENABLE, true);
-			if (SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_MULTI_REGISTER_ENABLE, true)) {
-				regisToPolaris = true;
-				target.register(registration);
-			}
-			else {
-				LOGGER.debug("[PolarisAgent] ignore do register to {} action.", target.getClass().getCanonicalName());
-			}
+			LOGGER.info("[PolarisAgent] begin do register to polaris action.");
 
-			if (regisToPolaris) {
-				LOGGER.info("[PolarisAgent] begin do register to polaris action.");
-				String canonicalName = registration.getClass().getCanonicalName();
-				InstanceRegisterRequest instanceObject;
-				if (NACOS_REGISTRATION.equals(canonicalName)) {
-					instanceObject = DiscoveryUtils.parseNacosRegistrationToInstance(registration);
-				}
-				else {
-					instanceObject = DiscoveryUtils.parseRegistrationToInstance(registration);
-				}
+			PolarisDiscoveryProperties properties = Holder.getDiscoveryProperties();
+			properties.setPort(registration.getPort());
 
-				PolarisSingleton.getPolarisOperator().registerInstance(instanceObject);
-			}
+			polarisRegistry.register(new PolarisRegistration(Holder.getDiscoveryProperties(),
+					Holder.getConsulContextProperties(),
+					Holder.getNacosContextProperties(),
+					PolarisSingleton.getPolarisOperator().getSdkContext(),
+					Holder.getStaticMetadataManager()
+					));
 		}
 
 		@Override
 		public void deregister(Registration registration) {
-			boolean deregisterFromPolaris = SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_REGISTER_ENABLE, true);
-			if (SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_MULTI_REGISTER_ENABLE, true)) {
-				deregisterFromPolaris = true;
-				target.deregister(registration);
-			}
-			else {
-				LOGGER.debug("[PolarisAgent] ignore do deregister to {} action.", target.getClass().getCanonicalName());
-			}
+			LOGGER.info("[PolarisAgent] begin de deregister from polaris action.");
 
-			if (deregisterFromPolaris) {
-				LOGGER.debug("[PolarisAgent] begin de deregister from polaris action.");
-				String canonicalName = registration.getClass().getCanonicalName();
-				InstanceDeregisterRequest instanceObject;
-				if (NACOS_REGISTRATION.equals(canonicalName)) {
-					instanceObject = DiscoveryUtils.parseNacosDeRegistrationToInstance(registration);
-				}
-				else {
-					instanceObject = DiscoveryUtils.parseDeRegistrationToInstance(registration);
-				}
-				PolarisSingleton.getPolarisOperator().deregister(instanceObject);
-			}
+			PolarisDiscoveryProperties properties = Holder.getDiscoveryProperties();
+			properties.setPort(registration.getPort());
+
+			polarisRegistry.deregister(new PolarisRegistration(Holder.getDiscoveryProperties(),
+					Holder.getConsulContextProperties(),
+					Holder.getNacosContextProperties(),
+					PolarisSingleton.getPolarisOperator().getSdkContext(),
+					Holder.getStaticMetadataManager()
+			));
 		}
 
 		@Override
 		public void close() {
 			target.close();
+			polarisRegistry.close();
 		}
 
 		@Override
 		public void setStatus(Registration registration, String status) {
-			target.setStatus(registration, status);
 		}
 
 		@Override
 		public <T> T getStatus(Registration registration) {
-			return target.getStatus(registration);
+			return null;
 		}
 	}
 

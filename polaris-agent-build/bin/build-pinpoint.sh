@@ -48,7 +48,7 @@ popd
 
 # copy polaris.config
 echo "start to copy polaris.config"
-cp polaris-agent-build/config/polaris.config pinpoint-agent-2.3.3/
+cp polaris-agent-build/config/application.config pinpoint-agent-2.3.3/
 
 # build package
 echo "start to build package"
@@ -100,10 +100,11 @@ mkdir -p "${workdir}"/pinpoint-agent-2.3.3/polaris/conf
 mkdir -p "${workdir}"/pinpoint-agent-2.3.3/polaris/lib
 pushd polaris-agent-build
 mvn dependency:copy-dependencies
-pushd target/dependency
-cp ./*.jar "${workdir}"/pinpoint-agent-2.3.3/polaris/lib/
-popd
+#pushd target/dependency
+#cp ./*.jar "${workdir}"/pinpoint-agent-2.3.3/polaris/lib/
+#popd
 cp config/polaris.yml "${workdir}"/pinpoint-agent-2.3.3/polaris/conf/
+cp config/default-application.config "${workdir}"/pinpoint-agent-2.3.3/polaris/conf/
 popd
 
 # do package

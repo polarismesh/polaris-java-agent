@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cn.polarismesh.common.polaris.rule;
+package cn.polarismesh.agent.core.spring.cloud.rule;
 
 import java.util.Collection;
 import java.util.Iterator;

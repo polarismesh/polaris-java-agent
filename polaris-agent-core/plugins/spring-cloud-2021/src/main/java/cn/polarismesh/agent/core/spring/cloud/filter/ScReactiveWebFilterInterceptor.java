@@ -21,10 +21,9 @@ package cn.polarismesh.agent.core.spring.cloud.filter;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import cn.polarismesh.agent.common.config.AgentConfig;
-import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
 import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
-import cn.polarismesh.common.polaris.PolarisSingleton;
+import cn.polarismesh.agent.core.spring.cloud.Holder;
+import cn.polarismesh.agent.core.spring.cloud.util.PolarisSingleton;
 import com.tencent.cloud.metadata.core.DecodeTransferMetadataReactiveFilter;
 import com.tencent.cloud.polaris.context.ServiceRuleManager;
 import com.tencent.cloud.polaris.ratelimit.RateLimitRuleLabelResolver;
@@ -56,7 +55,7 @@ public class ScReactiveWebFilterInterceptor extends BaseInterceptor {
 	 */
 	@Override
 	public void before(Object target, Object[] args) {
-		boolean enableRateLimit = SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_LIMITER_ENABLE);
+		boolean enableRateLimit = Holder.getRateLimitProperties().isEnabled();
 		if (!enableRateLimit) {
 			LOGGER.info("[PolarisAgent] {} disable add WebFilter to build RateLimit ability", target.getClass().getCanonicalName());
 			return;
@@ -75,7 +74,7 @@ public class ScReactiveWebFilterInterceptor extends BaseInterceptor {
 		));
 		LOGGER.info("[PolarisAgent] {} add WebFilter to build RateLimit ability", target.getClass().getCanonicalName());
 
-		boolean enableRouter = SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE);
+		boolean enableRouter = Holder.getRouterProperties().isEnabled();
 		if (!enableRouter) {
 			LOGGER.info("[PolarisAgent] {} disable add WebFilter to build transfer metadata ability", target.getClass().getCanonicalName());
 			return;

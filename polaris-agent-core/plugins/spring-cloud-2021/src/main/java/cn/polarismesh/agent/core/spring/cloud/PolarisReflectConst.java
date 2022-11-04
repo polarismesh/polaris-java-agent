@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.common.polaris;
+package cn.polarismesh.agent.core.spring.cloud;
 
 import java.io.File;
 

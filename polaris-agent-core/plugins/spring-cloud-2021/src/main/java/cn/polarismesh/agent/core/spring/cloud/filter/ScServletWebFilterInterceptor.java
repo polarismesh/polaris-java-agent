@@ -20,10 +20,9 @@ package cn.polarismesh.agent.core.spring.cloud.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.polarismesh.agent.common.config.AgentConfig;
 import cn.polarismesh.agent.common.tools.ReflectionUtils;
-import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
 import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.Holder;
 import cn.polarismesh.agent.core.spring.cloud.filter.ratelimit.ScLimitHandlerAdapter;
 import cn.polarismesh.agent.core.spring.cloud.filter.router.ScRouterHandlerAdapter;
 
@@ -50,13 +49,13 @@ public class ScServletWebFilterInterceptor extends BaseInterceptor {
 		List<HandlerAdapter> newAdapters = new ArrayList<>();
 
 		adapters.forEach(handlerAdapter -> {
-			boolean enableRouter = SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE);
+			boolean enableRouter = Holder.getRouterProperties().isEnabled();
 			if (enableRouter) {
 				LOGGER.info("[PolarisAgent] {} enable add ServletFilter to build transfer metadata ability", target.getClass().getCanonicalName());
 				handlerAdapter = new ScRouterHandlerAdapter(handlerAdapter);
 			}
 
-			boolean enableRateLimit = SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_LIMITER_ENABLE);
+			boolean enableRateLimit = Holder.getRateLimitProperties().isEnabled();
 			if (enableRateLimit) {
 				LOGGER.info("[PolarisAgent] {} enable add ServletFilter to build RateLimit ability", target.getClass().getCanonicalName());
 				handlerAdapter = new ScLimitHandlerAdapter(handlerAdapter);

@@ -16,7 +16,7 @@
 
     <properties>
         <spring.cloud.version>2021.0.4</spring.cloud.version>
-        <spring.cloud.tencent.version>1.8.1-2021.0.3</spring.cloud.tencent.version>
+        <spring.cloud.tencent.version>1.9.0-2021.0.3-SNAPSHOT</spring.cloud.tencent.version>
         <spring.vesion>5.3.13</spring.vesion>
         <spring.boot.vesion>2.6.10</spring.boot.vesion>
         <ribbon.vesion>2.2.10.RELEASE</ribbon.vesion>
@@ -24,6 +24,12 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.tencent.polaris</groupId>
+            <artifactId>polaris-agent-core-common-tools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -40,11 +46,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <version>${spring.vesion}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-all</artifactId>
             <scope>provided</scope>
         </dependency>
 

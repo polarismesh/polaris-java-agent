@@ -18,6 +18,7 @@
 package cn.polarismesh.agent.adapter.spring.cloud.interceptor;
 
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.aware.ApplicationContextAwareInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.disable.alibaba.DisableSpringCloudAlibabaAbilityInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.DiscoveryInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.ReactiveDiscoveryInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.RegistryInterceptor;
@@ -27,11 +28,12 @@ import cn.polarismesh.agent.adapter.spring.cloud.interceptor.invoker.FeignInterc
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.invoker.RestTemplateInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.router.ServiceInstanceListSupplierBuilderInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.aware.ApplicationContextAwareProcessorInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.disable.alibaba.DisableSpringCloudAlibabaInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.discovery.ScDiscoveryInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.discovery.reactive.ScReactiveDiscoveryInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.filter.ScReactiveWebFilterInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.serviceregistry.ScRegistryInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.filter.ScServletWebFilterInterceptor;
-import cn.polarismesh.agent.core.spring.cloud.filter.router.ScRouterReactiveWebFilterInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.invoker.ScFeignInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.invoker.ScRestTemplateInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.router.ScServiceInstanceListSupplierBuilderInterceptor;
@@ -48,7 +50,7 @@ public class InterceptorBuilder {
         InterceptorFactory.addInterceptor(RegistryInterceptor.class, new ScRegistryInterceptor());
 
         // 服务路由 & 服务限流
-        InterceptorFactory.addInterceptor(ReactiveWebFilterInterceptor.class, new ScRouterReactiveWebFilterInterceptor());
+        InterceptorFactory.addInterceptor(ReactiveWebFilterInterceptor.class, new ScReactiveWebFilterInterceptor());
         InterceptorFactory.addInterceptor(ServletWebFilterInterceptor.class, new ScServletWebFilterInterceptor());
 
         // 路由能力
@@ -66,6 +68,9 @@ public class InterceptorBuilder {
 
         // agent 中注入 Spring ApplicationContext
         InterceptorFactory.addInterceptor(ApplicationContextAwareInterceptor.class, new ApplicationContextAwareProcessorInterceptor());
+
+        // 禁用 spring cloud alibaba 的能力
+        InterceptorFactory.addInterceptor(DisableSpringCloudAlibabaAbilityInterceptor.class, new DisableSpringCloudAlibabaInterceptor());
     }
 
 }

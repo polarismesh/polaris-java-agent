@@ -53,53 +53,6 @@ public class SpringCloud2021Plugin implements ProfilerPlugin, TransformTemplateA
 
     private static final Logger LOGGER = Logger.getGlobal();
 
-    /**
-     * {@link org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration#start()}
-     */
-    private static final String SERVICE_REGISTRATION = "org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration";
-
-    /**
-     * {@link org.springframework.cloud.client.discovery.composite.CompositeDiscoveryClient#CompositeDiscoveryClient(List)}
-     */
-    private static final String DISCOVERY_CLIENT = "org.springframework.cloud.client.discovery.composite.CompositeDiscoveryClient";
-
-    /**
-     * {@link org.springframework.cloud.client.discovery.composite.reactive.ReactiveCompositeDiscoveryClient#ReactiveCompositeDiscoveryClient(List)}
-     */
-    private static final String REACTIVE_DISCOVERY_CLIENT = "org.springframework.cloud.client.discovery.composite.reactive.ReactiveCompositeDiscoveryClient";
-
-    /**
-     * {@link org.springframework.cloud.loadbalancer.core.ServiceInstanceListSupplierBuilder#withDiscoveryClient()}
-     * {@link org.springframework.cloud.loadbalancer.core.ServiceInstanceListSupplierBuilder#withBlockingDiscoveryClient()}
-     * {@link org.springframework.cloud.loadbalancer.core.ServiceInstanceListSupplierBuilder#withCaching()}
-     */
-    private static final String ROUTER = "org.springframework.cloud.loadbalancer.core.ServiceInstanceListSupplierBuilder";
-
-    /**
-     * {@link org.springframework.web.server.handler.FilteringWebHandler#FilteringWebHandler(org.springframework.web.server.WebHandler, List)}
-     */
-    private static final String REACTIVE_WEB_FILTER = "org.springframework.web.server.handler.FilteringWebHandler";
-
-    /**
-     * {@link org.springframework.web.servlet.DispatcherServlet#initStrategies(ApplicationContext)}
-     */
-    private static final String SERVLET_WEB_FILTER = "org.springframework.web.servlet.DispatcherServlet";
-
-    /**
-     * {@link org.springframework.http.client.support.InterceptingHttpAccessor#getInterceptors()}
-     */
-    private static final String REST_TEMPLATE = "org.springframework.http.client.support.InterceptingHttpAccessor";
-
-    /**
-     * {@link org.springframework.cloud.openfeign.FeignClientFactoryBean#getInheritedAwareInstances(FeignContext, Class)}
-     */
-    private static final String FEIGN_TEMPLATE = "org.springframework.cloud.openfeign.FeignClientFactoryBean";
-
-    /**
-     * {@link org.springframework.context.support.ApplicationContextAwareProcessor#ApplicationContextAwareProcessor(ConfigurableApplicationContext)}
-     */
-    private static final String APPLICATION_CONTEXT_AWARE = "org.springframework.context.support.ApplicationContextAwareProcessor";
-
     private TransformTemplate transformTemplate;
 
     @Override
@@ -116,23 +69,26 @@ public class SpringCloud2021Plugin implements ProfilerPlugin, TransformTemplateA
      * add polaris transformers
      */
     private void addPolarisTransformers() {
-        transformTemplate.transform(SERVICE_REGISTRATION, SpringCloudRegistryTransform.class);
-        transformTemplate.transform(DISCOVERY_CLIENT, SpringCloudDiscoveryTransform.class);
-        transformTemplate.transform(REACTIVE_DISCOVERY_CLIENT, SpringCloudReactiveDiscoveryTransform.class);
+        transformTemplate.transform(ClassNames.SERVICE_REGISTRATION, SpringCloudRegistryTransform.class);
+        transformTemplate.transform(ClassNames.DISCOVERY_CLIENT, SpringCloudDiscoveryTransform.class);
+        transformTemplate.transform(ClassNames.REACTIVE_DISCOVERY_CLIENT, SpringCloudReactiveDiscoveryTransform.class);
 
         // 北极星路由执行
-        transformTemplate.transform(ROUTER, SpringCloudTrafficRouterTransform.class);
+        transformTemplate.transform(ClassNames.ROUTER, SpringCloudTrafficRouterTransform.class);
 
         // 流量标签信息收集
-        transformTemplate.transform(REACTIVE_WEB_FILTER, ReactiveWebFilterTransform.class);
-        transformTemplate.transform(SERVLET_WEB_FILTER, ServletWebFilterTransform.class);
+        transformTemplate.transform(ClassNames.REACTIVE_WEB_FILTER, ReactiveWebFilterTransform.class);
+        transformTemplate.transform(ClassNames.SERVLET_WEB_FILTER, ServletWebFilterTransform.class);
 
         // 请求发起时需要收集流量标签信息
-        transformTemplate.transform(REST_TEMPLATE, RestTemplateTransform.class);
-        transformTemplate.transform(FEIGN_TEMPLATE, FeignTransform.class);
+        transformTemplate.transform(ClassNames.REST_TEMPLATE, RestTemplateTransform.class);
+        transformTemplate.transform(ClassNames.FEIGN_TEMPLATE, FeignTransform.class);
 
         // 在 agent 中注入 Spring 的 ApplicationContext
-        transformTemplate.transform(APPLICATION_CONTEXT_AWARE, ApplicationContextAwareTransform.class);
+        transformTemplate.transform(ClassNames.APPLICATION_CONTEXT_AWARE, ApplicationContextAwareTransform.class);
+
+        // EnvironmentPostProcessor 处理
+        transformTemplate.transform(ClassNames.ENVIRONMENT_POST_PROCESSOR, DisableSpringCloudAlibabaTransform.class);
     }
 
     /**
@@ -289,6 +245,9 @@ public class SpringCloud2021Plugin implements ProfilerPlugin, TransformTemplateA
         }
     }
 
+    /**
+     * 注入 spring 的 {@link ApplicationContext}
+     */
     public static class ApplicationContextAwareTransform implements TransformCallback {
 
         @Override
@@ -298,6 +257,21 @@ public class SpringCloud2021Plugin implements ProfilerPlugin, TransformTemplateA
 
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
             InstrumentMethod constructMethod = target.getConstructor("org.springframework.context.ConfigurableApplicationContext");
+            if (constructMethod != null) {
+                constructMethod.addInterceptor(ApplicationContextAwareInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class DisableSpringCloudAlibabaTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
+            InstrumentMethod constructMethod = target.getDeclaredMethod("", "java.util.stream.Stream");
             if (constructMethod != null) {
                 constructMethod.addInterceptor(ApplicationContextAwareInterceptor.class);
             }

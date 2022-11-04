@@ -18,7 +18,6 @@
 package cn.polarismesh.agent.pinpoint;
 
 import cn.polarismesh.agent.bootstrap.extension.BootStrapStarter;
-import cn.polarismesh.agent.common.config.AgentConfig;
 import com.navercorp.pinpoint.bootstrap.AgentIdResolver;
 import com.navercorp.pinpoint.bootstrap.ArgsParser;
 import com.navercorp.pinpoint.bootstrap.BootLogger;
@@ -56,7 +55,7 @@ public class PolarisPinpointBootStrap implements BootStrapStarter {
             logPinpointAgentLoadFail();
             return;
         }
-        logger.info(String.format("agentDirectory is %s", agentDirectory));
+        logger.info(String.format("agentDirectory is %s, configProperties : %s", agentDirectory, configProperties));
         BootDir bootDir = agentDirectory.getBootDir();
         appendToBootstrapClassLoader(instrumentation, bootDir);
         ClassLoader parentClassLoader = getParentClassLoader();
@@ -69,9 +68,8 @@ public class PolarisPinpointBootStrap implements BootStrapStarter {
         }
         String application = System.getProperty(AgentIdResolver.APPLICATION_NAME_SYSTEM_PROPERTY);
         if (null == application || application.length() == 0) {
-            String namespace = System.getProperty(AgentConfig.KEY_NAMESPACE);
-            String service = System.getProperty(AgentConfig.KEY_SERVICE);
-            System.setProperty(AgentIdResolver.APPLICATION_NAME_SYSTEM_PROPERTY, service + "." + namespace);
+            System.setProperty(AgentIdResolver.APPLICATION_NAME_SYSTEM_PROPERTY,
+                    configProperties.getProperty("spring.application.name"));
         }
         PinpointStarter bootStrap = new PinpointStarter(parentClassLoader, agentArgsMap, agentDirectory,
                 instrumentation, moduleBootLoader);

@@ -26,8 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.polarismesh.agent.core.spring.cloud.filter.router.ScRouterServletWebFilterInterceptor;
-import cn.polarismesh.common.polaris.PolarisSingleton;
+import cn.polarismesh.agent.core.spring.cloud.util.PolarisSingleton;
 import com.tencent.cloud.common.metadata.MetadataContext;
 import com.tencent.cloud.common.util.expresstion.ServletExpressionLabelUtils;
 import com.tencent.cloud.polaris.context.ServiceRuleManager;

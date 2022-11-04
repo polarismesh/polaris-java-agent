@@ -22,5 +22,12 @@
             <artifactId>polaris-agent-core-common-tools</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.29</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

@@ -22,12 +22,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import cn.polarismesh.agent.common.config.AgentConfig;
 import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
 import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.Holder;
-import cn.polarismesh.agent.core.spring.cloud.filter.router.ScRouterServletWebFilterInterceptor;
-import cn.polarismesh.common.polaris.PolarisSingleton;
+import cn.polarismesh.agent.core.spring.cloud.util.PolarisSingleton;
 import com.tencent.cloud.metadata.core.EncodeTransferMedataRestTemplateInterceptor;
 import com.tencent.cloud.polaris.context.ServiceRuleManager;
 import com.tencent.cloud.polaris.router.RouterRuleLabelResolver;
@@ -42,7 +40,7 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
  */
 public class ScRestTemplateInterceptor extends BaseInterceptor {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ScRouterServletWebFilterInterceptor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ScRestTemplateInterceptor.class);
 
 	@Override
 	public void before(Object target, Object[] args) {
@@ -51,7 +49,7 @@ public class ScRestTemplateInterceptor extends BaseInterceptor {
 
 	@Override
 	public void after(Object target, Object[] args, Object result, Throwable throwable) {
-		if (!SystemPropertyUtils.getBoolean(AgentConfig.KEY_PLUGIN_SPRINGCLOUD_ROUTER_ENABLE)) {
+		if (!Holder.getRouterProperties().isEnabled()) {
 			LOGGER.info("[PolarisAgent] {} disable build RestTemplate traffic route ability", target.getClass()
 					.getCanonicalName());
 			return;
