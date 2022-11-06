@@ -55,7 +55,6 @@ public class PolarisPinpointBootStrap implements BootStrapStarter {
             logPinpointAgentLoadFail();
             return;
         }
-        logger.info(String.format("agentDirectory is %s, configProperties : %s", agentDirectory, configProperties));
         BootDir bootDir = agentDirectory.getBootDir();
         appendToBootstrapClassLoader(instrumentation, bootDir);
         ClassLoader parentClassLoader = getParentClassLoader();

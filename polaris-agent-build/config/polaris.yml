@@ -82,7 +82,7 @@ global:
         #类型:int
         #默认值: 28080
         #如果设置为负数，则不会开启默认的http-server，如果设置为0，则随机选择一个可用端口进行启动 http-server
-        port: 28080
+        port: 0
         #描述: 设置 prometheus http-server 的拉取path
         #类型:string
         #默认值: /metric

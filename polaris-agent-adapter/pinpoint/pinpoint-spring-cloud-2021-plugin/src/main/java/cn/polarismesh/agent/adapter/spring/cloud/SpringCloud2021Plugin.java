@@ -18,6 +18,7 @@
 package cn.polarismesh.agent.adapter.spring.cloud;
 
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.aware.ApplicationContextAwareInterceptor;
+import cn.polarismesh.agent.adapter.spring.cloud.interceptor.disable.alibaba.DisableSpringCloudAlibabaAbilityInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.DiscoveryInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.ReactiveDiscoveryInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.discovery.RegistryInterceptor;
@@ -26,6 +27,7 @@ import cn.polarismesh.agent.adapter.spring.cloud.interceptor.filter.ServletWebFi
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.invoker.FeignInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.invoker.RestTemplateInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.router.ServiceInstanceListSupplierBuilderInterceptor;
+import cn.polarismesh.agent.core.spring.cloud.disable.alibaba.DisableSpringCloudAlibabaInterceptor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -273,7 +275,7 @@ public class SpringCloud2021Plugin implements ProfilerPlugin, TransformTemplateA
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
             InstrumentMethod constructMethod = target.getDeclaredMethod("", "java.util.stream.Stream");
             if (constructMethod != null) {
-                constructMethod.addInterceptor(ApplicationContextAwareInterceptor.class);
+                constructMethod.addInterceptor(DisableSpringCloudAlibabaAbilityInterceptor.class);
             }
 
             return target.toBytecode();

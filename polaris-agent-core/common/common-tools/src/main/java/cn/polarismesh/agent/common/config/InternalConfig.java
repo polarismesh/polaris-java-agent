@@ -25,6 +25,11 @@ public interface InternalConfig {
     String INTERNAL_KEY_AGENT_DIR = "internal.agent.dir";
 
     /**
+     *
+     */
+    String USER_APPLICATION_FILE = "polaris.agent.user.application.conf";
+
+    /**
      * polaris logging home
      */
     String INTERNAL_POLARIS_LOG_HOME = "polaris.log.home";

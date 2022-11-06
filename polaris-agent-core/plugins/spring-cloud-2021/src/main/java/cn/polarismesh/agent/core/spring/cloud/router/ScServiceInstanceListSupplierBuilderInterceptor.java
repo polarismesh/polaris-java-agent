@@ -26,6 +26,7 @@ import cn.polarismesh.agent.common.tools.SystemPropertyUtils;
 import cn.polarismesh.agent.core.spring.cloud.BaseInterceptor;
 import cn.polarismesh.agent.core.spring.cloud.Holder;
 import cn.polarismesh.agent.core.spring.cloud.util.PolarisSingleton;
+import com.tencent.cloud.polaris.loadbalancer.PolarisServiceInstanceListSupplier;
 import com.tencent.cloud.polaris.router.PolarisRouterServiceInstanceListSupplier;
 import com.tencent.cloud.polaris.router.config.properties.PolarisMetadataRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisNearByRouterProperties;
@@ -118,23 +119,17 @@ public class ScServiceInstanceListSupplierBuilderInterceptor {
 		@Override
 		public ServiceInstanceListSupplier apply(ConfigurableApplicationContext context) {
 			ServiceInstanceListSupplier supplier = creator.apply(context);
-			return new ProxyDiscoveryClientServiceInstanceListSupplier(supplier);
+			if (supplier instanceof PolarisRouterServiceInstanceListSupplier) {
+				return supplier;
+			}
+			return new PolarisRouterServiceInstanceListSupplier(
+					supplier,
+					PolarisSingleton.getPolarisOperator().getRouterAPI(), Arrays.asList(
+					new RuleBasedRouterRequestInterceptor(Holder.getRouterProperties()),
+					new MetadataRouterRequestInterceptor(Holder.getMetadataRouterProperties()),
+					new NearbyRouterRequestInterceptor(Holder.getNearByRouterProperties())
+			), Collections.emptyList());
 		}
 	}
 
-	public static class ProxyDiscoveryClientServiceInstanceListSupplier extends PolarisRouterServiceInstanceListSupplier {
-
-		public ProxyDiscoveryClientServiceInstanceListSupplier(ServiceInstanceListSupplier delegate) {
-			this(delegate, Arrays.asList(
-					new RuleBasedRouterRequestInterceptor(new PolarisRuleBasedRouterProperties()),
-					new MetadataRouterRequestInterceptor(new PolarisMetadataRouterProperties()),
-					new NearbyRouterRequestInterceptor(new PolarisNearByRouterProperties())
-			));
-		}
-
-		ProxyDiscoveryClientServiceInstanceListSupplier(ServiceInstanceListSupplier delegate, List<RouterRequestInterceptor> interceptors) {
-			super(delegate, PolarisSingleton.getPolarisOperator()
-					.getRouterAPI(), interceptors, Collections.emptyList());
-		}
-	}
 }

@@ -30,6 +30,7 @@ import com.tencent.polaris.api.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 /**
@@ -49,11 +50,37 @@ public class ScDiscoveryInterceptor extends BaseInterceptor {
 
 		ReflectionUtils.doWithFields(target.getClass(), field -> {
 			ReflectionUtils.makeAccessible(field);
-			List<? extends DiscoveryClient> discoveryClients = (List<? extends DiscoveryClient>) ReflectionUtils.getField(field, target);
+			List<DiscoveryClient> discoveryClients = (List<DiscoveryClient>) ReflectionUtils.getField(field, target);
 			List<DiscoveryClient> wraps = new ArrayList<>();
-			discoveryClients.forEach(discoveryClient -> wraps.add(new PolarisDiscoveryClient(discovery)));
+			discoveryClients.forEach(discoveryClient -> wraps.add(new ProxyDiscoveryClient(discovery)));
 			ReflectionUtils.setField(field, target, wraps);
 		}, field -> StringUtils.equals(field.getName(), "discoveryClients"));
+	}
+
+	private static class ProxyDiscoveryClient implements DiscoveryClient {
+
+		public final String description = "Spring Cloud Tencent Polaris Discovery Client.";
+
+		private final PolarisServiceDiscovery discovery;
+
+		private ProxyDiscoveryClient(PolarisServiceDiscovery discovery) {
+			this.discovery = discovery;
+		}
+
+		@Override
+		public String description() {
+			return description;
+		}
+
+		@Override
+		public List<ServiceInstance> getInstances(String serviceId) {
+			return discovery.getInstances(serviceId);
+		}
+
+		@Override
+		public List<String> getServices() {
+			return discovery.getServices();
+		}
 	}
 
 }

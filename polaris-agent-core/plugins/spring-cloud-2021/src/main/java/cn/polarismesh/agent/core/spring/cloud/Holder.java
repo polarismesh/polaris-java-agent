@@ -107,6 +107,10 @@ public class Holder {
 	private static RpcEnhancementReporterProperties rpcEnhancementReporterProperties = new RpcEnhancementReporterProperties();
 
 	public static void init() {
+
+		System.setProperty("polaris.logging.config",
+				Paths.get(System.getProperty(InternalConfig.INTERNAL_KEY_AGENT_DIR), "polaris", "conf").toString());
+
 		try (InetUtils utils = new InetUtils(new InetUtilsProperties())) {
 			polarisContextProperties.setLocalIpAddress(utils.findFirstNonLoopbackHostInfo().getIpAddress());
 			// 读取 application.yaml
@@ -118,10 +122,15 @@ public class Holder {
 			staticMetadataManager  = new StaticMetadataManager(localProperties, null);
 
 			// 服务发现配置
-			bindObject("spring.cloud.polaris.discovery", discoveryProperties, environment);
-			discoveryProperties.setRegisterEnabled(environment.getProperty("spring.cloud.polaris.discovery.register",
-					Boolean.class, true));
+			discoveryProperties.setRegisterEnabled(environment.getProperty("spring.cloud.polaris.discovery.register", Boolean.class, true));
+			discoveryProperties.setProtocol(environment.getProperty("spring.cloud.polaris.discovery.protocol", String.class, "http"));
 			discoveryProperties.setService(environment.getProperty("spring.application.name", String.class));
+			discoveryProperties.setWeight(environment.getProperty("spring.cloud.polaris.discovery.weight", Integer.class, 100));
+			String namespace = environment.getProperty("spring.cloud.polaris.namespace", String.class);
+			if (StringUtils.isBlank(namespace)) {
+				namespace = environment.getProperty("spring.cloud.polaris.discovery.namespace", String.class, "default");
+			}
+			discoveryProperties.setNamespace(namespace);
 
 			bindObject("spring.cloud.consul", consulContextProperties, environment);
 			bindObject("spring.cloud.nacos.discovery", nacosContextProperties, environment);
@@ -162,7 +171,12 @@ public class Holder {
 		environment.getPropertySources().addFirst(new PropertiesPropertySource("__default_polaris_agent_spring_cloud_tencent__", defaultProperties));
 
 		Properties properties = new Properties();
-		properties.load(Files.newInputStream(Paths.get(agentDir, "application.config").toFile().toPath()));
+		String filePath = System.getProperty(InternalConfig.USER_APPLICATION_FILE);
+		if (StringUtils.isBlank(filePath)) {
+			filePath = Paths.get(agentDir, "application.config").toString();
+		}
+
+		properties.load(Files.newInputStream(Paths.get(filePath).toFile().toPath()));
 		environment.getPropertySources().addFirst(new PropertiesPropertySource("__polaris_agent_spring_cloud_tencent__", properties));
 
 		return environment;

@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.lang.instrument.Instrumentation;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.jar.JarFile;
@@ -83,17 +84,10 @@ public class PolarisAgentBootStrap {
 		}
 
 		String agentDirPath = AgentDirUtils.resolveAgentDir(agentPath);
-		// load polaris Properties
-		String defaultConfigPath = agentDirPath + SEPARATOR + CONFIG_FILE_NAME;
-		final Properties polarisProperties = loadFileProperties(defaultConfigPath);
-
-		logger.info(String.format("[Bootstrap] load default config:%s, data : %s", defaultConfigPath, polarisProperties));
 
 		System.setProperty(InternalConfig.INTERNAL_KEY_AGENT_DIR, agentDirPath);
 		System.setProperty(InternalConfig.INTERNAL_POLARIS_LOG_HOME,
 				agentDirPath + File.separator + "polaris" + File.separator + "logs");
-
-		logger.info(String.format("[Bootstrap] load default config:%s", defaultConfigPath));
 
 		instrumentPolarisDependencies(instrumentation, agentDirPath);
 
@@ -104,6 +98,13 @@ public class PolarisAgentBootStrap {
 			return;
 		}
 		logger.info(String.format("[Bootstrap] start bootStrapStarter:%s", starter.name()));
+		// load polaris Properties
+		String userConfigPath = agentDirPath + SEPARATOR + CONFIG_FILE_NAME;
+		if (Objects.equals(userConfigPath, "")) {
+			userConfigPath = System.getProperty(InternalConfig.USER_APPLICATION_FILE);
+		}
+		final Properties polarisProperties = loadFileProperties(userConfigPath);
+		logger.info(String.format("[Bootstrap] load default config:%s, data : %s", userConfigPath, polarisProperties));
 		starter.start(agentDirPath, polarisProperties, agentArgs, instrumentation);
 	}
 
@@ -137,7 +138,7 @@ public class PolarisAgentBootStrap {
 			return PropertyUtils.loadProperty(properties, new PropertyUtils.FileInputStreamFactory(filePath));
 		}
 		catch (IOException e) {
-            throw new PolarisAgentException(e);
+            throw new RuntimeException(e);
 		}
 	}
 

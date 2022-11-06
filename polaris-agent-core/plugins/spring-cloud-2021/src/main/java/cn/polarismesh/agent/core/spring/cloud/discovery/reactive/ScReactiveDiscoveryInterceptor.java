@@ -29,7 +29,10 @@ import com.tencent.cloud.polaris.discovery.reactive.PolarisReactiveDiscoveryClie
 import com.tencent.polaris.api.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Flux;
 
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.ReactiveDiscoveryClient;
 
 /**
@@ -51,9 +54,35 @@ public class ScReactiveDiscoveryInterceptor extends BaseInterceptor {
 			ReflectionUtils.makeAccessible(field);
 			List<ReactiveDiscoveryClient> discoveryClients = (List<ReactiveDiscoveryClient>) ReflectionUtils.getField(field, target);
 			List<ReactiveDiscoveryClient> wraps = new ArrayList<>();
-			discoveryClients.forEach(discoveryClient -> wraps.add(new PolarisReactiveDiscoveryClient(discovery)));
+			discoveryClients.forEach(discoveryClient -> wraps.add(new ProxyDiscoveryClient(discovery)));
 			ReflectionUtils.setField(field, target, wraps);
 		}, field -> StringUtils.equals(field.getName(), "discoveryClients"));
+	}
+
+	private static class ProxyDiscoveryClient implements ReactiveDiscoveryClient {
+
+		public final String description = "Spring Cloud Tencent Polaris Discovery Client.";
+
+		private final PolarisServiceDiscovery discovery;
+
+		private ProxyDiscoveryClient(PolarisServiceDiscovery discovery) {
+			this.discovery = discovery;
+		}
+
+		@Override
+		public String description() {
+			return description;
+		}
+
+		@Override
+		public Flux<ServiceInstance> getInstances(String serviceId) {
+			return Flux.fromIterable(discovery.getInstances(serviceId));
+		}
+
+		@Override
+		public Flux<String> getServices() {
+			return Flux.fromIterable(discovery.getServices());
+		}
 	}
 
 }

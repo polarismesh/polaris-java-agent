@@ -56,9 +56,10 @@ public class DisableSpringCloudAlibabaInterceptor extends BaseInterceptor {
 			}
 		}
 
+		LOGGER.info("[PolarisAgent] describe : {}", list);
+
 		if (isEnvironmentPostProcessor) {
 			List<EnvironmentPostProcessor> external = new ArrayList<>();
-
 			// 插入禁止 spring cloud alibaba 的一切能力
 			external.add(new DisableSpringCloudAlibabaAbility());
 
@@ -80,6 +81,8 @@ public class DisableSpringCloudAlibabaInterceptor extends BaseInterceptor {
 
 			Properties properties = new Properties();
 			properties.setProperty("spring.cloud.sentinel.enabled", "false");
+			properties.setProperty("spring.cloud.nacos.discovery.enabled", "false");
+			properties.setProperty("spring.cloud.nacos.config.enabled", "false");
 
 			// 设置 spring.cloud.sentinel.enabled 为 false
 			environment.getPropertySources().addFirst(new PropertiesPropertySource(disableSentinel, properties));

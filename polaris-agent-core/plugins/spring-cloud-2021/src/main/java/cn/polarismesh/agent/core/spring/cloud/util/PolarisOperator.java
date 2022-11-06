@@ -49,9 +49,10 @@ public class PolarisOperator {
 
     private RouterAPI routerAPI;
 
+    private Configuration configuration;
+
     public PolarisOperator(Configuration configuration) {
-        sdkContext = SDKContext.initContextByConfig(configuration);
-        init();
+        this.configuration = configuration;
     }
 
     private void init() {
@@ -62,6 +63,7 @@ public class PolarisOperator {
             if (inited.get()) {
                 return;
             }
+            sdkContext = SDKContext.initContextByConfig(configuration);
             consumerAPI = DiscoveryAPIFactory.createConsumerAPIByContext(sdkContext);
             providerAPI = DiscoveryAPIFactory.createProviderAPIByContext(sdkContext);
             limitAPI = LimitAPIFactory.createLimitAPIByContext(sdkContext);
@@ -71,22 +73,27 @@ public class PolarisOperator {
     }
 
     public SDKContext getSdkContext() {
+        init();
         return sdkContext;
     }
 
     public ConsumerAPI getConsumerAPI() {
+        init();
         return consumerAPI;
     }
 
     public ProviderAPI getProviderAPI() {
+        init();
         return providerAPI;
     }
 
     public LimitAPI getLimitAPI() {
+        init();
         return limitAPI;
     }
 
     public RouterAPI getRouterAPI() {
+        init();
         return routerAPI;
     }
 

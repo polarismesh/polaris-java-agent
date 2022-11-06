@@ -86,9 +86,9 @@ public class ScRegistryInterceptor extends BaseInterceptor {
 
 			polarisRegistry.register(new PolarisRegistration(Holder.getDiscoveryProperties(),
 					Holder.getConsulContextProperties(),
-					Holder.getNacosContextProperties(),
 					PolarisSingleton.getPolarisOperator().getSdkContext(),
-					Holder.getStaticMetadataManager()
+					Holder.getStaticMetadataManager(),
+					Holder.getNacosContextProperties()
 					));
 		}
 
@@ -101,9 +101,9 @@ public class ScRegistryInterceptor extends BaseInterceptor {
 
 			polarisRegistry.deregister(new PolarisRegistration(Holder.getDiscoveryProperties(),
 					Holder.getConsulContextProperties(),
-					Holder.getNacosContextProperties(),
 					PolarisSingleton.getPolarisOperator().getSdkContext(),
-					Holder.getStaticMetadataManager()
+					Holder.getStaticMetadataManager(),
+					Holder.getNacosContextProperties()
 			));
 		}
 
