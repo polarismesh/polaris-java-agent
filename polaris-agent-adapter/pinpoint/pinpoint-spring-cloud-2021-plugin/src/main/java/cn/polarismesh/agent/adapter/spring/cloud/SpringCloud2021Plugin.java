@@ -27,7 +27,6 @@ import cn.polarismesh.agent.adapter.spring.cloud.interceptor.filter.ServletWebFi
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.invoker.FeignInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.invoker.RestTemplateInterceptor;
 import cn.polarismesh.agent.adapter.spring.cloud.interceptor.router.ServiceInstanceListSupplierBuilderInterceptor;
-import cn.polarismesh.agent.core.spring.cloud.disable.alibaba.DisableSpringCloudAlibabaInterceptor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -39,12 +38,9 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
 import java.security.ProtectionDomain;
-import java.util.List;
 import java.util.logging.Logger;
 
-import org.springframework.cloud.openfeign.FeignContext;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * Polaris Spring Cloud 2021 Plugin
@@ -273,7 +269,8 @@ public class SpringCloud2021Plugin implements ProfilerPlugin, TransformTemplateA
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
                 Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
-            InstrumentMethod constructMethod = target.getDeclaredMethod("", "java.util.stream.Stream");
+            InstrumentMethod constructMethod = target.getDeclaredMethod("onApplicationEnvironmentPreparedEvent",
+                    "org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent");
             if (constructMethod != null) {
                 constructMethod.addInterceptor(DisableSpringCloudAlibabaAbilityInterceptor.class);
             }

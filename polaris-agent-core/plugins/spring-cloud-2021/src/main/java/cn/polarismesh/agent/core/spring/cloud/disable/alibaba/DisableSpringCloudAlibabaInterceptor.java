@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -43,29 +44,19 @@ public class DisableSpringCloudAlibabaInterceptor extends BaseInterceptor {
 
 	@Override
 	public void before(Object target, Object[] args) {
+		ApplicationEnvironmentPreparedEvent event = (ApplicationEnvironmentPreparedEvent) args[0];
+
+		List<EnvironmentPostProcessor> external = new ArrayList<>();
+		// 插入禁止 spring cloud alibaba 的一切能力
+		external.add(new DisableSpringCloudAlibabaAbility());
+
+		for (EnvironmentPostProcessor processor : external) {
+			processor.postProcessEnvironment(event.getEnvironment(), event.getSpringApplication());
+		}
 	}
 
 	@Override
 	public void after(Object target, Object[] args, Object result, Throwable throwable) {
-		List list = (List) result;
-
-		boolean isEnvironmentPostProcessor = false;
-		for (Object o : list) {
-			if (o.getClass().isAssignableFrom(EnvironmentPostProcessor.class)) {
-				isEnvironmentPostProcessor = true;
-			}
-		}
-
-		LOGGER.info("[PolarisAgent] describe : {}", list);
-
-		if (isEnvironmentPostProcessor) {
-			List<EnvironmentPostProcessor> external = new ArrayList<>();
-			// 插入禁止 spring cloud alibaba 的一切能力
-			external.add(new DisableSpringCloudAlibabaAbility());
-
-			List unmodified = (List) ReflectionUtils.getObjectByFieldName(list, "list");
-			unmodified.addAll(external);
-		}
 	}
 
 	private static class DisableSpringCloudAlibabaAbility implements EnvironmentPostProcessor {
@@ -81,7 +72,7 @@ public class DisableSpringCloudAlibabaInterceptor extends BaseInterceptor {
 
 			Properties properties = new Properties();
 			properties.setProperty("spring.cloud.sentinel.enabled", "false");
-			properties.setProperty("spring.cloud.nacos.discovery.enabled", "false");
+//			properties.setProperty("spring.cloud.nacos.discovery.enabled", "false");
 			properties.setProperty("spring.cloud.nacos.config.enabled", "false");
 
 			// 设置 spring.cloud.sentinel.enabled 为 false

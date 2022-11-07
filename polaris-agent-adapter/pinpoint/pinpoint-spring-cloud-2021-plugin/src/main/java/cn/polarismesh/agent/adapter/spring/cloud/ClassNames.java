@@ -20,6 +20,7 @@ package cn.polarismesh.agent.adapter.spring.cloud;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.cloud.openfeign.FeignContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -78,8 +79,8 @@ public class ClassNames {
 	public static final String APPLICATION_CONTEXT_AWARE = "org.springframework.context.support.ApplicationContextAwareProcessor";
 
 	/**
-	 * {@link org.springframework.boot.util.Instantiator#instantiate(Stream)}
+	 * {@link org.springframework.boot.env.EnvironmentPostProcessorApplicationListener#onApplicationEnvironmentPreparedEvent(ApplicationEnvironmentPreparedEvent)}
 	 */
-	public static final String ENVIRONMENT_POST_PROCESSOR = "org.springframework.boot.util.Instantiator";
+	public static final String ENVIRONMENT_POST_PROCESSOR = "org.springframework.boot.env.EnvironmentPostProcessorApplicationListener";
 	
 }
