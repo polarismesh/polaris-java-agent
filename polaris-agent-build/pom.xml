@@ -41,13 +41,4 @@
         </repository>
     </repositories>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-all</artifactId>
-            <version>${polaris.version}</version>
-        </dependency>
-    </dependencies>
-
-
 </project>

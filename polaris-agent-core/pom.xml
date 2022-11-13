@@ -11,11 +11,47 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>polaris-agent-core</artifactId>
+
     <packaging>pom</packaging>
-    <name>Polaris Agent Core</name>
+
+    <properties>
+        <asm.version>9.1</asm.version>
+    </properties>
+
     <modules>
-        <module>plugins</module>
-        <module>common</module>
+        <module>polaris-agent-core-bootstrap</module>
+        <module>polaris-agent-core-asm</module>
+        <module>polaris-agent-core-common</module>
+        <module>polaris-agent-core-extension</module>
     </modules>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-commons</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-util</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-tree</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-analysis</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
