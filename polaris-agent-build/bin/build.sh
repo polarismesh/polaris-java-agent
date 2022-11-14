@@ -31,7 +31,7 @@ mvn clean -B package --file pom.xml
 cp "polaris-agent-core/polaris-agent-core-bootstrap/target/polaris-agent-core-bootstrap.jar" "${folder_name}/"
 
 pushd "polaris-agent-plugins"
-plugin_folders=$(find ./ -maxdepth 2 -regex "^.+-plugin$")
+plugin_folders=$(find . -maxdepth 2 | grep -E ".+-plugin$")
 for plugin_folder in ${plugin_folders}; do
   file_name=${plugin_folder##*/}
   cp "${plugin_folder}/target/${file_name}-${version}.jar" "../${folder_name}/plugins/"
