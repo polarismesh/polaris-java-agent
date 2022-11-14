@@ -15,43 +15,23 @@
  * specific language governing permissions and limitations under the License.
  */
 
-<<<<<<< HEAD:polaris-agent-core/polaris-agent-core-asm/spring-cloud-2021/src/main/java/cn/polarismesh/agent/core/spring/cloud/configuration/AgentPolarisRateLimitProperties.java
-package cn.polarismesh.agent.core.spring.cloud.configuration;
-
-import com.tencent.cloud.polaris.ratelimit.config.PolarisRateLimitProperties;
-
-/**
- * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
- */
-public class AgentPolarisRateLimitProperties extends PolarisRateLimitProperties {
-
-	private boolean enabled;
-
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
-=======
 package cn.polarismesh.agent.core.asm.instrument.interceptor;
 
-import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
 import java.lang.reflect.Method;
+
+import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
 
 public interface InterceptorDefinition {
 
-    Class<? extends Interceptor> getInterceptorBaseClass();
+	Class<? extends Interceptor> getInterceptorBaseClass();
 
-    Class<? extends Interceptor> getInterceptorClass();
+	Class<? extends Interceptor> getInterceptorClass();
 
-    InterceptorType getInterceptorType();
+	InterceptorType getInterceptorType();
 
-    CaptureType getCaptureType();
+	CaptureType getCaptureType();
 
-    Method getBeforeMethod();
+	Method getBeforeMethod();
 
-    Method getAfterMethod();
->>>>>>> df9252a4a97fb7ec24c9830d73ce31442de6dc26:polaris-agent-core/polaris-agent-core-asm/src/main/java/cn/polarismesh/agent/core/asm/instrument/interceptor/InterceptorDefinition.java
+	Method getAfterMethod();
 }

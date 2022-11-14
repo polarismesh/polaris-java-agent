@@ -17,6 +17,7 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud;
 
+import java.nio.file.Paths;
 import java.security.ProtectionDomain;
 
 import cn.polarismesh.agent.core.common.exception.InstrumentException;
@@ -50,7 +51,8 @@ import org.springframework.context.ApplicationContext;
 public class MainPlugin implements AgentPlugin {
 
 	public void init(PluginContext context) {
-		Holder.init(context.getAgentDirPath());
+		final String userConf = Paths.get(context.getAgentDirPath(), "plugin", "springcloud2021").toString();
+		Holder.init(userConf);
 
 		TransformOperations operations = context.getTransformOperations();
 		addPolarisTransformers(operations);

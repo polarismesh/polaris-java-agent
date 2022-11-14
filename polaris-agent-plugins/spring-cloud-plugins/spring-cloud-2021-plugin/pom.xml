@@ -3,7 +3,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>polaris-agent-plugins</artifactId>
+        <artifactId>spring-cloud-plugins</artifactId>
         <groupId>com.tencent.polaris</groupId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
@@ -13,7 +13,6 @@
     <artifactId>spring-cloud-2021-plugin</artifactId>
 
     <properties>
-        <jdk.version>1.8</jdk.version>
         <spring.cloud.version>2021.0.4</spring.cloud.version>
         <spring.cloud.tencent.version>1.9.0-2021.0.3-SNAPSHOT</spring.cloud.tencent.version>
         <spring-boot.version>2.6.13</spring-boot.version>
@@ -101,12 +100,6 @@
             <groupId>com.tencent.cloud</groupId>
             <artifactId>spring-cloud-starter-tencent-all</artifactId>
             <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-agent-core-asm</artifactId>
-            <version>1.3.0-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 

@@ -13,7 +13,7 @@
     <artifactId>polaris-agent-plugins</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>spring-cloud-2021-plugin</module>
-    </modules>
+		<module>spring-cloud-plugins</module>
+	</modules>
 
 </project>
