@@ -23,7 +23,7 @@ jobs:
         id: build
         run: |
           pushd polaris-agent-build/bin
-          bash ./build-pinpoint.sh ${{ steps.get_version.outputs.VERSION }}
+          bash ./build.sh ${{ steps.get_version.outputs.VERSION }}
           popd
           PACKAGE_NAME=$(ls | grep polaris-java-agent*.zip | sed -n '1p')
           echo ::set-output name=name::${PACKAGE_NAME}
