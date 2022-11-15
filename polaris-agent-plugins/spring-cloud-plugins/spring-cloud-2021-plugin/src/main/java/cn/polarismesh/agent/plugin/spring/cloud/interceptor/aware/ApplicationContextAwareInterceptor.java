@@ -30,12 +30,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class ApplicationContextAwareInterceptor extends BaseInterceptor {
 
     @Override
-    public void before(Object target, Object[] args) {
-
-    }
-
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void onAfter(Object target, Object[] args, Object result, Throwable throwable) {
         ConfigurableApplicationContext context = (ConfigurableApplicationContext) args[0];
         ApplicationContextAwareUtils utils = new ApplicationContextAwareUtils();
         utils.setApplicationContext(context);

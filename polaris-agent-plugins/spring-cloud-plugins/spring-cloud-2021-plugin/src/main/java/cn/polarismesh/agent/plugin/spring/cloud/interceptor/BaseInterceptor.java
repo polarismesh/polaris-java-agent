@@ -34,9 +34,31 @@ public abstract class BaseInterceptor implements Interceptor {
 
 	private static final AtomicBoolean initialize = new AtomicBoolean(false);
 
-	static {
+	@Override
+	public final void before(Object target, Object[] args) {
+		init();
+		onBefore(target, args);
+	}
+
+	@Override
+	public final void after(Object target, Object[] args, Object result, Throwable throwable) {
+		init();
+		onAfter(target, args, result, throwable);
+	}
+
+	public void onBefore(Object target, Object[] args) {
+
+	}
+
+	public void onAfter(Object target, Object[] args, Object result, Throwable throwable) {
+
+	}
+
+	private void init() {
 		if (initialize.compareAndSet(false, true)) {
 			try {
+				Holder.init();
+
 				Field field = MetadataContextHolder.class.getDeclaredField("metadataLocalProperties");
 				field.setAccessible(true);
 				ReflectionUtils.setField(field, null, Holder.getLocalProperties());
@@ -50,5 +72,4 @@ public abstract class BaseInterceptor implements Interceptor {
 			}
 		}
 	}
-
 }

@@ -38,11 +38,7 @@ public class ServletWebFilterInterceptor extends BaseInterceptor {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServletWebFilterInterceptor.class);
 
 	@Override
-	public void before(Object target, Object[] args) {
-	}
-
-	@Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
+	public void onAfter(Object target, Object[] args, Object result, Throwable throwable) {
 		List<HandlerAdapter> adapters = (List<HandlerAdapter>) ReflectionUtils.getObjectByFieldName(target, "handlerAdapters");
 
 		List<HandlerAdapter> newAdapters = new ArrayList<>();

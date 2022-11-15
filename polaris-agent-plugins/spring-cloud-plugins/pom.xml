@@ -17,4 +17,8 @@
 		<module>spring-cloud-2021-plugin</module>
 	</modules>
 
+	<properties>
+		<jdk.version>1.8</jdk.version>
+	</properties>
+
 </project>

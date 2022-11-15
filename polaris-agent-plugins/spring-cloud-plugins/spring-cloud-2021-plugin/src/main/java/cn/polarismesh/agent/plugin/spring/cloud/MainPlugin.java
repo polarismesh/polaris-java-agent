@@ -29,6 +29,7 @@ import cn.polarismesh.agent.core.extension.instrument.Instrumentor;
 import cn.polarismesh.agent.core.extension.transform.TransformCallback;
 import cn.polarismesh.agent.core.extension.transform.TransformOperations;
 import cn.polarismesh.agent.plugin.spring.cloud.common.ClassNames;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.ApplicationContextAwareInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.disable.alibaba.DisableSpringCloudAlibabaInterceptor;
@@ -51,9 +52,7 @@ import org.springframework.context.ApplicationContext;
 public class MainPlugin implements AgentPlugin {
 
 	public void init(PluginContext context) {
-		final String userConf = Paths.get(context.getAgentDirPath(), "plugin", "springcloud2021").toString();
-		Holder.init(userConf);
-
+		System.setProperty(Constant.AGENT_CONF_PATH, context.getAgentDirPath());
 		TransformOperations operations = context.getTransformOperations();
 		addPolarisTransformers(operations);
 	}

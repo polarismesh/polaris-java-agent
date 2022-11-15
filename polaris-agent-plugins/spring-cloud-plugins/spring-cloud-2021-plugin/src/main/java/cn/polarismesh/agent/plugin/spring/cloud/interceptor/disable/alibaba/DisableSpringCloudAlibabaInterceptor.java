@@ -41,7 +41,7 @@ public class DisableSpringCloudAlibabaInterceptor extends BaseInterceptor {
     private static final Logger LOGGER = LoggerFactory.getLogger(DisableSpringCloudAlibabaInterceptor.class);
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void onBefore(Object target, Object[] args) {
         ApplicationEnvironmentPreparedEvent event = (ApplicationEnvironmentPreparedEvent) args[0];
 
         List<EnvironmentPostProcessor> external = new ArrayList<>();
@@ -51,10 +51,6 @@ public class DisableSpringCloudAlibabaInterceptor extends BaseInterceptor {
         for (EnvironmentPostProcessor processor : external) {
             processor.postProcessEnvironment(event.getEnvironment(), event.getSpringApplication());
         }
-    }
-
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
     }
 
     private static class DisableSpringCloudAlibabaAbility implements EnvironmentPostProcessor {

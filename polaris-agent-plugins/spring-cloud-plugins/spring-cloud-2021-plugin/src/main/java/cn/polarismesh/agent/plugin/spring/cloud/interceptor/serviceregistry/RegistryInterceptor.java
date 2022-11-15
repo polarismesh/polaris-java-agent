@@ -43,7 +43,7 @@ public class RegistryInterceptor extends BaseInterceptor {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RegistryInterceptor.class);
 
 	@Override
-	public void before(Object target, Object[] args) {
+	public void onBefore(Object target, Object[] args) {
 		LOGGER.debug("[PolarisAgent] replace ServiceRegistry to ProxyServiceRegistry, target : {}", target);
 
 		String clsName = target.getClass().getCanonicalName();
@@ -60,7 +60,7 @@ public class RegistryInterceptor extends BaseInterceptor {
 	}
 
 	@Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
+	public void onAfter(Object target, Object[] args, Object result, Throwable throwable) {
 	}
 
 	public static class ProxyServiceRegistry implements ServiceRegistry<Registration> {

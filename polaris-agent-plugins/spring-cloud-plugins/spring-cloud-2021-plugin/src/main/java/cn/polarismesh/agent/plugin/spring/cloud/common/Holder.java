@@ -73,41 +73,59 @@ import org.springframework.util.CollectionUtils;
  */
 public class Holder {
 
-	private static final StandardEnvironment environment = new StandardEnvironment();
+	private static PolarisDiscoveryProperties discoveryProperties;
 
-	private static final PolarisDiscoveryProperties discoveryProperties = new PolarisDiscoveryProperties();
+	private static ConsulContextProperties consulContextProperties;
 
-	private static final ConsulContextProperties consulContextProperties = new ConsulContextProperties();
+	private static NacosContextProperties nacosContextProperties;
 
-	private static final NacosContextProperties nacosContextProperties = new NacosContextProperties();
-
-	private static final MetadataLocalProperties localProperties = new MetadataLocalProperties();
+	private static MetadataLocalProperties localProperties;
 
 	private static StaticMetadataManager staticMetadataManager;
 
-	private static final PolarisContextProperties polarisContextProperties = new PolarisContextProperties();
+	private static PolarisContextProperties polarisContextProperties;
 
-	private static final PolarisRuleBasedRouterProperties routerProperties = new PolarisRuleBasedRouterProperties();
+	private static PolarisRuleBasedRouterProperties routerProperties;
 
-	private static final PolarisNearByRouterProperties nearByRouterProperties = new PolarisNearByRouterProperties();
+	private static PolarisNearByRouterProperties nearByRouterProperties;
 
-	private static final PolarisMetadataRouterProperties metadataRouterProperties = new PolarisMetadataRouterProperties();
+	private static PolarisMetadataRouterProperties metadataRouterProperties;
 
-	private static final AgentPolarisRateLimitProperties rateLimitProperties = new AgentPolarisRateLimitProperties();
+	private static AgentPolarisRateLimitProperties rateLimitProperties;
 
-	private static final PolarisConfigProperties polarisConfigProperties = new PolarisConfigProperties();
+	private static PolarisConfigProperties polarisConfigProperties;
 
-	private static final PolarisStatProperties polarisStatProperties = new PolarisStatProperties();
+	private static PolarisStatProperties polarisStatProperties;
 
-	private static final PolarisStatPushGatewayProperties polarisStatPushGatewayProperties = new PolarisStatPushGatewayProperties();
+	private static PolarisStatPushGatewayProperties polarisStatPushGatewayProperties;
 
-	private static final RpcEnhancementReporterProperties rpcEnhancementReporterProperties = new RpcEnhancementReporterProperties();
+	private static RpcEnhancementReporterProperties rpcEnhancementReporterProperties;
 
-	public static void init(final String filepath) {
+	private static String CONF_FILE_PATH;
+
+	private static void initProperties() {
+		polarisContextProperties = new PolarisContextProperties();
+		discoveryProperties = new PolarisDiscoveryProperties();
+		consulContextProperties = new ConsulContextProperties();
+		nacosContextProperties = new NacosContextProperties();
+		localProperties = new MetadataLocalProperties();
+		routerProperties = new PolarisRuleBasedRouterProperties();
+		nearByRouterProperties = new PolarisNearByRouterProperties();
+		metadataRouterProperties = new PolarisMetadataRouterProperties();
+		rateLimitProperties = new AgentPolarisRateLimitProperties();
+		polarisConfigProperties = new PolarisConfigProperties();
+		polarisStatProperties = new PolarisStatProperties();
+		polarisStatPushGatewayProperties = new PolarisStatPushGatewayProperties();
+		rpcEnhancementReporterProperties = new RpcEnhancementReporterProperties();
+	}
+
+	public static void init() {
+		CONF_FILE_PATH = Paths.get(System.getProperty(Constant.AGENT_CONF_PATH), "conf").toString();
+		initProperties();
 		try (InetUtils utils = new InetUtils(new InetUtilsProperties())) {
 			polarisContextProperties.setLocalIpAddress(utils.findFirstNonLoopbackHostInfo().getIpAddress());
 			// 读取 application.yaml
-			buildEnv(filepath);
+			Environment environment = buildEnv();
 
 			// sct 本身的额外的配饰信息
 			bindObject("spring.cloud.tencent.metadata", localProperties, environment);
@@ -146,26 +164,33 @@ public class Holder {
 			// rpc 调用增强
 			bindObject("spring.cloud.tencent.rpc-enhancement.reporter", rpcEnhancementReporterProperties, environment);
 
-			runConfigModifiers(environment, filepath);
-
+			runConfigModifiers(environment);
 		}
 		catch (Throwable ex) {
 			throw new PolarisAgentException(ex);
 		}
 	}
 
-	private static Environment buildEnv(final String filepath) throws Exception {
+	private static Environment buildEnv() throws Exception {
+		StandardEnvironment environment = new StandardEnvironment();
 		HostInfoEnvironmentPostProcessor processor = new HostInfoEnvironmentPostProcessor();
 		processor.postProcessEnvironment(environment, null);
 
-		InputStream stream = Holder.class.getResourceAsStream("default-plugin.conf");
+		InputStream stream = Holder.class.getClassLoader().getResourceAsStream("default-plugin.conf");
 		Properties defaultProperties = new Properties();
 		defaultProperties.load(stream);
 		environment.getPropertySources()
 				.addFirst(new PropertiesPropertySource("__default_polaris_agent_spring_cloud_tencent__", defaultProperties));
 
 		Properties properties = new Properties();
-		properties.load(Files.newInputStream(Paths.get(filepath).toFile().toPath()));
+
+		String confPath = Paths.get(CONF_FILE_PATH, "plugin", "springcloud2021", "application.properties").toString();
+		String cmdVal = System.getProperty("polaris.agent.user.application.conf");
+		if (StringUtils.isNotBlank(cmdVal)) {
+			confPath = cmdVal;
+		}
+
+		properties.load(Files.newInputStream(Paths.get(confPath).toFile().toPath()));
 		environment.getPropertySources()
 				.addFirst(new PropertiesPropertySource("__polaris_agent_spring_cloud_tencent__", properties));
 
@@ -179,7 +204,7 @@ public class Holder {
 		binder.bind(prefix, target);
 	}
 
-	private static void runConfigModifiers(Environment environment, final String filepath) throws IOException {
+	private static void runConfigModifiers(Environment environment) throws IOException {
 
 		if (StringUtils.isBlank(polarisContextProperties.getLocalIpAddress())) {
 			polarisContextProperties.setLocalIpAddress(environment.getProperty("spring.cloud.client.ip-address"));
@@ -198,7 +223,7 @@ public class Holder {
 				new PolarisCircuitBreakerAutoConfiguration.CircuitBreakerConfigModifier(rpcEnhancementReporterProperties)
 		);
 
-		InputStream inputStream = Files.newInputStream(Paths.get(filepath, PolarisReflectConst.POLARIS_CONF_FILE));
+		InputStream inputStream = Files.newInputStream(Paths.get(CONF_FILE_PATH, Constant.POLARIS_CONF_FILE));
 		ConfigurationImpl configuration = (ConfigurationImpl) ConfigAPIFactory.loadConfig(inputStream);
 		configuration.getGlobal().getAPI().setBindIP(polarisContextProperties.getLocalIpAddress());
 

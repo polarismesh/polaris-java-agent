@@ -51,7 +51,7 @@ public class ReactiveWebFilterInterceptor extends BaseInterceptor {
      * @param args
      */
     @Override
-    public void before(Object target, Object[] args) {
+    public void onBefore(Object target, Object[] args) {
         boolean enableRateLimit = Holder.getRateLimitProperties().isEnabled();
         if (!enableRateLimit) {
             LOGGER.info("[PolarisAgent] {} disable add WebFilter to build RateLimit ability", target.getClass().getCanonicalName());
@@ -81,8 +81,4 @@ public class ReactiveWebFilterInterceptor extends BaseInterceptor {
         filters.add(0, new DecodeTransferMetadataReactiveFilter());
     }
 
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-
-    }
 }

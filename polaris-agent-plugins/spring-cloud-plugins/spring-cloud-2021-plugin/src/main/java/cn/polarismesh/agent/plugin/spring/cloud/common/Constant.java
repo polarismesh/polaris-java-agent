@@ -17,16 +17,12 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.common;
 
-import java.io.File;
+public interface Constant {
 
-public interface PolarisReflectConst {
+	String POLARIS_CONF_FILE = "polaris.yml";
 
-    String POLARIS_LIB_DIR = "polaris" + File.separator + "lib";
+	int POLARIS_DEFAULT_WEIGHT = 100;
 
-    String POLARIS_CONF_DIR = "polaris" + File.separator + "conf";
-
-    String POLARIS_CONF_FILE = "polaris.yml";
-
-    int POLARIS_DEFAULT_WEIGHT = 100;
+	String AGENT_CONF_PATH = "__agent_conf_path__";
 
 }

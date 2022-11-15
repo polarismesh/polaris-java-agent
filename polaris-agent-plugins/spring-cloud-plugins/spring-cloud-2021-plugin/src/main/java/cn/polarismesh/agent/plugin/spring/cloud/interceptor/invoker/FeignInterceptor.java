@@ -37,12 +37,12 @@ public class FeignInterceptor extends BaseInterceptor {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FeignInterceptor.class);
 
 	@Override
-	public void before(Object target, Object[] args) {
+	public void onBefore(Object target, Object[] args) {
 
 	}
 
 	@Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
+	public void onAfter(Object target, Object[] args, Object result, Throwable throwable) {
 		if (!Holder.getRouterProperties().isEnabled()) {
 			LOGGER.info("[PolarisAgent] {} disable build Feign traffic route ability", target.getClass()
 					.getCanonicalName());

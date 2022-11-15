@@ -36,12 +36,9 @@ import org.springframework.cloud.client.discovery.ReactiveDiscoveryClient;
  * @author zhuyuhan
  */
 public class ReactiveDiscoveryInterceptor extends BaseInterceptor {
-	@Override
-	public void before(Object target, Object[] args) {
-	}
 
 	@Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
+	public void onAfter(Object target, Object[] args, Object result, Throwable throwable) {
 		PolarisServiceDiscovery discovery = new PolarisServiceDiscovery(DiscoveryUtils.buildDiscoveryHandler());
 
 		ReflectionUtils.doWithFields(target.getClass(), field -> {
