@@ -53,6 +53,7 @@ import com.tencent.cloud.polaris.router.config.properties.PolarisRuleBasedRouter
 import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementReporterProperties;
 import com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatProperties;
 import com.tencent.cloud.rpc.enhancement.stat.config.StatConfigModifier;
+import com.tencent.polaris.api.config.ConfigProvider;
 import com.tencent.polaris.api.utils.StringUtils;
 import com.tencent.polaris.factory.ConfigAPIFactory;
 import com.tencent.polaris.factory.config.ConfigurationImpl;
@@ -223,8 +224,8 @@ public class Holder {
 				new PolarisCircuitBreakerAutoConfiguration.CircuitBreakerConfigModifier(rpcEnhancementReporterProperties)
 		);
 
-		InputStream inputStream = Files.newInputStream(Paths.get(CONF_FILE_PATH, Constant.POLARIS_CONF_FILE));
-		ConfigurationImpl configuration = (ConfigurationImpl) ConfigAPIFactory.loadConfig(inputStream);
+		InputStream stream = Holder.class.getClassLoader().getResourceAsStream("polaris.yml");
+		ConfigurationImpl configuration = (ConfigurationImpl) ConfigAPIFactory.loadConfig(stream);
 		configuration.getGlobal().getAPI().setBindIP(polarisContextProperties.getLocalIpAddress());
 
 		modifiers = modifiers.stream()
