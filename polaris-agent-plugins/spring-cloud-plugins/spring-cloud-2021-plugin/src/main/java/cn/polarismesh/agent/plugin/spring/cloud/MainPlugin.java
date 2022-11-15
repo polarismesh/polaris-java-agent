@@ -17,7 +17,6 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud;
 
-import java.nio.file.Paths;
 import java.security.ProtectionDomain;
 
 import cn.polarismesh.agent.core.common.exception.InstrumentException;
@@ -30,7 +29,6 @@ import cn.polarismesh.agent.core.extension.transform.TransformCallback;
 import cn.polarismesh.agent.core.extension.transform.TransformOperations;
 import cn.polarismesh.agent.plugin.spring.cloud.common.ClassNames;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
-import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.ApplicationContextAwareInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.disable.alibaba.DisableSpringCloudAlibabaInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.discovery.DiscoveryInterceptor;

@@ -17,9 +17,14 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware;
 
+import java.util.Arrays;
+import java.util.List;
+
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.report.RpcEnhancementHandler;
 import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
 
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
@@ -29,10 +34,19 @@ import org.springframework.context.ConfigurableApplicationContext;
  */
 public class ApplicationContextAwareInterceptor extends BaseInterceptor {
 
-    @Override
-    public void onAfter(Object target, Object[] args, Object result, Throwable throwable) {
-        ConfigurableApplicationContext context = (ConfigurableApplicationContext) args[0];
-        ApplicationContextAwareUtils utils = new ApplicationContextAwareUtils();
-        utils.setApplicationContext(context);
-    }
+	@Override
+	public void onAfter(Object target, Object[] args, Object result, Throwable throwable) {
+		ConfigurableApplicationContext context = (ConfigurableApplicationContext) args[0];
+		ApplicationContextAwareUtils utils = new ApplicationContextAwareUtils();
+		utils.setApplicationContext(context);
+
+		List<ApplicationContextAware> awares = buildAwares();
+		awares.forEach(aware -> aware.setApplicationContext(context));
+	}
+
+	private List<ApplicationContextAware> buildAwares() {
+		return Arrays.asList(
+				new RpcEnhancementHandler()
+		);
+	}
 }

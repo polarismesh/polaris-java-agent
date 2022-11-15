@@ -280,4 +280,8 @@ public class Holder {
 		return nacosContextProperties;
 	}
 
+	public static RpcEnhancementReporterProperties getRpcEnhancementReporterProperties() {
+		return rpcEnhancementReporterProperties;
+	}
+
 }
