@@ -12,4 +12,8 @@
 
     <artifactId>polaris-agent-core-common</artifactId>
 
+    <dependencies>
+
+    </dependencies>
+
 </project>

@@ -17,20 +17,21 @@
 
 package cn.polarismesh.agent.core.asm.instrument.interceptor;
 
-import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
 import java.lang.reflect.Method;
+
+import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
 
 public interface InterceptorDefinition {
 
-    Class<? extends Interceptor> getInterceptorBaseClass();
+	Class<? extends Interceptor> getInterceptorBaseClass();
 
-    Class<? extends Interceptor> getInterceptorClass();
+	Class<? extends Interceptor> getInterceptorClass();
 
-    InterceptorType getInterceptorType();
+	InterceptorType getInterceptorType();
 
-    CaptureType getCaptureType();
+	CaptureType getCaptureType();
 
-    Method getBeforeMethod();
+	Method getBeforeMethod();
 
-    Method getAfterMethod();
+	Method getAfterMethod();
 }

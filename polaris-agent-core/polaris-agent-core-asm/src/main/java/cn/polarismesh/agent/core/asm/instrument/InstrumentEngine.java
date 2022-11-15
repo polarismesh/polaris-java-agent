@@ -15,22 +15,21 @@
  * specific language governing permissions and limitations under the License.
  */
 
-
 package cn.polarismesh.agent.core.asm.instrument;
 
 
-import cn.polarismesh.agent.core.common.exception.NotFoundInstrumentException;
-import cn.polarismesh.agent.core.extension.instrument.InstrumentClass;
 import java.security.ProtectionDomain;
 import java.util.jar.JarFile;
+
+import cn.polarismesh.agent.core.common.exception.NotFoundInstrumentException;
+import cn.polarismesh.agent.core.extension.instrument.InstrumentClass;
 
 /**
  * @author Jongho Moon
  */
 public interface InstrumentEngine {
+	InstrumentClass getClass(InstrumentContext instrumentContext, ClassLoader classLoader, String classInternalName,
+			ProtectionDomain protectionDomain, byte[] classFileBuffer) throws NotFoundInstrumentException;
 
-    InstrumentClass getClass(InstrumentContext instrumentContext, ClassLoader classLoader, String classInternalName,
-            ProtectionDomain protectionDomain, byte[] classFileBuffer) throws NotFoundInstrumentException;
-
-    void appendToBootstrapClassPath(JarFile jarFile);
+	void appendToBootstrapClassPath(JarFile jarFile);
 }

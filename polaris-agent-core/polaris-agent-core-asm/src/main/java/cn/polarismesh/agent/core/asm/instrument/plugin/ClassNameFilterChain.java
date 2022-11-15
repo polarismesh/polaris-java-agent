@@ -22,21 +22,21 @@ import java.util.Objects;
 
 public class ClassNameFilterChain implements ClassNameFilter {
 
-    private final ClassNameFilter[] filterChain;
+	private final ClassNameFilter[] filterChain;
 
-    public ClassNameFilterChain(List<ClassNameFilter> filterChain) {
-        Objects.requireNonNull(filterChain, "filterChain");
-        this.filterChain = filterChain.toArray(new ClassNameFilter[0]);
-    }
+	public ClassNameFilterChain(List<ClassNameFilter> filterChain) {
+		Objects.requireNonNull(filterChain, "filterChain");
+		this.filterChain = filterChain.toArray(new ClassNameFilter[0]);
+	}
 
 
-    @Override
-    public boolean accept(String className) {
-        for (ClassNameFilter classNameFilter : this.filterChain) {
-            if (!classNameFilter.accept(className)) {
-                return REJECT;
-            }
-        }
-        return ACCEPT;
-    }
+	@Override
+	public boolean accept(String className) {
+		for (ClassNameFilter classNameFilter : this.filterChain) {
+			if (!classNameFilter.accept(className)) {
+				return REJECT;
+			}
+		}
+		return ACCEPT;
+	}
 }

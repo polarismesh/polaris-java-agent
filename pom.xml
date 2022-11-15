@@ -14,7 +14,7 @@
     <url>https://github.com/polarismesh/polaris-java-agent</url>
 
     <properties>
-        <polaris.version>1.7.3</polaris.version>
+        <polaris.version>1.10.0-SNAPSHOT</polaris.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.maven.deploy>false</skip.maven.deploy>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -33,12 +33,6 @@
         <maven.shaded.plugin.version>3.2.4</maven.shaded.plugin.version>
         <org.codehaus.mojo.version>3.0.0</org.codehaus.mojo.version>
         <slf4j.vesion>1.7.30</slf4j.vesion>
-        <!-- alibaba dubbo (dubbox) -->
-        <alibaba.dubbo.version>2.6.12</alibaba.dubbo.version>
-        <!-- apache dubbo (dubbo2) -->
-        <apache.dubbo.version>2.7.15</apache.dubbo.version>
-        <!-- nacos v1 client (1.3.1) -->
-        <nacos.v1.client.version>1.3.1</nacos.v1.client.version>
     </properties>
 
     <dependencyManagement>
@@ -49,6 +43,7 @@
                 <artifactId>polaris-all</artifactId>
                 <version>${polaris.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>

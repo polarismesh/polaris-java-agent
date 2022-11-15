@@ -21,12 +21,12 @@ import java.security.ProtectionDomain;
 
 public interface ClassFileFilter {
 
-    String BASE_PACKAGE = "cn/polarismesh/agent/";
+	String BASE_PACKAGE = "cn/polarismesh/agent/";
 
-    boolean SKIP = false;
-    boolean CONTINUE = true;
+	boolean SKIP = false;
+	boolean CONTINUE = true;
 
-    boolean accept(ClassLoader classLoader, String className, Class<?> classBeingRedefined,
-            ProtectionDomain protectionDomain, byte[] classFileBuffer);
+	boolean accept(ClassLoader classLoader, String className, Class<?> classBeingRedefined,
+			ProtectionDomain protectionDomain, byte[] classFileBuffer);
 
 }
