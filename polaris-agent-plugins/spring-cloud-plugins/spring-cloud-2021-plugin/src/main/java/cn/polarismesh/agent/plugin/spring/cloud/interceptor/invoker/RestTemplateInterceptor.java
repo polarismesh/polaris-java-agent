@@ -68,7 +68,7 @@ public class RestTemplateInterceptor extends BaseInterceptor {
 		}
 
 		if (find) {
-			LOGGER.info("[PolarisAgent] {} ignore to build RestTemplate invoke traffic route ability", target.getClass()
+			LOGGER.debug("[PolarisAgent] {} ignore to build RestTemplate invoke traffic route ability", target.getClass()
 					.getCanonicalName());
 			return;
 		}

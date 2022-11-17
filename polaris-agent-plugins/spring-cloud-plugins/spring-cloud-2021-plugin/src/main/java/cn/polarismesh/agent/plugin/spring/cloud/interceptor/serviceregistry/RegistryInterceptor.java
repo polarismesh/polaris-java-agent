@@ -19,6 +19,7 @@ package cn.polarismesh.agent.plugin.spring.cloud.interceptor.serviceregistry;
 
 
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
+import cn.polarismesh.agent.core.common.utils.StringUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.DiscoveryUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.common.PolarisOperator;
@@ -80,6 +81,9 @@ public class RegistryInterceptor extends BaseInterceptor {
 			LOGGER.info("[PolarisAgent] begin do register to polaris action.");
 			PolarisDiscoveryProperties properties = Holder.getDiscoveryProperties();
 
+			if (StringUtils.isEmpty(properties.getService())) {
+				properties.setService(registration.getServiceId());
+			}
 			properties.setPort(registration.getPort());
 
 			polarisRegistry.register(new PolarisRegistration(Holder.getDiscoveryProperties(),
@@ -94,6 +98,10 @@ public class RegistryInterceptor extends BaseInterceptor {
 		public void deregister(Registration registration) {
 			LOGGER.info("[PolarisAgent] begin de deregister from polaris action.");
 			PolarisDiscoveryProperties properties = Holder.getDiscoveryProperties();
+
+			if (StringUtils.isEmpty(properties.getService())) {
+				properties.setService(registration.getServiceId());
+			}
 			properties.setPort(registration.getPort());
 
 			polarisRegistry.deregister(new PolarisRegistration(Holder.getDiscoveryProperties(),
