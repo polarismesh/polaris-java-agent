@@ -22,6 +22,7 @@ import java.util.List;
 
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.DiscoveryUtils;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
 import com.tencent.cloud.polaris.discovery.PolarisServiceDiscovery;
 import com.tencent.polaris.api.utils.StringUtils;
@@ -38,6 +39,10 @@ public class DiscoveryInterceptor extends BaseInterceptor {
 
 	@Override
 	public void onAfter(Object target, Object[] args, Object result, Throwable throwable) {
+		if (!Holder.isAllowDiscovery()) {
+			return;
+		}
+
 		PolarisServiceDiscovery discovery = new PolarisServiceDiscovery(DiscoveryUtils.buildDiscoveryHandler());
 
 		ReflectionUtils.doWithFields(target.getClass(), field -> {

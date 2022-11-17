@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -53,10 +54,11 @@ import com.tencent.cloud.polaris.router.config.properties.PolarisRuleBasedRouter
 import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementReporterProperties;
 import com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatProperties;
 import com.tencent.cloud.rpc.enhancement.stat.config.StatConfigModifier;
-import com.tencent.polaris.api.config.ConfigProvider;
 import com.tencent.polaris.api.utils.StringUtils;
 import com.tencent.polaris.factory.ConfigAPIFactory;
 import com.tencent.polaris.factory.config.ConfigurationImpl;
+import com.tencent.polaris.logging.LoggingConsts;
+import com.tencent.polaris.logging.PolarisLogging;
 
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
@@ -104,6 +106,8 @@ public class Holder {
 
 	private static String CONF_FILE_PATH;
 
+	private static boolean allowDiscovery = true;
+
 	private static void initProperties() {
 		polarisContextProperties = new PolarisContextProperties();
 		discoveryProperties = new PolarisDiscoveryProperties();
@@ -133,6 +137,7 @@ public class Holder {
 			bindObject("spring.cloud.polaris", polarisContextProperties, environment);
 			staticMetadataManager = new StaticMetadataManager(localProperties, null);
 
+			allowDiscovery = environment.getProperty("spring.cloud.discovery.enabled", Boolean.class, true);
 			// 服务发现配置
 			discoveryProperties.setRegisterEnabled(environment.getProperty("spring.cloud.polaris.discovery.register", Boolean.class, true));
 			discoveryProperties.setProtocol(environment.getProperty("spring.cloud.polaris.discovery.protocol", String.class, "http"));
@@ -207,22 +212,44 @@ public class Holder {
 
 	private static void runConfigModifiers(Environment environment) throws IOException {
 
+		String logConfig = "";
+		try {
+			Class.forName(PolarisLogging.LOGBACK_CLASSIC_LOGGER);
+			logConfig = Holder.class.getClassLoader().getResource("polaris-logback.xml").getFile();
+		}
+		catch (ClassNotFoundException e) {
+			try {
+				Class.forName(PolarisLogging.LOG4J2_CLASSIC_LOGGER);
+				logConfig = Holder.class.getClassLoader().getResource("polaris-log4j2.xml").getFile();
+			}
+			catch (ClassNotFoundException e1) {
+				logConfig = Holder.class.getClassLoader().getResource("polaris-log4j.xml").getFile();
+			}
+		}
+		System.setProperty(LoggingConsts.LOGGING_CONFIG_PROPERTY, logConfig);
+
 		if (StringUtils.isBlank(polarisContextProperties.getLocalIpAddress())) {
 			polarisContextProperties.setLocalIpAddress(environment.getProperty("spring.cloud.client.ip-address"));
 		}
 
-		List<PolarisConfigModifier> modifiers = Arrays.asList(
+		List<PolarisConfigModifier> modifiers = new ArrayList<>(Arrays.asList(
 				new ModifyAddress(polarisContextProperties),
 				new DiscoveryConfigModifier(discoveryProperties),
 				new PolarisDiscoveryConfigModifier(discoveryProperties),
-				new ConsulConfigModifier(consulContextProperties),
-				new NacosConfigModifier(nacosContextProperties),
 				new RateLimitConfigModifier(rateLimitProperties),
-				new ConfigurationModifier(polarisConfigProperties, polarisContextProperties),
 				new StatConfigModifier(polarisStatProperties, environment),
 				new PolarisStatPushGatewayModifier(polarisStatPushGatewayProperties, environment),
 				new PolarisCircuitBreakerAutoConfiguration.CircuitBreakerConfigModifier(rpcEnhancementReporterProperties)
-		);
+		));
+		if (consulContextProperties.isEnabled()) {
+			modifiers.add(new ConsulConfigModifier(consulContextProperties));
+		}
+		if (nacosContextProperties.isEnabled()) {
+			modifiers.add(new NacosConfigModifier(nacosContextProperties));
+		}
+		if (polarisConfigProperties.isEnabled()) {
+			modifiers.add(new ConfigurationModifier(polarisConfigProperties, polarisContextProperties));
+		}
 
 		InputStream stream = Holder.class.getClassLoader().getResourceAsStream("polaris.yml");
 		ConfigurationImpl configuration = (ConfigurationImpl) ConfigAPIFactory.loadConfig(stream);
@@ -284,4 +311,7 @@ public class Holder {
 		return rpcEnhancementReporterProperties;
 	}
 
+	public static boolean isAllowDiscovery() {
+		return allowDiscovery;
+	}
 }
