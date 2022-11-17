@@ -106,6 +106,7 @@
 		<dependency>
 			<groupId>com.tencent.cloud</groupId>
 			<artifactId>spring-cloud-starter-tencent-polaris-discovery</artifactId>
+			<version>${spring.cloud.tencent.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
@@ -125,6 +126,7 @@
 		<dependency>
 			<groupId>com.tencent.cloud</groupId>
 			<artifactId>spring-cloud-starter-tencent-polaris-config</artifactId>
+			<version>${spring.cloud.tencent.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.springframework.cloud</groupId>
@@ -136,6 +138,7 @@
 		<dependency>
 			<groupId>com.tencent.cloud</groupId>
 			<artifactId>spring-cloud-starter-tencent-polaris-ratelimit</artifactId>
+			<version>${spring.cloud.tencent.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
@@ -151,11 +154,13 @@
 		<dependency>
 			<groupId>com.tencent.cloud</groupId>
 			<artifactId>spring-cloud-starter-tencent-polaris-circuitbreaker</artifactId>
+			<version>${spring.cloud.tencent.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.tencent.cloud</groupId>
 			<artifactId>spring-cloud-starter-tencent-polaris-router</artifactId>
+			<version>${spring.cloud.tencent.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
@@ -175,11 +180,13 @@
 		<dependency>
 			<groupId>com.tencent.cloud</groupId>
 			<artifactId>spring-cloud-starter-tencent-metadata-transfer</artifactId>
+			<version>${spring.cloud.tencent.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.tencent.cloud</groupId>
 			<artifactId>spring-cloud-tencent-pushgateway-plugin</artifactId>
+			<version>${spring.cloud.tencent.version}</version>
 		</dependency>
 	</dependencies>
 
