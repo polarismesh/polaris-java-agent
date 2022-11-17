@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.common.PolarisOperator;
 import com.tencent.cloud.common.metadata.MetadataContext;
 import com.tencent.cloud.common.util.expresstion.ServletExpressionLabelUtils;
@@ -78,7 +79,8 @@ public class RateLimitHandlerAdapter implements HandlerAdapter {
 					localNamespace, localService, 1, labels, request.getRequestURI());
 
 			if (quotaResponse.getCode() == QuotaResultCode.QuotaResultLimited) {
-				response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+				response.setStatus(Holder.getRateLimitProperties().getRejectHttpCode());
+				response.getWriter().println(Holder.getRateLimitProperties().getRejectRequestTips());
 				return null;
 			}
 			// Unirate

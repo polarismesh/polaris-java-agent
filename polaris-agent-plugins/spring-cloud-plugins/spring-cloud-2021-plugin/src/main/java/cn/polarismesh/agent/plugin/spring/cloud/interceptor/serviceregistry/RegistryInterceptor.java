@@ -19,10 +19,10 @@ package cn.polarismesh.agent.plugin.spring.cloud.interceptor.serviceregistry;
 
 
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.common.DiscoveryUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.common.PolarisOperator;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
 import com.tencent.cloud.polaris.PolarisDiscoveryProperties;
 import com.tencent.cloud.polaris.registry.PolarisRegistration;
 import com.tencent.cloud.polaris.registry.PolarisServiceRegistry;
@@ -44,6 +44,10 @@ public class RegistryInterceptor extends BaseInterceptor {
 
 	@Override
 	public void onBefore(Object target, Object[] args) {
+		if (!Holder.isAllowDiscovery()) {
+			return;
+		}
+
 		LOGGER.debug("[PolarisAgent] replace ServiceRegistry to ProxyServiceRegistry, target : {}", target);
 
 		String clsName = target.getClass().getCanonicalName();
@@ -59,10 +63,6 @@ public class RegistryInterceptor extends BaseInterceptor {
 		LOGGER.debug("[PolarisAgent] finished replace ServiceRegistry to ProxyServiceRegistry");
 	}
 
-	@Override
-	public void onAfter(Object target, Object[] args, Object result, Throwable throwable) {
-	}
-
 	public static class ProxyServiceRegistry implements ServiceRegistry<Registration> {
 
 		private final ServiceRegistry<Registration> target;
@@ -71,7 +71,6 @@ public class RegistryInterceptor extends BaseInterceptor {
 
 		public ProxyServiceRegistry(ServiceRegistry<Registration> target) {
 			this.target = target;
-
 			this.polarisRegistry = new PolarisServiceRegistry(Holder.getDiscoveryProperties(),
 					DiscoveryUtils.buildDiscoveryHandler(), Holder.getStaticMetadataManager());
 		}
@@ -79,8 +78,8 @@ public class RegistryInterceptor extends BaseInterceptor {
 		@Override
 		public void register(Registration registration) {
 			LOGGER.info("[PolarisAgent] begin do register to polaris action.");
-
 			PolarisDiscoveryProperties properties = Holder.getDiscoveryProperties();
+
 			properties.setPort(registration.getPort());
 
 			polarisRegistry.register(new PolarisRegistration(Holder.getDiscoveryProperties(),
@@ -94,7 +93,6 @@ public class RegistryInterceptor extends BaseInterceptor {
 		@Override
 		public void deregister(Registration registration) {
 			LOGGER.info("[PolarisAgent] begin de deregister from polaris action.");
-
 			PolarisDiscoveryProperties properties = Holder.getDiscoveryProperties();
 			properties.setPort(registration.getPort());
 
@@ -114,11 +112,22 @@ public class RegistryInterceptor extends BaseInterceptor {
 
 		@Override
 		public void setStatus(Registration registration, String status) {
+			polarisRegistry.setStatus(new PolarisRegistration(Holder.getDiscoveryProperties(),
+					Holder.getConsulContextProperties(),
+					PolarisOperator.getInstance().getSdkContext(),
+					Holder.getStaticMetadataManager(),
+					Holder.getNacosContextProperties()
+			), status);
 		}
 
 		@Override
 		public <T> T getStatus(Registration registration) {
-			return null;
+			return (T) polarisRegistry.getStatus(new PolarisRegistration(Holder.getDiscoveryProperties(),
+					Holder.getConsulContextProperties(),
+					PolarisOperator.getInstance().getSdkContext(),
+					Holder.getStaticMetadataManager(),
+					Holder.getNacosContextProperties()
+			));
 		}
 	}
 

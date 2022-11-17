@@ -214,5 +214,6 @@
         <module>polaris-agent-build</module>
         <module>polaris-agent-core</module>
         <module>polaris-agent-plugins</module>
-    </modules>
+		<module>polaris-agent-examples</module>
+	</modules>
 </project>

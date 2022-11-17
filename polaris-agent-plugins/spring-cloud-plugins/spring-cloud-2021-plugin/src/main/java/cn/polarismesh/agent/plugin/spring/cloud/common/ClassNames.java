@@ -82,5 +82,9 @@ public class ClassNames {
 	 * {@link org.springframework.boot.env.EnvironmentPostProcessorApplicationListener#onApplicationEnvironmentPreparedEvent(ApplicationEnvironmentPreparedEvent)}
 	 */
 	public static final String ENVIRONMENT_POST_PROCESSOR = "org.springframework.boot.env.EnvironmentPostProcessorApplicationListener";
-	
+
+	/**
+	 * {@link org.springframework.cloud.loadbalancer.blocking.client.BlockingLoadBalancerClient}
+	 */
+	public static final String BLOCKING_LOADBALANCER_CLIENT = "org.springframework.cloud.loadbalancer.blocking.client.BlockingLoadBalancerClient";
 }

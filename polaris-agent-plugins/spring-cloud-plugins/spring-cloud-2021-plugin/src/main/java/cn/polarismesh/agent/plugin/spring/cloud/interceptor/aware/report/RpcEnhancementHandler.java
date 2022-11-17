@@ -30,7 +30,6 @@ import com.tencent.cloud.rpc.enhancement.feign.EnhancedFeignPluginRunner;
 import com.tencent.cloud.rpc.enhancement.feign.plugin.EnhancedFeignPlugin;
 import com.tencent.cloud.rpc.enhancement.feign.plugin.reporter.ExceptionPolarisReporter;
 import com.tencent.cloud.rpc.enhancement.feign.plugin.reporter.SuccessPolarisReporter;
-import com.tencent.cloud.rpc.enhancement.resttemplate.BlockingLoadBalancerClientAspect;
 import com.tencent.cloud.rpc.enhancement.resttemplate.EnhancedRestTemplateReporter;
 import com.tencent.polaris.api.core.ConsumerAPI;
 import org.slf4j.Logger;
@@ -68,9 +67,9 @@ public class RpcEnhancementHandler implements ApplicationContextAware {
 
 		DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) context.getBeanFactory();
 
-		beanFactory.registerBeanDefinition("sctErrorHandlerForRestTemplate", buildRestTemplateReportBeanDefinition(context, reporter));
-		beanFactory.registerBeanDefinition("sctBlockingLoadBalancerClientAspect",
-				buildBlockingLoadBalancerClientAspectBean());
+		beanFactory.registerBeanDefinition("springCloudTencentRestTemplateReporter",
+				buildRestTemplateReportBeanDefinition(context,
+						reporter));
 
 		LOGGER.info("[PolarisAgent] success inject Spring Cloud Tencent RestTemplate reporter");
 	}
@@ -85,11 +84,11 @@ public class RpcEnhancementHandler implements ApplicationContextAware {
 		}).getBeanDefinition();
 	}
 
-	private BeanDefinition buildBlockingLoadBalancerClientAspectBean() {
-		return BeanDefinitionBuilder.genericBeanDefinition(BlockingLoadBalancerClientAspect.class).getBeanDefinition();
-	}
-
 	private void registerFeignReporter(ConfigurableApplicationContext context) {
+		if (!context.getBeanFactory().containsBeanDefinition("feignContext")) {
+			return;
+		}
+
 		EnhancedFeignPluginRunner pluginRunner =
 				enhancedFeignPluginRunner(Holder.getRpcEnhancementReporterProperties(), PolarisOperator.getInstance()
 						.getConsumerAPI());

@@ -30,6 +30,7 @@ import cn.polarismesh.agent.core.extension.transform.TransformOperations;
 import cn.polarismesh.agent.plugin.spring.cloud.common.ClassNames;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.ApplicationContextAwareInterceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.report.BlockingLoadBalancerClientInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.disable.alibaba.DisableSpringCloudAlibabaInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.discovery.DiscoveryInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.discovery.reactive.ReactiveDiscoveryInterceptor;
@@ -80,6 +81,8 @@ public class MainPlugin implements AgentPlugin {
 
 		// EnvironmentPostProcessor 处理
 		operations.transform(ClassNames.ENVIRONMENT_POST_PROCESSOR, DisableSpringCloudAlibabaTransform.class);
+
+		operations.transform(ClassNames.BLOCKING_LOADBALANCER_CLIENT, BlockingLoadbalancerClientTransform.class);
 	}
 
 
@@ -250,6 +253,22 @@ public class MainPlugin implements AgentPlugin {
 			InstrumentMethod constructMethod = target.getDeclaredMethod("onApplicationEnvironmentPreparedEvent", "org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent");
 			if (constructMethod != null) {
 				constructMethod.addInterceptor(DisableSpringCloudAlibabaInterceptor.class);
+			}
+
+			return target.toBytecode();
+		}
+	}
+
+	public static class BlockingLoadbalancerClientTransform implements TransformCallback {
+
+		@Override
+		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+				Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
+			InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
+			InstrumentMethod constructMethod = target.getDeclaredMethod("reconstructURI", "org.springframework.cloud"
+					+ ".client.ServiceInstance", "java.net.URI");
+			if (constructMethod != null) {
+				constructMethod.addInterceptor(BlockingLoadBalancerClientInterceptor.class);
 			}
 
 			return target.toBytecode();
