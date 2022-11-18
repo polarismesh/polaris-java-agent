@@ -26,7 +26,7 @@ mkdir -p "${folder_name}/conf"
 mkdir -p "${folder_name}/plugins"
 
 echo "start to build package"
-mvn clean -B package --file pom.xml
+docker run --rm -u root -v "$(pwd)":/home/maven/project -w /home/maven/project maven:3.8.6-openjdk-8 mvn clean -B package --file pom.xml
 
 cp "polaris-agent-core/polaris-agent-core-bootstrap/target/polaris-agent-core-bootstrap.jar" "${folder_name}/"
 
