@@ -15,12 +15,19 @@
 	<properties>
 		<spring.cloud.version>2021.0.4</spring.cloud.version>
 		<spring.cloud.tencent.version>1.9.0-2021.0.3-SNAPSHOT</spring.cloud.tencent.version>
-		<spring-boot.version>2.6.13</spring-boot.version>
+		<spring.boot.version>2.6.13</spring.boot.version>
 		<slf4j.vesion>1.7.30</slf4j.vesion>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring.boot.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<!-- Spring Cloud Dependencies -->
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
@@ -48,6 +55,7 @@
 		<dependency>
 			<groupId>com.tencent.polaris</groupId>
 			<artifactId>polaris-all</artifactId>
+			<version>${polaris.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.tencent.polaris</groupId>
@@ -92,13 +100,13 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<version>${spring-boot.version}</version>
+			<version>${spring.boot.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
-			<version>${spring-boot.version}</version>
+			<version>${spring.boot.version}</version>
 			<scope>provided</scope>
 		</dependency>
 
