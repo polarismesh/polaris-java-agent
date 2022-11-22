@@ -4,6 +4,7 @@
 - [使用指南](#使用指南)
   - [Nacos 迁移](#nacos-迁移)
   - [Nacos 多活容灾](#nacos-多活容灾)
+- [参数列表](#参数列表)
 - [版本支持](#版本支持) 
 
 ## 简介
@@ -23,30 +24,41 @@ nacos-plugins根据不同的nacos client版本，提供无侵入的方式，供J
 
 ### Nacos 多活容灾
 
+#### 集群1的接入方式
+
+启动Java应用
+
+```
+java -jar x -Dsource.nacos.cluster.name=cluster-1 -Dtarget.nacos.server.addr=xx.xx.xx.xx -Drouter.nearby.level=nacos-cluster
+```
+
+参数说明：
+
+- `source.nacos.cluster.name`：默认是自己所在的集群，应用默认配置是默认集群的访问地址
+- `target.nacos.server.addr`：集群2的访问地址
+
+#### 集群2的接入方式
+
+启动Java应用
+
+```
+java -jar x -Dsource.nacos.cluster.name=cluster-2 -Dtarget.nacos.server.addr=xx.xx.xx.xx -Drouter.nearby.level=nacos-cluster
+```
+
+参数说明：
+
+- `source.nacos.cluster.name`：默认是自己所在的集群，应用默认配置是默认集群的访问地址
+- `target.nacos.server.addr`：集群1的访问地址
+
+## 参数列表
 
 polaris-java-agent提供以下配置项，所有的配置项通过系统变量（-D参数）的方式进行配置。
 
 | 配置项                            | 含义                     | 是否必填 | 默认值  |
-| --------------------------------- | ------------------------ | -------- | ------- |
-| target.nacos.server.addr          | 目标nacos访问地址           | 是       | 无 |
-| nearby.based.router.enable        | 是否开启就近路由         | 否       | false      |
-| router.match.levels               | 就近路由级别，可多选（cloud、zone、region） | 否       | 无      |
-| router.match.level.cloud.label    | 如果选择cloud方式就近路由，则需要标注cloud label  | 否       | 无       |
-
-- 启动Java应用时，增加环境变量 -Dtarget.nacos.server.addr=xx.xx.xx.xx 表示目标nacos的访问地址。
-- 如果需要开启就近路由，则增加环境变量 -Dnearby.based.router.enable=true, 此时需要选择一种就近路由方式（cloud、zone、region），支持多选(以逗号分割)，如果多选则根据排序决定最终的优先规则。
-
-    | router.match.level   | 含义                     |
-    | -------------------- | ------------------------ | 
-    | cloud                | 同一云内优先访问          | 
-    | zone                 | 同一可用区优先访问         | 
-    | region               | 同一区域优先访问 |
-- 如果需要同一云内优先访问，则增加环境变量 -Drouter.match.levels=cloud，并且增加环境变量 -Drouter.match.level.cloud.label=xx，来设置cloud的标签，如腾讯云内则可以标注为-Drouter.match.level.cloud.label=tencent(此标签为自定义，两个云的标签必须不同)。
-- 假设用户想实现同一云内优先访问，最终的配置如下：
-    - -Dtarget.nacos.server.addr=xx.xx.xx.xx
-    - -Dnearby.based.router.enable=true
-    - -Drouter.match.levels=cloud
-    - -Drouter.match.level.cloud.label=xx
+| --------------------------------- | ---------------------- | -------- | ------- |
+| source.nacos.cluster.name         | 标注clusrer label       | 是       | 无       |
+| target.nacos.server.addr          | 目标nacos访问地址        | 是       | 无 |
+| router.nearby.level               | 就近路由级别（none, nacos-cluster） | 否       | none |
 
 ## 版本支持
 
