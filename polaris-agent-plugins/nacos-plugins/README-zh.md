@@ -50,7 +50,7 @@ polaris-java-agent提供以下配置项，所有的配置项通过系统变量�
     | cloud                | 同一云内优先访问          | 
     | zone                 | 同一可用区优先访问         | 
     | region               | 同一区域优先访问 |
-- 如果需要同一云内优先访问，则增加环境变量 -Drouter.match.levels=cloud，并且增加环境变量 -Drouter.match.level.cloud.label=xx，来标注cloud的标签。
+- 如果需要同一云内优先访问，则增加环境变量 -Drouter.match.levels=cloud，并且增加环境变量 -Drouter.match.level.cloud.label=xx，来设置cloud的标签，如腾讯云内则可以标注为-Drouter.match.level.cloud.label=tencent(此标签为自定义，两个云的标签必须不同)。
 - 假设用户想实现同一云内优先访问，最终的配置如下：
     - -Dtarget.nacos.server.addr=xx.xx.xx.xx
     - -Dnearby.based.router.enable=true
