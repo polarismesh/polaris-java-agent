@@ -43,7 +43,7 @@ polaris-java-agent提供以下配置项，所有的配置项通过系统变量�
 ## 使用指南
 
 - 启动Java应用时，增加环境变量 -Dtarget.nacos.server.addr=xx.xx.xx.xx 表示目标nacos的访问地址。
-- 如果需要开启就近路由，则增加环境变量 -Dnearby.based.router.enable=true, 此时需要选择一种就近路由方式（cloud、zone、region），支持多选(以逗号分割)，如果多选则根据排序决定最终的优先规格。
+- 如果需要开启就近路由，则增加环境变量 -Dnearby.based.router.enable=true, 此时需要选择一种就近路由方式（cloud、zone、region），支持多选(以逗号分割)，如果多选则根据排序决定最终的优先规则。
 
     | router.match.level   | 含义                     |
     | -------------------- | ------------------------ | 
