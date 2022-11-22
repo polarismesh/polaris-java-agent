@@ -2,18 +2,18 @@
 
 - [简介](#简介)
 - [使用指南](#使用指南)
- - [Nacos 迁移](#Nacos 迁移)
- - [Nacos 多活容灾](#Nacos 多活容灾)
+  - [Nacos 迁移](#nacos-迁移)
+  - [Nacos 多活容灾](#nacos-多活容灾)
 - [版本支持](#版本支持) 
 
 ## 简介
 
 polaris-java-agent通过Java字节码增强技术，将拦截器注入到应用中，实现应用的双注册发现以及就近路由。
 
-nacos-plugins根据不同的nacos client版本，提供无侵入的方式，供Java应用来对接，提供以下功能：
+nacos-plugins根据不同的nacos client版本，提供无侵入的方式，供Java应用来对接，支持以下应用场景：
 
-- [x] 双注册发现
-- [x] 就近路由
+- Nacos 迁移
+- Nacos 多活容灾
 
 ## 使用指南
 
