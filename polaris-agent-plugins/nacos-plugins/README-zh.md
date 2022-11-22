@@ -24,7 +24,7 @@ nacos-plugins根据不同的nacos client版本，提供无侵入的方式，供J
 
 ## 技术架构
 
-polaris-java-agent通过Java字节码增强技术，将拦截器注入到应用中，实现应用的双注册发现。
+polaris-java-agent通过Java字节码增强技术，将拦截器注入到应用中，实现应用的双注册发现以及就近路由。
 
 ![](pic/nacos-double-registry.png)
 
