@@ -22,43 +22,43 @@ nacos-plugins根据不同的nacos client版本，提供无侵入的方式，供J
 
 ![](pic/nacos-double-registry.png)
 
+应用场景说明
+
+#### 接入方式
+
 ### Nacos 多活容灾
 
-#### 集群1的接入方式
+应用场景说明
 
-启动Java应用
+#### 接入方式
 
-```
-java -jar x -Dsource.nacos.cluster.name=cluster-1 -Dtarget.nacos.server.addr=xx.xx.xx.xx -Drouter.nearby.level=nacos-cluster
-```
+启动应用，接入 Nacos 集群1
 
-参数说明：
-
-- `source.nacos.cluster.name`：默认是自己所在的集群，应用默认配置是默认集群的访问地址
-- `target.nacos.server.addr`：集群2的访问地址
-
-#### 集群2的接入方式
-
-启动Java应用
-
-```
-java -jar x -Dsource.nacos.cluster.name=cluster-2 -Dtarget.nacos.server.addr=xx.xx.xx.xx -Drouter.nearby.level=nacos-cluster
+```shell
+java -jar x
+  -Dnacos.cluster.name=cluster-1
+  -Dother.nacos.server.addr=xx.xx.xx.xx
+  -Drouter.nearby.level=nacos-cluster
 ```
 
-参数说明：
+启动应用，接入 Nacos 集群2
 
-- `source.nacos.cluster.name`：默认是自己所在的集群，应用默认配置是默认集群的访问地址
-- `target.nacos.server.addr`：集群1的访问地址
+```shell
+java -jar x
+  -Dnacos.cluster.name=cluster-2
+  -Dother.nacos.server.addr=xx.xx.xx.xx
+  -Drouter.nearby.level=nacos-cluster
+```
 
-## 参数列表
+## 参数配置
 
 polaris-java-agent提供以下配置项，所有的配置项通过系统变量（-D参数）的方式进行配置。
 
-| 配置项                            | 含义                     | 是否必填 | 默认值  |
-| --------------------------------- | ---------------------- | -------- | ------- |
-| source.nacos.cluster.name         | 标注clusrer label       | 是       | 无       |
-| target.nacos.server.addr          | 目标nacos访问地址        | 是       | 无 |
-| router.nearby.level               | 就近路由级别（none, nacos-cluster） | 否       | none |
+| 配置项                     | 描述 | 必填 | 可选值 | 默认值 |
+| ------------------------- | --- | --- | --- | --- |
+| nacos.cluster.name        | 主 Nacos 集群名称 | 是 | | 无 |
+| other.nacos.server.addr   | 另一个 Nacos 集群的访问地址 | 是 | | 无 |
+| router.nearby.level       | 就近路由级别 | 否 | none, nacos-cluster | none |
 
 ## 版本支持
 
