@@ -22,32 +22,55 @@ nacos-plugins根据不同的nacos client版本，提供无侵入的方式，供J
 
 ![](pic/nacos-double-registry.png)
 
-应用场景说明
-
+#### 应用场景说明
+支持将应用从当前nacos集群平滑迁移到另一个nacos集群，如：将应用从自建nacos集群迁移到腾讯云的TSE nacos集群，同时TSE nacos还提供了数据迁移的能力，可以将nacos依赖的db里面的数据实时同步到TSE nacos的db里面。
 #### 接入方式
-
-### Nacos 多活容灾
-
-应用场景说明
-
-#### 接入方式
-
-启动应用，接入 Nacos 集群1
 
 ```shell
-java -jar x
+java
+  -javaagent:/***/polaris-java-agent-v*/polaris-java-agent-bootstrap.jar
   -Dnacos.cluster.name=cluster-1
   -Dother.nacos.server.addr=xx.xx.xx.xx
-  -Drouter.nearby.level=nacos-cluster
+-jar xx.jar
 ```
 
 启动应用，接入 Nacos 集群2
 
 ```shell
-java -jar x
+java
+  -javaagent:/***/polaris-java-agent-v*/polaris-java-agent-bootstrap.jar
+  -Dnacos.cluster.name=cluster-2
+  -Dother.nacos.server.addr=xx.xx.xx.xx
+-jar xx.jar
+```
+
+### Nacos 多活容灾
+
+####应用场景说明
+
+支持不同云、IDC机房之间的应用访问，提供同一云内或者同一IDC机房内优先路由的能力，如：用户在自建IDC机房和腾讯云分别部署了一整套服务应用和nacos集群，当腾讯云内的应用A调用应用B服务时，优先访问腾讯云内的应用B，如果找不到，则从自建IDC机房访问应用B。
+#### 接入方式
+
+启动应用，接入 Nacos 集群1
+
+```shell
+java
+  -javaagent:/***/polaris-java-agent-v*/polaris-java-agent-bootstrap.jar
+  -Dnacos.cluster.name=cluster-1
+  -Dother.nacos.server.addr=xx.xx.xx.xx
+  -Drouter.nearby.level=nacos-cluster
+-jar xx.jar
+```
+
+启动应用，接入 Nacos 集群2
+
+```shell
+java
+  -javaagent:/***/polaris-java-agent-v*/polaris-java-agent-bootstrap.jar
   -Dnacos.cluster.name=cluster-2
   -Dother.nacos.server.addr=xx.xx.xx.xx
   -Drouter.nearby.level=nacos-cluster
+-jar xx.jar
 ```
 
 ## 参数配置
@@ -61,8 +84,9 @@ polaris-java-agent提供以下配置项，所有的配置项通过系统变量�
 | router.nearby.level       | 就近路由级别 | 否 | none, nacos-cluster | none |
 
 ## 版本支持
-
-当前支持的nacos client版本：
+[Github 地址](https://github.com/polarismesh/polaris-java-agent/releases)
+下载 Polaris Java Agent,
+当前支持的nacos client版本:
 
 - [x] 1.3.0
 - [x] 1.3.1
