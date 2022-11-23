@@ -81,7 +81,7 @@ polaris-java-agent提供以下配置项，所有的配置项通过系统变量�
 | ------------------------- | --- | --- | --- | --- |
 | nacos.cluster.name        | 主 Nacos 集群名称 | 是 | | 无 |
 | other.nacos.server.addr   | 另一个 Nacos 集群的访问地址 | 是 | | 无 |
-| router.nearby.level       | 就近路由级别 | 否 | null, nacos-cluster | null |
+| router.nearby.level       | 就近路由级别 | 否 | null, nacos_cluster | null |
 
 ## 版本支持
 [Github 地址](https://github.com/polarismesh/polaris-java-agent/releases)
