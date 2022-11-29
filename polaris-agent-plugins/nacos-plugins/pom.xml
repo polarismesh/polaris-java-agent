@@ -14,7 +14,7 @@
 
   <packaging>pom</packaging>
   <modules>
-<!--    <module>spring-cloud-2021-plugin</module>-->
+    <module>nacos-130-plugin</module>
   </modules>
 
   <properties>
