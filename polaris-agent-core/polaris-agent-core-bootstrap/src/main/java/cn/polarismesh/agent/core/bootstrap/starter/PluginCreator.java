@@ -20,6 +20,7 @@ package cn.polarismesh.agent.core.bootstrap.starter;
 import cn.polarismesh.agent.core.asm.instrument.plugin.JavaVersionFilter;
 import cn.polarismesh.agent.core.asm.instrument.plugin.PluginFilter;
 import cn.polarismesh.agent.core.asm.instrument.plugin.PluginJar;
+import cn.polarismesh.agent.core.asm.instrument.plugin.PluginNameFilter;
 import cn.polarismesh.agent.core.bootstrap.BootLogger;
 import cn.polarismesh.agent.core.common.utils.CollectionUtils;
 import cn.polarismesh.agent.core.common.utils.FileUtils;
@@ -39,11 +40,21 @@ public class PluginCreator {
         if (CollectionUtils.isEmpty(pluginsFiles)) {
             return Collections.emptyList();
         }
-        PluginFilter pluginFilter = new JavaVersionFilter();
+        List<PluginFilter> pluginFilters = new ArrayList<>();
+        pluginFilters.add(new PluginNameFilter());
+        pluginFilters.add(new JavaVersionFilter());
         List<PluginJar> pluginJars = new ArrayList<>();
         for (String pluginFile : pluginsFiles) {
             PluginJar pluginJar = PluginJar.fromFilePath(pluginFile);
-            if (!pluginFilter.accept(pluginJar)) {
+            boolean passed = true;
+            for (PluginFilter pluginFilter : pluginFilters) {
+                if (!pluginFilter.accept(pluginJar)) {
+                    passed = false;
+                    break;
+                }
+            }
+            if (!passed) {
+                logger.info(String.format("[BootStrap] plugin %s has been skip loading", pluginJar.getPluginId()));
                 continue;
             }
             pluginJars.add(pluginJar);

@@ -14,7 +14,7 @@
     <url>https://github.com/polarismesh/polaris-java-agent</url>
 
     <properties>
-        <revision>1.3.0-beta</revision>
+        <revision>1.4.0-alpha</revision>
         <polaris.version>1.10.0-SNAPSHOT</polaris.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.maven.deploy>false</skip.maven.deploy>
@@ -227,6 +227,6 @@
         <module>polaris-agent-build</module>
         <module>polaris-agent-core</module>
         <module>polaris-agent-plugins</module>
-		<module>polaris-agent-examples</module>
-	</modules>
+        <module>polaris-agent-examples</module>
+    </modules>
 </project>

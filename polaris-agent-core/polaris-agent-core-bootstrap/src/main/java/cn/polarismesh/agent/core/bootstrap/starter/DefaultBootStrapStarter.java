@@ -45,6 +45,7 @@ import cn.polarismesh.agent.core.asm.instrument.transform.DynamicTransformerRegi
 import cn.polarismesh.agent.core.asm.instrument.transform.TransformTemplate;
 import cn.polarismesh.agent.core.bootstrap.BootLogger;
 import cn.polarismesh.agent.core.bootstrap.util.AgentDirUtils;
+import cn.polarismesh.agent.core.common.conf.ConfigManager;
 import cn.polarismesh.agent.core.common.utils.CollectionUtils;
 import cn.polarismesh.agent.core.extension.AgentPlugin;
 import cn.polarismesh.agent.core.extension.PluginContext;
@@ -70,6 +71,7 @@ public class DefaultBootStrapStarter implements BootStrapStarter {
 
     @Override
     public void start(String agentDirPath, String agentArgs, Instrumentation instrumentation) {
+        ConfigManager.INSTANCE.initConfig(agentDirPath);
         InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
         InstrumentEngine instrumentEngine = new ASMEngine(instrumentation, interceptorDefinitionFactory);
         DynamicTransformerRegistry dynamicTransformerRegistry = new DefaultDynamicTransformerRegistry();
