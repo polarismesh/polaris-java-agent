@@ -15,6 +15,9 @@
   <packaging>pom</packaging>
   <modules>
     <module>nacos-130-plugin</module>
+    <module>nacos-131-plugin</module>
+    <module>nacos-141-plugin</module>
+    <module>nacos-210-plugin</module>
   </modules>
 
   <properties>
