@@ -17,7 +17,15 @@
 
 package cn.polarismesh.agent.core.extension;
 
+/**
+ * Plugin interface for agent
+ */
 public interface AgentPlugin {
 
+    /**
+     * initialize the plugin, here we can do the interceptor injection
+     *
+     * @param pluginContext plugin instrument context
+     */
     void init(PluginContext pluginContext);
 }

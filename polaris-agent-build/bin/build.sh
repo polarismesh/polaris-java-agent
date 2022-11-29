@@ -25,6 +25,8 @@ mkdir -p "${folder_name}"
 mkdir -p "${folder_name}/conf"
 mkdir -p "${folder_name}/plugins"
 
+cp "polaris-agent-build/conf/polaris-agent.config" "${folder_name}/conf"
+
 echo "start to build package"
 docker run --rm -u root -v "$(pwd)":/home/maven/project -w /home/maven/project maven:3.8.6-openjdk-8 mvn clean -B package --file pom.xml
 
