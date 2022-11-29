@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations under the License.
  */
 
-
 package cn.polarismesh.agent.core.common.utils;
 
 import java.util.Objects;
@@ -23,16 +22,17 @@ import java.util.jar.JarEntry;
 
 public class ExtensionFilter implements JarEntryFilter {
 
-	public static final JarEntryFilter CLASS_FILTER = new ExtensionFilter(".class");
+    public static final JarEntryFilter CLASS_FILTER = new ExtensionFilter(".class");
 
-	private final String extension;
+    private final String extension;
 
-	public ExtensionFilter(String extension) {
-		this.extension = Objects.requireNonNull(extension, "extension");
-	}
+    public ExtensionFilter(String extension) {
+        this.extension = Objects.requireNonNull(extension, "extension");
+    }
 
-	@Override
-	public boolean filter(JarEntry jarEntry) {
-		final String name = jarEntry.getName(); return name.endsWith(extension);
-	}
+    @Override
+    public boolean filter(JarEntry jarEntry) {
+        final String name = jarEntry.getName();
+        return name.endsWith(extension);
+    }
 }
