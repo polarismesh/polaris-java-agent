@@ -45,8 +45,7 @@
         <configuration>
           <archive>
             <manifestEntries>
-              <Plugin-Id>${project.groupId}:${project.artifactId}
-              </Plugin-Id>
+              <Plugin-Id>${project.artifactId}</Plugin-Id>
               <Plugin-Compiler-Version>${jdk.version}
               </Plugin-Compiler-Version>
             </manifestEntries>
