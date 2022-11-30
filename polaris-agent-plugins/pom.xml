@@ -13,7 +13,7 @@
     <artifactId>polaris-agent-plugins</artifactId>
     <packaging>pom</packaging>
     <modules>
-<!--		<module>spring-cloud-plugins</module>-->
+		<module>spring-cloud-plugins</module>
         <module>demo-plugins</module>
         <module>nacos-plugins</module>
 	</modules>

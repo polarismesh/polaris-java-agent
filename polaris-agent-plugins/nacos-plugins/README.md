@@ -11,7 +11,7 @@
 
 polaris-java-agent通过Java字节码增强技术，将拦截器注入到应用中，实现应用的双注册发现以及就近路由。
 
-nacos-plugins根据不同的nacos client版本，通过配置系统变量-Dplugins.enable=nacos-xx-plugin(详见最后的版本支持介绍)来自动选择对应版本的插件进行加载，提供无侵入的方式，供Java应用来对接，支持以下应用场景：
+nacos-plugins根据不同的nacos client版本，通过配置系统变量-Dplugins.enable=nacos-xxx-plugin(详见最后的版本支持介绍)来自动选择对应版本的插件进行加载，提供无侵入的方式，供Java应用来对接，支持以下应用场景：
 
 - Nacos 迁移
 - Nacos 多活容灾
@@ -29,6 +29,7 @@ nacos-plugins根据不同的nacos client版本，通过配置系统变量-Dplugi
 ```shell
 java
   -javaagent:/***/polaris-java-agent-v*/polaris-agent-core-bootstrap.jar
+  -Dplugins.enable=nacos-xxx-plugin  
   -Dnacos.cluster.name=cluster-1
   -Dother.nacos.server.addr=xx.xx.xx.xx
 -jar xx.jar
@@ -39,7 +40,7 @@ java
 ```shell
 java
   -javaagent:/***/polaris-java-agent-v*/polaris-agent-core-bootstrap.jar
-  -Dplugins.enable=nacos-xx-plugin
+  -Dplugins.enable=nacos-xxx-plugin
   -Dnacos.cluster.name=cluster-2
   -Dother.nacos.server.addr=xx.xx.xx.xx
 -jar xx.jar
@@ -56,8 +57,8 @@ java
 
 ```shell
 java
-  -javaagent:/***/polaris-java-agent-v*/polaris-java-agent-bootstrap.jar
-  -Dplugins.enable=nacos-xx-plugin
+  -javaagent:/***/polaris-java-agent-v*/polaris-agent-core-bootstrap.jar
+  -Dplugins.enable=nacos-xxx-plugin
   -Dnacos.cluster.name=cluster-1
   -Dother.nacos.server.addr=xx.xx.xx.xx
   -Drouter.nearby.level=nacos-cluster
@@ -68,7 +69,8 @@ java
 
 ```shell
 java
-  -javaagent:/***/polaris-java-agent-v*/polaris-java-agent-bootstrap.jar
+  -javaagent:/***/polaris-java-agent-v*/polaris-agent-core-bootstrap.jar
+  -Dplugins.enable=nacos-xxx-plugin
   -Dnacos.cluster.name=cluster-2
   -Dother.nacos.server.addr=xx.xx.xx.xx
   -Drouter.nearby.level=nacos-cluster
@@ -81,6 +83,7 @@ polaris-java-agent提供以下配置项，所有的配置项通过系统变量�
 
 | 配置项                     | 描述 | 必填 | 可选值 | 默认值 |
 | ------------------------- | --- | --- | --- | --- |
+| plugins.enable       | 选择需要加载的插件 | 是 |nacos-130-plugin, nacos-131-plugin, nacos-141-plugin, nacos-210-plugin | 无 |
 | nacos.cluster.name        | 主 Nacos 集群名称 | 是 | | 无 |
 | other.nacos.server.addr   | 另一个 Nacos 集群的访问地址 | 是 | | 无 |
 | router.nearby.level       | 就近路由级别 | 否 | null, nacos_cluster | null |
