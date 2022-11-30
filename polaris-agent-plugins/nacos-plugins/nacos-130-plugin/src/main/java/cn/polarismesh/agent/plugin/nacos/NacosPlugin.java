@@ -17,9 +17,9 @@ import java.security.ProtectionDomain;
  * @author bruceppeng
  */
 
-public class MainPlugin implements AgentPlugin {
+public class NacosPlugin implements AgentPlugin {
 
-    //private static final Logger LOGGER = LoggerFactory.getLogger(MainPlugin.class);
+    //private static final Logger LOGGER = LoggerFactory.getLogger(NacosPlugin.class);
 
     @Override
     public void init(PluginContext pluginContext) {

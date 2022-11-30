@@ -12,14 +12,14 @@ import cn.polarismesh.agent.plugin.nacos.interceptor.NacosNamingFactoryIntercept
 import java.security.ProtectionDomain;
 
 /**
- * nacos 2.1.0 Plugin
+ * nacos 1.3.1 Plugin
  *
  * @author bruceppeng
  */
 
-public class MainPlugin implements AgentPlugin {
+public class NacosPlugin implements AgentPlugin {
 
-    //private static final Logger LOGGER = LoggerFactory.getLogger(MainPlugin.class);
+    //private static final Logger LOGGER = LoggerFactory.getLogger(NacosPlugin.class);
 
     @Override
     public void init(PluginContext pluginContext) {
