@@ -11,7 +11,7 @@
 
 polaris-java-agent通过Java字节码增强技术，将拦截器注入到应用中，实现应用的双注册发现以及就近路由。
 
-nacos-plugins根据不同的nacos client版本，提供无侵入的方式，供Java应用来对接，支持以下应用场景：
+nacos-plugins根据不同的nacos client版本，通过配置系统变量-Dplugins.enable=nacos-xx-plugin(详见最后的版本支持介绍)来自动选择对应版本的插件进行加载，提供无侵入的方式，供Java应用来对接，支持以下应用场景：
 
 - Nacos 迁移
 - Nacos 多活容灾
@@ -28,7 +28,7 @@ nacos-plugins根据不同的nacos client版本，提供无侵入的方式，供J
 
 ```shell
 java
-  -javaagent:/***/polaris-java-agent-v*/polaris-java-agent-bootstrap.jar
+  -javaagent:/***/polaris-java-agent-v*/polaris-agent-core-bootstrap.jar
   -Dnacos.cluster.name=cluster-1
   -Dother.nacos.server.addr=xx.xx.xx.xx
 -jar xx.jar
@@ -38,7 +38,8 @@ java
 
 ```shell
 java
-  -javaagent:/***/polaris-java-agent-v*/polaris-java-agent-bootstrap.jar
+  -javaagent:/***/polaris-java-agent-v*/polaris-agent-core-bootstrap.jar
+  -Dplugins.enable=nacos-xx-plugin
   -Dnacos.cluster.name=cluster-2
   -Dother.nacos.server.addr=xx.xx.xx.xx
 -jar xx.jar
@@ -56,6 +57,7 @@ java
 ```shell
 java
   -javaagent:/***/polaris-java-agent-v*/polaris-java-agent-bootstrap.jar
+  -Dplugins.enable=nacos-xx-plugin
   -Dnacos.cluster.name=cluster-1
   -Dother.nacos.server.addr=xx.xx.xx.xx
   -Drouter.nearby.level=nacos-cluster
@@ -88,7 +90,7 @@ polaris-java-agent提供以下配置项，所有的配置项通过系统变量�
 下载 Polaris Java Agent,
 当前支持的nacos client版本:
 
-- [x] 1.3.0
-- [x] 1.3.1
-- [x] 1.4.1
-- [x] 2.1.0
+- [x] 1.3.0 (对应插件: nacos-130-plugin)
+- [x] 1.3.1 (对应插件: nacos-131-plugin)
+- [x] 1.4.1 (对应插件: nacos-141-plugin)
+- [x] 2.1.0 (对应插件: nacos-210-plugin)
