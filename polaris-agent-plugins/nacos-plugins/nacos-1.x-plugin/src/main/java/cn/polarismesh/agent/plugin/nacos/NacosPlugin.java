@@ -10,7 +10,6 @@ import cn.polarismesh.agent.core.extension.instrument.InstrumentMethod;
 import cn.polarismesh.agent.core.extension.instrument.Instrumentor;
 import cn.polarismesh.agent.core.extension.transform.TransformCallback;
 import cn.polarismesh.agent.core.extension.transform.TransformOperations;
-import cn.polarismesh.agent.plugin.nacos.asm.ProxyDump;
 import cn.polarismesh.agent.plugin.nacos.constants.NacosConstants;
 import cn.polarismesh.agent.plugin.nacos.interceptor.NamingFactoryCreateNamingServiceInterceptor;
 

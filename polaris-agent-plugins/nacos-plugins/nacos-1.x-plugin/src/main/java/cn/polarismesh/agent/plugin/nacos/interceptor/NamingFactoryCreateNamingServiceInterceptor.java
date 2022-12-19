@@ -27,9 +27,6 @@ public class NamingFactoryCreateNamingServiceInterceptor implements Interceptor 
             ClassLoader classLoader = Class.forName("com.alibaba.nacos.client.naming.net.NamingProxy").getClassLoader();
             Class<?> aClass = new AsmDynamicClassLoader(classLoader).loadClass(NacosConstants.NAMING_PROXY);
             Object nacosNamingProxy = aClass.getConstructors()[0].newInstance(namespace, endpoint, serverList, properties);
-//            Object nacosNamingProxy = Class.forName(NacosConstants.NAMING_PROXY).getConstructors()[0].newInstance(namespace, endpoint, serverList, properties);
-//        Object nacosNamingProxy = new NacosNamingProxy(namespace, endpoint, serverList, properties);
-//            nacosNamingProxy = new DynamicNamingProxyAfter130(namespace, endpoint, serverList, properties);
 
             // 强行替换 BeatReactor 的 serverProxy 为 nacosNamingProxy
             Object beatReactor = ReflectionUtils.getObjectByFieldName(result, NacosConstants.BEAT_REACTOR);

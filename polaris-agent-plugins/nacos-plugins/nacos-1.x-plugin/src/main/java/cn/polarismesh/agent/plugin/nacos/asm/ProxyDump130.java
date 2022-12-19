@@ -4,8 +4,7 @@ package cn.polarismesh.agent.plugin.nacos.asm;
 import org.objectweb.asm.*;
 
 
-
-public class ProxyDump implements Opcodes {
+public class ProxyDump130 implements Opcodes {
 
 
 
