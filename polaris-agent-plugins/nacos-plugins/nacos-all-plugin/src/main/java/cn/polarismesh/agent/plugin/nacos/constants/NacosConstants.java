@@ -42,6 +42,10 @@ public class NacosConstants {
     public static final String BEAT_REACTOR = "beatReactor";
     public static final String HOST_REACTOR = "hostReactor";
 
+    public static final String CLIENT_PROXY = "clientProxy";
+    public static final String SERVICE_INFO_HOLDER = "serviceInfoHolder";
+    public static final String CHANGE_NOTIFIER = "changeNotifier";
+
     //反射所用方法名称
     public static final String METHDO_INIT_CLIENT_BEAT_THREAD_COUNT = "initClientBeatThreadCount";
     public static final String METHDO_IS_LOAD_CACHE_AT_START = "isLoadCacheAtStart";
@@ -72,6 +76,7 @@ public class NacosConstants {
 
     //    public static final String NAMING_PROXY = "com.alibaba.nacos.client.naming.net.NamingProxy";
     public static final String NAMING_PROXY = "cn.polarismesh.agent.plugin.nacos.delegate.DynamicNamingProxy";
+    public static final String NAMING_CLIENT_PROXY = "cn.polarismesh.agent.plugin.nacos.delegate.DynamicNamingClientProxy";
     public static final String NAMING_PROXY_PATH = "cn/polarismesh/agent/plugin/nacos/delegate/NamingProxy";
     public static final String TARGET_METHOD = "callServer";
     public static final String STRING_TYPE = "java.lang.String";

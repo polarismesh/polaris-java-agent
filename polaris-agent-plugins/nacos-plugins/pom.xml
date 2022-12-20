@@ -18,7 +18,7 @@
     <module>nacos-131-plugin</module>
     <module>nacos-141-plugin</module>
     <module>nacos-210-plugin</module>
-    <module>nacos-1.x-plugin</module>
+    <module>nacos-all-plugin</module>
   </modules>
 
   <properties>

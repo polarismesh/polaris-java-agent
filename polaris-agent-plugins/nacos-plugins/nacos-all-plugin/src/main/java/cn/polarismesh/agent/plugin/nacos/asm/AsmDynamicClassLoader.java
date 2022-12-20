@@ -12,6 +12,7 @@ public class AsmDynamicClassLoader extends ClassLoader {
 
     static {
         generatorMap.put(NacosConstants.NAMING_PROXY, new NamingProxyGenerator());
+        generatorMap.put(NacosConstants.NAMING_CLIENT_PROXY, new NamingClientProxyGenerator());
     }
 
     public AsmDynamicClassLoader(ClassLoader parent) {

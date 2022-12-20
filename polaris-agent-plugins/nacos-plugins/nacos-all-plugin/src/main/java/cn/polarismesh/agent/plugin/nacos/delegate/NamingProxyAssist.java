@@ -143,4 +143,8 @@ public class NamingProxyAssist {
         params.put(NacosConstants.METADATA, JacksonUtils.toJson(metadata));
 
     }
+
+    public String getNacosClusterName(){
+        return this.nacosClusterName;
+    }
 }
