@@ -5,7 +5,6 @@ import cn.polarismesh.agent.plugin.nacos.constants.NacosConstants;
 
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.client.naming.net.NamingProxy;
-import com.alibaba.nacos.client.utils.LogUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,14 +12,15 @@ import java.util.Map;
 import java.util.Properties;
 
 
-public class DynamicNamingProxy114 extends NamingProxy {
+public class DynamicNamingProxy extends NamingProxy {
+
 
     private String secondaryServer;
     private NamingProxyAssist assist;
     private Logger logger = LoggerFactory.getLogger("com.alibaba.nacos.client.naming");
 
 
-    public DynamicNamingProxy114(String namespaceId, String endpoint, String serverList, Properties properties) {
+    public DynamicNamingProxy(String namespaceId, String endpoint, String serverList, Properties properties) {
         super(namespaceId, endpoint, serverList);
         init();
     }
@@ -31,7 +31,7 @@ public class DynamicNamingProxy114 extends NamingProxy {
     }
 
     @Override
-    public String callServer(String api, Map<String, String> params,  String curServer, String method) throws NacosException {
+    public String callServer(String api, Map<String, String> params, String curServer, String method) throws NacosException {
         String fullApi = api + NacosConstants.LINK_FLAG + method;
 
         // 在注册服务时候插入元数据
@@ -48,28 +48,69 @@ public class DynamicNamingProxy114 extends NamingProxy {
             return queryListCallServerProxy(api, params, curServer, method);
         }
 
-        String s = super.callServer(api, params, curServer, method);
+        String primaryRet = null;
+        NacosException primaryEx = null;
         try {
-            super.callServer(api, params, this.secondaryServer, method);
+            primaryRet = super.callServer(api, params, curServer, method);
         } catch (NacosException e) {
-            LogUtils.NAMING_LOGGER.error("secondaryServer callServer failed: {} ", this.secondaryServer, e);
+            primaryEx = e;
+            logger.error("primaryServer callServer failed: {} ", curServer, e);
         }
-        return s;
+
+        String secondaryRet = null;
+        NacosException secondaryEx = null;
+        try {
+            secondaryRet = super.callServer(api, params, this.secondaryServer, method);
+        } catch (NacosException e) {
+            secondaryEx = e;
+            logger.error("secondaryServer callServer failed: {} ", this.secondaryServer, e);
+        }
+
+        // 两次调用都失败
+        if (primaryEx != null && secondaryEx != null) {
+            throw primaryEx;
+        }
+
+        // 优先返回 primary 的结果
+        if (primaryEx == null) {
+            return primaryRet;
+        } else {
+            return secondaryRet;
+        }
     }
 
     private String queryListCallServerProxy(String api, Map<String, String> params, String curServer, String method) throws NacosException {
-        String primaryList = super.callServer(api, params, curServer, method);
+        String primaryList = "";
+        NacosException primaryEx = null;
+        try {
+            primaryList = super.callServer(api, params,  curServer, method);
+        } catch (NacosException e) {
+            primaryEx = e;
+            logger.error("queryListCallServerProxy  {} failed.", curServer, e);
+        }
         String secondaryList = "";
+        NacosException secondaryEx = null;
         try {
             secondaryList = super.callServer(api, params, secondaryServer, method);
         } catch (NacosException e) {
+            secondaryEx = e;
             logger.error("queryListCallServerProxy  {} failed.", this.secondaryServer, e);
         }
+        // 两次调用都失败
+        if (primaryEx != null && secondaryEx != null) {
+            throw primaryEx;
+        }
+
         try {
             return assist.mergeResult(primaryList, secondaryList);
         } catch (Exception e) {
             logger.error("mergeResult failed: ", e);
-            return primaryList;
+            // 优先返回 primary 的结果
+            if (primaryEx == null) {
+                return primaryList;
+            } else {
+                return secondaryList;
+            }
         }
 
     }
