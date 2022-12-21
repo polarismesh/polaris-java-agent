@@ -4,14 +4,14 @@
 - [使用指南](#使用指南)
   - [Nacos 迁移](#nacos-迁移)
   - [Nacos 多活容灾](#nacos-多活容灾)
-- [参数列表](#参数列表)
-- [版本支持](#版本支持) 
+- [参数配置](#参数配置)
+- [版本支持](#版本支持)
 
 ## 简介
 
-polaris-java-agent通过Java字节码增强技术，将拦截器注入到应用中，实现应用的双注册发现以及就近路由。
+nacos-plugins是基于 [polaris-java-agent](../../README-zh.md) 开发的针对nacos-client的插件，得益于polaris-java-agent的无侵入性，nacos-plugins 也可以通过无侵入的方式，为使用了nacos-client的Java应用提供了服务双注册双发现及就近路由的功能。
 
-nacos-plugins根据不同的nacos client版本，通过配置系统变量-Dplugins.enable=nacos-xxx-plugin(详见最后的版本支持介绍)来自动选择对应版本的插件进行加载，提供无侵入的方式，供Java应用来对接，支持以下应用场景：
+nacos-all-plugin屏蔽了不同nacos-client版本之间的差异，只需要通过配置系统变量-Dplugins.enable=nacos-all-plugin(详见最后的版本支持介绍)即可开启服务双注册双发现及就近路由的能力，主要应用于以下场景：
 
 - Nacos 迁移
 - Nacos 多活容灾
@@ -23,8 +23,11 @@ nacos-plugins根据不同的nacos client版本，通过配置系统变量-Dplugi
 ![](pic/nacos-double-registry.png)
 
 #### 应用场景说明
-支持将应用从当前nacos集群平滑迁移到另一个nacos集群，如：将应用从自建nacos集群迁移到腾讯云的TSE nacos集群，同时TSE nacos还提供了数据迁移的能力，可以将nacos依赖的db里面的数据实时同步到TSE nacos的db里面。
+支持将应用从当前nacos集群平滑迁移到另一个nacos集群，如：将应用从自建nacos集群迁移到腾讯云的TSE nacos集群，另外TSE nacos还提供了数据迁移的能力，可以将nacos依赖的db里面的数据实时同步到TSE nacos的db里面。
+
 #### 接入方式
+
+启动应用，同时接入 Nacos 集群1
 
 ```shell
 java
@@ -35,7 +38,7 @@ java
 -jar xx.jar
 ```
 
-启动应用，接入 Nacos 集群2
+启动应用，同时接入 Nacos 集群2
 
 ```shell
 java
@@ -45,6 +48,8 @@ java
   -Dother.nacos.server.addr=xx.xx.xx.xx
 -jar xx.jar
 ```
+
+此时应用会同时注册到集群1和集群2，从而实现滚动平滑迁移。
 
 ### Nacos 多活容灾
 
@@ -61,7 +66,7 @@ java
   -Dplugins.enable=nacos-xxx-plugin
   -Dnacos.cluster.name=cluster-1
   -Dother.nacos.server.addr=xx.xx.xx.xx
-  -Drouter.nearby.level=nacos-cluster
+  -Drouter.nearby.level=nacos_cluster
 -jar xx.jar
 ```
 
@@ -73,7 +78,7 @@ java
   -Dplugins.enable=nacos-xxx-plugin
   -Dnacos.cluster.name=cluster-2
   -Dother.nacos.server.addr=xx.xx.xx.xx
-  -Drouter.nearby.level=nacos-cluster
+  -Drouter.nearby.level=nacos_cluster
 -jar xx.jar
 ```
 
@@ -81,19 +86,19 @@ java
 
 polaris-java-agent提供以下配置项，所有的配置项通过系统变量（-D参数）的方式进行配置。
 
-| 配置项                     | 描述 | 必填 | 可选值 | 默认值 |
-| ------------------------- | --- | --- | --- | --- |
-| plugins.enable       | 选择需要加载的插件 | 是 |nacos-130-plugin, nacos-131-plugin, nacos-141-plugin, nacos-210-plugin | 无 |
-| nacos.cluster.name        | 主 Nacos 集群名称 | 是 | | 无 |
-| other.nacos.server.addr   | 另一个 Nacos 集群的访问地址 | 是 | | 无 |
-| router.nearby.level       | 就近路由级别 | 否 | null, nacos_cluster | null |
+| 配置项                  | 描述                              | 必填 | 可选值              | 默认值 |
+| ----------------------- | --------------------------------- | ---- | ------------------- | ------ |
+| plugins.enable          | 选择需要加载的插件                | 是   | nacos-all-plugin    | 无     |
+| nacos.cluster.name      | Nacos 集群名称/标签，唯一标识即可 | 是   |                     | 无     |
+| other.nacos.server.addr | 另一个 Nacos 集群的访问地址       | 是   |                     | 无     |
+| router.nearby.level     | 就近路由级别                      | 否   | null, nacos_cluster | null   |
 
 ## 版本支持
 [Github 地址](https://github.com/polarismesh/polaris-java-agent/releases)
 下载 Polaris Java Agent,
-当前支持的nacos client版本:
+当前nacos-client版本支持情况:
 
-- [x] 1.3.0 (对应插件: nacos-130-plugin)
-- [x] 1.3.1 (对应插件: nacos-131-plugin)
-- [x] 1.4.1 (对应插件: nacos-141-plugin)
-- [x] 2.1.0 (对应插件: nacos-210-plugin)
+- [x] 1.x
+- [x] 2.0.x
+- [x] 2.1.x
+- [ ] 2.2.x(尚未支持)
