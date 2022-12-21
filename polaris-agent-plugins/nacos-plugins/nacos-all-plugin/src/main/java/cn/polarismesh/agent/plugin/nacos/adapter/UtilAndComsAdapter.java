@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class UtilAndComsAdapter {
 
+    public static final int REQUEST_DOMAIN_RETRY_COUNT = 3;
 
     public static final String BEFORE_130_NACOS_URL_INSTANCE = "NACOS_URL_INSTANCE";
     public static final String AFTER_130_NACOS_URL_INSTANCE = "nacosUrlInstance";

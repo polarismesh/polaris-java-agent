@@ -86,4 +86,6 @@ public class NacosConstants {
     public static final String NACOS_NAMING_FACTORY = "com.alibaba.nacos.api.naming.NamingFactory";
 
 
+    public static final String NAMING_REQUEST_DOMAIN_RETRY_COUNT = "namingRequestDomainMaxRetryCount";
+
 }

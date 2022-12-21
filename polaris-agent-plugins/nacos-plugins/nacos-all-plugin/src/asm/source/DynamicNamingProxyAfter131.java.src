@@ -5,6 +5,7 @@ import cn.polarismesh.agent.plugin.nacos.adapter.UtilAndComsAdapter;
 import cn.polarismesh.agent.plugin.nacos.constants.NacosConstants;
 
 import cn.polarismesh.agent.plugin.nacos.utils.ConvertUtils;
+import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.client.naming.net.NamingProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,7 @@ public class DynamicNamingProxy extends NamingProxy {
 
 
     public DynamicNamingProxy(String namespaceId, String endpoint, String serverList, Properties properties) {
-        super(namespaceId, endpoint, serverList);
+        super(namespaceId, endpoint, serverList, properties);
         this.maxRetry = ConvertUtils.toInt(properties.getProperty(NacosConstants.NAMING_REQUEST_DOMAIN_RETRY_COUNT), UtilAndComsAdapter.REQUEST_DOMAIN_RETRY_COUNT);
         init();
     }
@@ -36,7 +37,7 @@ public class DynamicNamingProxy extends NamingProxy {
 
 
     @Override
-    public String reqAPI(String api, Map<String, String> params,  List<String> servers, String method) {
+    public String reqApi(String api, Map<String, String> params, Map<String, String> body, List<String> servers, String method) throws NacosException {
         String fullApi = api + NacosConstants.LINK_FLAG + method;
 
         // 在注册服务时候插入元数据
@@ -50,23 +51,23 @@ public class DynamicNamingProxy extends NamingProxy {
 
         // 查询列表时候从组合两个数据源
         if (NacosConstants.QUERY_LIST.equals(fullApi)) {
-            return queryListReqApiProxy(api, params, servers, method);
+            return queryListReqApiProxy(api, params, body, servers, method);
         }
 
         String primaryRet = null;
-        IllegalStateException primaryEx = null;
+        NacosException primaryEx = null;
         try {
-            primaryRet = super.reqAPI(api, params, servers, method);
-        } catch (IllegalStateException e) {
+            primaryRet = super.reqApi(api, params, body, servers, method);
+        } catch (NacosException e) {
             primaryEx = e;
             logger.error("primaryServer reqApi failed: {} ", servers, e);
         }
 
         String secondaryRet = null;
-        IllegalStateException secondaryEx = null;
+        NacosException secondaryEx = null;
         try {
-            secondaryRet = secondaryReqApi(api, params, this.secondaryServers, method);
-        } catch (IllegalStateException e) {
+            secondaryRet = secondaryReqApi(api, params, body, this.secondaryServers, method);
+        } catch (NacosException e) {
             secondaryEx = e;
             logger.error("secondaryServer reqApi failed: {} ", this.secondaryServers, e);
         }
@@ -84,14 +85,14 @@ public class DynamicNamingProxy extends NamingProxy {
         }
     }
 
-    private String secondaryReqApi(String api, Map<String, String> params, List<String> secondaryServers, String method)  {
-        Exception exception = null;
+    private String secondaryReqApi(String api, Map<String, String> params, Map<String, String> body, List<String> secondaryServers, String method) throws NacosException {
+        NacosException exception = null;
         if (secondaryServers.size() == 1) {
             for (int i = 0; i < maxRetry; i++) {
                 try {
-                    return callServer(api, params,  secondaryServers.get(0), method);
-                } catch (Exception e) {
-                    exception = new IllegalStateException(e);
+                    return callServer(api, params, body, secondaryServers.get(0), method);
+                } catch (NacosException e) {
+                    exception = e;
                     if (logger.isDebugEnabled()) {
                         logger.debug("DynamicNamingProxy request {} failed.", secondaryServers.get(0), e);
                     }
@@ -103,8 +104,8 @@ public class DynamicNamingProxy extends NamingProxy {
             for (int i = 0; i < secondaryServers.size(); i++) {
                 String server = secondaryServers.get(index);
                 try {
-                    return callServer(api, params, server, method);
-                } catch (Exception e) {
+                    return callServer(api, params, body, server, method);
+                } catch (NacosException e) {
                     exception = e;
                     if (logger.isDebugEnabled()) {
                         logger.debug("DynamicNamingProxy request {} failed.", server, e);
@@ -113,29 +114,29 @@ public class DynamicNamingProxy extends NamingProxy {
                 index = (index + 1) % secondaryServers.size();
             }
         }
-        throw exception == null ? new IllegalStateException() : new IllegalStateException(exception);
+        throw exception == null ? new NacosException() : exception;
     }
 
-    private String queryListReqApiProxy(String api, Map<String, String> params, List<String> servers, String method)  {
+    private String queryListReqApiProxy(String api, Map<String, String> params, Map<String, String> body, List<String> servers, String method) throws NacosException {
         String primaryList = "";
-        Exception primaryEx = null;
+        NacosException primaryEx = null;
         try {
-            primaryList = super.reqAPI(api, params,  servers, method);
-        } catch (Exception e) {
+            primaryList = super.reqApi(api, params, body, servers, method);
+        } catch (NacosException e) {
             primaryEx = e;
             logger.error("DynamicNamingProxy queryListReqApiProxy {} failed.", servers, e);
         }
         String secondaryList = "";
-        Exception secondaryEx = null;
+        NacosException secondaryEx = null;
         try {
-            secondaryList = secondaryReqApi(api, params,this.secondaryServers, method);
-        } catch (Exception e) {
+            secondaryList = secondaryReqApi(api, params, body, this.secondaryServers, method);
+        } catch (NacosException e) {
             secondaryEx = e;
             logger.error("DynamicNamingProxy secondaryServer queryListReqApiProxy  {} failed.", this.secondaryServers, e);
         }
         // 两次调用都失败
         if (primaryEx != null && secondaryEx != null) {
-            throw new IllegalStateException(primaryEx);
+            throw primaryEx;
         }
 
         try {
