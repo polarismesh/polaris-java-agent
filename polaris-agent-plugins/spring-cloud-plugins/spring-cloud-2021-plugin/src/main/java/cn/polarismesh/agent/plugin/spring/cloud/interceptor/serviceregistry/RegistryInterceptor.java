@@ -24,12 +24,15 @@ import cn.polarismesh.agent.plugin.spring.cloud.common.DiscoveryUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.common.PolarisOperator;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
+import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
 import com.tencent.cloud.polaris.PolarisDiscoveryProperties;
 import com.tencent.cloud.polaris.registry.PolarisRegistration;
 import com.tencent.cloud.polaris.registry.PolarisServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext;
+import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.client.serviceregistry.ServiceRegistry;
@@ -76,22 +79,27 @@ public class RegistryInterceptor extends BaseInterceptor {
 					DiscoveryUtils.buildDiscoveryHandler(), Holder.getStaticMetadataManager());
 		}
 
+		private PolarisRegistration buildPolarisRegistration() {
+			PolarisRegistration registration = new PolarisRegistration(Holder.getDiscoveryProperties(),
+					Holder.getConsulContextProperties(),
+					PolarisOperator.getInstance().getSdkContext(),
+					Holder.getStaticMetadataManager(),
+					Holder.getNacosContextProperties(),
+					ApplicationContextAwareUtils.getApplicationContext().getBean(ServletWebServerApplicationContext.class),
+					ApplicationContextAwareUtils.getApplicationContext().getBean(ReactiveWebServerApplicationContext.class)
+			);
+			return registration;
+		}
+
 		@Override
 		public void register(Registration registration) {
 			LOGGER.info("[PolarisAgent] begin do register to polaris action.");
 			PolarisDiscoveryProperties properties = Holder.getDiscoveryProperties();
-
 			if (StringUtils.isEmpty(properties.getService())) {
 				properties.setService(registration.getServiceId());
 			}
-			properties.setPort(registration.getPort());
-
-			polarisRegistry.register(new PolarisRegistration(Holder.getDiscoveryProperties(),
-					Holder.getConsulContextProperties(),
-					PolarisOperator.getInstance().getSdkContext(),
-					Holder.getStaticMetadataManager(),
-					Holder.getNacosContextProperties()
-			));
+			PolarisRegistration polarisRegistration = buildPolarisRegistration();
+			polarisRegistry.register(polarisRegistration);
 		}
 
 		@Override
@@ -102,14 +110,8 @@ public class RegistryInterceptor extends BaseInterceptor {
 			if (StringUtils.isEmpty(properties.getService())) {
 				properties.setService(registration.getServiceId());
 			}
-			properties.setPort(registration.getPort());
-
-			polarisRegistry.deregister(new PolarisRegistration(Holder.getDiscoveryProperties(),
-					Holder.getConsulContextProperties(),
-					PolarisOperator.getInstance().getSdkContext(),
-					Holder.getStaticMetadataManager(),
-					Holder.getNacosContextProperties()
-			));
+			PolarisRegistration polarisRegistration = buildPolarisRegistration();
+			polarisRegistry.deregister(polarisRegistration);
 		}
 
 		@Override
@@ -120,22 +122,14 @@ public class RegistryInterceptor extends BaseInterceptor {
 
 		@Override
 		public void setStatus(Registration registration, String status) {
-			polarisRegistry.setStatus(new PolarisRegistration(Holder.getDiscoveryProperties(),
-					Holder.getConsulContextProperties(),
-					PolarisOperator.getInstance().getSdkContext(),
-					Holder.getStaticMetadataManager(),
-					Holder.getNacosContextProperties()
-			), status);
+			PolarisRegistration polarisRegistration = buildPolarisRegistration();
+			polarisRegistry.setStatus(polarisRegistration, status);
 		}
 
 		@Override
 		public <T> T getStatus(Registration registration) {
-			return (T) polarisRegistry.getStatus(new PolarisRegistration(Holder.getDiscoveryProperties(),
-					Holder.getConsulContextProperties(),
-					PolarisOperator.getInstance().getSdkContext(),
-					Holder.getStaticMetadataManager(),
-					Holder.getNacosContextProperties()
-			));
+			PolarisRegistration polarisRegistration = buildPolarisRegistration();
+			return (T) polarisRegistry.getStatus(polarisRegistration);
 		}
 	}
 
