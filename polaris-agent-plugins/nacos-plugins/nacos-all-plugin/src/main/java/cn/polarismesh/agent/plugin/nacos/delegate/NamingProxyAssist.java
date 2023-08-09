@@ -41,7 +41,7 @@ public class NamingProxyAssist {
             return "";
         }
         List<Map> primary = parseHost(result);
-        List<Map> secondary = parseHost(result);
+        List<Map> secondary = parseHost(secondResult);
         List<Map> mergedHost = mergeInstance(primary, secondary);
         mergedServiceInfo.put("hosts", mergedHost);
         return JacksonUtils.toJson(mergedServiceInfo);
