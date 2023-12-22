@@ -92,5 +92,4 @@ public class RpcEnhancementHandler implements ApplicationContextAware {
 	private EnhancedPluginRunner newEnhancedPluginRunner(SDKContext context, Registration registration) {
 		return new DefaultEnhancedPluginRunner(Collections.emptyList(), registration, context);
 	}
-
 }

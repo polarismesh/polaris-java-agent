@@ -16,6 +16,6 @@
 		<module>spring-cloud-plugins</module>
         <module>demo-plugins</module>
         <module>nacos-plugins</module>
-	</modules>
+    </modules>
 
 </project>
