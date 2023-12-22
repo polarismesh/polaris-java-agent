@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>spring-cloud-plugins</artifactId>
         <groupId>com.tencent.polaris</groupId>
@@ -10,12 +10,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spring-cloud-2021-plugin</artifactId>
+    <artifactId>spring-cloud-2020-plugin</artifactId>
 
     <properties>
-        <spring.cloud.version>2021.0.8</spring.cloud.version>
-        <spring.cloud.tencent.version>1.12.4-2021.0.8</spring.cloud.tencent.version>
-        <spring.boot.version>2.6.13</spring.boot.version>
+        <spring.cloud.version>2020.0.6</spring.cloud.version>
+        <spring.cloud.tencent.version>1.12.5-2020.0.6</spring.cloud.tencent.version>
+        <spring.boot.version>2.4.13</spring.boot.version>
         <slf4j.vesion>1.7.30</slf4j.vesion>
     </properties>
 

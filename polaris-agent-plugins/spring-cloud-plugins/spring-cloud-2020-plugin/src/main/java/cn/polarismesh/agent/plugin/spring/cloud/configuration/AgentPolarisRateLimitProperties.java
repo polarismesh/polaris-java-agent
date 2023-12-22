@@ -1,3 +1,4 @@
+
 /*
  * Tencent is pleased to support the open source community by making Polaris available.
  *
@@ -15,19 +16,22 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.plugin.spring.cloud.common;
+package cn.polarismesh.agent.plugin.spring.cloud.configuration;
 
-import com.tencent.cloud.polaris.discovery.PolarisDiscoveryHandler;
+import com.tencent.cloud.polaris.ratelimit.config.PolarisRateLimitProperties;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class DiscoveryUtils {
+public class AgentPolarisRateLimitProperties extends PolarisRateLimitProperties {
 
-	public static PolarisDiscoveryHandler buildDiscoveryHandler() {
-		return new PolarisDiscoveryHandler(
-				Holder.getDiscoveryProperties(), Holder.getContextManager()
-		);
+	private boolean enabled;
+
+	public boolean isEnabled() {
+		return enabled;
 	}
 
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 }
