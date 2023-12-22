@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.6.11</version>
+		<version>2.4.13</version>
 		<relativePath/>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<name>2021-service-a</name>
+	<name>2020-service-a</name>
 	<description>Demo Service-A Project For Spring Cloud Alibaba</description>
-	<artifactId>2021-service-a</artifactId>
+	<artifactId>2020-service-a</artifactId>
 	<packaging>jar</packaging>
 
 	<dependencyManagement>
@@ -20,7 +20,7 @@
 			<dependency>
 				<groupId>com.alibaba.cloud</groupId>
 				<artifactId>spring-cloud-alibaba-dependencies</artifactId>
-				<version>2021.0.4.0</version>
+				<version>2021.1</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -28,7 +28,7 @@
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>2021.0.4</version>
+				<version>2021.0.1</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

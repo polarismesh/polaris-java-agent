@@ -10,7 +10,7 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>quickstart-examples</artifactId>
+	<artifactId>2021-quickstart-examples</artifactId>
 	<packaging>pom</packaging>
 	<modules>
 		<module>provider</module>
