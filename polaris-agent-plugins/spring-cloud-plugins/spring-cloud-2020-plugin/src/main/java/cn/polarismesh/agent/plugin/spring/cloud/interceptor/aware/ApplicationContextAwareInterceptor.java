@@ -17,11 +17,16 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware;
 
+import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.report.RpcEnhancementHandler;
+import com.tencent.cloud.common.metadata.MetadataContext;
 import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,10 +42,17 @@ public class ApplicationContextAwareInterceptor extends BaseInterceptor {
 	public void onAfter(Object target, Object[] args, Object result, Throwable throwable) {
 		ConfigurableApplicationContext context = (ConfigurableApplicationContext) args[0];
 		ApplicationContextAwareUtils utils = new ApplicationContextAwareUtils();
-		utils.setApplicationContext(context);
 
-		List<ApplicationContextAware> awares = buildAwares();
-		awares.forEach(aware -> aware.setApplicationContext(context));
+		// MetadataContext 需要读取到 agent 配置的内容
+		AnnotationConfigApplicationContext tmpCtx = new AnnotationConfigApplicationContext((DefaultListableBeanFactory) context.getBeanFactory());
+		tmpCtx.setEnvironment((ConfigurableEnvironment) Holder.getEnvironment());
+		utils.setApplicationContext(tmpCtx);
+		// 触发 MetadataContext 的加载机制
+		MetadataContext metadataContext = new MetadataContext();
+
+		// 设置为真正的 ApplicationContext
+		utils.setApplicationContext(context);
+		buildAwares().forEach(aware -> aware.setApplicationContext(context));
 	}
 
 	private List<ApplicationContextAware> buildAwares() {

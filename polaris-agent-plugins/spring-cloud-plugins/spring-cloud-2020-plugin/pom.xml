@@ -190,6 +190,12 @@
             <artifactId>spring-cloud-starter-tencent-metadata-transfer</artifactId>
             <version>${spring.cloud.tencent.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.tencent.cloud</groupId>
+            <artifactId>spring-cloud-tencent-commons</artifactId>
+            <version>${spring.cloud.tencent.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

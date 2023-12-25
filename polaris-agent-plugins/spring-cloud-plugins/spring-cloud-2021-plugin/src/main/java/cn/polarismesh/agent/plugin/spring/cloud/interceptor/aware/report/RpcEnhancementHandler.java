@@ -49,9 +49,7 @@ public class RpcEnhancementHandler implements ApplicationContextAware {
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		ConfigurableApplicationContext context = (ConfigurableApplicationContext) applicationContext;
-		Registration registration = context.getBeanFactory().getBean(Registration.class);
-
-		EnhancedPluginRunner runner = newEnhancedPluginRunner(Holder.getContextManager().getSDKContext(), registration);
+		EnhancedPluginRunner runner = newEnhancedPluginRunner(Holder.getContextManager().getSDKContext(), null);
 
 		registerRestTemplateReporter(context, runner);
 		registerFeignReporter(context, runner);

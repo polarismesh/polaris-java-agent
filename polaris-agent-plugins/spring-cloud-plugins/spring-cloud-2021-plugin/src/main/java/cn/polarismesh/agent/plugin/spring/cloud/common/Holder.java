@@ -44,8 +44,6 @@ import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementReporterProperties
 import com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatProperties;
 import com.tencent.cloud.rpc.enhancement.stat.config.StatConfigModifier;
 import com.tencent.polaris.api.utils.StringUtils;
-import com.tencent.polaris.factory.ConfigAPIFactory;
-import com.tencent.polaris.factory.config.ConfigurationImpl;
 import com.tencent.polaris.logging.LoggingConsts;
 import com.tencent.polaris.logging.PolarisLogging;
 import org.springframework.boot.context.properties.bind.Bindable;
@@ -57,7 +55,6 @@ import org.springframework.core.ResolvableType;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.StandardEnvironment;
-import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,10 +62,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
@@ -245,19 +240,6 @@ public class Holder {
 		}
 		if (polarisConfigProperties.isEnabled()) {
 			modifiers.add(new ConfigurationModifier(polarisConfigProperties, polarisContextProperties));
-		}
-
-		InputStream stream = Holder.class.getClassLoader().getResourceAsStream("polaris.yml");
-		ConfigurationImpl configuration = (ConfigurationImpl) ConfigAPIFactory.loadConfig(stream);
-		configuration.getGlobal().getAPI().setBindIP(polarisContextProperties.getLocalIpAddress());
-
-		modifiers = modifiers.stream()
-				.sorted(Comparator.comparingInt(PolarisConfigModifier::getOrder))
-				.collect(Collectors.toList());
-		if (!CollectionUtils.isEmpty(modifiers)) {
-			for (PolarisConfigModifier modifier : modifiers) {
-				modifier.modify(configuration);
-			}
 		}
 
 		contextManager = new PolarisSDKContextManager(polarisContextProperties, environment, modifiers);

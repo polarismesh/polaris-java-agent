@@ -57,6 +57,7 @@ public class PluginCreator {
                 logger.info(String.format("[BootStrap] plugin %s has been skip loading", pluginJar.getPluginId()));
                 continue;
             }
+            logger.info(String.format("[BootStrap] plugin %s has been loading", pluginJar.getPluginId()));
             pluginJars.add(pluginJar);
         }
         return pluginJars;
