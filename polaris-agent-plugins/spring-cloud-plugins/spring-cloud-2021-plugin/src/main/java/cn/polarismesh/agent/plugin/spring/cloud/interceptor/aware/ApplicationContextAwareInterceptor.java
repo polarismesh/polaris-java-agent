@@ -17,15 +17,14 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware;
 
-import java.util.Arrays;
-import java.util.List;
-
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.report.RpcEnhancementHandler;
 import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
-
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * {@link org.springframework.context.support.ApplicationContextAwareProcessor#ApplicationContextAwareProcessor(ConfigurableApplicationContext)}
