@@ -10,9 +10,9 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<name>service-c</name>
+	<name>2021-service-c</name>
 	<description>Demo Service-C Project For Spring Cloud Alibaba</description>
-	<artifactId>service-c</artifactId>
+	<artifactId>2021-service-c</artifactId>
 	<packaging>jar</packaging>
 
 	<dependencyManagement>

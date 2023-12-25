@@ -88,8 +88,8 @@ public class RegistryInterceptor extends BaseInterceptor {
 					Holder.getContextManager().getSDKContext(),
 					Holder.getStaticMetadataManager(),
 					Holder.getNacosContextProperties(),
-					ApplicationContextAwareUtils.getApplicationContext().getBean(ServletWebServerApplicationContext.class),
-					ApplicationContextAwareUtils.getApplicationContext().getBean(ReactiveWebServerApplicationContext.class),
+					getBeanIfExist(ServletWebServerApplicationContext.class),
+					getBeanIfExist(ReactiveWebServerApplicationContext.class),
 					Collections.emptyList()
 			);
 		}
@@ -101,6 +101,7 @@ public class RegistryInterceptor extends BaseInterceptor {
 			if (StringUtils.isEmpty(properties.getService())) {
 				properties.setService(registration.getServiceId());
 			}
+			Holder.getPolarisContextProperties().setLocalPort(registration.getPort());
 			PolarisRegistration polarisRegistration = buildPolarisRegistration();
 			polarisRegistry.register(polarisRegistration);
 		}
@@ -113,6 +114,7 @@ public class RegistryInterceptor extends BaseInterceptor {
 			if (StringUtils.isEmpty(properties.getService())) {
 				properties.setService(registration.getServiceId());
 			}
+			Holder.getPolarisContextProperties().setLocalPort(registration.getPort());
 			PolarisRegistration polarisRegistration = buildPolarisRegistration();
 			polarisRegistry.deregister(polarisRegistration);
 		}
@@ -133,6 +135,15 @@ public class RegistryInterceptor extends BaseInterceptor {
 		public <T> T getStatus(Registration registration) {
 			PolarisRegistration polarisRegistration = buildPolarisRegistration();
 			return (T) polarisRegistry.getStatus(polarisRegistration);
+		}
+
+		private <T> T getBeanIfExist(Class<T> cls) {
+			try {
+				return ApplicationContextAwareUtils.getApplicationContext().getBean(cls);
+			} catch (Exception e) {
+				LOGGER.error(e.getMessage());
+				return null;
+			}
 		}
 	}
 

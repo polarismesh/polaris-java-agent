@@ -10,9 +10,9 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<name>provider</name>
+	<name>2021-provider</name>
 	<description>Demo Provider Project For Spring Cloud Alibaba</description>
-	<artifactId>provider</artifactId>
+	<artifactId>2021-provider</artifactId>
 	<packaging>jar</packaging>
 
 	<dependencyManagement>

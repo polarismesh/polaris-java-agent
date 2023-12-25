@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>spring-cloud-2020-examples</artifactId>
+		<groupId>com.tencent.polaris</groupId>
+		<version>${revision}</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>2020-gray-release-examples</artifactId>
+	<packaging>pom</packaging>
+	<modules>
+		<module>service-a</module>
+		<module>service-b</module>
+		<module>service-c</module>
+	</modules>
+
+
+</project>
