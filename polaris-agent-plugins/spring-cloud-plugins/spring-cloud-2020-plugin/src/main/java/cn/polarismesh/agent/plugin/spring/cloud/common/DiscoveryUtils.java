@@ -17,7 +17,10 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.common;
 
+import com.alibaba.nacos.api.common.Constants;
 import com.tencent.cloud.polaris.discovery.PolarisDiscoveryHandler;
+
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
@@ -28,6 +31,23 @@ public class DiscoveryUtils {
 		return new PolarisDiscoveryHandler(
 				Holder.getDiscoveryProperties(), Holder.getContextManager()
 		);
+	}
+
+	public static String rewriteServiceId(String serviceId) {
+		boolean enableNacosRegister = Holder.getNacosContextProperties().isRegisterEnabled();
+		boolean enableNacosDiscovery = Holder.getNacosContextProperties().isDiscoveryEnabled();
+		boolean enablePolaris = Holder.getDiscoveryProperties().isEnabled();
+		String nacosGroupName = Holder.getNacosContextProperties().getGroup();
+		if (Holder.getNacosContextProperties().isEnabled()) {
+			boolean rewrite = enableNacosRegister && enablePolaris;
+            if (enableNacosDiscovery || enablePolaris) {
+				rewrite = true;
+			}
+			if (rewrite && !Objects.equals(nacosGroupName, Constants.DEFAULT_GROUP) ) {
+				serviceId = nacosGroupName + "__" + serviceId;
+			}
+		}
+		return serviceId;
 	}
 
 }

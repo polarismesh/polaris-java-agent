@@ -47,6 +47,7 @@ public class RegistryInterceptor extends BaseInterceptor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RegistryInterceptor.class);
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onBefore(Object target, Object[] args) {
 		if (!Holder.isAllowDiscovery()) {
@@ -131,6 +132,7 @@ public class RegistryInterceptor extends BaseInterceptor {
 			polarisRegistry.setStatus(polarisRegistration, status);
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public <T> T getStatus(Registration registration) {
 			PolarisRegistration polarisRegistration = buildPolarisRegistration();
