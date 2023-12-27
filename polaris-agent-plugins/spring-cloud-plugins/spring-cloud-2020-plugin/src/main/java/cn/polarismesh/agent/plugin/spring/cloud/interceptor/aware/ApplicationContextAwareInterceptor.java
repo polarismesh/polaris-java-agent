@@ -49,6 +49,8 @@ public class ApplicationContextAwareInterceptor extends BaseInterceptor {
 		utils.setApplicationContext(tmpCtx);
 		// 触发 MetadataContext 的加载机制
 		MetadataContext metadataContext = new MetadataContext();
+		// 重写 SCT 中错误的 LOCAL_SERVICE 信息
+		MetadataContext.LOCAL_SERVICE = Holder.getDiscoveryProperties().getService();
 
 		// 设置为真正的 ApplicationContext
 		utils.setApplicationContext(context);

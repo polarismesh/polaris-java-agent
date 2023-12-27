@@ -56,20 +56,20 @@ public class DisableSpringCloudAlibabaInterceptor extends BaseInterceptor {
 
         @Override
         public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-            disableSentinelAbility(environment);
+            disableSpringCloudAlibabaAbility(environment);
         }
 
-        private void disableSentinelAbility(ConfigurableEnvironment environment) {
+        private void disableSpringCloudAlibabaAbility(ConfigurableEnvironment environment) {
 
-            String disableSentinel = "__disable__sentinel__";
+            String disableSCA = "__disable__sc__";
 
             Properties properties = new Properties();
             properties.setProperty("spring.cloud.sentinel.enabled", "false");
-//			properties.setProperty("spring.cloud.nacos.discovery.enabled", "false");
+			properties.setProperty("spring.cloud.nacos.discovery.watch.enabled", "false");
             properties.setProperty("spring.cloud.nacos.config.enabled", "false");
 
             // 设置 spring.cloud.sentinel.enabled 为 false
-            environment.getPropertySources().addFirst(new PropertiesPropertySource(disableSentinel, properties));
+            environment.getPropertySources().addFirst(new PropertiesPropertySource(disableSCA, properties));
 
             LOGGER.info("[PolarisAgent] disable spring cloud alibaba all ability");
         }

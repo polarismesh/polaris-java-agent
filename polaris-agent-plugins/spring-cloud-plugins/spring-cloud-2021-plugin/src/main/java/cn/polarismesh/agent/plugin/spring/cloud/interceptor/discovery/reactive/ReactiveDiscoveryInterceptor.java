@@ -21,7 +21,7 @@ import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.DiscoveryUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
-import com.tencent.cloud.polaris.discovery.PolarisServiceDiscovery;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.discovery.PolarisServiceDiscovery;
 import com.tencent.polaris.api.utils.StringUtils;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.ReactiveDiscoveryClient;
@@ -43,7 +43,8 @@ public class ReactiveDiscoveryInterceptor extends BaseInterceptor {
 			return;
 		}
 
-		PolarisServiceDiscovery discovery = new PolarisServiceDiscovery(Holder.getNacosContextProperties(), Holder.getDiscoveryProperties(), DiscoveryUtils.buildDiscoveryHandler());
+		PolarisServiceDiscovery discovery = new PolarisServiceDiscovery(Holder.getNacosContextProperties(),
+				Holder.getDiscoveryProperties(), DiscoveryUtils.buildDiscoveryHandler());
 
 		ReflectionUtils.doWithFields(target.getClass(), field -> {
 			ReflectionUtils.makeAccessible(field);

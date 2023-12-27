@@ -65,12 +65,18 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
+
+import static com.tencent.cloud.polaris.extend.nacos.NacosContextProperties.DEFAULT_GROUP;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
 public class Holder {
+
+	private static final String GROUP_SERVER_ID_FORMAT = "%s__%s";
+	private static final String NACOS_CLUSTER = "nacos.cluster";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Holder.class);
 
@@ -121,6 +127,8 @@ public class Holder {
 		polarisConfigProperties = new PolarisConfigProperties();
 		polarisStatProperties = new PolarisStatProperties();
 		rpcEnhancementReporterProperties = new RpcEnhancementReporterProperties();
+
+		discoveryProperties.setService(getLocalService());
 	}
 
 	public static void init() {
@@ -251,6 +259,22 @@ public class Holder {
 		contextManager = new PolarisSDKContextManager(polarisContextProperties, environment, modifiers);
 		contextManager.init();
 	}
+
+	private static String getLocalService() {
+		String serviceId = "";
+		if (Objects.isNull(nacosContextProperties)) {
+			serviceId = discoveryProperties.getService();
+		} else {
+			String group = nacosContextProperties.getGroup();
+			if (org.apache.commons.lang.StringUtils.isNotBlank(group) && !DEFAULT_GROUP.equals(group)) {
+				serviceId = String.format(GROUP_SERVER_ID_FORMAT, group, discoveryProperties.getService());
+			} else {
+				serviceId = discoveryProperties.getService();
+			}
+		}
+		return serviceId;
+	}
+
 
 	public static Environment getEnvironment() {
 		return environment;
