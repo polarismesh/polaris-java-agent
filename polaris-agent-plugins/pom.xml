@@ -15,6 +15,7 @@
     <modules>
 		<module>spring-cloud-plugins</module>
         <module>nacos-plugins</module>
+        <module>dubbo-plugins</module>
     </modules>
 
 </project>
