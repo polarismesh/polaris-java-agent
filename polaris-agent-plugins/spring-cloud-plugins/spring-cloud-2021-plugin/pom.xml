@@ -13,8 +13,8 @@
     <artifactId>spring-cloud-2021-plugin</artifactId>
 
     <properties>
-        <spring.cloud.version>2021.0.4</spring.cloud.version>
-        <spring.cloud.tencent.version>1.9.0-2021.0.3-SNAPSHOT</spring.cloud.tencent.version>
+        <spring.cloud.version>2021.0.8</spring.cloud.version>
+        <spring.cloud.tencent.version>1.12.4-2021.0.8</spring.cloud.tencent.version>
         <spring.boot.version>2.6.13</spring.boot.version>
         <slf4j.vesion>1.7.30</slf4j.vesion>
     </properties>
@@ -188,12 +188,6 @@
         <dependency>
             <groupId>com.tencent.cloud</groupId>
             <artifactId>spring-cloud-starter-tencent-metadata-transfer</artifactId>
-            <version>${spring.cloud.tencent.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.tencent.cloud</groupId>
-            <artifactId>spring-cloud-tencent-pushgateway-plugin</artifactId>
             <version>${spring.cloud.tencent.version}</version>
         </dependency>
     </dependencies>

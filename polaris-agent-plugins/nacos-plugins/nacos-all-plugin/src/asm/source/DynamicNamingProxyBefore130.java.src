@@ -1,0 +1,156 @@
+package cn.polarismesh.agent.plugin.nacos.delegate;
+
+
+import cn.polarismesh.agent.plugin.nacos.adapter.UtilAndComsAdapter;
+import cn.polarismesh.agent.plugin.nacos.constants.NacosConstants;
+
+import cn.polarismesh.agent.plugin.nacos.utils.ConvertUtils;
+import com.alibaba.nacos.api.exception.NacosException;
+import com.alibaba.nacos.client.naming.net.NamingProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+
+
+public class DynamicNamingProxy extends NamingProxy {
+
+
+    private List<String> secondaryServers;
+    private NamingProxyAssist assist;
+    private final Logger logger = LoggerFactory.getLogger("com.alibaba.nacos.client.naming");
+    private int maxRetry;
+
+
+    public DynamicNamingProxy(String namespaceId, String endpoint, String serverList, Properties properties) {
+        super(namespaceId, endpoint, serverList, properties);
+        this.maxRetry = ConvertUtils.toInt(properties.getProperty(NacosConstants.NAMING_REQUEST_DOMAIN_RETRY_COUNT), UtilAndComsAdapter.REQUEST_DOMAIN_RETRY_COUNT);
+        init();
+    }
+
+    private void init() {
+
+        String secondaryServerAddr = System.getProperty(NacosConstants.OTHER_NACOS_SERVER_ADDR);
+        this.secondaryServers = Arrays.asList(secondaryServerAddr.split(","));
+        this.assist = new NamingProxyAssist();
+    }
+
+
+    @Override
+    public String reqAPI(String api, Map<String, String> params,  String body, List<String> servers, String method) throws NacosException {
+        String fullApi = api + NacosConstants.LINK_FLAG + method;
+
+        // 在注册服务时候插入元数据
+        if (NacosConstants.REGISTER_SERVICE.equals(fullApi)) {
+            try {
+                assist.fillMetadata(params);
+            } catch (Exception e) {
+                logger.error("DynamicNamingProxy register service fillMetadata failed: ", e);
+            }
+        }
+
+        // 查询列表时候从组合两个数据源
+        if (NacosConstants.QUERY_LIST.equals(fullApi)) {
+            return queryListReqApiProxy(api, params, body, servers, method);
+        }
+
+        String primaryRet = null;
+        NacosException primaryEx = null;
+        try {
+            primaryRet = super.reqAPI(api, params, body, servers, method);
+        } catch (NacosException e) {
+            primaryEx = e;
+            logger.error("primaryServer reqApi failed: {} ", servers, e);
+        }
+
+        String secondaryRet = null;
+        NacosException secondaryEx = null;
+        try {
+            secondaryRet = secondaryReqApi(api, params, body, this.secondaryServers, method);
+        } catch (NacosException e) {
+            secondaryEx = e;
+            logger.error("secondaryServer reqApi failed: {} ", this.secondaryServers, e);
+        }
+
+        // 两次调用都失败
+        if (primaryEx != null && secondaryEx != null) {
+            throw primaryEx;
+        }
+
+        // 优先返回 primary 的结果
+        if (primaryEx == null) {
+            return primaryRet;
+        } else {
+            return secondaryRet;
+        }
+    }
+
+    private String secondaryReqApi(String api, Map<String, String> params, String body, List<String> secondaryServers, String method) throws NacosException {
+        NacosException exception = null;
+        if (secondaryServers.size() == 1) {
+            for (int i = 0; i < maxRetry; i++) {
+                try {
+                    return callServer(api, params, body, secondaryServers.get(0), method);
+                } catch (NacosException e) {
+                    exception = e;
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("DynamicNamingProxy request {} failed.", secondaryServers.get(0), e);
+                    }
+                }
+            }
+        } else {
+            Random random = new Random(System.currentTimeMillis());
+            int index = random.nextInt(secondaryServers.size());
+            for (int i = 0; i < secondaryServers.size(); i++) {
+                String server = secondaryServers.get(index);
+                try {
+                    return callServer(api, params, body, server, method);
+                } catch (NacosException e) {
+                    exception = e;
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("DynamicNamingProxy request {} failed.", server, e);
+                    }
+                }
+                index = (index + 1) % secondaryServers.size();
+            }
+        }
+        throw exception == null ? new NacosException() : exception;
+    }
+
+    private String queryListReqApiProxy(String api, Map<String, String> params, String body, List<String> servers, String method) throws NacosException {
+        String primaryList = "";
+        NacosException primaryEx = null;
+        try {
+            primaryList = super.reqAPI(api, params, body, servers, method);
+        } catch (NacosException e) {
+            primaryEx = e;
+            logger.error("DynamicNamingProxy queryListReqApiProxy {} failed.", servers, e);
+        }
+        String secondaryList = "";
+        NacosException secondaryEx = null;
+        try {
+            secondaryList = secondaryReqApi(api, params, body, this.secondaryServers, method);
+        } catch (NacosException e) {
+            secondaryEx = e;
+            logger.error("DynamicNamingProxy secondaryServer queryListReqApiProxy  {} failed.", this.secondaryServers, e);
+        }
+        // 两次调用都失败
+        if (primaryEx != null && secondaryEx != null) {
+            throw primaryEx;
+        }
+
+        try {
+            return assist.mergeResult(primaryList, secondaryList);
+        } catch (Exception e) {
+            logger.error("DynamicNamingProxy mergeResult failed: ", e);
+            // 优先返回 primary 的结果
+            if (primaryEx == null) {
+                return primaryList;
+            } else {
+                return secondaryList;
+            }
+        }
+
+    }
+
+}

@@ -1,0 +1,268 @@
+package cn.polarismesh.agent.plugin.nacos.delegate;
+
+import cn.polarismesh.agent.plugin.nacos.constants.NacosConstants;
+import com.alibaba.nacos.api.PropertyKeyConst;
+import com.alibaba.nacos.api.exception.NacosException;
+import com.alibaba.nacos.api.naming.pojo.Instance;
+import com.alibaba.nacos.api.naming.pojo.ListView;
+import com.alibaba.nacos.api.naming.pojo.Service;
+import com.alibaba.nacos.api.naming.pojo.ServiceInfo;
+import com.alibaba.nacos.api.selector.AbstractSelector;
+import com.alibaba.nacos.client.naming.cache.ServiceInfoHolder;
+import com.alibaba.nacos.client.naming.event.InstancesChangeNotifier;
+import com.alibaba.nacos.client.naming.remote.NamingClientProxy;
+import com.alibaba.nacos.client.naming.remote.NamingClientProxyDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
+import java.util.Set;
+
+public class DynamicNamingClientProxy implements NamingClientProxy {
+
+    private final NamingClientProxy primaryClientProxy;
+
+    private final NamingClientProxy secondaryClientProxy;
+    private final NamingClientProxyAssist assist;
+    private final Logger logger = LoggerFactory.getLogger("com.alibaba.nacos.client.naming");
+
+
+    public DynamicNamingClientProxy(String namespace, ServiceInfoHolder serviceInfoHolder, Properties properties,
+                                    InstancesChangeNotifier changeNotifier) throws NacosException {
+        this.primaryClientProxy = new NamingClientProxyDelegate(namespace, serviceInfoHolder, properties, changeNotifier);
+        String otherNacosDomain = System.getProperty(NacosConstants.OTHER_NACOS_SERVER_ADDR);
+
+        //组装other nacos的properties配置信息
+        Properties otherProperties = new Properties();
+        otherProperties.putAll(properties);
+        otherProperties.setProperty(PropertyKeyConst.SERVER_ADDR, otherNacosDomain);
+        this.secondaryClientProxy = new NamingClientProxyDelegate(namespace, serviceInfoHolder, otherProperties,
+                changeNotifier);
+        this.assist = new NamingClientProxyAssist();
+    }
+
+    @Override
+    public void registerService(String serviceName, String groupName, Instance instance) throws NacosException {
+        try {
+            this.assist.fillMetadata(instance);
+        } catch (Exception e) {
+            logger.error("DynamicNamingClientProxy fillMetadata failed ", e);
+        }
+        NacosException primaryExp = null;
+        try {
+            primaryClientProxy.registerService(serviceName, groupName, instance);
+        } catch (NacosException exp) {
+            primaryExp = exp;
+            logger.error("DynamicNamingClientProxy primaryClientProxy registerService err.", exp);
+        }
+        NacosException secondaryExp = null;
+
+        try {
+            secondaryClientProxy.registerService(serviceName, groupName, instance);
+        } catch (NacosException exp) {
+            secondaryExp = exp;
+            logger.error("DynamicNamingClientProxy secondaryClientProxy registerService err.", exp);
+        }
+        if (primaryExp != null && secondaryExp != null) {
+            throw primaryExp;
+        }
+    }
+
+
+    @Override
+    public void deregisterService(String serviceName, String groupName, Instance instance) throws NacosException {
+        NacosException primaryExp = null;
+        try {
+            primaryClientProxy.deregisterService(serviceName, groupName, instance);
+        } catch (NacosException exp) {
+            primaryExp = exp;
+            logger.error("DynamicNamingClientProxy primaryClientProxy deregisterService err.", exp);
+        }
+        NacosException secondaryExp = null;
+        try {
+            secondaryClientProxy.deregisterService(serviceName, groupName, instance);
+        } catch (NacosException exp) {
+            secondaryExp = exp;
+            logger.error("DynamicNamingClientProxy secondaryClientProxy deregisterService err.", exp);
+        }
+        if (primaryExp != null && secondaryExp != null) {
+            throw primaryExp;
+        }
+    }
+
+    @Override
+    public void updateInstance(String serviceName, String groupName, Instance instance) throws NacosException {
+
+    }
+
+    @Override
+    public ServiceInfo queryInstancesOfService(String serviceName, String groupName, String clusters, int udpPort,
+                                               boolean healthyOnly) throws NacosException {
+        NacosException primaryExp = null;
+        ServiceInfo serviceInfo = null;
+        try {
+            serviceInfo = primaryClientProxy
+                    .queryInstancesOfService(serviceName, groupName, clusters, udpPort, healthyOnly);
+        } catch (NacosException exp) {
+            primaryExp = exp;
+            logger.error("DynamicNamingClientProxy primaryClientProxy queryInstancesOfService err.", exp);
+        }
+        NacosException secondaryExp = null;
+        ServiceInfo otherServiceInfo = null;
+        try {
+            otherServiceInfo = secondaryClientProxy
+                    .queryInstancesOfService(serviceName, groupName, clusters, udpPort, healthyOnly);
+        } catch (NacosException exp) {
+            secondaryExp = exp;
+            logger.error("DynamicNamingClientProxy secondaryClientProxy queryInstancesOfService err.", exp);
+        }
+
+        if (primaryExp != null && secondaryExp != null) {
+            throw primaryExp;
+        }
+
+        try {
+            return (ServiceInfo) this.assist.mergeInstances(serviceInfo, otherServiceInfo);
+        } catch (Exception e) {
+            logger.error("DynamicNamingClientProxy mergeInstances failed", e);
+            if (primaryExp == null) {
+                return serviceInfo;
+            } else {
+                return otherServiceInfo;
+            }
+        }
+
+    }
+
+
+    @Override
+    public Service queryService(String serviceName, String groupName) throws NacosException {
+        return null;
+    }
+
+    @Override
+    public void createService(Service service, AbstractSelector selector) throws NacosException {
+
+    }
+
+    @Override
+    public boolean deleteService(String serviceName, String groupName) throws NacosException {
+        return false;
+    }
+
+    @Override
+    public void updateService(Service service, AbstractSelector selector) throws NacosException {
+
+    }
+
+    @Override
+    public ListView<String> getServiceList(int pageNo, int pageSize, String groupName, AbstractSelector selector)
+            throws NacosException {
+        return primaryClientProxy.getServiceList(pageNo, pageSize, groupName, selector);
+    }
+
+
+    @Override
+    public ServiceInfo subscribe(String serviceName, String groupName, String clusters) throws NacosException {
+        NacosException primaryExp = null;
+        ServiceInfo serviceInfo = null;
+        try {
+            serviceInfo = primaryClientProxy.subscribe(serviceName, groupName, clusters);
+        } catch (NacosException exp) {
+            primaryExp = exp;
+            logger.error("DynamicNamingClientProxy primaryClientProxy subscribe err.", exp);
+        }
+
+        NacosException secondaryExp = null;
+        ServiceInfo otherServiceInfo = null;
+        try {
+            otherServiceInfo = secondaryClientProxy.subscribe(serviceName, groupName, clusters);
+        } catch (NacosException exp) {
+            secondaryExp = exp;
+            logger.error("DynamicNamingClientProxy secondaryClientProxy subscribe err.", exp);
+        }
+        if (primaryExp != null && secondaryExp != null) {
+            throw primaryExp;
+        }
+        try {
+            return (ServiceInfo) this.assist.mergeInstances(serviceInfo, otherServiceInfo);
+        } catch (Exception e) {
+            logger.error("DynamicNamingClientProxy subscribe mergeInstances failed", e);
+            if (primaryExp == null) {
+                return serviceInfo;
+            } else {
+                return otherServiceInfo;
+            }
+        }
+    }
+
+    @Override
+    public void unsubscribe(String serviceName, String groupName, String clusters) throws NacosException {
+        NacosException primaryExp = null;
+        try {
+            primaryClientProxy.unsubscribe(serviceName, groupName, clusters);
+        } catch (NacosException exp) {
+            primaryExp = exp;
+            logger.error("DynamicNamingClientProxy primaryClientProxy unsubscribe err.", exp);
+        }
+
+        NacosException secondaryExp = null;
+        try {
+            secondaryClientProxy.unsubscribe(serviceName, groupName, clusters);
+        } catch (NacosException exp) {
+            secondaryExp = exp;
+            logger.error("DynamicNamingClientProxy secondaryClientProxy unsubscribe err.", exp);
+        }
+        if (primaryExp != null && secondaryExp != null) {
+            throw primaryExp;
+        }
+    }
+
+    @Override
+    public boolean isSubscribed(String serviceName, String groupName, String clusters) throws NacosException {
+        return primaryClientProxy.isSubscribed(serviceName, groupName, clusters)
+                || secondaryClientProxy.isSubscribed(serviceName, groupName, clusters);
+    }
+
+    @Override
+    public void updateBeatInfo(Set<Instance> modifiedInstances) {
+        try {
+            primaryClientProxy.updateBeatInfo(modifiedInstances);
+        } catch (Exception exp) {
+            logger.error("DynamicNamingClientProxy primaryClientProxy updateBeatInfo err.", exp);
+        }
+
+        try {
+            secondaryClientProxy.updateBeatInfo(modifiedInstances);
+        } catch (Exception exp) {
+            logger.error("DynamicNamingClientProxy secondaryClientProxy updateBeatInfo err.", exp);
+        }
+    }
+
+    @Override
+    public boolean serverHealthy() {
+        return primaryClientProxy.serverHealthy() || secondaryClientProxy.serverHealthy();
+    }
+
+    @Override
+    public void shutdown() throws NacosException {
+        NacosException primaryExp = null;
+        try {
+            primaryClientProxy.shutdown();
+        } catch (NacosException exp) {
+            primaryExp = exp;
+            logger.error("DynamicNamingClientProxy primaryClientProxy shutdown err.", exp);
+        }
+        Object secondaryExp = null;
+
+        try {
+            secondaryClientProxy.shutdown();
+        } catch (Exception exp) {
+            secondaryExp = exp;
+            logger.error("DynamicNamingClientProxy secondaryClientProxy shutdown err.", exp);
+        }
+        if (primaryExp != null && secondaryExp != null) {
+            throw primaryExp;
+        }
+    }
+}

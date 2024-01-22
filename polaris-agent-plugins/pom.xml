@@ -14,7 +14,8 @@
     <packaging>pom</packaging>
     <modules>
 		<module>spring-cloud-plugins</module>
-        <module>demo-plugins</module>
-	</modules>
+        <module>nacos-plugins</module>
+        <module>dubbo-plugins</module>
+    </modules>
 
 </project>

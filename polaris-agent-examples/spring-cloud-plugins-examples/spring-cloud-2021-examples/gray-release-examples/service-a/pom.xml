@@ -10,9 +10,9 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<name>service-a</name>
+	<name>2021-service-a</name>
 	<description>Demo Service-A Project For Spring Cloud Alibaba</description>
-	<artifactId>service-a</artifactId>
+	<artifactId>2021-service-a</artifactId>
 	<packaging>jar</packaging>
 
 	<dependencyManagement>

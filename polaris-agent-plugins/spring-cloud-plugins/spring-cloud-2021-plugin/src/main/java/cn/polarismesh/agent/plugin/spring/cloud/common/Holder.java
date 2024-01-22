@@ -17,31 +17,20 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.common;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Properties;
-import java.util.stream.Collectors;
-
 import cn.polarismesh.agent.core.common.exception.PolarisAgentException;
 import cn.polarismesh.agent.plugin.spring.cloud.configuration.AgentPolarisRateLimitProperties;
 import com.tencent.cloud.common.metadata.StaticMetadataManager;
 import com.tencent.cloud.common.metadata.config.MetadataLocalProperties;
-import com.tencent.cloud.plugin.pushgateway.PolarisStatPushGatewayModifier;
-import com.tencent.cloud.plugin.pushgateway.PolarisStatPushGatewayProperties;
 import com.tencent.cloud.polaris.DiscoveryConfigModifier;
 import com.tencent.cloud.polaris.PolarisDiscoveryConfigModifier;
 import com.tencent.cloud.polaris.PolarisDiscoveryProperties;
-import com.tencent.cloud.polaris.circuitbreaker.config.PolarisCircuitBreakerAutoConfiguration;
+import com.tencent.cloud.polaris.circuitbreaker.common.CircuitBreakerConfigModifier;
 import com.tencent.cloud.polaris.config.ConfigurationModifier;
 import com.tencent.cloud.polaris.config.config.PolarisConfigProperties;
 import com.tencent.cloud.polaris.context.ModifyAddress;
 import com.tencent.cloud.polaris.context.PolarisConfigModifier;
+import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
+import com.tencent.cloud.polaris.context.ServiceRuleManager;
 import com.tencent.cloud.polaris.context.config.PolarisContextProperties;
 import com.tencent.cloud.polaris.extend.consul.ConsulConfigModifier;
 import com.tencent.cloud.polaris.extend.consul.ConsulContextProperties;
@@ -55,11 +44,8 @@ import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementReporterProperties
 import com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatProperties;
 import com.tencent.cloud.rpc.enhancement.stat.config.StatConfigModifier;
 import com.tencent.polaris.api.utils.StringUtils;
-import com.tencent.polaris.factory.ConfigAPIFactory;
-import com.tencent.polaris.factory.config.ConfigurationImpl;
 import com.tencent.polaris.logging.LoggingConsts;
 import com.tencent.polaris.logging.PolarisLogging;
-
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.cloud.client.HostInfoEnvironmentPostProcessor;
@@ -69,249 +55,280 @@ import org.springframework.core.ResolvableType;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.StandardEnvironment;
-import org.springframework.util.CollectionUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
+
+import static com.tencent.cloud.polaris.extend.nacos.NacosContextProperties.DEFAULT_GROUP;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
 public class Holder {
 
-	private static PolarisDiscoveryProperties discoveryProperties;
+    private static final String GROUP_SERVER_ID_FORMAT = "%s__%s";
+    private static final String NACOS_CLUSTER = "nacos.cluster";
 
-	private static ConsulContextProperties consulContextProperties;
+    private static PolarisDiscoveryProperties discoveryProperties;
 
-	private static NacosContextProperties nacosContextProperties;
+    private static ConsulContextProperties consulContextProperties;
 
-	private static MetadataLocalProperties localProperties;
+    private static NacosContextProperties nacosContextProperties;
 
-	private static StaticMetadataManager staticMetadataManager;
+    private static MetadataLocalProperties localProperties;
 
-	private static PolarisContextProperties polarisContextProperties;
+    private static StaticMetadataManager staticMetadataManager;
 
-	private static PolarisRuleBasedRouterProperties routerProperties;
+    private static PolarisContextProperties polarisContextProperties;
 
-	private static PolarisNearByRouterProperties nearByRouterProperties;
+    private static PolarisRuleBasedRouterProperties routerProperties;
 
-	private static PolarisMetadataRouterProperties metadataRouterProperties;
+    private static PolarisNearByRouterProperties nearByRouterProperties;
 
-	private static AgentPolarisRateLimitProperties rateLimitProperties;
+    private static PolarisMetadataRouterProperties metadataRouterProperties;
 
-	private static PolarisConfigProperties polarisConfigProperties;
+    private static AgentPolarisRateLimitProperties rateLimitProperties;
 
-	private static PolarisStatProperties polarisStatProperties;
+    private static PolarisConfigProperties polarisConfigProperties;
 
-	private static PolarisStatPushGatewayProperties polarisStatPushGatewayProperties;
+    private static PolarisStatProperties polarisStatProperties;
 
-	private static RpcEnhancementReporterProperties rpcEnhancementReporterProperties;
+    private static RpcEnhancementReporterProperties rpcEnhancementReporterProperties;
 
-	private static String CONF_FILE_PATH;
+    private static String CONF_FILE_PATH;
 
-	private static boolean allowDiscovery = true;
+    private static boolean allowDiscovery = true;
 
-	private static void initProperties() {
-		polarisContextProperties = new PolarisContextProperties();
-		discoveryProperties = new PolarisDiscoveryProperties();
-		consulContextProperties = new ConsulContextProperties();
-		nacosContextProperties = new NacosContextProperties();
-		localProperties = new MetadataLocalProperties();
-		routerProperties = new PolarisRuleBasedRouterProperties();
-		nearByRouterProperties = new PolarisNearByRouterProperties();
-		metadataRouterProperties = new PolarisMetadataRouterProperties();
-		rateLimitProperties = new AgentPolarisRateLimitProperties();
-		polarisConfigProperties = new PolarisConfigProperties();
-		polarisStatProperties = new PolarisStatProperties();
-		polarisStatPushGatewayProperties = new PolarisStatPushGatewayProperties();
-		rpcEnhancementReporterProperties = new RpcEnhancementReporterProperties();
-	}
+    private static PolarisSDKContextManager contextManager;
 
-	public static void init() {
-		CONF_FILE_PATH = Paths.get(System.getProperty(Constant.AGENT_CONF_PATH), "conf").toString();
-		initProperties();
-		try (InetUtils utils = new InetUtils(new InetUtilsProperties())) {
-			polarisContextProperties.setLocalIpAddress(utils.findFirstNonLoopbackHostInfo().getIpAddress());
-			// 读取 application.yaml
-			Environment environment = buildEnv();
+    private static Environment environment;
 
-			// sct 本身的额外的配饰信息
-			bindObject("spring.cloud.tencent.metadata", localProperties, environment);
-			bindObject("spring.cloud.polaris", polarisContextProperties, environment);
-			staticMetadataManager = new StaticMetadataManager(localProperties, null);
+    private static void initProperties() {
+        polarisContextProperties = new PolarisContextProperties();
+        discoveryProperties = new PolarisDiscoveryProperties();
+        consulContextProperties = new ConsulContextProperties();
+        nacosContextProperties = new NacosContextProperties();
+        localProperties = new MetadataLocalProperties();
+        routerProperties = new PolarisRuleBasedRouterProperties();
+        nearByRouterProperties = new PolarisNearByRouterProperties();
+        metadataRouterProperties = new PolarisMetadataRouterProperties();
+        rateLimitProperties = new AgentPolarisRateLimitProperties();
+        polarisConfigProperties = new PolarisConfigProperties();
+        polarisStatProperties = new PolarisStatProperties();
+        rpcEnhancementReporterProperties = new RpcEnhancementReporterProperties();
 
-			allowDiscovery = environment.getProperty("spring.cloud.discovery.enabled", Boolean.class, true);
-			// 服务发现配置
-			discoveryProperties.setRegisterEnabled(environment.getProperty("spring.cloud.polaris.discovery.register", Boolean.class, true));
-			discoveryProperties.setProtocol(environment.getProperty("spring.cloud.polaris.discovery.protocol", String.class, "http"));
-			discoveryProperties.setService(environment.getProperty("spring.application.name", String.class));
-			discoveryProperties.setWeight(environment.getProperty("spring.cloud.polaris.discovery.weight", Integer.class, 100));
-			String namespace = environment.getProperty("spring.cloud.polaris.namespace", String.class);
-			if (StringUtils.isBlank(namespace)) {
-				namespace = environment.getProperty("spring.cloud.polaris.discovery.namespace", String.class, "default");
-			}
-			discoveryProperties.setNamespace(namespace);
+        discoveryProperties.setService(Holder.getLocalService());
+    }
 
-			bindObject("spring.cloud.consul", consulContextProperties, environment);
-			bindObject("spring.cloud.nacos.discovery", nacosContextProperties, environment);
+    public static void init() {
+        CONF_FILE_PATH = Paths.get(System.getProperty(Constant.AGENT_CONF_PATH), "conf").toString();
+        initProperties();
+        try (InetUtils utils = new InetUtils(new InetUtilsProperties())) {
+            polarisContextProperties.setLocalIpAddress(utils.findFirstNonLoopbackHostInfo().getIpAddress());
+            // 读取 application.yaml
+            environment = buildEnv();
 
-			// 路由规则配置
-			bindObject("spring.cloud.polaris.router.rule-router", routerProperties, environment);
-			bindObject("spring.cloud.polaris.router.nearby-router", nearByRouterProperties, environment);
-			bindObject("spring.cloud.polaris.router.metadata-router", metadataRouterProperties, environment);
+            // sct 本身的额外的配饰信息
+            bindObject("spring.cloud.tencent.metadata", localProperties, environment);
+            bindObject("spring.cloud.polaris", polarisContextProperties, environment);
+            staticMetadataManager = new StaticMetadataManager(localProperties, null);
 
-			// 限流规则配置
-			bindObject("spring.cloud.polaris.ratelimit", rateLimitProperties, environment);
+            allowDiscovery = environment.getProperty("spring.cloud.discovery.enabled", Boolean.class, true);
+            // 服务发现配置
+            discoveryProperties.setRegisterEnabled(environment.getProperty("spring.cloud.polaris.discovery.register", Boolean.class, true));
+            discoveryProperties.setProtocol(environment.getProperty("spring.cloud.polaris.discovery.protocol", String.class, "http"));
+            discoveryProperties.setService(environment.getProperty("spring.application.name", String.class));
+            discoveryProperties.setWeight(environment.getProperty("spring.cloud.polaris.discovery.weight", Integer.class, 100));
+            String namespace = environment.getProperty("spring.cloud.polaris.namespace", String.class);
+            if (StringUtils.isBlank(namespace)) {
+                namespace = environment.getProperty("spring.cloud.polaris.discovery.namespace", String.class, "default");
+            }
+            discoveryProperties.setNamespace(namespace);
 
-			// 配置中心
-			bindObject("spring.cloud.polaris.config", polarisConfigProperties, environment);
+            bindObject("spring.cloud.consul", consulContextProperties, environment);
+            bindObject("spring.cloud.nacos.discovery", nacosContextProperties, environment);
 
-			// 监控
-			bindObject("spring.cloud.polaris.stat", polarisStatProperties, environment);
-			bindObject("spring.cloud.polaris.stat.pushgateway", polarisStatPushGatewayProperties, environment);
+            // 路由规则配置
+            bindObject("spring.cloud.polaris.router.rule-router", routerProperties, environment);
+            bindObject("spring.cloud.polaris.router.nearby-router", nearByRouterProperties, environment);
+            bindObject("spring.cloud.polaris.router.metadata-router", metadataRouterProperties, environment);
 
-			// rpc 调用增强
-			bindObject("spring.cloud.tencent.rpc-enhancement.reporter", rpcEnhancementReporterProperties, environment);
+            // 限流规则配置
+            bindObject("spring.cloud.polaris.ratelimit", rateLimitProperties, environment);
 
-			runConfigModifiers(environment);
-		}
-		catch (Throwable ex) {
-			throw new PolarisAgentException(ex);
-		}
-	}
+            // 配置中心
+            bindObject("spring.cloud.polaris.config", polarisConfigProperties, environment);
 
-	private static Environment buildEnv() throws Exception {
-		StandardEnvironment environment = new StandardEnvironment();
-		HostInfoEnvironmentPostProcessor processor = new HostInfoEnvironmentPostProcessor();
-		processor.postProcessEnvironment(environment, null);
+            // 监控
+            bindObject("spring.cloud.polaris.stat", polarisStatProperties, environment);
 
-		InputStream stream = Holder.class.getClassLoader().getResourceAsStream("default-plugin.conf");
-		Properties defaultProperties = new Properties();
-		defaultProperties.load(stream);
-		environment.getPropertySources()
-				.addFirst(new PropertiesPropertySource("__default_polaris_agent_spring_cloud_tencent__", defaultProperties));
+            // rpc 调用增强
+            bindObject("spring.cloud.tencent.rpc-enhancement.reporter", rpcEnhancementReporterProperties, environment);
 
-		Properties properties = new Properties();
+            runConfigModifiers(environment);
+        } catch (Throwable ex) {
+            throw new PolarisAgentException(ex);
+        }
+    }
 
-		String confPath = Paths.get(CONF_FILE_PATH, "plugin", "springcloud2021", "application.properties").toString();
-		String cmdVal = System.getProperty("polaris.agent.user.application.conf");
-		if (StringUtils.isNotBlank(cmdVal)) {
-			confPath = cmdVal;
-		}
+    private static Environment buildEnv() throws Exception {
+        StandardEnvironment environment = new StandardEnvironment();
+        HostInfoEnvironmentPostProcessor processor = new HostInfoEnvironmentPostProcessor();
+        processor.postProcessEnvironment(environment, null);
 
-		properties.load(Files.newInputStream(Paths.get(confPath).toFile().toPath()));
-		environment.getPropertySources()
-				.addFirst(new PropertiesPropertySource("__polaris_agent_spring_cloud_tencent__", properties));
+        InputStream stream = Holder.class.getClassLoader().getResourceAsStream("default-plugin.conf");
+        Properties defaultProperties = new Properties();
+        defaultProperties.load(stream);
+        environment.getPropertySources()
+                .addFirst(new PropertiesPropertySource("__default_polaris_agent_spring_cloud_tencent__", defaultProperties));
 
-		return environment;
-	}
+        Properties properties = new Properties();
 
-	private static void bindObject(String prefix, Object bean, Environment environment) {
-		Binder binder = Binder.get(environment);
-		ResolvableType type = ResolvableType.forClass(bean.getClass());
-		Bindable<?> target = Bindable.of(type).withExistingValue(bean);
-		binder.bind(prefix, target);
-	}
+        String confPath = Paths.get(CONF_FILE_PATH, "plugin", "springcloud2021", "application.properties").toString();
+        String cmdVal = System.getProperty("polaris.agent.user.application.conf");
+        if (StringUtils.isNotBlank(cmdVal)) {
+            confPath = cmdVal;
+        }
 
-	private static void runConfigModifiers(Environment environment) throws IOException {
+        properties.load(Files.newInputStream(Paths.get(confPath).toFile().toPath()));
+        environment.getPropertySources()
+                .addFirst(new PropertiesPropertySource("__polaris_agent_spring_cloud_tencent__", properties));
 
-		String logConfig = "";
-		try {
-			Class.forName(PolarisLogging.LOGBACK_CLASSIC_LOGGER);
-			logConfig = Holder.class.getClassLoader().getResource("polaris-logback.xml").getFile();
-		}
-		catch (ClassNotFoundException e) {
-			try {
-				Class.forName(PolarisLogging.LOG4J2_CLASSIC_LOGGER);
-				logConfig = Holder.class.getClassLoader().getResource("polaris-log4j2.xml").getFile();
-			}
-			catch (ClassNotFoundException e1) {
-				logConfig = Holder.class.getClassLoader().getResource("polaris-log4j.xml").getFile();
-			}
-		}
-		System.setProperty(LoggingConsts.LOGGING_CONFIG_PROPERTY, logConfig);
+        return environment;
+    }
 
-		if (StringUtils.isBlank(polarisContextProperties.getLocalIpAddress())) {
-			polarisContextProperties.setLocalIpAddress(environment.getProperty("spring.cloud.client.ip-address"));
-		}
+    private static void bindObject(String prefix, Object bean, Environment environment) {
+        Binder binder = Binder.get(environment);
+        ResolvableType type = ResolvableType.forClass(bean.getClass());
+        Bindable<?> target = Bindable.of(type).withExistingValue(bean);
+        binder.bind(prefix, target);
+    }
 
-		List<PolarisConfigModifier> modifiers = new ArrayList<>(Arrays.asList(
-				new ModifyAddress(polarisContextProperties),
-				new DiscoveryConfigModifier(discoveryProperties),
-				new PolarisDiscoveryConfigModifier(discoveryProperties),
-				new RateLimitConfigModifier(rateLimitProperties),
-				new StatConfigModifier(polarisStatProperties, environment),
-				new PolarisStatPushGatewayModifier(polarisStatPushGatewayProperties, environment),
-				new PolarisCircuitBreakerAutoConfiguration.CircuitBreakerConfigModifier(rpcEnhancementReporterProperties)
-		));
-		if (consulContextProperties.isEnabled()) {
-			modifiers.add(new ConsulConfigModifier(consulContextProperties));
-		}
-		if (nacosContextProperties.isEnabled()) {
-			modifiers.add(new NacosConfigModifier(nacosContextProperties));
-		}
-		if (polarisConfigProperties.isEnabled()) {
-			modifiers.add(new ConfigurationModifier(polarisConfigProperties, polarisContextProperties));
-		}
+    private static void runConfigModifiers(Environment environment) throws IOException {
 
-		InputStream stream = Holder.class.getClassLoader().getResourceAsStream("polaris.yml");
-		ConfigurationImpl configuration = (ConfigurationImpl) ConfigAPIFactory.loadConfig(stream);
-		configuration.getGlobal().getAPI().setBindIP(polarisContextProperties.getLocalIpAddress());
+        String logConfig = "";
+        try {
+            Class.forName(PolarisLogging.LOGBACK_CLASSIC_LOGGER);
+            logConfig = Holder.class.getClassLoader().getResource("polaris-logback.xml").getFile();
+        } catch (ClassNotFoundException e) {
+            try {
+                Class.forName(PolarisLogging.LOG4J2_CLASSIC_LOGGER);
+                logConfig = Holder.class.getClassLoader().getResource("polaris-log4j2.xml").getFile();
+            } catch (ClassNotFoundException e1) {
+                logConfig = Holder.class.getClassLoader().getResource("polaris-log4j.xml").getFile();
+            }
+        }
+        System.setProperty(LoggingConsts.LOGGING_CONFIG_PROPERTY, logConfig);
 
-		modifiers = modifiers.stream()
-				.sorted(Comparator.comparingInt(PolarisConfigModifier::getOrder))
-				.collect(Collectors.toList());
-		if (!CollectionUtils.isEmpty(modifiers)) {
-			for (PolarisConfigModifier modifier : modifiers) {
-				modifier.modify(configuration);
-			}
-		}
+        if (StringUtils.isBlank(polarisContextProperties.getLocalIpAddress())) {
+            polarisContextProperties.setLocalIpAddress(environment.getProperty("spring.cloud.client.ip-address"));
+        }
 
-		PolarisOperator.init(configuration);
-	}
+        List<PolarisConfigModifier> modifiers = new ArrayList<>(Arrays.asList(
+                new ModifyAddress(polarisContextProperties),
+                new DiscoveryConfigModifier(discoveryProperties),
+                new PolarisDiscoveryConfigModifier(discoveryProperties),
+                new RateLimitConfigModifier(rateLimitProperties),
+                new StatConfigModifier(polarisStatProperties, environment),
+                new CircuitBreakerConfigModifier(rpcEnhancementReporterProperties)
+        ));
+        if (consulContextProperties.isEnabled()) {
+            modifiers.add(new ConsulConfigModifier(consulContextProperties));
+        }
+        if (nacosContextProperties.isEnabled()) {
+            modifiers.add(new NacosConfigModifier(nacosContextProperties));
+        }
+        if (polarisConfigProperties.isEnabled()) {
+            modifiers.add(new ConfigurationModifier(polarisConfigProperties, polarisContextProperties));
+        }
 
-	public static MetadataLocalProperties getLocalProperties() {
-		return localProperties;
-	}
+        contextManager = new PolarisSDKContextManager(polarisContextProperties, environment, modifiers);
+        contextManager.init();
+    }
 
-	public static StaticMetadataManager getStaticMetadataManager() {
-		return staticMetadataManager;
-	}
+    private static String getLocalService() {
+        String serviceId = "";
+        if (Objects.isNull(nacosContextProperties)) {
+            serviceId = discoveryProperties.getService();
+        } else {
+            String group = nacosContextProperties.getGroup();
+            if (org.apache.commons.lang.StringUtils.isNotBlank(group) && !DEFAULT_GROUP.equals(group)) {
+                serviceId = String.format(GROUP_SERVER_ID_FORMAT, group, discoveryProperties.getService());
+            } else {
+                serviceId = discoveryProperties.getService();
+            }
+        }
+        return serviceId;
+    }
 
-	public static PolarisContextProperties getPolarisContextProperties() {
-		return polarisContextProperties;
-	}
+    public static Environment getEnvironment() {
+        return environment;
+    }
 
-	public static PolarisDiscoveryProperties getDiscoveryProperties() {
-		return discoveryProperties;
-	}
+    public static PolarisStatProperties getPolarisStatProperties() {
+        return polarisStatProperties;
+    }
 
-	public static PolarisRuleBasedRouterProperties getRouterProperties() {
-		return routerProperties;
-	}
+    public static PolarisSDKContextManager getContextManager() {
+        return contextManager;
+    }
 
-	public static PolarisNearByRouterProperties getNearByRouterProperties() {
-		return nearByRouterProperties;
-	}
+    public static MetadataLocalProperties getLocalProperties() {
+        return localProperties;
+    }
 
-	public static PolarisMetadataRouterProperties getMetadataRouterProperties() {
-		return metadataRouterProperties;
-	}
+    public static StaticMetadataManager getStaticMetadataManager() {
+        return staticMetadataManager;
+    }
 
-	public static AgentPolarisRateLimitProperties getRateLimitProperties() {
-		return rateLimitProperties;
-	}
+    public static PolarisContextProperties getPolarisContextProperties() {
+        return polarisContextProperties;
+    }
 
-	public static ConsulContextProperties getConsulContextProperties() {
-		return consulContextProperties;
-	}
+    public static PolarisDiscoveryProperties getDiscoveryProperties() {
+        return discoveryProperties;
+    }
 
-	public static NacosContextProperties getNacosContextProperties() {
-		return nacosContextProperties;
-	}
+    public static PolarisRuleBasedRouterProperties getRouterProperties() {
+        return routerProperties;
+    }
 
-	public static RpcEnhancementReporterProperties getRpcEnhancementReporterProperties() {
-		return rpcEnhancementReporterProperties;
-	}
+    public static PolarisNearByRouterProperties getNearByRouterProperties() {
+        return nearByRouterProperties;
+    }
 
-	public static boolean isAllowDiscovery() {
-		return allowDiscovery;
-	}
+    public static PolarisMetadataRouterProperties getMetadataRouterProperties() {
+        return metadataRouterProperties;
+    }
+
+    public static AgentPolarisRateLimitProperties getRateLimitProperties() {
+        return rateLimitProperties;
+    }
+
+    public static ConsulContextProperties getConsulContextProperties() {
+        return consulContextProperties;
+    }
+
+    public static NacosContextProperties getNacosContextProperties() {
+        return nacosContextProperties;
+    }
+
+    public static RpcEnhancementReporterProperties getRpcEnhancementReporterProperties() {
+        return rpcEnhancementReporterProperties;
+    }
+
+    public static ServiceRuleManager newServiceRuleManager() {
+        return new ServiceRuleManager(getContextManager().getSDKContext(), getContextManager().getConsumerAPI());
+    }
+
+    public static boolean isAllowDiscovery() {
+        return allowDiscovery;
+    }
 }

@@ -10,9 +10,9 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<name>consumer</name>
+	<name>2021-consumer</name>
 	<description>Demo Consumer Project For Spring Cloud Alibaba</description>
-	<artifactId>consumer</artifactId>
+	<artifactId>2021-consumer</artifactId>
 	<packaging>jar</packaging>
 
 	<dependencyManagement>

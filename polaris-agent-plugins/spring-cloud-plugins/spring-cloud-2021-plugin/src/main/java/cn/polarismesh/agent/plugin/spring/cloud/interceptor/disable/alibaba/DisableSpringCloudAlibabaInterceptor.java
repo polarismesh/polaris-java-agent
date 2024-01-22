@@ -17,19 +17,18 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.interceptor.disable.alibaba;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertiesPropertySource;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * {@link org.springframework.boot.util.Instantiator#instantiate(Stream)}
@@ -57,20 +56,20 @@ public class DisableSpringCloudAlibabaInterceptor extends BaseInterceptor {
 
         @Override
         public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-            disableSentinelAbility(environment);
+            disableSpringCloudAlibabaAbility(environment);
         }
 
-        private void disableSentinelAbility(ConfigurableEnvironment environment) {
+        private void disableSpringCloudAlibabaAbility(ConfigurableEnvironment environment) {
 
-            String disableSentinel = "__disable__sentinel__";
+            String disableSCA = "__disable__sca__";
 
             Properties properties = new Properties();
             properties.setProperty("spring.cloud.sentinel.enabled", "false");
-//			properties.setProperty("spring.cloud.nacos.discovery.enabled", "false");
+            properties.setProperty("spring.cloud.nacos.discovery.watch.enabled", "false");
             properties.setProperty("spring.cloud.nacos.config.enabled", "false");
 
             // 设置 spring.cloud.sentinel.enabled 为 false
-            environment.getPropertySources().addFirst(new PropertiesPropertySource(disableSentinel, properties));
+            environment.getPropertySources().addFirst(new PropertiesPropertySource(disableSCA, properties));
 
             LOGGER.info("[PolarisAgent] disable spring cloud alibaba all ability");
         }

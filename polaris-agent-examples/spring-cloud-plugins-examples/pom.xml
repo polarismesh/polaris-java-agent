@@ -15,6 +15,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>spring-cloud-2021-examples</module>
-	</modules>
+        <module>spring-cloud-2020-examples</module>
+    </modules>
 
 </project>
