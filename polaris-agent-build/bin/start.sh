@@ -24,4 +24,4 @@ echo "${custom_plugin_type}" > ${polaris_agent_dir_name}/conf/polaris-agent.conf
 
 # 第二步，将 plugin 所需要的配置注入到 plugin 对应的目录中去
 custom_plugin_properties=${JAVA_AGENT_PLUGIN_CONF}
-echo "${custom_plugin_properties}" > ${polaris_agent_dir_name}/plugin/${custom_plugin_type}/application.properties
+echo "${custom_plugin_properties}" > ${polaris_agent_dir_name}/conf/plugin/${custom_plugin_type}/application.properties
