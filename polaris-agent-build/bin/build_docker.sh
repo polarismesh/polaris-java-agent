@@ -2,17 +2,9 @@
 
 set -e
 
-# generate version
-if [ $# != 1 ]; then
-  echo -e "invalid args, eg.bash $0 version"
-  exit 1
-fi
-
-version="$1"
-echo "${version}" > version.txt
-
 # workdir root
 cd ../..
+version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='properties']/*[local-name()='revision']/text()" pom.xml)
 workdir=$(pwd)
 echo "workdir is ${workdir}"
 
@@ -25,6 +17,9 @@ rm -rf "${folder_name}"
 mkdir -p "${folder_name}"
 mkdir -p "${folder_name}/conf"
 mkdir -p "${folder_name}/plugins"
+mkdir -p "${folder_name}/lib"
+mkdir -p "${folder_name}/lib/java9"
+mkdir -p "${folder_name}/boot"
 
 cp "polaris-agent-build/conf/polaris-agent.config" "${folder_name}/conf"
 
@@ -37,6 +32,9 @@ else
 fi
 
 cp "polaris-agent-core/polaris-agent-core-bootstrap/target/polaris-agent-core-bootstrap.jar" "${folder_name}/"
+cp "polaris-agent-core/polaris-agent-core-bootstrap-common/target/polaris-agent-core-bootstrap-common-${version}.jar" "${folder_name}/lib/"
+cp "polaris-agent-core/polaris-agent-core-asm-java9/target/polaris-agent-core-asm-java9-${version}.jar" "${folder_name}/lib/java9/"
+cp "polaris-agent-core/polaris-agent-core-extension/target/polaris-agent-core-extension-${version}.jar" "${folder_name}/boot/"
 
 pushd "polaris-agent-plugins"
 plugin_folders=$(find . -maxdepth 2 | grep -E ".+-plugin$")

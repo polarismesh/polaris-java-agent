@@ -54,6 +54,11 @@
         </dependency>
         <dependency>
             <groupId>com.tencent.polaris</groupId>
+            <artifactId>polaris-agent-core-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.tencent.polaris</groupId>
             <artifactId>polaris-all</artifactId>
             <version>${polaris.version}</version>
         </dependency>
@@ -209,6 +214,7 @@
                             <Plugin-Id>${project.artifactId}</Plugin-Id>
                             <Plugin-Compiler-Version>${jdk.version}
                             </Plugin-Compiler-Version>
+                            <Plugin-Open-Modules>java.lang,java.lang.reflect</Plugin-Open-Modules>
                         </manifestEntries>
                     </archive>
                 </configuration>

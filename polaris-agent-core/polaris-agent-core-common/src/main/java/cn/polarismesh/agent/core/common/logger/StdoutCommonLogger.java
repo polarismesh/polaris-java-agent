@@ -52,7 +52,7 @@ public class StdoutCommonLogger implements CommonLogger {
 
     @Override
     public boolean isDebugEnabled() {
-        return false;
+        return true;
     }
 
     @Override
@@ -95,6 +95,18 @@ public class StdoutCommonLogger implements CommonLogger {
     public void warn(String msg, Throwable throwable) {
         String exceptionMessage = toString(throwable);
         String message = format("WARN ", msg, exceptionMessage);
+        this.err.println(message);
+    }
+
+    @Override
+    public void error(String msg) {
+        warn(msg, null);
+    }
+
+    @Override
+    public void error(String msg, Throwable throwable) {
+        String exceptionMessage = toString(throwable);
+        String message = format("ERROR ", msg, exceptionMessage);
         this.err.println(message);
     }
 

@@ -1,6 +1,6 @@
 package cn.polarismesh.agent.plugin.nacos;
 
-import cn.polarismesh.agent.core.common.exception.InstrumentException;
+import cn.polarismesh.agent.core.extension.instrument.exception.InstrumentException;
 import cn.polarismesh.agent.core.common.logger.CommonLogger;
 import cn.polarismesh.agent.core.common.logger.StdoutCommonLoggerFactory;
 import cn.polarismesh.agent.core.extension.AgentPlugin;

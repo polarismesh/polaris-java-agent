@@ -38,7 +38,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class PlainClassLoaderHandler implements ClassInjector {
+public class PlainClassLoaderHandler implements PluginClassInjector {
 
     private final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(getClass().getName());
 
@@ -260,6 +260,16 @@ public class PlainClassLoaderHandler implements ClassInjector {
         }
 
         return false;
+    }
+
+    @Override
+    public PluginConfig getPluginConfig() {
+        return pluginConfig;
+    }
+
+    @Override
+    public boolean match(ClassLoader classLoader) {
+        return true;
     }
 
     private class ClassLoaderAttachment {

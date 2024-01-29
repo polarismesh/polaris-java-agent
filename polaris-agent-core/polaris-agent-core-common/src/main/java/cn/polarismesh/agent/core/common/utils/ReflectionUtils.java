@@ -447,7 +447,8 @@ public final class ReflectionUtils {
 
 	private static void setValue(Object target, Field field, Object value) {
 		try {
-			Field modifiers = Field.class.getDeclaredField("modifiers");
+			//Field modifiers = Field.class.getDeclaredField("modifiers");
+			Field modifiers = getModifiersField();
 			modifiers.setAccessible(true);
 			modifiers.setInt(field, field.getModifiers() & ~Modifier.FINAL);
 			field.setAccessible(true);
@@ -456,6 +457,20 @@ public final class ReflectionUtils {
 		catch (Exception e) {
 			throw new PolarisAgentException("setValue", e);
 		}
+	}
+
+	private static Field getModifiersField() throws Exception {
+		Method getDeclaredFields0 = Class.class.getDeclaredMethod("getDeclaredFields0", boolean.class);
+		getDeclaredFields0.setAccessible(true);
+		Field[] fields = (Field[]) getDeclaredFields0.invoke(Field.class, false);
+		Field modifierField = null;
+		for (Field f : fields) {
+			if ("modifiers".equals(f.getName())) {
+				modifierField = f;
+				break;
+			}
+		}
+		return modifierField;
 	}
 
 	/**

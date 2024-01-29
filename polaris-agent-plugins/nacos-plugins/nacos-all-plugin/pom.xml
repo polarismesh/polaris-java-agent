@@ -27,7 +27,11 @@
       <artifactId>polaris-agent-core-extension</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>com.tencent.polaris</groupId>
+      <artifactId>polaris-agent-core-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 <!--    <dependency>-->
 <!--      <groupId>com.alibaba.nacos</groupId>-->
 <!--      <artifactId>nacos-client</artifactId>-->

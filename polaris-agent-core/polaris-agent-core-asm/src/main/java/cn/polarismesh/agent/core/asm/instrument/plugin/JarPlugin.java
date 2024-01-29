@@ -29,10 +29,13 @@ public class JarPlugin<T> implements Plugin<T> {
     private final List<T> instanceList;
     private final List<String> packageList;
 
-    public JarPlugin(PluginJar pluginJar, List<T> instanceList, List<String> packageList) {
+    private final List<String> openModules;
+
+    public JarPlugin(PluginJar pluginJar, List<T> instanceList, List<String> packageList, List<String> openModules) {
         this.pluginJar = Objects.requireNonNull(pluginJar, "pluginJar");
         this.instanceList = Objects.requireNonNull(instanceList, "instanceList");
         this.packageList = Objects.requireNonNull(packageList, "packageList");
+        this.openModules = Objects.requireNonNull(openModules, "openModules");
     }
 
     @Override
@@ -55,13 +58,17 @@ public class JarPlugin<T> implements Plugin<T> {
         return pluginJar.getJarFile();
     }
 
+    public List<String> getOpenModules() {
+        return openModules;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("JarPlugin{");
-        sb.append("pluginJar=").append(pluginJar);
-        sb.append(", instanceList=").append(instanceList);
-        sb.append(", packageList=").append(packageList);
-        sb.append('}');
-        return sb.toString();
+        return "JarPlugin{" +
+                "pluginJar=" + pluginJar +
+                ", instanceList=" + instanceList +
+                ", packageList=" + packageList +
+                ", openModules=" + openModules +
+                '}';
     }
 }

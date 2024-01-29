@@ -17,7 +17,7 @@
 
 package cn.polarismesh.agent.core.asm.instrument.classloading;
 
-interface DefineClass {
+public interface DefineClass {
 
     Class<?> defineClass(ClassLoader classLoader, String className, byte[] b);
 }

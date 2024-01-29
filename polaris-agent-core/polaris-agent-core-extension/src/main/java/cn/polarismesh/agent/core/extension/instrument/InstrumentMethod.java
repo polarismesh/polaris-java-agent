@@ -18,7 +18,7 @@
 package cn.polarismesh.agent.core.extension.instrument;
 
 
-import cn.polarismesh.agent.core.common.exception.InstrumentException;
+import cn.polarismesh.agent.core.extension.instrument.exception.InstrumentException;
 import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
 
 public interface InstrumentMethod {

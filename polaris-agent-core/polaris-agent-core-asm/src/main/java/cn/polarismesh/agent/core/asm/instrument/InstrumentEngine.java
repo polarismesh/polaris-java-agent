@@ -18,7 +18,7 @@
 package cn.polarismesh.agent.core.asm.instrument;
 
 
-import cn.polarismesh.agent.core.common.exception.NotFoundInstrumentException;
+import cn.polarismesh.agent.core.extension.instrument.exception.NotFoundInstrumentException;
 import cn.polarismesh.agent.core.extension.instrument.InstrumentClass;
 import java.security.ProtectionDomain;
 import java.util.jar.JarFile;

@@ -32,7 +32,7 @@ final class DefineClassFactory {
         final JvmVersion version = JvmUtils.getVersion();
         if (version.onOrAfter(JvmVersion.JAVA_9)) {
             final ClassLoader agentClassLoader = DefineClassFactory.class.getClassLoader();
-            final String name = "com.navercorp.pinpoint.profiler.instrument.classloading.Java9DefineClass";
+            final String name = "cn.polarismesh.agent.core.asm9.instrument.Java9DefineClass";
             try {
                 Class<DefineClass> defineClassClazz = (Class<DefineClass>) agentClassLoader.loadClass(name);
                 Constructor<DefineClass> constructor = defineClassClazz.getDeclaredConstructor();

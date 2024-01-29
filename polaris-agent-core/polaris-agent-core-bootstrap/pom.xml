@@ -1,28 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>polaris-agent-core</artifactId>
         <groupId>com.tencent.polaris</groupId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>polaris-agent-core-bootstrap</artifactId>
 
     <properties>
-        <skip.maven.deploy>true</skip.maven.deploy>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <artifactId>polaris-agent-core-bootstrap</artifactId>
-    <name>Polaris Agent BootStrap</name>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-agent-core-asm</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 
     <build>
         <finalName>${project.artifactId}</finalName>
@@ -38,7 +33,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Premain-Class>cn.polarismesh.agent.core.bootstrap.PolarisAgentBootStrap
+                            <Premain-Class>cn.polarismesh.agent.core.bootstrap.entry.BootStrap
                             </Premain-Class>
                             <Can-Redefine-Classes>true</Can-Redefine-Classes>
                             <Can-Retransform-Classes>true</Can-Retransform-Classes>
@@ -46,47 +41,6 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>${maven.shaded.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <createSourcesJar>true</createSourcesJar>
-                            <promoteTransitiveDependencies>false</promoteTransitiveDependencies>
-                            <artifactSet>
-                                <includes>
-                                    <include>com.tencent.polaris:polaris-agent-core-bootstrap
-                                    </include>
-                                    <include>com.tencent.polaris:polaris-agent-core-common</include>
-                                    <include>com.tencent.polaris:polaris-agent-core-asm</include>
-                                    <include>com.tencent.polaris:polaris-agent-core-extension
-                                    </include>
-                                    <include>org.ow2.asm:asm</include>
-                                    <include>org.ow2.asm:asm-commons</include>
-                                    <include>org.ow2.asm:asm-util</include>
-                                    <include>org.ow2.asm:asm-tree</include>
-                                    <include>org.ow2.asm:asm-analysis</include>
-                                    <include>org.ow2:ow2</include>
-                                </includes>
-                            </artifactSet>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <!--                                        <exclude>META-INF/MANIFEST.MF</exclude>-->
-                                        <exclude>module-info.class</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

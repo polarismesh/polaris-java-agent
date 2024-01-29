@@ -24,7 +24,7 @@ import cn.polarismesh.agent.core.asm.instrument.classloading.ClassInjector;
 import cn.polarismesh.agent.core.asm.instrument.matcher.Matcher;
 import cn.polarismesh.agent.core.asm.scanner.ClassScannerFactory;
 import cn.polarismesh.agent.core.asm.scanner.Scanner;
-import cn.polarismesh.agent.core.common.exception.NotFoundInstrumentException;
+import cn.polarismesh.agent.core.extension.instrument.exception.NotFoundInstrumentException;
 import cn.polarismesh.agent.core.common.utils.JavaAssistUtils;
 import cn.polarismesh.agent.core.extension.instrument.InstrumentClass;
 import cn.polarismesh.agent.core.extension.transform.TransformCallback;

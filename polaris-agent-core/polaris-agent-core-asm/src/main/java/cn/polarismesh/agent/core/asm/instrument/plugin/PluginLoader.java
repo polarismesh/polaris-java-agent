@@ -28,7 +28,7 @@ import java.util.ServiceLoader;
 
 public class PluginLoader {
 
-    private static ClassLoader createPluginClassLoader(List<URL> pluginUrls, final ClassLoader parentClassLoader) {
+    private static ClassLoader createPluginClassLoaderWithUrl(List<URL> pluginUrls, final ClassLoader parentClassLoader) {
         final URL[] urls = pluginUrls.toArray(new URL[0]);
         SecurityManager securityManager = System.getSecurityManager();
         if (securityManager != null) {
@@ -42,13 +42,13 @@ public class PluginLoader {
         return new URLClassLoader(urls, parentClassLoader);
     }
 
-    public static ClassLoader createPluginClassLoader(List<PluginJar> pluginJars) {
+    public static ClassLoader createPluginClassLoader(List<PluginJar> pluginJars, final ClassLoader parentClassLoade) {
         ClassLoader parentClassLoader = Object.class.getClassLoader();
         List<URL> pluginUrls = new ArrayList<URL>(pluginJars.size());
         for (PluginJar pluginJar : pluginJars) {
             pluginUrls.add(pluginJar.getUrl());
         }
-        return createPluginClassLoader(pluginUrls, parentClassLoader);
+        return createPluginClassLoaderWithUrl(pluginUrls, parentClassLoader);
     }
 
     public static List<AgentPlugin> loadPlugins(ClassLoader classLoader) {

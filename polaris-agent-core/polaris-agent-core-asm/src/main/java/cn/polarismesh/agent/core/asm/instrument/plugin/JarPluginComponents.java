@@ -88,7 +88,7 @@ public class JarPluginComponents {
         }
 
         private JarPlugin<AgentPlugin> toJarPlugin() {
-            return new JarPlugin<>(pluginJar, AgentPlugins, pluginJar.getPluginPackages());
+            return new JarPlugin<>(pluginJar, AgentPlugins, pluginJar.getPluginPackages(), pluginJar.getPluginOpenModules());
         }
     }
 }

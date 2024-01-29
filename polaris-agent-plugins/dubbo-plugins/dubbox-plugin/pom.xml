@@ -12,4 +12,21 @@
 
     <artifactId>dubbox-plugin</artifactId>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Plugin-Id>${project.artifactId}</Plugin-Id>
+                            <Plugin-Compiler-Version>${jdk.version}
+                            </Plugin-Compiler-Version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -39,6 +39,6 @@ public class JarPluginComponent {
     }
 
     private JarPlugin<AgentPlugin> toJarPlugin() {
-        return new JarPlugin<AgentPlugin>(pluginJar, plugins, pluginJar.getPluginPackages());
+        return new JarPlugin<AgentPlugin>(pluginJar, plugins, pluginJar.getPluginPackages(), pluginJar.getPluginOpenModules());
     }
 }

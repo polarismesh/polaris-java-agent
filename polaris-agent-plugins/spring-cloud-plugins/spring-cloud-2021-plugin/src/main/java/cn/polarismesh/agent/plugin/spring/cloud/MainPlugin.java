@@ -19,7 +19,7 @@ package cn.polarismesh.agent.plugin.spring.cloud;
 
 import java.security.ProtectionDomain;
 
-import cn.polarismesh.agent.core.common.exception.InstrumentException;
+import cn.polarismesh.agent.core.extension.instrument.exception.InstrumentException;
 import cn.polarismesh.agent.core.extension.AgentPlugin;
 import cn.polarismesh.agent.core.extension.PluginContext;
 import cn.polarismesh.agent.core.extension.instrument.InstrumentClass;

@@ -57,6 +57,10 @@ public class PluginConfig {
         return this.pluginJarURLExternalForm;
     }
 
+    public Plugin<?> getPlugin() {
+        return plugin;
+    }
+
     public ClassNameFilter getPluginPackageFilter() {
         return pluginPackageFilter;
     }

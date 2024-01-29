@@ -17,8 +17,9 @@
 
 package cn.polarismesh.agent.core.extension.transform;
 
-import cn.polarismesh.agent.core.common.exception.InstrumentException;
 import cn.polarismesh.agent.core.extension.instrument.Instrumentor;
+import cn.polarismesh.agent.core.extension.instrument.exception.InstrumentException;
+
 import java.security.ProtectionDomain;
 
 public interface TransformCallback {

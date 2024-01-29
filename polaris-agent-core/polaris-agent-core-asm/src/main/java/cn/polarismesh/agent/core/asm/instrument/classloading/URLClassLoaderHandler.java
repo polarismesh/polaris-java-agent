@@ -28,7 +28,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Objects;
 
-public class URLClassLoaderHandler implements ClassInjector {
+public class URLClassLoaderHandler implements PluginClassInjector {
 
     private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE
             .getLogger(URLClassLoaderHandler.class.getCanonicalName());
@@ -103,5 +103,15 @@ public class URLClassLoaderHandler implements ClassInjector {
             }
         }
         return false;
+    }
+
+    @Override
+    public PluginConfig getPluginConfig() {
+        return pluginConfig;
+    }
+
+    @Override
+    public boolean match(ClassLoader classLoader) {
+        return classLoader instanceof URLClassLoader;
     }
 }

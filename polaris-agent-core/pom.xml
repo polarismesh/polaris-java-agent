@@ -19,10 +19,12 @@
     </properties>
 
     <modules>
-        <module>polaris-agent-core-bootstrap</module>
         <module>polaris-agent-core-asm</module>
         <module>polaris-agent-core-common</module>
         <module>polaris-agent-core-extension</module>
+        <module>polaris-agent-core-asm-java9</module>
+        <module>polaris-agent-core-bootstrap-common</module>
+        <module>polaris-agent-core-bootstrap</module>
     </modules>
 
     <dependencyManagement>
