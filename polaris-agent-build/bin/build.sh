@@ -28,7 +28,7 @@ echo "start to build package"
 if [[ "${use_docker_env}" == "true" ]]; then
   docker run --rm -u root -v "$(pwd)":/home/maven/project -w /home/maven/project maven:3.8.6-openjdk-8 mvn clean -B package --file pom.xml
 else
-  mvn clean -B package --file pom.xml
+  mvn clean -X -B package --file pom.xml
 fi
 
 cp "polaris-agent-core/polaris-agent-core-bootstrap/target/polaris-agent-core-bootstrap.jar" "${folder_name}/"
