@@ -15,18 +15,29 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.core.asm.instrument.plugin;
+package cn.polarismesh.agent.core.asm9.starter;
 
-import java.net.URL;
-import java.util.List;
+import cn.polarismesh.agent.core.asm9.module.impl.DefaultModuleSupport;
 
-public interface Plugin<T> {
+import java.lang.instrument.Instrumentation;
 
-    URL getURL();
+public class ModuleSupportHolder {
 
-    List<T> getInstanceList();
+    private static final ModuleSupportHolder INSTANCE = new ModuleSupportHolder();
 
-    List<String> getPackageList();
+    public static ModuleSupportHolder getInstance() {
+        return INSTANCE;
+    }
 
-    List<String> getOpenModules();
+    private DefaultModuleSupport moduleSupport;
+
+    public DefaultModuleSupport getModuleSupport(Instrumentation instrumentation) {
+        synchronized (INSTANCE) {
+            if (null == moduleSupport) {
+                moduleSupport = new DefaultModuleSupport(instrumentation);
+            }
+            return moduleSupport;
+        }
+    }
+
 }

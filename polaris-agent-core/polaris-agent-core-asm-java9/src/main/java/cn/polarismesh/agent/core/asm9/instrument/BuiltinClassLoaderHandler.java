@@ -2,6 +2,8 @@ package cn.polarismesh.agent.core.asm9.instrument;
 
 import cn.polarismesh.agent.core.asm.instrument.classloading.PluginClassInjector;
 import cn.polarismesh.agent.core.asm.instrument.plugin.PluginConfig;
+import cn.polarismesh.agent.core.asm9.module.impl.DefaultModuleSupport;
+import cn.polarismesh.agent.core.asm9.starter.ModuleSupportHolder;
 import cn.polarismesh.agent.core.common.exception.PolarisAgentException;
 import cn.polarismesh.agent.core.common.logger.CommonLogger;
 import cn.polarismesh.agent.core.common.logger.StdoutCommonLoggerFactory;
@@ -10,6 +12,7 @@ import jdk.internal.loader.BuiltinClassLoader;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -77,8 +80,13 @@ public class BuiltinClassLoaderHandler implements PluginClassInjector {
             throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         synchronized (lock) {
             if (!urlAdded.get()) {
-                ADD_URL.invoke(classLoader, pluginConfig.getPluginUrl().getFile());
                 urlAdded.set(true);
+                ADD_URL.invoke(classLoader, pluginConfig.getPluginUrl().getFile());
+                // to support cn.polarismesh.agent.core.common.utils.ReflectionUtils.setSuperValueByFieldName usage
+                if (!pluginConfig.getPlugin().getOpenModules().isEmpty()) {
+                    DefaultModuleSupport moduleSupport = ModuleSupportHolder.getInstance().getModuleSupport(null);
+                    moduleSupport.baseModuleAddOpens(pluginConfig.getPlugin().getOpenModules(), moduleSupport.wrapJavaModule(classLoader.getUnnamedModule()));
+                }
             }
         }
     }

@@ -31,6 +31,8 @@ public class PluginJar {
     public static final String PLUGIN_ID = "Plugin-Id";
     public static final String PLUGIN_PACKAGE = "Plugin-Package";
     public static final String PLUGIN_COMPILER_VERSION = "Plugin-Compiler-Version";
+
+    public static final String PLUGIN_OPEN_MODULES = "Plugin-Open-Modules";
     public static final String DEFAULT_PLUGIN_PACKAGE_NAME = "cn.polarismesh.agent.plugin";
 
     private final URL url;
@@ -40,6 +42,8 @@ public class PluginJar {
     private final String pluginCompilerVersion;
     private final List<String> pluginPackages;
 
+    private final List<String> pluginOpenModules;
+
     public PluginJar(URL url, JarFile jarFile) {
         this.url = Objects.requireNonNull(url, "url");
         this.jarFile = Objects.requireNonNull(jarFile, "jarFile");
@@ -48,6 +52,8 @@ public class PluginJar {
         String pluginPackages = JarFileUtils
                 .getManifestValue(jarFile, PLUGIN_PACKAGE, DEFAULT_PLUGIN_PACKAGE_NAME);
         this.pluginPackages = StringUtils.tokenizeToStringList(pluginPackages, ",");
+        String pluginOpenModulesStr = JarFileUtils.getManifestValue(jarFile, PLUGIN_OPEN_MODULES, "");
+        this.pluginOpenModules = StringUtils.tokenizeToStringList(pluginOpenModulesStr, ",");
     }
 
     public static PluginJar fromFilePath(String filePath) {
@@ -111,15 +117,19 @@ public class PluginJar {
         return pluginPackages;
     }
 
+    public List<String> getPluginOpenModules() {
+        return pluginOpenModules;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PluginJar{");
-        sb.append("url=").append(url);
-        sb.append(", jarFile=").append(jarFile);
-        sb.append(", pluginId='").append(pluginId).append('\'');
-        sb.append(", pluginCompilerVersion='").append(pluginCompilerVersion).append('\'');
-        sb.append(", pluginPackages=").append(pluginPackages);
-        sb.append('}');
-        return sb.toString();
+        return "PluginJar{" +
+                "url=" + url +
+                ", jarFile=" + jarFile +
+                ", pluginId='" + pluginId + '\'' +
+                ", pluginCompilerVersion='" + pluginCompilerVersion + '\'' +
+                ", pluginPackages=" + pluginPackages +
+                ", pluginOpenModules=" + pluginOpenModules +
+                '}';
     }
 }

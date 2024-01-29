@@ -63,11 +63,11 @@ public class DefaultModuleSupport implements ModuleSupport {
     }
 
 
-    private JavaModule wrapJavaModule(Class<?> clazz) {
+    public JavaModule wrapJavaModule(Class<?> clazz) {
         return new Java9Module(instrumentation, clazz.getModule());
     }
 
-    private JavaModule wrapJavaModule(Module module) {
+    public JavaModule wrapJavaModule(Module module) {
         return new Java9Module(instrumentation, module);
     }
 
@@ -76,10 +76,10 @@ public class DefaultModuleSupport implements ModuleSupport {
         prepareAgentModule(classLoader, agentModule);
     }
 
-    private JavaModule newAgentModule(ClassLoader classLoader, URL[] jarFileList) {
-        ModuleBuilder moduleBuilder = new ModuleBuilder();
-        Module agentModule = moduleBuilder.defineModule("polaris.agent", classLoader, jarFileList);
-        return wrapJavaModule(agentModule);
+    public void baseModuleAddOpens(List<String> packageNames, JavaModule targetModule) {
+        for (String packageName: packageNames) {
+            javaBaseModule.addOpens(packageName, targetModule);
+        }
     }
 
     private void prepareAgentModule(ClassLoader classLoader, JavaModule agentModule) {
