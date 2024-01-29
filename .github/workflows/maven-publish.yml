@@ -39,7 +39,7 @@ jobs:
       - name: Build
         id: build
         run: |
-          export use_docker_env=true
+          export use_docker_env=false
           pushd polaris-agent-build/bin
           echo $JAVA_HOME
           echo $JAVA_8_HOME
