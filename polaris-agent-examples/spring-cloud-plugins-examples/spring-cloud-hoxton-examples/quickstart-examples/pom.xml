@@ -3,20 +3,18 @@
 		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
-		<artifactId>polaris-agent-examples</artifactId>
+		<artifactId>spring-cloud-hoxton-examples</artifactId>
 		<groupId>com.tencent.polaris</groupId>
 		<version>${revision}</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>spring-cloud-plugins-examples</artifactId>
-
+	<artifactId>hoxton-quickstart-examples</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>spring-cloud-2021-examples</module>
-		<module>spring-cloud-2020-examples</module>
-		<module>spring-cloud-hoxton-examples</module>
+		<module>provider</module>
+		<module>consumer</module>
 	</modules>
 
 </project>
