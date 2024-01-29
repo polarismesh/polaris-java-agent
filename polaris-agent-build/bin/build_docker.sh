@@ -3,8 +3,11 @@
 set -e
 
 # workdir root
-cd ../..
+
 version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='properties']/*[local-name()='revision']/text()" pom.xml)
+echo "${version}" > version.txt
+
+cd ../..
 workdir=$(pwd)
 echo "workdir is ${workdir}"
 
