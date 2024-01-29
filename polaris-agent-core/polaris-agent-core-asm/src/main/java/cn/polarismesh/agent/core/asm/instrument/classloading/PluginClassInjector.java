@@ -23,4 +23,6 @@ import cn.polarismesh.agent.core.asm.instrument.plugin.PluginConfig;
 public interface PluginClassInjector extends ClassInjector {
 
     PluginConfig getPluginConfig();
+
+    boolean match(ClassLoader classLoader);
 }

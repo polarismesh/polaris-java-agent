@@ -14,14 +14,12 @@
     <url>https://github.com/polarismesh/polaris-java-agent</url>
 
     <properties>
-        <revision>1.5.0-beta.1</revision>
+        <revision>1.6.0</revision>
         <polaris.version>1.14.3</polaris.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.maven.deploy>false</skip.maven.deploy>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <!-- Maven Plugin Versions -->
         <jacoco.version>0.8.3</jacoco.version>
         <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
@@ -31,8 +29,12 @@
         <maven.source.plugin.version>3.2.0</maven.source.plugin.version>
         <maven.javadoc.plugin.version>3.2.0</maven.javadoc.plugin.version>
         <maven.shaded.plugin.version>3.2.4</maven.shaded.plugin.version>
+        <plugin.compiler.version>3.8.1</plugin.compiler.version>
         <org.codehaus.mojo.version>3.0.0</org.codehaus.mojo.version>
         <slf4j.vesion>1.7.30</slf4j.vesion>
+        <encoding>UTF-8</encoding>
+        <jdk.version>1.8</jdk.version>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
     </properties>
 
     <dependencyManagement>
@@ -66,8 +68,24 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${plugin.compiler.version}</version>
+                <configuration>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
+                    <fork>true</fork>
+                    <debug>true</debug>
+                    <optimize>true</optimize>
+                    <encoding>${encoding}</encoding>
+                    <showDeprecation>true</showDeprecation>
+                    <compilerVersion>${jdk.version}</compilerVersion>
+                    <executable>${jdk.home}/bin/javac</executable>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.12.4</version>
+                <version>2.22.2</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

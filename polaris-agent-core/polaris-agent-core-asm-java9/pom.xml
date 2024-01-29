@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>polaris-agent-core</artifactId>
+        <groupId>com.tencent.polaris</groupId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>polaris-agent-core-asm-java9</artifactId>
+
+    <properties>
+<!--        <maven.compiler.source>9</maven.compiler.source>-->
+<!--        <maven.compiler.target>9</maven.compiler.target>-->
+        <jdk.version>9</jdk.version>
+        <jdk.home>${env.JAVA_HOME}</jdk.home>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.tencent.polaris</groupId>
+            <artifactId>polaris-agent-core-common</artifactId>
+            <version>${project.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.tencent.polaris</groupId>
+            <artifactId>polaris-agent-core-asm</artifactId>
+            <version>${project.version}</version>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+<!--            <plugin>-->
+<!--                <groupId>org.codehaus.mojo</groupId>-->
+<!--                <artifactId>build-helper-maven-plugin</artifactId>-->
+<!--                <version>3.2.0</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>generate-sources</phase>-->
+<!--                        <goals><goal>add-source</goal></goals>-->
+<!--                        <configuration>-->
+<!--                            <sources>-->
+<!--                                <source>src/main/java9</source>-->
+<!--                                <source>src/main/java11</source>-->
+<!--                            </sources>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>polaris.bootstrap.java9</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgs>
+                        <arg>--add-exports</arg><arg>java.base/jdk.internal.loader=ALL-UNNAMED</arg>
+                        <arg>--add-exports</arg><arg>java.base/jdk.internal.module=ALL-UNNAMED</arg>
+                        <arg>--add-exports</arg><arg>java.base/jdk.internal.access=ALL-UNNAMED</arg>
+                        <!-- jdk9 -->
+                        <!--                        <arg>&#45;&#45;add-exports</arg><arg>java.base/jdk.internal.misc=ALL-UNNAMED</arg>-->
+                        <!-- jdk 11 -->
+                        <!--                        <arg>&#45;&#45;add-exports</arg><arg>java.base/jdk.internal.access=ALL-UNNAMED</arg>-->
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>
+                        --add-exports java.base/jdk.internal.loader=ALL-UNNAMED
+                        --add-exports java.base/jdk.internal.module=ALL-UNNAMED
+                        --add-exports java.base/jdk.internal.access=ALL-UNNAMED
+                        <!-- jdk9 -->
+                    <!--                        &#45;&#45;add-exports java.base/jdk.internal.misc=ALL-UNNAMED-->
+
+                    <!-- jdk11 -->
+                    <!--                        &#45;&#45;add-exports java.base/jdk.internal.access=ALL-UNNAMED-->
+                    </argLine>
+                    <encoding>${encoding}</encoding>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

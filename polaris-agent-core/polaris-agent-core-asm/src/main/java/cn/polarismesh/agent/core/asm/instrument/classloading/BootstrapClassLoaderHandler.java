@@ -25,7 +25,7 @@ import cn.polarismesh.agent.core.common.logger.StdoutCommonLoggerFactory;
 import java.io.InputStream;
 import java.util.Objects;
 
-public class BootstrapClassLoaderHandler implements ClassInjector {
+public class BootstrapClassLoaderHandler implements PluginClassInjector {
 
     private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE
             .getLogger(BootstrapClassLoaderHandler.class.getCanonicalName());
@@ -96,5 +96,15 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
         }
         logger.warn(String.format("Invalid bootstrap class loader. cl=%s", targetClassLoader));
         return null;
+    }
+
+    @Override
+    public PluginConfig getPluginConfig() {
+        return pluginConfig;
+    }
+
+    @Override
+    public boolean match(ClassLoader classLoader) {
+        return classLoader == null;
     }
 }

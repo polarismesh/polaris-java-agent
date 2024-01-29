@@ -22,8 +22,13 @@ import cn.polarismesh.agent.core.asm.instrument.plugin.PluginConfig;
 import cn.polarismesh.agent.core.common.exception.PolarisAgentException;
 import cn.polarismesh.agent.core.common.logger.CommonLogger;
 import cn.polarismesh.agent.core.common.logger.StdoutCommonLoggerFactory;
+import cn.polarismesh.agent.core.common.utils.JvmUtils;
+import cn.polarismesh.agent.core.common.utils.JvmVersion;
+
 import java.io.InputStream;
-import java.net.URLClassLoader;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class JarProfilerPluginClassInjector implements ClassInjector {
@@ -32,18 +37,39 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
             .getLogger(JarProfilerPluginClassInjector.class.getCanonicalName());
 
     private final BootstrapCore bootstrapCore;
-    private final ClassInjector bootstrapClassLoaderHandler;
-    private final ClassInjector urlClassLoaderHandler;
-    private final ClassInjector plainClassLoaderHandler;
+
+    private final List<PluginClassInjector> pluginClassInjectors = new ArrayList<>();
+
+    private final PluginClassInjector plainClassLoaderHandler;
 
     public JarProfilerPluginClassInjector(PluginConfig pluginConfig, InstrumentEngine instrumentEngine,
             BootstrapCore bootstrapCore) {
         Objects.requireNonNull(pluginConfig, "pluginConfig");
 
         this.bootstrapCore = Objects.requireNonNull(bootstrapCore, "bootstrapCore");
-        this.bootstrapClassLoaderHandler = new BootstrapClassLoaderHandler(pluginConfig, instrumentEngine);
-        this.urlClassLoaderHandler = new URLClassLoaderHandler(pluginConfig);
-        this.plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig);
+        pluginClassInjectors.add(new BootstrapClassLoaderHandler(pluginConfig, instrumentEngine));
+        pluginClassInjectors.add(new URLClassLoaderHandler(pluginConfig));
+        PluginClassInjector builtinClassLoaderHandler = createBuiltinClassLoaderHandler(pluginConfig);
+        if (builtinClassLoaderHandler != null) {
+            pluginClassInjectors.add(builtinClassLoaderHandler);
+        }
+        plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig);
+    }
+
+    private PluginClassInjector createBuiltinClassLoaderHandler(PluginConfig pluginConfig) {
+        final JvmVersion version = JvmUtils.getVersion();
+        if (version.onOrAfter(JvmVersion.JAVA_9)) {
+            final ClassLoader agentClassLoader = JarProfilerPluginClassInjector.class.getClassLoader();
+            final String name = "cn.polarismesh.agent.core.asm9.instrument.BuiltinClassLoaderHandler";
+            try {
+                Class<PluginClassInjector> defineClassClazz = (Class<PluginClassInjector>) agentClassLoader.loadClass(name);
+                Constructor<PluginClassInjector> constructor = defineClassClazz.getDeclaredConstructor(PluginConfig.class);
+                return constructor.newInstance(pluginConfig);
+            } catch (Exception e) {
+                throw new IllegalStateException(name + " create fail Caused by:" + e.getMessage(), e);
+            }
+        }
+        return null;
     }
 
     @Override
@@ -53,14 +79,12 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
             if (bootstrapCore.isBootstrapPackage(className)) {
                 return bootstrapCore.loadClass(className);
             }
-            if (classLoader == null) {
-                return bootstrapClassLoaderHandler.injectClass(null, className);
-            } else if (classLoader instanceof URLClassLoader) {
-                final URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-                return urlClassLoaderHandler.injectClass(urlClassLoader, className);
-            } else {
-                return plainClassLoaderHandler.injectClass(classLoader, className);
+            for (PluginClassInjector pluginClassInjector : pluginClassInjectors) {
+                if (pluginClassInjector.match(classLoader)) {
+                    return pluginClassInjector.injectClass(classLoader, className);
+                }
             }
+            return plainClassLoaderHandler.injectClass(classLoader, className);
         } catch (Throwable e) {
             // fixed for LinkageError
             logger.warn(String.format("failed to load plugin class %s with classLoader %s", className, classLoader), e);
@@ -75,14 +99,12 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
             if (bootstrapCore.isBootstrapPackageByInternalName(internalName)) {
                 return bootstrapCore.openStream(internalName);
             }
-            if (targetClassLoader == null) {
-                return bootstrapClassLoaderHandler.getResourceAsStream(null, internalName);
-            } else if (targetClassLoader instanceof URLClassLoader) {
-                final URLClassLoader urlClassLoader = (URLClassLoader) targetClassLoader;
-                return urlClassLoaderHandler.getResourceAsStream(urlClassLoader, internalName);
-            } else {
-                return plainClassLoaderHandler.getResourceAsStream(targetClassLoader, internalName);
+            for (PluginClassInjector pluginClassInjector : pluginClassInjectors) {
+                if (pluginClassInjector.match(targetClassLoader)) {
+                    return pluginClassInjector.getResourceAsStream(targetClassLoader, internalName);
+                }
             }
+            return plainClassLoaderHandler.getResourceAsStream(targetClassLoader, internalName);
         } catch (Throwable e) {
             logger.warn(String.format("failed to load plugin resource as stream %s with classLoader %s", internalName,
                     targetClassLoader), e);

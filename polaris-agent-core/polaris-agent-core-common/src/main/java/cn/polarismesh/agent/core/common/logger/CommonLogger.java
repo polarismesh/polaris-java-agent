@@ -37,4 +37,7 @@ public interface CommonLogger {
 
     void warn(String msg, Throwable throwable);
 
+    void error(String msg);
+
+    void error(String msg, Throwable throwable);
 }

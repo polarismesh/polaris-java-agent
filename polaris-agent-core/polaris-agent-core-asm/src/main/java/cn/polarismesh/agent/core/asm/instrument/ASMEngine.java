@@ -18,7 +18,7 @@
 package cn.polarismesh.agent.core.asm.instrument;
 
 import cn.polarismesh.agent.core.asm.instrument.interceptor.InterceptorDefinitionFactory;
-import cn.polarismesh.agent.core.common.exception.NotFoundInstrumentException;
+import cn.polarismesh.agent.core.extension.instrument.exception.NotFoundInstrumentException;
 import cn.polarismesh.agent.core.common.logger.CommonLogger;
 import cn.polarismesh.agent.core.common.logger.StdoutCommonLoggerFactory;
 import cn.polarismesh.agent.core.common.utils.JavaAssistUtils;

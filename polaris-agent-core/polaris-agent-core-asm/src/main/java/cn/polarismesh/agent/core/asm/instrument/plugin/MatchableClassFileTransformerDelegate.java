@@ -16,7 +16,7 @@
 
 package cn.polarismesh.agent.core.asm.instrument.plugin;
 
-import cn.polarismesh.agent.core.common.exception.InstrumentException;
+import cn.polarismesh.agent.core.extension.instrument.exception.InstrumentException;
 import cn.polarismesh.agent.core.common.exception.PolarisAgentException;
 import cn.polarismesh.agent.core.asm.instrument.GuardInstrumentor;
 import cn.polarismesh.agent.core.asm.instrument.InstrumentContext;

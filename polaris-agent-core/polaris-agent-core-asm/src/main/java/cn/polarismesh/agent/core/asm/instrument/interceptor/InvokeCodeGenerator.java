@@ -18,7 +18,7 @@
 package cn.polarismesh.agent.core.asm.instrument.interceptor;
 
 import cn.polarismesh.agent.core.extension.instrument.InstrumentMethod;
-import cn.polarismesh.agent.core.asm.registry.InterceptorRegistry;
+import cn.polarismesh.agent.core.extension.registry.InterceptorRegistry;
 import cn.polarismesh.agent.core.common.utils.JavaAssistUtils;
 import java.lang.reflect.Modifier;
 import java.util.Objects;

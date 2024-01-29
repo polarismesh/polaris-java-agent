@@ -19,7 +19,7 @@ package cn.polarismesh.agent.core.asm.instrument;
 import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
 import cn.polarismesh.agent.core.asm.instrument.interceptor.InterceptorDefinition;
 import cn.polarismesh.agent.core.asm.instrument.interceptor.InterceptorType;
-import cn.polarismesh.agent.core.asm.registry.InterceptorRegistry;
+import cn.polarismesh.agent.core.extension.registry.InterceptorRegistry;
 import cn.polarismesh.agent.core.common.utils.JavaAssistUtils;
 import java.util.Collections;
 import java.util.Comparator;

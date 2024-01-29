@@ -31,7 +31,7 @@ public class PluginJar {
     public static final String PLUGIN_ID = "Plugin-Id";
     public static final String PLUGIN_PACKAGE = "Plugin-Package";
     public static final String PLUGIN_COMPILER_VERSION = "Plugin-Compiler-Version";
-    public static final String DEFAULT_PLUGIN_PACKAGE_NAME = "cn.polarismesh.agent.core.asm.extension";
+    public static final String DEFAULT_PLUGIN_PACKAGE_NAME = "cn.polarismesh.agent.plugin";
 
     private final URL url;
     private final JarFile jarFile;
