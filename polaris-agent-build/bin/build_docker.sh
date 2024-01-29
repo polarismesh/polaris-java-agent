@@ -4,6 +4,7 @@ set -e
 
 # workdir root
 
+
 version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='properties']/*[local-name()='revision']/text()" ../../pom.xml)
 echo "${version}" > version.txt
 
