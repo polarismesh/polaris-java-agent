@@ -1,8 +1,10 @@
-package cn.polarismesh.agent.core.asm9.instrument;
+package cn.polarismesh.agent.core.optional17.instrument;
 
 import java.security.ProtectionDomain;
+import cn.polarismesh.agent.core.asm.instrument.JavaLangAccess;
 
-public class JavaLangAccess11 implements JavaLangAccess {
+public class JavaLangAccess17 implements JavaLangAccess {
+
     private static final jdk.internal.access.JavaLangAccess javaLangAccess = jdk.internal.access.SharedSecrets.getJavaLangAccess();
 
     @Override
@@ -15,4 +17,3 @@ public class JavaLangAccess11 implements JavaLangAccess {
         javaLangAccess.registerShutdownHook(slot, registerShutdownInProgress, hook);
     }
 }
-

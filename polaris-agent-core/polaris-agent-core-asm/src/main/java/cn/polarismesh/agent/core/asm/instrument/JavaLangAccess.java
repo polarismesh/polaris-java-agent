@@ -1,4 +1,4 @@
-package cn.polarismesh.agent.core.asm9.instrument;
+package cn.polarismesh.agent.core.asm.instrument;
 
 import java.security.ProtectionDomain;
 

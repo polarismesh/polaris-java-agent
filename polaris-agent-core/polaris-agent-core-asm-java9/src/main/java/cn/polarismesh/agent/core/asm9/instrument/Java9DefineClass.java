@@ -17,6 +17,7 @@
 package cn.polarismesh.agent.core.asm9.instrument;
 
 
+import cn.polarismesh.agent.core.asm.instrument.JavaLangAccess;
 import cn.polarismesh.agent.core.asm.instrument.classloading.DefineClass;
 import cn.polarismesh.agent.core.common.logger.CommonLogger;
 import cn.polarismesh.agent.core.common.logger.StdoutCommonLoggerFactory;

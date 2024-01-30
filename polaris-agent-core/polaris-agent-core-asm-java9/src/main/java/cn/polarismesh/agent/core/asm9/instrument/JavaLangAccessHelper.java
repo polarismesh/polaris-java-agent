@@ -16,10 +16,14 @@
 
 package cn.polarismesh.agent.core.asm9.instrument;
 
+import cn.polarismesh.agent.core.asm.instrument.JavaLangAccess;
 import cn.polarismesh.agent.core.common.logger.CommonLogger;
 import cn.polarismesh.agent.core.common.logger.StdoutCommonLoggerFactory;
 import cn.polarismesh.agent.core.common.utils.JvmUtils;
 import cn.polarismesh.agent.core.common.utils.SystemPropertyKey;
+import cn.polarismesh.agent.core.optional9.instrument.JavaLangAccess9;
+
+import java.lang.reflect.Constructor;
 
 /**
  * @author jaehong.kim
@@ -33,6 +37,8 @@ public class JavaLangAccessHelper {
     // Java 12 version over and after
     private static final String ACCESS_SHARED_SECRETS_CLASS_NAME = "jdk.internal.access.SharedSecrets";
     private static final String ACCESS_JAVA_LANG_ACCESS_CLASS_NAME = "jdk.internal.access.JavaLangAccess";
+
+    private static final String CLAZZ_NAME_JAVA_LANG_ACCESS17 = "cn.polarismesh.agent.core.optional17.instrument.JavaLangAccess17";
 
     private static final JavaLangAccess JAVA_LANG_ACCESS = newJavaLangAccessor();
 
@@ -49,22 +55,36 @@ public class JavaLangAccessHelper {
                 JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VM_NAME), JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VM_VERSION)));
     }
 
+    private static JavaLangAccess createJavaLangAccess17() throws Exception {
+        Class<JavaLangAccess> clazz = getClazz(CLAZZ_NAME_JAVA_LANG_ACCESS17, JavaLangAccessHelper.class.getClassLoader());
+        Constructor<JavaLangAccess> constructor = clazz.getDeclaredConstructor();
+        return constructor.newInstance();
+    }
+
+    private static <T> Class<T> getClazz(String clazzName, ClassLoader classLoader) {
+        try {
+            return (Class<T>) Class.forName(clazzName, false, classLoader);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(clazzName + " not found");
+        }
+    }
+
 
     private static JavaLangAccess newJavaLangAccessor()  {
-//        try {
-//            Class.forName(MISC_JAVA_LANG_ACCESS_CLASS_NAME, false, JavaLangAccess.class.getClassLoader());
-//            return new JavaLangAccess9();
-//        } catch (ClassNotFoundException ignore) {
-//            // ignore
-//        }
+        try {
+            Class.forName(MISC_JAVA_LANG_ACCESS_CLASS_NAME, false, JavaLangAccess.class.getClassLoader());
+            return new JavaLangAccess9();
+        } catch (ClassNotFoundException exception) {
+            logger.error("fail to create JavaLangAccess9, error: " + exception.getMessage());
+        }
         try {
             // https://github.com/naver/pinpoint/issues/6752
             // Oracle JDK11 : jdk.internal.access
             // openJDK11 =  jdk.internal.misc
             Class.forName(ACCESS_SHARED_SECRETS_CLASS_NAME, false, JavaLangAccess.class.getClassLoader());
-            return new JavaLangAccess11();
-        } catch (ClassNotFoundException ignore) {
-            // ignore
+            return createJavaLangAccess17();
+        } catch (Exception exception) {
+            logger.error("fail to create JavaLangAccess17, error: " + exception.getMessage());
         }
 
         dumpJdkInfo();
