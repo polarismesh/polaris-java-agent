@@ -14,8 +14,6 @@
     <artifactId>polaris-agent-core-asm-java9</artifactId>
 
     <properties>
-<!--        <maven.compiler.source>9</maven.compiler.source>-->
-<!--        <maven.compiler.target>9</maven.compiler.target>-->
         <jdk.version>9</jdk.version>
         <jdk.home>${env.JAVA_HOME}</jdk.home>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -38,23 +36,6 @@
 
     <build>
         <plugins>
-<!--            <plugin>-->
-<!--                <groupId>org.codehaus.mojo</groupId>-->
-<!--                <artifactId>build-helper-maven-plugin</artifactId>-->
-<!--                <version>3.2.0</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <phase>generate-sources</phase>-->
-<!--                        <goals><goal>add-source</goal></goals>-->
-<!--                        <configuration>-->
-<!--                            <sources>-->
-<!--                                <source>src/main/java9</source>-->
-<!--                                <source>src/main/java11</source>-->
-<!--                            </sources>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
