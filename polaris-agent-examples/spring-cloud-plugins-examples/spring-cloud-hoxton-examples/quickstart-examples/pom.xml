@@ -15,6 +15,7 @@
 	<modules>
 		<module>provider</module>
 		<module>consumer</module>
+		<module>scg</module>
 	</modules>
 
 </project>

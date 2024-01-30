@@ -10,9 +10,9 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<name>hoxton-provider</name>
-	<description>Demo Provider Project For Spring Cloud Alibaba</description>
-	<artifactId>hoxton-provider</artifactId>
+	<name>hoxton-scg</name>
+	<description>Demo Consumer Project For Spring Cloud Alibaba</description>
+	<artifactId>hoxton-scg</artifactId>
 	<packaging>jar</packaging>
 
 	<dependencyManagement>
@@ -36,10 +36,9 @@
 	</dependencyManagement>
 
 	<dependencies>
-		<!-- 简单的 Spring Cloud Web 依赖 -->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-gateway</artifactId>
 		</dependency>
 
 		<!-- 引入 Spring Cloud Alibaba 的服务注册发现依赖 -->
@@ -49,10 +48,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.alibaba.cloud</groupId>
-			<artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-loadbalancer</artifactId>
 		</dependency>
-
 	</dependencies>
 
 	<build>
