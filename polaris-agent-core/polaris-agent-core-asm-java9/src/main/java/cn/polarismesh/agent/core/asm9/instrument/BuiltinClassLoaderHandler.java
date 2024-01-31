@@ -8,11 +8,13 @@ import cn.polarismesh.agent.core.common.exception.PolarisAgentException;
 import cn.polarismesh.agent.core.common.logger.CommonLogger;
 import cn.polarismesh.agent.core.common.logger.StdoutCommonLoggerFactory;
 import jdk.internal.loader.BuiltinClassLoader;
+import jdk.internal.loader.URLClassPath;
 
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.net.URL;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -21,7 +23,11 @@ public class BuiltinClassLoaderHandler implements PluginClassInjector {
     private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE
             .getLogger(BuiltinClassLoaderHandler.class.getCanonicalName());
 
-    private static final Method ADD_URL;
+    private static Method APPEND_CLASS_PATH;
+
+    private static Field UCP_OBJECT_FIELD;
+
+    private static Method ADD_URL;
 
     private final AtomicBoolean urlAdded = new AtomicBoolean(false);
 
@@ -29,10 +35,22 @@ public class BuiltinClassLoaderHandler implements PluginClassInjector {
 
     static {
         try {
-            ADD_URL = BuiltinClassLoader.class.getDeclaredMethod("appendClassPath", String.class);
-            ADD_URL.setAccessible(true);
+            // for java17 supported
+            APPEND_CLASS_PATH = BuiltinClassLoader.class.getDeclaredMethod("appendClassPath", String.class);
+            APPEND_CLASS_PATH.setAccessible(true);
+            UCP_OBJECT_FIELD = null;
+            ADD_URL = null;
+        } catch (NoSuchMethodException ne) {
+            APPEND_CLASS_PATH = null;
+            try {
+                UCP_OBJECT_FIELD = BuiltinClassLoader.class.getDeclaredField("ucp");
+                UCP_OBJECT_FIELD.setAccessible(true);
+                ADD_URL = URLClassPath.class.getDeclaredMethod("addURL", URL.class);
+            } catch (Exception e1) {
+                throw new IllegalStateException("Cannot access BuiltinClassLoader.ucp", e1);
+            }
         } catch (Exception e) {
-            throw new IllegalStateException("Cannot access URLClassLoader.addURL(URL)", e);
+            throw new IllegalStateException("Cannot access BuiltinClassLoader.appendClassPath(String)", e);
         }
     }
 
@@ -81,7 +99,12 @@ public class BuiltinClassLoaderHandler implements PluginClassInjector {
         synchronized (lock) {
             if (!urlAdded.get()) {
                 urlAdded.set(true);
-                ADD_URL.invoke(classLoader, pluginConfig.getPluginUrl().getFile());
+                if (null != APPEND_CLASS_PATH) {
+                    APPEND_CLASS_PATH.invoke(classLoader, pluginConfig.getPluginUrl().getFile());
+                } else {
+                    Object ucp = UCP_OBJECT_FIELD.get(classLoader);
+                    ADD_URL.invoke(ucp, pluginConfig.getPluginUrl());
+                }
                 // to support cn.polarismesh.agent.core.common.utils.ReflectionUtils.setSuperValueByFieldName usage
                 if (!pluginConfig.getPlugin().getOpenModules().isEmpty()) {
                     DefaultModuleSupport moduleSupport = ModuleSupportHolder.getInstance().getModuleSupport(null);
