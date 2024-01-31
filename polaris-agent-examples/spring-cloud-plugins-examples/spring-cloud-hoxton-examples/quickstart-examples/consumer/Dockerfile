@@ -3,7 +3,7 @@ FROM alpine:3.13.6
 ARG version
 ARG java_version
 
-COPY target/polaris-javaagent-demo-sc-quickstart-hoxton-consumer-${version}.jar /app/hoxton-consumer.jar
+COPY ./target/polaris-javaagent-demo-sc-quickstart-hoxton-consumer-${version}.jar /app/hoxton-consumer.jar
 
 WORKDIR /app
 
