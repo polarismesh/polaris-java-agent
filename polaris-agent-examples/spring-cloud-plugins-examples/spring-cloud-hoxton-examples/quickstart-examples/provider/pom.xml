@@ -10,10 +10,13 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
+	<groupId>com.tencent.polaris</groupId>
+	<artifactId>polaris-javaagent-demo-sc-quickstart-hoxton-provider</artifactId>
+	<packaging>jar</packaging>
+	<version>1.6.0</version>
+
 	<name>hoxton-provider</name>
 	<description>Demo Provider Project For Spring Cloud Alibaba</description>
-	<artifactId>hoxton-provider</artifactId>
-	<packaging>jar</packaging>
 
 	<dependencyManagement>
 		<dependencies>
