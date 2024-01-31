@@ -19,8 +19,8 @@ if [[ "${docker_repository}" == "" ]]; then
     docker_repository="polarismesh"
 fi
 
-arch_list=( "amd64" "arm64" )
-# arch_list=( "amd64" )
+#arch_list=( "amd64" "arm64" )
+arch_list=( "amd64" )
 platforms=""
 
 for arch in ${arch_list[@]}; do
