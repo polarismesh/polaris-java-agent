@@ -17,11 +17,19 @@ jobs:
           architecture: x64
           targets: 'JAVA_8_HOME'
 
+      - name: Setup JDK 11
+        uses: AdoptOpenJDK/install-jdk@v1
+        with:
+          version: '11'
+          architecture: x64
+          targets: 'JAVA_11_HOME'
+
       - name: Setup JDK 17
         uses: AdoptOpenJDK/install-jdk@v1
         with:
           version: '17'
           architecture: x64
+          targets: 'JAVA_17_HOME;JAVA_HOME'
 
       - name: Install xmllint
         run: sudo apt-get install libxml2-utils

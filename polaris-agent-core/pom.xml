@@ -25,6 +25,8 @@
         <module>polaris-agent-core-asm-java9</module>
         <module>polaris-agent-core-bootstrap-common</module>
         <module>polaris-agent-core-bootstrap</module>
+        <module>polaris-agent-core-optional-java9</module>
+        <module>polaris-agent-core-optional-java17</module>
     </modules>
 
     <dependencyManagement>

@@ -34,6 +34,8 @@ fi
 cp "polaris-agent-core/polaris-agent-core-bootstrap/target/polaris-agent-core-bootstrap.jar" "${folder_name}/"
 cp "polaris-agent-core/polaris-agent-core-bootstrap-common/target/polaris-agent-core-bootstrap-common-${version}.jar" "${folder_name}/lib/"
 cp "polaris-agent-core/polaris-agent-core-asm-java9/target/polaris-agent-core-asm-java9-${version}.jar" "${folder_name}/lib/java9/"
+cp "polaris-agent-core/polaris-agent-core-optional-java9/target/polaris-agent-core-optional-java9-${version}.jar" "${folder_name}/lib/java9/"
+cp "polaris-agent-core/polaris-agent-core-optional-java17/target/polaris-agent-core-optional-java17-${version}.jar" "${folder_name}/lib/java9/"
 cp "polaris-agent-core/polaris-agent-core-extension/target/polaris-agent-core-extension-${version}.jar" "${folder_name}/boot/"
 
 pushd "polaris-agent-plugins"

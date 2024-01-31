@@ -20,6 +20,7 @@ package cn.polarismesh.agent.core.bootstrap.entry;
 import cn.polarismesh.agent.core.bootstrap.entry.utils.AgentDirUtils;
 
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -57,7 +58,14 @@ public class BootStrap {
             Method premain = clazz.getMethod("premain", String.class, Instrumentation.class, String.class);
             premain.invoke(null, agentArgs, instrumentation, agentDirPath);
         } catch (Exception e) {
-            System.err.println("[Bootstrap] fail to inject: " + e.getMessage());
+            String errMsg = e.getMessage();
+            if (e instanceof InvocationTargetException) {
+                Throwable targetException = ((InvocationTargetException)e).getTargetException();
+                if (null != targetException) {
+                    errMsg = targetException.getMessage();
+                }
+            }
+            System.err.println("[Bootstrap] fail to inject: " + errMsg);
         }
     }
 
