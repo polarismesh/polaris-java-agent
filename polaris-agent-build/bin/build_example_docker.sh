@@ -36,7 +36,7 @@ docker_files=$(find ./ | grep -w "Dockerfile")
 for docker_file in ${docker_files}; do
   folder_name=${docker_file%/*}
   pushd "${folder_name}/"
-  repo_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='artifactId']/text()" ${folder_name}/pom.xml)
+  repo_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='artifactId']/text()" pom.xml)
 
   docker_tag="${version}-java8"
   echo "docker repository java8: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
