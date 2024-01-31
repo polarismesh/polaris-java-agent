@@ -18,9 +18,11 @@
 package cn.polarismesh.agent.examples.alibaba.cloud.cloud;
 
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.serviceregistry.Registration;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,8 +37,12 @@ public class ProviderApplication {
 		SpringApplication.run(ProviderApplication.class, args);
 	}
 
+	@RefreshScope
 	@RestController
 	public static class EchoController {
+
+		@Value("${name:}")
+		private String name;
 
 		private Registration registration;
 
@@ -49,7 +55,9 @@ public class ProviderApplication {
 			String sb = "Hello, I'm provider, receive msg : "
 					+ string
 					+ "my metadata : "
-					+ registration.getMetadata();
+					+ registration.getMetadata()
+					+ " name config : "
+					+ name;
 			return sb;
 		}
 
