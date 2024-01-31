@@ -12,7 +12,7 @@
 
 	<name>hoxton-consumer</name>
 	<description>Demo Consumer Project For Spring Cloud Alibaba</description>
-	<artifactId>hoxton-consumer</artifactId>
+	<artifactId>polaris-javaagent-demo-sc-quickstart-hoxton-consumer</artifactId>
 	<packaging>jar</packaging>
 
 	<dependencyManagement>

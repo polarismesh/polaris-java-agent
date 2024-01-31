@@ -12,7 +12,7 @@
 
 	<name>hoxton-scg</name>
 	<description>Demo Consumer Project For Spring Cloud Alibaba</description>
-	<artifactId>hoxton-scg</artifactId>
+	<artifactId>polaris-javaagent-demo-sc-quickstart-hoxton-scg</artifactId>
 	<packaging>jar</packaging>
 
 	<dependencyManagement>

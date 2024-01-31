@@ -12,7 +12,7 @@
 
 	<name>hoxton-provider</name>
 	<description>Demo Provider Project For Spring Cloud Alibaba</description>
-	<artifactId>hoxton-provider</artifactId>
+	<artifactId>polaris-javaagent-demo-sc-quickstart-hoxton-provider</artifactId>
 	<packaging>jar</packaging>
 
 	<dependencyManagement>
