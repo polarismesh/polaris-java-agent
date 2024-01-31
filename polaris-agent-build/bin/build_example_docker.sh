@@ -38,17 +38,25 @@ for docker_file in ${docker_files}; do
   pushd "${folder_name}/"
   repo_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='artifactId']/text()" pom.xml)
 
+  echo "current is $(pwd)"
+
+  dir_name=${folder_name##*/} 
+  
+  cp Dockerfile Dockerfile-${dir_name}
   docker_tag="${version}-java8"
+
   echo "docker repository java8: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
-  docker buildx build -f ./Dockerfile -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg version=${version} --build-arg java_version=8 --platform ${platforms} --push ./
+  docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg version=${version} --build-arg java_version=8 --platform ${platforms} --push ./
 
   docker_tag="${version}-java11"
   echo "docker repository java11: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
-  docker buildx build -f ./Dockerfile -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg version=${version} --build-arg java_version=11 --platform ${platforms} --push ./
+  docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg version=${version} --build-arg java_version=11 --platform ${platforms} --push ./
 
-  docker_tag="${version}-java17"
-  echo "docker repository java17: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
-  docker buildx build -f ./Dockerfile -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg version=${version} --build-arg java_version=17 --platform ${platforms} --push ./
+  rm Dockerfile-${dir_name}
+  
+#  docker_tag="${version}-java17"
+#  echo "docker repository java17: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
+#  docker buildx build -f ./Dockerfile -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg version=${version} --build-arg java_version=17 --platform ${platforms} --push ./
   popd 
 done
 popd
