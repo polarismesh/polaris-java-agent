@@ -12,8 +12,11 @@ mkdir -p ${java_agent_dir}
 
 # 将 /app/lib 下的文件 copy 一份出去
 
-mv -f /app/${polaris_agent_dir_name} ${java_agent_dir}
-mv -f /app/version.txt ${java_agent_dir}
+#mv -f /app/${polaris_agent_dir_name} ${java_agent_dir}
+#mv -f /app/version.txt ${java_agent_dir}
+ln -s /app/${polaris_agent_dir_name} ${java_agent_dir}/${polaris_agent_dir_name}
+ln -s /app/version.txt ${java_agent_dir}/version.txt
+
 
 # 这里需要将 agent 起到需要的相关信息全部注入到对应 plugin 中
 cd ${java_agent_dir}
