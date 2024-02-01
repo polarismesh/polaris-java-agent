@@ -20,7 +20,7 @@ cd ${java_agent_dir}
 
 # 第一步，需要确定 agent-plugin 启用哪个
 custom_plugin_type=${JAVA_AGENT_PLUGIN_TYPE}
-echo "${custom_plugin_type}" > ${polaris_agent_dir_name}/conf/polaris-agent.config
+echo "plugins.enable=${custom_plugin_type}" > ${polaris_agent_dir_name}/conf/polaris-agent.config
 
 # 第二步，将 plugin 所需要的配置注入到 plugin 对应的目录中去
 custom_plugin_properties=${JAVA_AGENT_PLUGIN_CONF}
