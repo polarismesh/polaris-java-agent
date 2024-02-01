@@ -53,6 +53,10 @@ for plugin_folder in ${plugin_folders}; do
 done
 popd
 
+# do package
+echo "start to zip package"
+zip -r "${package_name}" "${folder_name}"
+
 docker_tag=$1
 
 docker_repository="${DOCKER_REPOSITORY}"
