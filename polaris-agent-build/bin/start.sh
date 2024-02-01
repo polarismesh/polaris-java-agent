@@ -25,7 +25,7 @@ echo "inject with framework ${JAVA_AGENT_FRAMEWORK_NAME} and version ${JAVA_AGEN
 
 # 第一步，需要确定 agent-plugin 启用哪个
 custom_plugin_id="${JAVA_AGENT_FRAMEWORK_NAME}-${JAVA_AGENT_FRAMEWORK_VERSION}-plugin"
-echo "${custom_plugin_id}" > ${polaris_agent_dir_name}/conf/polaris-agent.config
+echo "plugins.enable=${custom_plugin_id}" > ${polaris_agent_dir_name}/conf/polaris-agent.config
 
 # 第二步，将 plugin 所需要的配置注入到 plugin 对应的目录中去
 java_agent_config_dir="${JAVA_AGENT_FRAMEWORK_NAME}-${JAVA_AGENT_FRAMEWORK_VERSION}"
