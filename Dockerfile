@@ -21,7 +21,7 @@ RUN apk update upgrade && \
     apk add --no-cache bash util-linux
 
 COPY ./polaris-agent-build/bin/version.txt /app/
-COPY ./polaris-java-agent-${version} /app/polaris-java-agent-${version}
+COPY ./polaris-java-agent-${version}.zip /app/
 COPY ./polaris-agent-build/bin/start.sh /app/start.sh
 
 WORKDIR /app
