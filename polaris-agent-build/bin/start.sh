@@ -18,10 +18,16 @@ mv -f /app/version.txt ${java_agent_dir}
 # 这里需要将 agent 起到需要的相关信息全部注入到对应 plugin 中
 cd ${java_agent_dir}
 
+echo "inject with framework ${JAVA_AGENT_FRAMEWORK_NAME} and version ${JAVA_AGENT_FRAMEWORK_VERSION}"
+
 # 第一步，需要确定 agent-plugin 启用哪个
-custom_plugin_type=${JAVA_AGENT_PLUGIN_TYPE}
-echo "plugins.enable=${custom_plugin_type}" > ${polaris_agent_dir_name}/conf/polaris-agent.config
+custom_plugin_id="${JAVA_AGENT_FRAMEWORK_NAME}-${JAVA_AGENT_FRAMEWORK_VERSION}-plugin"
+echo "plugins.enable=${custom_plugin_id}" > ${polaris_agent_dir_name}/conf/polaris-agent.config
 
 # 第二步，将 plugin 所需要的配置注入到 plugin 对应的目录中去
+java_agent_config_dir="${JAVA_AGENT_FRAMEWORK_NAME}-${JAVA_AGENT_FRAMEWORK_VERSION}"
+echo "inject with config dir ${java_agent_config_dir}"
+echo "inject with default config ${JAVA_AGENT_PLUGIN_CONF}"
+
 custom_plugin_properties=${JAVA_AGENT_PLUGIN_CONF}
-echo "${custom_plugin_properties}" > ${polaris_agent_dir_name}/conf/plugin/${custom_plugin_type}/application.properties
+echo "${custom_plugin_properties}" > ${polaris_agent_dir_name}/conf/plugin/${java_agent_config_dir}/application.properties
