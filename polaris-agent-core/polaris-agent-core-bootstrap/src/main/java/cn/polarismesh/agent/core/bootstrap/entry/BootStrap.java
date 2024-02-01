@@ -34,9 +34,9 @@ public class BootStrap {
     public static void premain(String agentArgs, Instrumentation instrumentation) {
         final JavaAgentPathResolver javaAgentPathResolver = JavaAgentPathResolver.newJavaAgentPathResolver(BootStrap.class.getCanonicalName());
         final String agentPath = javaAgentPathResolver.resolveJavaAgentPath();
-        System.out.println("[Bootstrap] javaAgentPath:" + agentPath);
+        System.out.println("[Bootstrap] javaagent start with path:" + agentPath);
         if (agentPath == null) {
-            System.out.println("[Bootstrap] agentPath not found path, exit");
+            System.out.println("[Bootstrap] javaagent path not found path, exit");
             return;
         }
         String agentDirPath = AgentDirUtils.resolveAgentDir(agentPath);
@@ -57,6 +57,7 @@ public class BootStrap {
 
             Method premain = clazz.getMethod("premain", String.class, Instrumentation.class, String.class);
             premain.invoke(null, agentArgs, instrumentation, agentDirPath);
+            System.out.println("[Bootstrap] javaagent inject successfully");
         } catch (Exception e) {
             String errMsg = e.getMessage();
             if (e instanceof InvocationTargetException) {
@@ -65,7 +66,7 @@ public class BootStrap {
                     errMsg = targetException.getMessage();
                 }
             }
-            System.err.println("[Bootstrap] fail to inject: " + errMsg);
+            System.err.println("[Bootstrap] javaagent inject failed: " + errMsg);
         }
     }
 
