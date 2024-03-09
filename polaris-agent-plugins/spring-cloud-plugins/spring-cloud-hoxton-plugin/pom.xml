@@ -14,7 +14,7 @@
 
     <properties>
         <spring.cloud.version>Hoxton.SR12</spring.cloud.version>
-        <spring.cloud.tencent.version>1.12.4-Hoxton.SR12</spring.cloud.tencent.version>
+        <spring.cloud.tencent.version>1.14.0-Hoxton.SR12-SNAPSHOT</spring.cloud.tencent.version>
         <spring.boot.version>2.3.7.RELEASE</spring.boot.version>
         <slf4j.vesion>1.7.30</slf4j.vesion>
     </properties>
@@ -196,6 +196,13 @@
             <artifactId>spring-cloud-tencent-commons</artifactId>
             <version>${spring.cloud.tencent.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.tencent.cloud</groupId>
+            <artifactId>spring-cloud-tencent-lossless-plugin</artifactId>
+            <version>${spring.cloud.tencent.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>

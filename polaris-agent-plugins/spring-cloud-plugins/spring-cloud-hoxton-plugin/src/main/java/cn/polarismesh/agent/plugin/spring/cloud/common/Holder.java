@@ -20,12 +20,11 @@ package cn.polarismesh.agent.plugin.spring.cloud.common;
 import cn.polarismesh.agent.core.common.exception.PolarisAgentException;
 import com.tencent.cloud.common.metadata.StaticMetadataManager;
 import com.tencent.cloud.common.metadata.config.MetadataLocalProperties;
-import com.tencent.cloud.polaris.config.ConfigurationModifier;
-import com.tencent.cloud.polaris.config.config.PolarisConfigProperties;
+import com.tencent.cloud.plugin.lossless.config.LosslessConfigModifier;
+import com.tencent.cloud.plugin.lossless.config.LosslessProperties;
 import com.tencent.cloud.polaris.context.ModifyAddress;
 import com.tencent.cloud.polaris.context.PolarisConfigModifier;
 import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
-import com.tencent.cloud.polaris.context.ServiceRuleManager;
 import com.tencent.cloud.polaris.context.config.PolarisContextProperties;
 import com.tencent.polaris.api.utils.StringUtils;
 import com.tencent.polaris.logging.LoggingConsts;
@@ -56,15 +55,20 @@ public class Holder {
 
 	private static PolarisContextProperties polarisContextProperties;
 
+	private static LosslessProperties losslessProperties;
+
 	private static Environment environment;
 
 	private static String CONF_FILE_PATH;
 
 	private static boolean allowDiscovery = true;
 
+	private static PolarisSDKContextManager contextManager;
+
 	private static void initProperties() {
 		polarisContextProperties = new PolarisContextProperties();
 		localProperties = new MetadataLocalProperties();
+		losslessProperties = new LosslessProperties();
 	}
 
 	public static void init() {
@@ -79,6 +83,9 @@ public class Holder {
 			bindObject("spring.cloud.tencent.metadata", localProperties, environment);
 			bindObject("spring.cloud.polaris", polarisContextProperties, environment);
 			staticMetadataManager = new StaticMetadataManager(localProperties, null);
+
+			// lossless
+			bindObject("spring.cloud.polaris.lossless", losslessProperties, environment);
 
 			runConfigModifiers(environment);
 		}
@@ -143,8 +150,12 @@ public class Holder {
 		}
 
 		List<PolarisConfigModifier> modifiers = new ArrayList<>(Arrays.asList(
-				new ModifyAddress(polarisContextProperties)
+				new ModifyAddress(polarisContextProperties),
+				new LosslessConfigModifier(losslessProperties)
 		));
+
+		contextManager = new PolarisSDKContextManager(polarisContextProperties, environment, modifiers);
+		contextManager.init();
 	}
 
 	public static Environment getEnvironment() {
@@ -161,6 +172,14 @@ public class Holder {
 
 	public static PolarisContextProperties getPolarisContextProperties() {
 		return polarisContextProperties;
+	}
+
+	public static LosslessProperties getLosslessProperties() {
+		return losslessProperties;
+	}
+
+	public static PolarisSDKContextManager getContextManager() {
+		return contextManager;
 	}
 
 	public static boolean isAllowDiscovery() {

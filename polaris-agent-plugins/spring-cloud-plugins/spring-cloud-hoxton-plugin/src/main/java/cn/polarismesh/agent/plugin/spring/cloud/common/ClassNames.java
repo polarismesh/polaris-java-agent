@@ -17,15 +17,15 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.common;
 
-import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
-import org.springframework.cloud.openfeign.FeignContext;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-
-import java.util.List;
 
 
 public class ClassNames {
+
+	/**
+	 * {@link org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration#start()}
+	 */
+	public static final String SERVICE_REGISTRATION = "org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration";
 
 	/**
 	 * {@link org.springframework.context.support.ApplicationContextAwareProcessor#ApplicationContextAwareProcessor(ConfigurableApplicationContext)}
