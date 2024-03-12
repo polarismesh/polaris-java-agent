@@ -1,9 +1,9 @@
-FROM alpine:3.13.6
+FROM alpine:3.19.1
 
-ARG version
+ARG file_name
 ARG java_version
 
-COPY ./target/polaris-javaagent-demo-sc-quickstart-hoxton-consumer-${version}.jar /app/hoxton-consumer.jar
+COPY ${file_name} /app/main.jar
 
 WORKDIR /app
 
@@ -26,4 +26,4 @@ RUN chmod 777 /app/
 
 RUN ls -la /app/
 
-ENTRYPOINT ["java", "-jar", "/app/hoxton-consumer.jar"]
+ENTRYPOINT ["java", "-jar", "/app/main.jar"]

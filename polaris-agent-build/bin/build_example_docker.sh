@@ -45,18 +45,25 @@ for docker_file in ${docker_files}; do
   cp Dockerfile Dockerfile-${dir_name}
   docker_tag="${version}-java8"
 
+  filename=$(find ./target -maxdepth 1 -name "*.jar" | head -n 1)
+  if [ -z "${filename}" ]; then
+    echo "jar file not found"
+    exit 1
+  fi
+  echo "jar file path is ${filename}"
+
   echo "docker repository java8: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
-  docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg version=${version} --build-arg java_version=8 --platform ${platforms} --push ./
+  docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --build-arg java_version=8 --platform ${platforms} --push ./
 
   docker_tag="${version}-java11"
   echo "docker repository java11: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
-  docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg version=${version} --build-arg java_version=11 --platform ${platforms} --push ./
+  docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --build-arg java_version=11 --platform ${platforms} --push ./
 
   rm Dockerfile-${dir_name}
   
-#  docker_tag="${version}-java17"
-#  echo "docker repository java17: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
-#  docker buildx build -f ./Dockerfile -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg version=${version} --build-arg java_version=17 --platform ${platforms} --push ./
+  docker_tag="${version}-java17"
+  echo "docker repository java17: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
+  docker buildx build -f ./Dockerfile --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --build-arg java_version=17 --platform ${platforms} --push ./
   popd 
 done
 popd
