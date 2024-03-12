@@ -28,6 +28,7 @@ import cn.polarismesh.agent.core.extension.transform.TransformOperations;
 import cn.polarismesh.agent.plugin.spring.cloud.common.ClassNames;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.ApplicationContextAwareInterceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.serviceregistry.RegistryInterceptor;
 import org.springframework.context.ApplicationContext;
 
 import java.security.ProtectionDomain;
@@ -47,6 +48,8 @@ public class MainPlugin implements AgentPlugin {
 	 * add polaris transformers
 	 */
 	private void addPolarisTransformers(TransformOperations operations) {
+
+		operations.transform(ClassNames.SERVICE_REGISTRATION, SpringCloudRegistryTransform.class);
 
 		// 在 agent 中注入 Spring 的 ApplicationContext
 		operations.transform(ClassNames.APPLICATION_CONTEXT_AWARE, ApplicationContextAwareTransform.class);
@@ -71,4 +74,20 @@ public class MainPlugin implements AgentPlugin {
 		}
 	}
 
+
+	/**
+	 * SpringCloud 注册拦截
+	 */
+	public static class SpringCloudRegistryTransform implements TransformCallback {
+
+		@Override
+		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+			Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
+
+			InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
+			InstrumentMethod registerMethod = target.getDeclaredMethod("start"); if (registerMethod != null) {
+				registerMethod.addInterceptor(RegistryInterceptor.class);
+			} return target.toBytecode();
+		}
+	}
 }
