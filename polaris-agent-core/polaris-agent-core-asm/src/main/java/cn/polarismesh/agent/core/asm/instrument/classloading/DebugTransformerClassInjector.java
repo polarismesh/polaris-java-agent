@@ -53,6 +53,11 @@ public class DebugTransformerClassInjector implements ClassInjector {
         return targetClassLoader.getResourceAsStream(internalName);
     }
 
+    @Override
+    public boolean match(ClassLoader classLoader) {
+        return true;
+    }
+
     private static ClassLoader getClassLoader(ClassLoader classLoader) {
         if (classLoader == null) {
             return ClassLoader.getSystemClassLoader();

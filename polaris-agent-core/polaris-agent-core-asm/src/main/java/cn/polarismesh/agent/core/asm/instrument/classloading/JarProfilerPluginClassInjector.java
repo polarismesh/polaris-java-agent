@@ -36,37 +36,58 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
     private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE
             .getLogger(JarProfilerPluginClassInjector.class.getCanonicalName());
 
+    private static final String CLAZZ_BUILTIN_CLASS_LOADER_HANDLER =
+            "cn.polarismesh.agent.core.asm9.instrument.BuiltinClassLoaderHandler";
+
+    private static final String CLAZZ_JAVA9_CLASS_INJECTOR_WRAPPER =
+            "cn.polarismesh.agent.core.asm9.instrument.Java9ClassInjectorWrapper";
+
     private final BootstrapCore bootstrapCore;
 
-    private final List<PluginClassInjector> pluginClassInjectors = new ArrayList<>();
+    private final List<ClassInjector> pluginClassInjectors = new ArrayList<>();
 
-    private final PluginClassInjector plainClassLoaderHandler;
+    private final ClassInjector plainClassLoaderHandler;
 
     public JarProfilerPluginClassInjector(PluginConfig pluginConfig, InstrumentEngine instrumentEngine,
             BootstrapCore bootstrapCore) {
         Objects.requireNonNull(pluginConfig, "pluginConfig");
 
         this.bootstrapCore = Objects.requireNonNull(bootstrapCore, "bootstrapCore");
-        pluginClassInjectors.add(new BootstrapClassLoaderHandler(pluginConfig, instrumentEngine));
-        pluginClassInjectors.add(new URLClassLoaderHandler(pluginConfig));
+        pluginClassInjectors.add(wrapperClassInjector(new BootstrapClassLoaderHandler(pluginConfig, instrumentEngine)));
+        pluginClassInjectors.add(wrapperClassInjector(new URLClassLoaderHandler(pluginConfig)));
         PluginClassInjector builtinClassLoaderHandler = createBuiltinClassLoaderHandler(pluginConfig);
         if (builtinClassLoaderHandler != null) {
-            pluginClassInjectors.add(builtinClassLoaderHandler);
+            pluginClassInjectors.add(wrapperClassInjector((builtinClassLoaderHandler)));
         }
-        plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig);
+        plainClassLoaderHandler = wrapperClassInjector(new PlainClassLoaderHandler(pluginConfig));
+    }
+
+    private ClassInjector wrapperClassInjector(PluginClassInjector pluginClassInjector) {
+        final JvmVersion version = JvmUtils.getVersion();
+        if (version.onOrAfter(JvmVersion.JAVA_9)) {
+            final ClassLoader agentClassLoader = JarProfilerPluginClassInjector.class.getClassLoader();
+            try {
+                Class<PluginClassInjector> defineClassClazz = (Class<PluginClassInjector>) agentClassLoader.loadClass(CLAZZ_JAVA9_CLASS_INJECTOR_WRAPPER);
+                Constructor<PluginClassInjector> constructor = defineClassClazz.getDeclaredConstructor(PluginClassInjector.class);
+                logger.info("classloader handler " + pluginClassInjector.getClass().getCanonicalName() + " is wrapped");
+                return constructor.newInstance(pluginClassInjector);
+            } catch (Exception e) {
+                throw new IllegalStateException(CLAZZ_JAVA9_CLASS_INJECTOR_WRAPPER + " create fail Caused by:" + e.getMessage(), e);
+            }
+        }
+        return pluginClassInjector;
     }
 
     private PluginClassInjector createBuiltinClassLoaderHandler(PluginConfig pluginConfig) {
         final JvmVersion version = JvmUtils.getVersion();
         if (version.onOrAfter(JvmVersion.JAVA_9)) {
             final ClassLoader agentClassLoader = JarProfilerPluginClassInjector.class.getClassLoader();
-            final String name = "cn.polarismesh.agent.core.asm9.instrument.BuiltinClassLoaderHandler";
             try {
-                Class<PluginClassInjector> defineClassClazz = (Class<PluginClassInjector>) agentClassLoader.loadClass(name);
+                Class<PluginClassInjector> defineClassClazz = (Class<PluginClassInjector>) agentClassLoader.loadClass(CLAZZ_BUILTIN_CLASS_LOADER_HANDLER);
                 Constructor<PluginClassInjector> constructor = defineClassClazz.getDeclaredConstructor(PluginConfig.class);
                 return constructor.newInstance(pluginConfig);
             } catch (Exception e) {
-                throw new IllegalStateException(name + " create fail Caused by:" + e.getMessage(), e);
+                throw new IllegalStateException(CLAZZ_BUILTIN_CLASS_LOADER_HANDLER + " create fail Caused by:" + e.getMessage(), e);
             }
         }
         return null;
@@ -79,7 +100,7 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
             if (bootstrapCore.isBootstrapPackage(className)) {
                 return bootstrapCore.loadClass(className);
             }
-            for (PluginClassInjector pluginClassInjector : pluginClassInjectors) {
+            for (ClassInjector pluginClassInjector : pluginClassInjectors) {
                 if (pluginClassInjector.match(classLoader)) {
                     return pluginClassInjector.injectClass(classLoader, className);
                 }
@@ -99,9 +120,9 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
             if (bootstrapCore.isBootstrapPackageByInternalName(internalName)) {
                 return bootstrapCore.openStream(internalName);
             }
-            for (PluginClassInjector pluginClassInjector : pluginClassInjectors) {
-                if (pluginClassInjector.match(targetClassLoader)) {
-                    return pluginClassInjector.getResourceAsStream(targetClassLoader, internalName);
+            for (ClassInjector classInjector : pluginClassInjectors) {
+                if (classInjector.match(targetClassLoader)) {
+                    return classInjector.getResourceAsStream(targetClassLoader, internalName);
                 }
             }
             return plainClassLoaderHandler.getResourceAsStream(targetClassLoader, internalName);
@@ -110,5 +131,10 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
                     targetClassLoader), e);
             return null;
         }
+    }
+
+    @Override
+    public boolean match(ClassLoader classLoader) {
+        return true;
     }
 }

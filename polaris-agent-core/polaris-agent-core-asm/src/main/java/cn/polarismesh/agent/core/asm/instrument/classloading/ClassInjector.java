@@ -25,4 +25,6 @@ public interface ClassInjector {
 
     InputStream getResourceAsStream(ClassLoader classLoader, String internalName);
 
+    boolean match(ClassLoader classLoader);
+
 }

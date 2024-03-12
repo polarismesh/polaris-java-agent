@@ -24,5 +24,4 @@ public interface PluginClassInjector extends ClassInjector {
 
     PluginConfig getPluginConfig();
 
-    boolean match(ClassLoader classLoader);
 }

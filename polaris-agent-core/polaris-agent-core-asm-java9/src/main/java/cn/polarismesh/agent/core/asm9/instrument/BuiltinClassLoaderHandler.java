@@ -1,3 +1,20 @@
+/*
+ * Tencent is pleased to support the open source community by making Polaris available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the BSD 3-Clause License (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://opensource.org/licenses/BSD-3-Clause
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
+
 package cn.polarismesh.agent.core.asm9.instrument;
 
 import cn.polarismesh.agent.core.asm.instrument.classloading.PluginClassInjector;
@@ -28,10 +45,6 @@ public class BuiltinClassLoaderHandler implements PluginClassInjector {
     private static Field UCP_OBJECT_FIELD;
 
     private static Method ADD_URL;
-
-    private final AtomicBoolean urlAdded = new AtomicBoolean(false);
-
-    private final Object lock = new Object();
 
     static {
         try {
@@ -96,21 +109,11 @@ public class BuiltinClassLoaderHandler implements PluginClassInjector {
 
     private void addPluginURLIfAbsent(BuiltinClassLoader classLoader)
             throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        synchronized (lock) {
-            if (!urlAdded.get()) {
-                urlAdded.set(true);
-                if (null != APPEND_CLASS_PATH) {
-                    APPEND_CLASS_PATH.invoke(classLoader, pluginConfig.getPluginUrl().getFile());
-                } else {
-                    Object ucp = UCP_OBJECT_FIELD.get(classLoader);
-                    ADD_URL.invoke(ucp, pluginConfig.getPluginUrl());
-                }
-                // to support cn.polarismesh.agent.core.common.utils.ReflectionUtils.setSuperValueByFieldName usage
-                if (!pluginConfig.getPlugin().getOpenModules().isEmpty()) {
-                    DefaultModuleSupport moduleSupport = ModuleSupportHolder.getInstance().getModuleSupport(null);
-                    moduleSupport.baseModuleAddOpens(pluginConfig.getPlugin().getOpenModules(), moduleSupport.wrapJavaModule(classLoader.getUnnamedModule()));
-                }
-            }
+        if (null != APPEND_CLASS_PATH) {
+            APPEND_CLASS_PATH.invoke(classLoader, pluginConfig.getPluginUrl().getFile());
+        } else {
+            Object ucp = UCP_OBJECT_FIELD.get(classLoader);
+            ADD_URL.invoke(ucp, pluginConfig.getPluginUrl());
         }
     }
 
