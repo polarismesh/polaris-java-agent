@@ -208,6 +208,7 @@
                             <Plugin-Id>${project.artifactId}</Plugin-Id>
                             <Plugin-Compiler-Version>${jdk.version}
                             </Plugin-Compiler-Version>
+                            <Plugin-Open-Modules>java.lang,java.lang.reflect</Plugin-Open-Modules>
                         </manifestEntries>
                     </archive>
                 </configuration>
