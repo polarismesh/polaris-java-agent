@@ -17,8 +17,6 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.interceptor.serviceregistry;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.tencent.cloud.plugin.lossless.SpringCloudLosslessActionProvider;
 import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
 
@@ -36,8 +34,6 @@ public class LosslessProxyServiceRegistry implements ServiceRegistry<Registratio
 
 	private PolarisSDKContextManager polarisSDKContextManager;
 
-	private final AtomicBoolean doneDeregister = new AtomicBoolean(false);
-
 	public LosslessProxyServiceRegistry(ServiceRegistry<Registration> target,
 			PolarisSDKContextManager polarisSDKContextManager, Registration registration) {
 		this.target = target;
@@ -53,9 +49,7 @@ public class LosslessProxyServiceRegistry implements ServiceRegistry<Registratio
 
 	@Override
 	public void deregister(Registration registration) {
-		if (doneDeregister.compareAndSet(false, true)) {
-			target.deregister(registration);
-		}
+		target.deregister(registration);
 	}
 
 	@Override
