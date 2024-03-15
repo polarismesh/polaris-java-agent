@@ -20,8 +20,7 @@ package cn.polarismesh.agent.plugin.spring.cloud.interceptor.serviceregistry;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
-import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
-import com.tencent.cloud.plugin.lossless.SpringCloudLosslessActionProvider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration;
@@ -47,8 +46,6 @@ public class RegistryInterceptor extends BaseInterceptor {
             return;
         }
 
-        Registration registration = ApplicationContextAwareUtils.getApplicationContext().getBean(Registration.class);
-
         LOGGER.debug("[PolarisAgent] replace ServiceRegistry to ProxyServiceRegistry, target : {}", target);
         ServiceRegistry<Registration> registry;
         LosslessProxyServiceRegistry losslessProxyServiceRegistry;
@@ -57,22 +54,13 @@ public class RegistryInterceptor extends BaseInterceptor {
 
         if (clsName.contains("org.springframework.cloud.client.serviceregistry.AbstractAutoServiceRegistration")) {
             registry = (ServiceRegistry<Registration>) ReflectionUtils.getObjectByFieldName(target, "serviceRegistry");
-            losslessProxyServiceRegistry = new LosslessProxyServiceRegistry(registry, Holder.getContextManager(), registration);
+            losslessProxyServiceRegistry = new LosslessProxyServiceRegistry(registry);
             ReflectionUtils.setValueByFieldName(target, "serviceRegistry", losslessProxyServiceRegistry);
         } else {
             registry = (ServiceRegistry<Registration>) ReflectionUtils.getSuperObjectByFieldName(target, "serviceRegistry");
-            losslessProxyServiceRegistry = new LosslessProxyServiceRegistry(registry, Holder.getContextManager(), registration);
+            losslessProxyServiceRegistry = new LosslessProxyServiceRegistry(registry);
             ReflectionUtils.setSuperValueByFieldName(target, "serviceRegistry", losslessProxyServiceRegistry);
         }
-        Runnable originalRegisterAction = () -> registry.register(registration);
-
-        SpringCloudLosslessActionProvider losslessActionProvider = new SpringCloudLosslessActionProvider(
-            losslessProxyServiceRegistry, registration, Holder.getLosslessProperties(), originalRegisterAction);
-
-        // when server.port is 0, port not init
-        Holder.getContextManager().getLosslessAPI().setLosslessActionProvider(
-            SpringCloudLosslessActionProvider.getBaseInstance(registration, 0), losslessActionProvider);
-
         LOGGER.debug("[PolarisAgent] finished replace ServiceRegistry to ProxyServiceRegistry");
     }
 }
