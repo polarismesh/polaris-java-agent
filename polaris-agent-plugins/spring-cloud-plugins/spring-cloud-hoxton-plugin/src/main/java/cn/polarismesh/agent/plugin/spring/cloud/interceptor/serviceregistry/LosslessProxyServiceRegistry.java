@@ -20,6 +20,7 @@ package cn.polarismesh.agent.plugin.spring.cloud.interceptor.serviceregistry;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 
 import com.tencent.cloud.plugin.lossless.SpringCloudLosslessActionProvider;
+import com.tencent.polaris.api.pojo.BaseInstance;
 
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.client.serviceregistry.ServiceRegistry;
@@ -42,12 +43,11 @@ public class LosslessProxyServiceRegistry implements ServiceRegistry<Registratio
 		Runnable originalRegisterAction = () -> target.register(registration);
 		SpringCloudLosslessActionProvider losslessActionProvider = new SpringCloudLosslessActionProvider(
 			target, registration, Holder.getLosslessProperties(), originalRegisterAction);
-
+		BaseInstance baseInstance = SpringCloudLosslessActionProvider.getBaseInstance(registration);
 		Holder.getContextManager().getLosslessAPI().setLosslessActionProvider(
-			SpringCloudLosslessActionProvider.getBaseInstance(registration), losslessActionProvider);
+			baseInstance, losslessActionProvider);
 		// replace by lossless register
-		Holder.getContextManager().getLosslessAPI().losslessRegister(
-				SpringCloudLosslessActionProvider.getBaseInstance(registration));
+		Holder.getContextManager().getLosslessAPI().losslessRegister(baseInstance);
 	}
 
 	@Override
