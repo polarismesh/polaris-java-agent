@@ -129,22 +129,6 @@ public class Holder {
 
 	private static void runConfigModifiers(Environment environment) throws IOException {
 
-		String logConfig = "";
-		try {
-			Class.forName(PolarisLogging.LOGBACK_CLASSIC_LOGGER);
-			logConfig = Holder.class.getClassLoader().getResource("polaris-logback.xml").getFile();
-		}
-		catch (ClassNotFoundException e) {
-			try {
-				Class.forName(PolarisLogging.LOG4J2_CLASSIC_LOGGER);
-				logConfig = Holder.class.getClassLoader().getResource("polaris-log4j2.xml").getFile();
-			}
-			catch (ClassNotFoundException e1) {
-				logConfig = Holder.class.getClassLoader().getResource("polaris-log4j.xml").getFile();
-			}
-		}
-		System.setProperty(LoggingConsts.LOGGING_CONFIG_PROPERTY, logConfig);
-
 		if (StringUtils.isBlank(polarisContextProperties.getLocalIpAddress())) {
 			polarisContextProperties.setLocalIpAddress(environment.getProperty("spring.cloud.client.ip-address"));
 		}

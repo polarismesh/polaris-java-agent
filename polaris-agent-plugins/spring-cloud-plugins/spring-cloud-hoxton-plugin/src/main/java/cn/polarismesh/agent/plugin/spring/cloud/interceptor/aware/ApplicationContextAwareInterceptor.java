@@ -20,6 +20,10 @@ package cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
 import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
+import com.tencent.polaris.api.utils.StringUtils;
+import com.tencent.polaris.logging.LoggingConsts;
+import com.tencent.polaris.logging.PolarisLogging;
+
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -42,5 +46,12 @@ public class ApplicationContextAwareInterceptor extends BaseInterceptor {
 
 		// 设置为真正的 ApplicationContext
 		utils.setApplicationContext(context);
+
+		// init polaris logging
+		String loggingPath = Holder.getEnvironment().getProperty("spring.cloud.polaris.logging.path");
+		if (StringUtils.isNotBlank(loggingPath)) {
+			System.setProperty(LoggingConsts.LOGGING_PATH_PROPERTY, loggingPath);
+		}
+		PolarisLogging.getInstance().loadConfiguration();
 	}
 }
