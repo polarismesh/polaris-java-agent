@@ -26,9 +26,10 @@ import com.tencent.cloud.polaris.context.ModifyAddress;
 import com.tencent.cloud.polaris.context.PolarisConfigModifier;
 import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
 import com.tencent.cloud.polaris.context.config.PolarisContextProperties;
+import com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatProperties;
+import com.tencent.cloud.rpc.enhancement.stat.config.StatConfigModifier;
 import com.tencent.polaris.api.utils.StringUtils;
-import com.tencent.polaris.logging.LoggingConsts;
-import com.tencent.polaris.logging.PolarisLogging;
+
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.cloud.client.HostInfoEnvironmentPostProcessor;
@@ -53,6 +54,8 @@ public class Holder {
 
 	private static StaticMetadataManager staticMetadataManager;
 
+	private static PolarisStatProperties polarisStatProperties;
+
 	private static PolarisContextProperties polarisContextProperties;
 
 	private static LosslessProperties losslessProperties;
@@ -69,6 +72,7 @@ public class Holder {
 		polarisContextProperties = new PolarisContextProperties();
 		localProperties = new MetadataLocalProperties();
 		losslessProperties = new LosslessProperties();
+		polarisStatProperties = new PolarisStatProperties();
 	}
 
 	public static void init() {
@@ -83,6 +87,9 @@ public class Holder {
 			bindObject("spring.cloud.tencent.metadata", localProperties, environment);
 			bindObject("spring.cloud.polaris", polarisContextProperties, environment);
 			staticMetadataManager = new StaticMetadataManager(localProperties, null);
+
+			// 监控
+			bindObject("spring.cloud.polaris.stat", polarisStatProperties, environment);
 
 			// lossless
 			bindObject("spring.cloud.polaris.lossless", losslessProperties, environment);
@@ -129,28 +136,13 @@ public class Holder {
 
 	private static void runConfigModifiers(Environment environment) throws IOException {
 
-		String logConfig = "";
-		try {
-			Class.forName(PolarisLogging.LOGBACK_CLASSIC_LOGGER);
-			logConfig = Holder.class.getClassLoader().getResource("polaris-logback.xml").getFile();
-		}
-		catch (ClassNotFoundException e) {
-			try {
-				Class.forName(PolarisLogging.LOG4J2_CLASSIC_LOGGER);
-				logConfig = Holder.class.getClassLoader().getResource("polaris-log4j2.xml").getFile();
-			}
-			catch (ClassNotFoundException e1) {
-				logConfig = Holder.class.getClassLoader().getResource("polaris-log4j.xml").getFile();
-			}
-		}
-		System.setProperty(LoggingConsts.LOGGING_CONFIG_PROPERTY, logConfig);
-
 		if (StringUtils.isBlank(polarisContextProperties.getLocalIpAddress())) {
 			polarisContextProperties.setLocalIpAddress(environment.getProperty("spring.cloud.client.ip-address"));
 		}
 
 		List<PolarisConfigModifier> modifiers = new ArrayList<>(Arrays.asList(
 				new ModifyAddress(polarisContextProperties),
+				new StatConfigModifier(polarisStatProperties, environment),
 				new LosslessConfigModifier(losslessProperties)
 		));
 
@@ -160,6 +152,10 @@ public class Holder {
 
 	public static Environment getEnvironment() {
 		return environment;
+	}
+
+	public static PolarisStatProperties getPolarisStatProperties() {
+		return polarisStatProperties;
 	}
 
 	public static MetadataLocalProperties getLocalProperties() {
