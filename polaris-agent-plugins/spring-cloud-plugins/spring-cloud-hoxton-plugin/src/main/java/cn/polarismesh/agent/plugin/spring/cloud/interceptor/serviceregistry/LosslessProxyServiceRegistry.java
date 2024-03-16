@@ -19,7 +19,13 @@ package cn.polarismesh.agent.plugin.spring.cloud.interceptor.serviceregistry;
 
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 
+import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
+import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
 import com.tencent.cloud.plugin.lossless.SpringCloudLosslessActionProvider;
+import com.tencent.cloud.plugin.lossless.transfomer.DiscoveryNamespaceGetter;
+import com.tencent.cloud.plugin.lossless.transfomer.NacosDiscoveryNamespaceGetter;
+import com.tencent.cloud.plugin.lossless.transfomer.PolarisDiscoveryNamespaceGetter;
+import com.tencent.cloud.polaris.PolarisDiscoveryProperties;
 import com.tencent.polaris.api.pojo.BaseInstance;
 
 import org.springframework.cloud.client.serviceregistry.Registration;
@@ -43,7 +49,23 @@ public class LosslessProxyServiceRegistry implements ServiceRegistry<Registratio
 		Runnable originalRegisterAction = () -> target.register(registration);
 		SpringCloudLosslessActionProvider losslessActionProvider = new SpringCloudLosslessActionProvider(
 			target, registration, Holder.getLosslessProperties(), originalRegisterAction);
-		BaseInstance baseInstance = SpringCloudLosslessActionProvider.getBaseInstance(registration);
+
+		DiscoveryNamespaceGetter discoveryNamespaceGetter = null;
+		switch (registration.getClass().getName()) {
+			case "com.alibaba.cloud.nacos.registry.NacosRegistration":
+				NacosDiscoveryProperties nacosDiscoveryProperties =
+					ApplicationContextAwareUtils.getApplicationContext().getBean(NacosDiscoveryProperties.class);
+
+				discoveryNamespaceGetter = new NacosDiscoveryNamespaceGetter(nacosDiscoveryProperties);
+				break;
+			case "com.tencent.cloud.polaris.registry.PolarisRegistration":
+				PolarisDiscoveryProperties polarisDiscoveryProperties =
+					ApplicationContextAwareUtils.getApplicationContext().getBean(PolarisDiscoveryProperties.class);
+				discoveryNamespaceGetter = new PolarisDiscoveryNamespaceGetter(polarisDiscoveryProperties);
+				break;
+		}
+		BaseInstance baseInstance = SpringCloudLosslessActionProvider.getBaseInstance(
+			registration, discoveryNamespaceGetter);
 		Holder.getContextManager().getLosslessAPI().setLosslessActionProvider(
 			baseInstance, losslessActionProvider);
 		// replace by lossless register
