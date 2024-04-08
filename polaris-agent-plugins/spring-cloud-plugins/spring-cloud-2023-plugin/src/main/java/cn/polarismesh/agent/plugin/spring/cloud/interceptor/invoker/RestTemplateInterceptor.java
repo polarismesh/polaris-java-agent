@@ -16,19 +16,19 @@
  */
 package cn.polarismesh.agent.plugin.spring.cloud.interceptor.invoker;
 
-import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
-import com.tencent.cloud.metadata.core.EncodeTransferMedataRestTemplateEnhancedPlugin;
-import com.tencent.cloud.polaris.router.RouterRuleLabelResolver;
-import com.tencent.cloud.polaris.router.resttemplate.RouterLabelRestTemplateInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
+import com.tencent.cloud.polaris.router.RouterRuleLabelResolver;
+import com.tencent.cloud.polaris.router.resttemplate.RouterLabelRestTemplateInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
@@ -58,7 +58,7 @@ public class RestTemplateInterceptor extends BaseInterceptor {
 		boolean find = false;
 		for (ClientHttpRequestInterceptor interceptor : ret) {
 			if (Objects.equals(interceptor.getClass()
-					.getCanonicalName(), EncodeTransferMedataRestTemplateEnhancedPlugin.class.getCanonicalName())) {
+					.getCanonicalName(), RouterLabelRestTemplateInterceptor.class.getCanonicalName())) {
 				find = true;
 				break;
 			}
@@ -70,7 +70,6 @@ public class RestTemplateInterceptor extends BaseInterceptor {
 			return;
 		}
 		List<ClientHttpRequestInterceptor> tmp = new ArrayList<>();
-	//	tmp.add(new EncodeTransferMedataRestTemplateEnhancedPlugin());
 		tmp.add(new RouterLabelRestTemplateInterceptor(
 				Collections.emptyList(),
 				Holder.getStaticMetadataManager(),
