@@ -17,31 +17,21 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.handler;
 
+import java.util.function.Supplier;
+
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import com.tencent.cloud.plugin.discovery.adapter.config.NacosDiscoveryAdapterAutoConfiguration;
 import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
 import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementAutoConfiguration;
-import com.tencent.cloud.rpc.enhancement.feign.EnhancedFeignBeanPostProcessor;
-import com.tencent.cloud.rpc.enhancement.plugin.DefaultEnhancedPluginRunner;
-import com.tencent.cloud.rpc.enhancement.plugin.EnhancedPluginRunner;
-import com.tencent.cloud.rpc.enhancement.resttemplate.EnhancedRestTemplateInterceptor;
-import com.tencent.polaris.client.api.SDKContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.SmartInitializingSingleton;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
@@ -53,15 +43,26 @@ public class RpcEnhancementHandler implements ApplicationContextAware {
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		ConfigurableApplicationContext context = (ConfigurableApplicationContext) applicationContext;
-		EnhancedPluginRunner runner = newEnhancedPluginRunner(Holder.getContextManager().getSDKContext(), null);
 
 		registerPolarisSDKContextManager(context);
-		registerRestTemplateReporter(context, runner);
-		registerFeignReporter(context, runner);
 		registerRpcEnhancementAutoConfiguration(context);
 	}
 
+	private static boolean hasBeanDefinition(ApplicationContext context, String name) {
+		if (context.containsBeanDefinition(name)) {
+			return true;
+		}
+		ApplicationContext parent = context.getParent();
+		if (null != parent) {
+			return hasBeanDefinition(parent, name);
+		}
+		return false;
+	}
+
 	private void registerPolarisSDKContextManager(ConfigurableApplicationContext context) {
+		if (hasBeanDefinition(context, "polarisSDKContextManager")) {
+			return;
+		}
 		DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) context.getBeanFactory();
 		beanFactory.registerBeanDefinition("polarisSDKContextManager",
 				BeanDefinitionBuilder.genericBeanDefinition(PolarisSDKContextManager.class, new Supplier<PolarisSDKContextManager>() {
@@ -72,42 +73,10 @@ public class RpcEnhancementHandler implements ApplicationContextAware {
 				}).getBeanDefinition());
 	}
 
-	private void registerRestTemplateReporter(ConfigurableApplicationContext context, EnhancedPluginRunner runner) {
-		EnhancedRestTemplateInterceptor reporter = new EnhancedRestTemplateInterceptor(runner);
-		DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) context.getBeanFactory();
-
-		beanFactory.registerBeanDefinition("springCloudTencentRestTemplateReporter",
-				buildRestTemplateReportBeanDefinition(context,
-						reporter));
-		LOGGER.info("[PolarisAgent] success inject Spring Cloud Tencent RestTemplate reporter");
-	}
-
-	private BeanDefinition buildRestTemplateReportBeanDefinition(ConfigurableApplicationContext context,
-																 EnhancedRestTemplateInterceptor reporter) {
-		return BeanDefinitionBuilder.genericBeanDefinition(SmartInitializingSingleton.class, () -> () -> {
-			Map<String, RestTemplate> beans = context.getBeanFactory().getBeansOfType(RestTemplate.class);
-			for (RestTemplate restTemplate : beans.values()) {
-				restTemplate.getInterceptors().add(reporter);
-			}
-		}).getBeanDefinition();
-	}
-
-	private void registerFeignReporter(ConfigurableApplicationContext context, EnhancedPluginRunner runner) {
-		if (!context.getBeanFactory().containsBeanDefinition("feignContext")) {
+	private void registerRpcEnhancementAutoConfiguration(ConfigurableApplicationContext context) {
+		if (hasBeanDefinition(context, "rpcEnhancementAutoConfiguration")) {
 			return;
 		}
-		EnhancedFeignBeanPostProcessor processor = new EnhancedFeignBeanPostProcessor(runner);
-		processor.setBeanFactory(context.getBeanFactory());
-		context.getBeanFactory().addBeanPostProcessor(processor);
-
-		LOGGER.info("[PolarisAgent] success inject Spring Cloud Tencent FeignClient reporter");
-	}
-
-	private EnhancedPluginRunner newEnhancedPluginRunner(SDKContext context, Registration registration) {
-		return new DefaultEnhancedPluginRunner(Collections.emptyList(), registration, context);
-	}
-
-	private void registerRpcEnhancementAutoConfiguration(ConfigurableApplicationContext context) {
 		DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) context.getBeanFactory();
 		beanFactory.registerBeanDefinition("rpcEnhancementAutoConfiguration",
 				BeanDefinitionBuilder.genericBeanDefinition(RpcEnhancementAutoConfiguration.class).getBeanDefinition());
