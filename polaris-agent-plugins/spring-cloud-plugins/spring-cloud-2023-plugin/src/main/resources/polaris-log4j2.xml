@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration status="WARN">
+	<Appenders>
+		<RollingFile name="POLARIS_LOG_FILE" fileName="${sys:polaris.log.home}/polaris.log"
+					 filePattern="${sys:polaris.log.home}/polaris.log.%d{yyyy-MM-dd}.%i">
+			<PatternLayout>
+				<Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%-5t:%c{2}] %m%n</Pattern>
+			</PatternLayout>
+
+			<Policies>
+				<TimeBasedTriggeringPolicy/>
+				<SizeBasedTriggeringPolicy size="${sys:polaris.log.file.size:-10MB}"/>
+			</Policies>
+
+			<DefaultRolloverStrategy max="${sys:polaris.log.retain.count:-7}"/>
+		</RollingFile>
+
+		<RollingFile name="POLARIS_UPDATE_EVENT_LOG_FILE"
+					 fileName="${sys:polaris.log.home}/polaris-update-event.log"
+					 filePattern="${sys:polaris.log.home}/polaris-update-event.log.%d{yyyy-MM-dd}.%i">
+			<PatternLayout>
+				<Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%-5t:%c{2}] %m%n</Pattern>
+			</PatternLayout>
+
+			<Policies>
+				<TimeBasedTriggeringPolicy/>
+				<SizeBasedTriggeringPolicy size="${sys:polaris-update-event.log.file.size:-10MB}"/>
+			</Policies>
+
+			<DefaultRolloverStrategy max="${sys:polaris-update-event.log.retain.count:-7}"/>
+		</RollingFile>
+	</Appenders>
+
+	<Loggers>
+		<Logger name="com.tencent.polaris"
+				level="${sys:polaris.log.level:-info}"
+				additivity="false">
+			<AppenderRef ref="POLARIS_LOG_FILE"/>
+		</Logger>
+		<Logger name="polaris-update-event-async"
+				level="${sys:polaris-update-event.log.level:-info}"
+				additivity="false">
+			<AppenderRef ref="POLARIS_UPDATE_EVENT_LOG_FILE"/>
+		</Logger>
+		<!--        <AsyncLogger name="polaris-update-event-async"-->
+		<!--                level="${sys:polaris-update-event.log.level:-info}"-->
+		<!--                additivity="false">-->
+		<!--            <AppenderRef ref="POLARIS_UPDATE_EVENT_LOG_FILE"/>-->
+		<!--        </AsyncLogger>-->
+	</Loggers>
+</Configuration>
