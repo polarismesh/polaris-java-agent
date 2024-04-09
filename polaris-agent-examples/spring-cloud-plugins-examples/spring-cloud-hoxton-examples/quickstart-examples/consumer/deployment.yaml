@@ -1,0 +1,49 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: hoxton-consumer
+  name: hoxton-consumer
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hoxton-consumer
+  template:
+    metadata:
+      labels:
+        app: hoxton-consumer
+      annotations:
+        polarismesh.cn/javaagent: "true"
+        polarismesh.cn/javaagentVersion: "1.6.1"
+        polarismesh.cn/javaagentFrameworkName: "spring-cloud"
+        polarismesh.cn/javaagentFrameworkVersion: "hoxton"
+        polarismesh.cn/javaagentConfig: "{\"spring.cloud.polaris.lossless.enabled\": \"true\", \"spring.cloud.polaris.namespace\": \"default\"}"
+    spec:
+      containers:
+        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-hoxton-consumer:1.6.1-java8
+          imagePullPolicy: Always
+          name: consumer
+          resources:
+            limits:
+              cpu: "500m"
+              memory: 1000Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          command:
+            - /bin/bash
+            - -c
+            - cd /app && java -Dspring.cloud.nacos.discovery.server-addr=10.0.90.37:8848 -Dspring.cloud.nacos.config.server-addr=10.0.90.37:8848 -Dserver.port=11581 -jar main.jar
+          lifecycle:
+            preStop:
+              exec:
+                command: ["curl","-X","PUT","http://127.0.0.1:28080/offline","&&","sleep","30"]
+          readinessProbe:
+            httpGet:
+              path: /online
+              port: 28080
+            initialDelaySeconds: 3
+            periodSeconds: 3
+      restartPolicy: Always

@@ -61,7 +61,7 @@ public class ServiceB {
 		@GetMapping("/echo")
 		public String echo() {
 			String content = String.format("%s[%s] -> ", registration.getServiceId(),
-					Optional.ofNullable(registration.getMetadata()).orElse(Collections.emptyMap()).get("VERSION"));
+					Optional.ofNullable(registration.getMetadata()).orElse(Collections.emptyMap()).get("lane"));
 			String resp = restTemplate.getForObject("http://service-c/echo", String.class);
 			content += resp;
 			return content;

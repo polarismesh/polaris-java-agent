@@ -16,6 +16,7 @@
 		<module>service-a</module>
 		<module>service-b</module>
 		<module>service-c</module>
+		<module>service-gateway</module>
 	</modules>
 
 
