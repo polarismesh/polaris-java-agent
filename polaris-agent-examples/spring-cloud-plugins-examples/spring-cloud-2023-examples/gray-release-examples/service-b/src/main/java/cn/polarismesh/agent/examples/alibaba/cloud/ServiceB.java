@@ -62,7 +62,7 @@ public class ServiceB {
 		public String echo() {
 			String content = String.format("%s[%s] -> ", registration.getServiceId(),
 					Optional.ofNullable(registration.getMetadata()).orElse(Collections.emptyMap()).get("lane"));
-			String resp = restTemplate.getForObject("http://service-c/echo", String.class);
+			String resp = restTemplate.getForObject("http://service-c-2023/echo", String.class);
 			content += resp;
 			return content;
 		}

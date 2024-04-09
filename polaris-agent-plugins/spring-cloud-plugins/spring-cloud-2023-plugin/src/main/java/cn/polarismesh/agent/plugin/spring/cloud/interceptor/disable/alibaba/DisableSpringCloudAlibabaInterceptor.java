@@ -66,7 +66,7 @@ public class DisableSpringCloudAlibabaInterceptor extends BaseInterceptor {
             Properties properties = new Properties();
             properties.setProperty("spring.cloud.sentinel.enabled", "false");
             properties.setProperty("spring.cloud.nacos.discovery.watch.enabled", "false");
-            properties.setProperty("spring.cloud.nacos.config.enabled", "false");
+            properties.setProperty("spring.cloud.loadbalancer.cache.enabled", "false");
 
             // 设置 spring.cloud.sentinel.enabled 为 false
             environment.getPropertySources().addFirst(new PropertiesPropertySource(disableSCA, properties));

@@ -153,10 +153,6 @@ public class MainPlugin implements AgentPlugin {
 				withDiscoveryClient.addInterceptor(ServiceInstanceListSupplierBuilderInterceptor.ServiceInstanceListSupplierBuilderReactiveInterceptor.class);
 			}
 
-			InstrumentMethod withCaching = target.getDeclaredMethod("withCaching"); if (withCaching != null) {
-				withCaching.addInterceptor(ServiceInstanceListSupplierBuilderInterceptor.ServiceInstanceListSupplierBuilderDisableCachingInterceptor.class);
-			}
-
 			return target.toBytecode();
 		}
 	}
