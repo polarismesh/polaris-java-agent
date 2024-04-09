@@ -58,7 +58,7 @@ public class ServiceC {
 		@GetMapping("/echo")
 		public String echo() {
 			return String.format("%s[%s]", registration.getServiceId(),
-					Optional.ofNullable(registration.getMetadata()).orElse(Collections.emptyMap()).get("VERSION"));
+					Optional.ofNullable(registration.getMetadata()).orElse(Collections.emptyMap()).get("lane"));
 		}
 
 	}

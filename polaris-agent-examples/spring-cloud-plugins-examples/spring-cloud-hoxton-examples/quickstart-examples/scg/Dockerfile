@@ -1,9 +1,9 @@
 FROM alpine:3.19.1
 
-ARG version
+ARG file_name
 ARG java_version
 
-COPY ${file_name} /app/main.jar
+COPY ./target/${file_name} /app/main.jar
 
 WORKDIR /app
 

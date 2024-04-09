@@ -59,11 +59,12 @@ for docker_file in ${docker_files}; do
   echo "docker repository java11: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
   docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --build-arg java_version=11 --platform ${platforms} --push ./
 
-  rm Dockerfile-${dir_name}
-  
   docker_tag="${version}-java17"
   echo "docker repository java17: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
-  docker buildx build -f ./Dockerfile --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --build-arg java_version=17 --platform ${platforms} --push ./
+  docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --build-arg java_version=17 --platform ${platforms} --push ./
+
+  rm Dockerfile-${dir_name}
+
   popd 
 done
 popd
