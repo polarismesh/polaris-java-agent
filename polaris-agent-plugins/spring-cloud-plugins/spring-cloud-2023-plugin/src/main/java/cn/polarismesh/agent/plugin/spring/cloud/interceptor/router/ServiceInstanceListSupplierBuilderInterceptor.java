@@ -81,23 +81,6 @@ public class ServiceInstanceListSupplierBuilderInterceptor {
 		}
 	}
 
-	public static class ServiceInstanceListSupplierBuilderDisableCachingInterceptor extends BaseInterceptor {
-
-		@Override
-		public void onBefore(Object target, Object[] args) {
-
-		}
-
-		@Override
-		public void onAfter(Object target, Object[] args, Object result, Throwable throwable) {
-			if (!Holder.getRouterProperties().isEnabled()) {
-				return;
-			}
-			LOGGER.info("[PolarisAgent] disable loadbalancer caching ability");
-			ReflectionUtils.setValueByFieldName(target, "cachingCreator", null);
-		}
-	}
-
 	public static class ProxyCreator implements ServiceInstanceListSupplierBuilder.Creator {
 
 		private final ServiceInstanceListSupplierBuilder.Creator creator;
