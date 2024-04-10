@@ -35,7 +35,7 @@ spec:
           command:
             - /bin/bash
             - -c
-            - cd /app && java -Dspring.cloud.nacos.config.server-addr=10.0.90.37:8848 -Dserver.port=65100 -jar main.jar
+            - cd /app && java -Dspring.cloud.nacos.config.server-addr=127.0.0.1:8848 -Dserver.port=65100 -jar main.jar
           lifecycle:
             preStop:
               exec:
