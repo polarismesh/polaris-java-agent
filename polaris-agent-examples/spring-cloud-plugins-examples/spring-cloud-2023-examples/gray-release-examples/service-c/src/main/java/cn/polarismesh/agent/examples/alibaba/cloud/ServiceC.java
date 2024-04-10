@@ -27,6 +27,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -62,6 +63,14 @@ public class ServiceC {
 		@GetMapping("/echo")
 		public String echo() {
 			return String.format("%s[%s]", registration.getServiceId(), lane);
+		}
+
+		@GetMapping("/sum")
+		public String sum(@RequestParam("value1") int value1, @RequestParam int value2) {
+			String content = String.format("%s[%s] -> ", registration.getServiceId(), lane);
+			String resp = String.valueOf(value1 + value2);
+			content += resp;
+			return content;
 		}
 
 	}

@@ -19,14 +19,18 @@ package cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.handler;
 
 import java.util.function.Supplier;
 
+import cn.polarismesh.agent.core.common.utils.ClassUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import com.tencent.cloud.common.metadata.StaticMetadataManager;
 import com.tencent.cloud.polaris.context.ServiceRuleManager;
 import com.tencent.cloud.polaris.context.config.PolarisContextProperties;
+import com.tencent.cloud.polaris.router.config.FeignAutoConfiguration;
 import com.tencent.cloud.polaris.router.config.RouterAutoConfiguration;
+import com.tencent.cloud.polaris.router.config.RouterConfigModifierAutoConfiguration;
 import com.tencent.cloud.polaris.router.config.properties.PolarisMetadataRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisNearByRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisRuleBasedRouterProperties;
+import com.tencent.cloud.polaris.router.endpoint.PolarisRouterEndpointAutoConfiguration;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -71,11 +75,32 @@ public class RouterHandler extends AbstractContextHandler {
 						}
 					}).getBeanDefinition());
 		});
+		registerBean(applicationContext, "routerConfigModifierAutoConfiguration",  (ctx, name) -> {
+			ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
+			DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
+			beanFactory.registerBeanDefinition(name,
+					BeanDefinitionBuilder.genericBeanDefinition(RouterConfigModifierAutoConfiguration.class).getBeanDefinition());
+		});
 		registerBean(applicationContext, "routerAutoConfiguration",  (ctx, name) -> {
 			ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
 			DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
 			beanFactory.registerBeanDefinition(name,
 					BeanDefinitionBuilder.genericBeanDefinition(RouterAutoConfiguration.class).getBeanDefinition());
+		});
+		if (null != ClassUtils.getClazz("feign.RequestInterceptor",
+				Thread.currentThread().getContextClassLoader())) {
+			registerBean(applicationContext, "feignAutoConfiguration",  (ctx, name) -> {
+				ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
+				DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
+				beanFactory.registerBeanDefinition(name,
+						BeanDefinitionBuilder.genericBeanDefinition(FeignAutoConfiguration.class).getBeanDefinition());
+			});
+		}
+		registerBean(applicationContext, "rolarisRouterEndpointAutoConfiguration",  (ctx, name) -> {
+			ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
+			DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
+			beanFactory.registerBeanDefinition(name,
+					BeanDefinitionBuilder.genericBeanDefinition(PolarisRouterEndpointAutoConfiguration.class).getBeanDefinition());
 		});
 	}
 
