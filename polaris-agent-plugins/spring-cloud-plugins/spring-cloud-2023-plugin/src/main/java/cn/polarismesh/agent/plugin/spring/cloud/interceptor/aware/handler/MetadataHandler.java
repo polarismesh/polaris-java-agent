@@ -17,14 +17,7 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.handler;
 
-import java.util.function.Supplier;
-
-import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
-import com.tencent.cloud.plugin.discovery.adapter.config.NacosDiscoveryAdapterAutoConfiguration;
-import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
-import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementAutoConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.tencent.cloud.metadata.config.MetadataTransferAutoConfiguration;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -32,32 +25,15 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 
-/**
- * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
- */
-public class RpcEnhancementHandler extends AbstractContextHandler {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(RpcEnhancementHandler.class);
+public class MetadataHandler extends AbstractContextHandler {
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		registerRpcEnhancementAutoConfiguration(applicationContext);
-	}
-
-
-
-	private void registerRpcEnhancementAutoConfiguration(ApplicationContext context) {
-		registerBean(context, "rpcEnhancementAutoConfiguration", (ctx, name) -> {
+		registerBean(applicationContext, "metadataTransferAutoConfiguration", (ctx, name) -> {
 			ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
 			DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
 			beanFactory.registerBeanDefinition(name,
-					BeanDefinitionBuilder.genericBeanDefinition(RpcEnhancementAutoConfiguration.class).getBeanDefinition());
-		});
-		registerBean(context, "nacosDiscoveryAdapterAutoConfiguration", (ctx, name) -> {
-			ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
-			DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
-			beanFactory.registerBeanDefinition(name,
-					BeanDefinitionBuilder.genericBeanDefinition(NacosDiscoveryAdapterAutoConfiguration.class).getBeanDefinition());
+					BeanDefinitionBuilder.genericBeanDefinition(MetadataTransferAutoConfiguration.class).getBeanDefinition());
 		});
 	}
 

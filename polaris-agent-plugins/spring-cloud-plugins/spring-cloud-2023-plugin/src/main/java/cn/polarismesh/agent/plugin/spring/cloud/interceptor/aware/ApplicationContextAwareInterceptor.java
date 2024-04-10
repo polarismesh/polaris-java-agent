@@ -19,6 +19,9 @@ package cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware;
 
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.handler.BaseBeanHandler;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.handler.MetadataHandler;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.handler.RouterHandler;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.handler.RpcEnhancementHandler;
 import com.tencent.cloud.common.metadata.MetadataContext;
 import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
@@ -59,7 +62,10 @@ public class ApplicationContextAwareInterceptor extends BaseInterceptor {
 
 	private List<ApplicationContextAware> buildAwares() {
 		return Arrays.asList(
-				new RpcEnhancementHandler()
+				new BaseBeanHandler(),
+				new RpcEnhancementHandler(),
+				new MetadataHandler(),
+				new RouterHandler()
 		);
 	}
 }

@@ -20,6 +20,7 @@ package cn.polarismesh.agent.examples.alibaba.cloud;
 import java.util.Collections;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
@@ -52,6 +53,9 @@ public class ServiceA {
 
 		private RestTemplate template;
 
+		@Value("${spring.cloud.tencent.metadata.content.lane:base}")
+		private String lane;
+
 		public EchoController(RestTemplate restTemplate, Registration registration) {
 			this.template = restTemplate;
 			this.registration = registration;
@@ -60,8 +64,7 @@ public class ServiceA {
 
 		@GetMapping("/echo")
 		public String echo() {
-			String content = String.format("%s[%s] -> ", registration.getServiceId(),
-					Optional.ofNullable(registration.getMetadata()).orElse(Collections.emptyMap()).get("lane"));
+			String content = String.format("%s[%s] -> ", registration.getServiceId(), lane);
 			String resp = template.getForObject("http://service-b-2023/echo", String.class);
 			content += resp;
 			return content;
