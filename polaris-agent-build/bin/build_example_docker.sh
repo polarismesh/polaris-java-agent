@@ -2,9 +2,12 @@
 
 set -e
 
+
+if [ $# -gt 0 ]; then
+  subdir="$1"
+fi
+
 # workdir root
-
-
 version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='properties']/*[local-name()='revision']/text()" ../../pom.xml)
 echo "${version}" > version.txt
 
@@ -34,13 +37,14 @@ platforms=${platforms%?}
 pushd "polaris-agent-examples"
 docker_files=$(find ./ | grep -w "Dockerfile")
 for docker_file in ${docker_files}; do
-  folder_name=${docker_file%/*}
-  pushd "${folder_name}/"
-  repo_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='artifactId']/text()" pom.xml)
+  if [ -z $subdir ] || [[ ${docker_file} = "./${subdir}"* ]]; then
+    folder_name=${docker_file%/*}
+    pushd "${folder_name}/"
+    repo_name=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='artifactId']/text()" pom.xml)
+ 
+    echo "current is $(pwd)"
 
-  echo "current is $(pwd)"
-
-  dir_name=${folder_name##*/} 
+    dir_name=${folder_name##*/} 
   
   cp Dockerfile Dockerfile-${dir_name}
   docker_tag="${version}-java8"
@@ -52,9 +56,10 @@ for docker_file in ${docker_files}; do
   fi
   echo "jar file path is ${filename}"
 
-  version_count=$(grep -c grep -c "java_version" Dockerfile)
-
-  if [ $version_count > 0 ]; then
+  filename=${filename##*/}
+  echo "jar sub file path is ${filename}"
+  if [ `grep -c "java_version" Dockerfile` -gt 0 ]
+  then
     echo "docker repository java8: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
     docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --build-arg java_version=8 --platform ${platforms} --push ./
 
@@ -68,10 +73,11 @@ for docker_file in ${docker_files}; do
   else
     docker_tag="${version}-java17"
     echo "docker repository java17: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
-    ocker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --platform ${platforms} --push ./
+    docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --platform ${platforms} --push ./
   fi
 
   rm -f Dockerfile-${dir_name}
   popd 
+  fi
 done
 popd
