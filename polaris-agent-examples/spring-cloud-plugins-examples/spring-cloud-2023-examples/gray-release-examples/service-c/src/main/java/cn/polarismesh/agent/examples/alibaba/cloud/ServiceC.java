@@ -20,12 +20,14 @@ package cn.polarismesh.agent.examples.alibaba.cloud;
 import java.util.Collections;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -50,6 +52,9 @@ public class ServiceC {
 
 		private Registration registration;
 
+		@Value("${spring.cloud.tencent.metadata.content.lane:base}")
+		private String lane;
+
 		public EchoController(Registration registration) {
 			this.registration = registration;
 		}
@@ -57,8 +62,15 @@ public class ServiceC {
 
 		@GetMapping("/echo")
 		public String echo() {
-			return String.format("%s[%s]", registration.getServiceId(),
-					Optional.ofNullable(registration.getMetadata()).orElse(Collections.emptyMap()).get("lane"));
+			return String.format("%s[%s]", registration.getServiceId(), lane);
+		}
+
+		@GetMapping("/sum")
+		public String sum(@RequestParam("value1") int value1, @RequestParam int value2) {
+			String content = String.format("%s[%s] -> ", registration.getServiceId(), lane);
+			String resp = String.valueOf(value1 + value2);
+			content += resp;
+			return content;
 		}
 
 	}

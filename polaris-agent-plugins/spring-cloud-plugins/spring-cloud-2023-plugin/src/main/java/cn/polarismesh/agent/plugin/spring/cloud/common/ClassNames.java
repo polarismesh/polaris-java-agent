@@ -87,4 +87,7 @@ public class ClassNames {
 	 * {@link org.springframework.cloud.loadbalancer.blocking.client.BlockingLoadBalancerClient}
 	 */
 	public static final String BLOCKING_LOADBALANCER_CLIENT = "org.springframework.cloud.loadbalancer.blocking.client.BlockingLoadBalancerClient";
+
+
+	public static final String INTERCEPTING_HTTP_ACCESSOR  = "org.springframework.http.client.support.InterceptingHttpAccessor";
 }

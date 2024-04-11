@@ -20,12 +20,16 @@ package cn.polarismesh.agent.examples.alibaba.cloud;
 import java.util.Collections;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.client.serviceregistry.Registration;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -33,6 +37,7 @@ import org.springframework.web.client.RestTemplate;
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
 @SpringBootApplication
+@EnableFeignClients
 public class ServiceA {
 
 	public static void main(String[] args) {
@@ -52,6 +57,12 @@ public class ServiceA {
 
 		private RestTemplate template;
 
+		@Autowired
+		private QuickstartCalleeService quickstartCalleeService;
+
+		@Value("${spring.cloud.tencent.metadata.content.lane:base}")
+		private String lane;
+
 		public EchoController(RestTemplate restTemplate, Registration registration) {
 			this.template = restTemplate;
 			this.registration = registration;
@@ -60,12 +71,21 @@ public class ServiceA {
 
 		@GetMapping("/echo")
 		public String echo() {
-			String content = String.format("%s[%s] -> ", registration.getServiceId(),
-					Optional.ofNullable(registration.getMetadata()).orElse(Collections.emptyMap()).get("lane"));
+			String content = String.format("%s[%s] -> ", registration.getServiceId(), lane);
 			String resp = template.getForObject("http://service-b-2023/echo", String.class);
 			content += resp;
 			return content;
 		}
+
+		@GetMapping("/sum")
+		public String sum(@RequestParam("value1") int value1, @RequestParam int value2) {
+			String content = String.format("%s[%s] -> ", registration.getServiceId(), lane);
+			String resp = quickstartCalleeService.sum(value1, value2);
+			content += resp;
+			return content;
+		}
+
+
 
 	}
 
