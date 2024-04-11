@@ -21,9 +21,12 @@ import java.util.function.Supplier;
 
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import com.tencent.cloud.common.metadata.StaticMetadataManager;
+import com.tencent.cloud.metadata.config.MetadataTransferAutoConfiguration;
 import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
 import com.tencent.cloud.polaris.context.ServiceRuleManager;
+import com.tencent.cloud.polaris.context.config.PolarisContextPostConfiguration;
 import com.tencent.cloud.polaris.context.config.PolarisContextProperties;
+import com.tencent.cloud.polaris.loadbalancer.PolarisLoadBalancerAutoConfiguration;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -47,6 +50,12 @@ public class BaseBeanHandler extends AbstractContextHandler {
 						}
 					}).getBeanDefinition());
 		});
+		registerBean(applicationContext, "polarisContextPostConfiguration", (ctx, name) -> {
+			ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
+			DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
+			beanFactory.registerBeanDefinition(name, BeanDefinitionBuilder.genericBeanDefinition(
+					PolarisContextPostConfiguration.class).getBeanDefinition());
+		});
 		registerBean(applicationContext, "serviceRuleManager", (ctx, name) -> {
 			ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
 			DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
@@ -69,6 +78,14 @@ public class BaseBeanHandler extends AbstractContextHandler {
 						}
 					}).getBeanDefinition());
 		});
+		registerBean(applicationContext, "polarisLoadBalancerAutoConfiguration", (ctx, name) -> {
+			ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
+			DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
+			beanFactory.registerBeanDefinition(name, BeanDefinitionBuilder.genericBeanDefinition(
+					PolarisLoadBalancerAutoConfiguration.class).getBeanDefinition());
+		});
+
+
 	}
 
 	private void registerPolarisSDKContextManager(ApplicationContext context) {
