@@ -42,8 +42,8 @@ public class ProviderApplication {
 
 		private Registration registration;
 
-		@Value("${spring.cloud.tencent.metadata.content.zone}")
-		private String zone;
+		@Value("${server.port}")
+		private int port;
 
 		public EchoController(Registration registration) {
 			this.registration = registration;
@@ -51,7 +51,7 @@ public class ProviderApplication {
 
 		@GetMapping("/echo/{string}")
 		public String echo(@PathVariable String string) {
-			String sb = "Hello, I'm provider[" + zone + "], receive msg : "
+			String sb = "Hello, I'm provider[" + port + "], receive msg : "
 					+ string
 					+ "my metadata : "
 					+ JacksonUtils.toJson(registration.getMetadata());

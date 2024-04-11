@@ -53,8 +53,8 @@ public class ConsumerApplication {
 
 		private RestTemplate template;
 
-		@Value("${spring.cloud.tencent.metadata.content.zone}")
-		private String zone;
+		@Value("${server.port}")
+		private int port;
 
 		public EchoController(RestTemplate restTemplate, Registration registration) {
 			this.template = restTemplate;
@@ -63,7 +63,7 @@ public class ConsumerApplication {
 
 		@GetMapping("/echo/{str}")
 		public ResponseEntity<String> rest(@PathVariable String str) {
-			String content = String.format("%s[%s] -> ", registration.getServiceId(), zone);
+			String content = String.format("%s[%d] -> ", registration.getServiceId(), port);
 			ResponseEntity<String> response = template.getForEntity("http://service-provider-2023/echo/" + str +"123",
 					String.class);
 			content += response.getBody();

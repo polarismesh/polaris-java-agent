@@ -3,18 +3,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: 2023-gateway
-  name: 2023-gateway
+    app: service-gateway-2023
+  name: service-gateway-2023
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: 2023-consumer
+      app: service-gateway-2023
   template:
     metadata:
       labels:
-        app: 2023-gateway
+        app: service-gateway-2023
       annotations:
         polarismesh.cn/javaagent: "true"
         polarismesh.cn/javaagentVersion: "1.6.1"
@@ -23,7 +23,7 @@ spec:
         polarismesh.cn/javaagentConfig: "{\"spring.cloud.polaris.namespace\": \"default\"}"
     spec:
       containers:
-        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-2023-scg:1.6.1-java17
+        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-2023-consumer:1.6.1-java17
           imagePullPolicy: Always
           name: consumer
           resources:
@@ -35,7 +35,7 @@ spec:
           command:
             - /bin/bash
             - -c
-            - cd /app && java -Dspring.cloud.nacos.config.server-addr=127.0.0.1:8848 -Dserver.port=65101 -jar main.jar
+            - cd /app && java -Dspring.cloud.nacos.config.server-addr=127.0.0.1:8848 -Dserver.port=65200 -jar main.jar
           lifecycle:
             preStop:
               exec:
