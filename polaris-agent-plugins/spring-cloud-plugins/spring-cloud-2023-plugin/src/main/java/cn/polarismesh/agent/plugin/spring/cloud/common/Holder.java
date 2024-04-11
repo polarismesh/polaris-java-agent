@@ -17,48 +17,6 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.common;
 
-import cn.polarismesh.agent.core.common.exception.PolarisAgentException;
-import cn.polarismesh.agent.plugin.spring.cloud.configuration.AgentPolarisRateLimitProperties;
-import com.tencent.cloud.common.metadata.StaticMetadataManager;
-import com.tencent.cloud.common.metadata.config.MetadataLocalProperties;
-import com.tencent.cloud.plugin.lossless.config.LosslessConfigModifier;
-import com.tencent.cloud.polaris.DiscoveryConfigModifier;
-import com.tencent.cloud.polaris.PolarisDiscoveryConfigModifier;
-import com.tencent.cloud.polaris.PolarisDiscoveryProperties;
-import com.tencent.cloud.polaris.circuitbreaker.common.CircuitBreakerConfigModifier;
-import com.tencent.cloud.polaris.config.ConfigurationModifier;
-import com.tencent.cloud.polaris.config.config.PolarisConfigProperties;
-import com.tencent.cloud.polaris.context.ModifyAddress;
-import com.tencent.cloud.polaris.context.PolarisConfigModifier;
-import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
-import com.tencent.cloud.polaris.context.ServiceRuleManager;
-import com.tencent.cloud.polaris.context.config.PolarisContextProperties;
-import com.tencent.cloud.polaris.config.config.PolarisCryptoConfigProperties;
-import com.tencent.cloud.polaris.extend.consul.ConsulConfigModifier;
-import com.tencent.cloud.polaris.extend.consul.ConsulContextProperties;
-import com.tencent.cloud.polaris.extend.nacos.NacosConfigModifier;
-import com.tencent.cloud.polaris.extend.nacos.NacosContextProperties;
-import com.tencent.cloud.polaris.ratelimit.config.RateLimitConfigModifier;
-import com.tencent.cloud.polaris.router.config.properties.PolarisMetadataRouterProperties;
-import com.tencent.cloud.polaris.router.config.properties.PolarisNearByRouterProperties;
-import com.tencent.cloud.polaris.router.config.properties.PolarisRuleBasedRouterProperties;
-import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementReporterProperties;
-import com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatProperties;
-import com.tencent.cloud.rpc.enhancement.stat.config.StatConfigModifier;
-import com.tencent.polaris.api.utils.StringUtils;
-import com.tencent.polaris.logging.LoggingConsts;
-import com.tencent.polaris.logging.PolarisLogging;
-import org.springframework.boot.context.properties.bind.Bindable;
-import org.springframework.boot.context.properties.bind.Binder;
-import org.springframework.cloud.client.HostInfoEnvironmentPostProcessor;
-import org.springframework.cloud.commons.util.InetUtils;
-import org.springframework.cloud.commons.util.InetUtilsProperties;
-import org.springframework.core.ResolvableType;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.PropertiesPropertySource;
-import org.springframework.core.env.StandardEnvironment;
-import com.tencent.cloud.plugin.lossless.config.LosslessProperties;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -68,6 +26,46 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+
+import cn.polarismesh.agent.core.common.exception.PolarisAgentException;
+import com.tencent.cloud.common.metadata.StaticMetadataManager;
+import com.tencent.cloud.common.metadata.config.MetadataLocalProperties;
+import com.tencent.cloud.plugin.lossless.config.LosslessConfigModifier;
+import com.tencent.cloud.plugin.lossless.config.LosslessProperties;
+import com.tencent.cloud.polaris.DiscoveryConfigModifier;
+import com.tencent.cloud.polaris.PolarisDiscoveryConfigModifier;
+import com.tencent.cloud.polaris.PolarisDiscoveryProperties;
+import com.tencent.cloud.polaris.config.ConfigurationModifier;
+import com.tencent.cloud.polaris.config.config.PolarisConfigProperties;
+import com.tencent.cloud.polaris.config.config.PolarisCryptoConfigProperties;
+import com.tencent.cloud.polaris.context.ModifyAddress;
+import com.tencent.cloud.polaris.context.PolarisConfigModifier;
+import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
+import com.tencent.cloud.polaris.context.ServiceRuleManager;
+import com.tencent.cloud.polaris.context.config.PolarisContextProperties;
+import com.tencent.cloud.polaris.extend.consul.ConsulConfigModifier;
+import com.tencent.cloud.polaris.extend.consul.ConsulContextProperties;
+import com.tencent.cloud.polaris.extend.nacos.NacosConfigModifier;
+import com.tencent.cloud.polaris.extend.nacos.NacosContextProperties;
+import com.tencent.cloud.polaris.router.config.properties.PolarisMetadataRouterProperties;
+import com.tencent.cloud.polaris.router.config.properties.PolarisNearByRouterProperties;
+import com.tencent.cloud.polaris.router.config.properties.PolarisRuleBasedRouterProperties;
+import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementReporterProperties;
+import com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatProperties;
+import com.tencent.cloud.rpc.enhancement.stat.config.StatConfigModifier;
+import com.tencent.polaris.api.utils.StringUtils;
+import com.tencent.polaris.logging.LoggingConsts;
+import com.tencent.polaris.logging.PolarisLogging;
+
+import org.springframework.boot.context.properties.bind.Bindable;
+import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.cloud.client.HostInfoEnvironmentPostProcessor;
+import org.springframework.cloud.commons.util.InetUtils;
+import org.springframework.cloud.commons.util.InetUtilsProperties;
+import org.springframework.core.ResolvableType;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.core.env.StandardEnvironment;
 
 import static com.tencent.cloud.polaris.extend.nacos.NacosContextProperties.DEFAULT_GROUP;
 
@@ -101,8 +99,6 @@ public class Holder {
 
     private static PolarisMetadataRouterProperties metadataRouterProperties;
 
-    private static AgentPolarisRateLimitProperties rateLimitProperties;
-
     private static PolarisConfigProperties polarisConfigProperties;
 
     private static PolarisStatProperties polarisStatProperties;
@@ -126,7 +122,6 @@ public class Holder {
         routerProperties = new PolarisRuleBasedRouterProperties();
         nearByRouterProperties = new PolarisNearByRouterProperties();
         metadataRouterProperties = new PolarisMetadataRouterProperties();
-        rateLimitProperties = new AgentPolarisRateLimitProperties();
         polarisConfigProperties = new PolarisConfigProperties();
         polarisStatProperties = new PolarisStatProperties();
         losslessProperties = new LosslessProperties();
@@ -167,9 +162,6 @@ public class Holder {
             bindObject("spring.cloud.polaris.router.rule-router", routerProperties, environment);
             bindObject("spring.cloud.polaris.router.nearby-router", nearByRouterProperties, environment);
             bindObject("spring.cloud.polaris.router.metadata-router", metadataRouterProperties, environment);
-
-            // 限流规则配置
-            bindObject("spring.cloud.polaris.ratelimit", rateLimitProperties, environment);
 
             // 配置中心
             bindObject("spring.cloud.polaris.config", polarisConfigProperties, environment);
@@ -245,9 +237,9 @@ public class Holder {
                 new ModifyAddress(polarisContextProperties),
                 new DiscoveryConfigModifier(discoveryProperties),
                 new PolarisDiscoveryConfigModifier(discoveryProperties),
-                new RateLimitConfigModifier(rateLimitProperties),
+                //new RateLimitConfigModifier(rateLimitProperties),
                 new StatConfigModifier(polarisStatProperties, environment),
-                new CircuitBreakerConfigModifier(rpcEnhancementReporterProperties),
+                //new CircuitBreakerConfigModifier(rpcEnhancementReporterProperties),
                 new LosslessConfigModifier(losslessProperties)
         ));
         if (consulContextProperties.isEnabled()) {
@@ -317,10 +309,6 @@ public class Holder {
 
     public static PolarisMetadataRouterProperties getMetadataRouterProperties() {
         return metadataRouterProperties;
-    }
-
-    public static AgentPolarisRateLimitProperties getRateLimitProperties() {
-        return rateLimitProperties;
     }
 
     public static ConsulContextProperties getConsulContextProperties() {
