@@ -7,7 +7,7 @@
 		<relativePath/>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>2023-service-gateway</artifactId>
+	<artifactId>polaris-javaagent-demo-sc-gray-2023-service-gateway</artifactId>
 	<name>2023-service-gateway</name>
 	<description>Demo Service-Gateway Project For Spring Cloud Alibaba 2023</description>
 	<packaging>jar</packaging>
