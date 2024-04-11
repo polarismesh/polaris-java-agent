@@ -21,9 +21,6 @@ import java.util.function.Supplier;
 
 import cn.polarismesh.agent.core.common.utils.ClassUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
-import com.tencent.cloud.common.metadata.StaticMetadataManager;
-import com.tencent.cloud.polaris.context.ServiceRuleManager;
-import com.tencent.cloud.polaris.context.config.PolarisContextProperties;
 import com.tencent.cloud.polaris.router.config.FeignAutoConfiguration;
 import com.tencent.cloud.polaris.router.config.LoadBalancerConfiguration;
 import com.tencent.cloud.polaris.router.config.RouterAutoConfiguration;
@@ -97,12 +94,6 @@ public class RouterHandler extends AbstractContextHandler {
 						BeanDefinitionBuilder.genericBeanDefinition(FeignAutoConfiguration.class).getBeanDefinition());
 			});
 		}
-		registerBean(applicationContext, "rolarisRouterEndpointAutoConfiguration",  (ctx, name) -> {
-			ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
-			DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
-			beanFactory.registerBeanDefinition(name,
-					BeanDefinitionBuilder.genericBeanDefinition(PolarisRouterEndpointAutoConfiguration.class).getBeanDefinition());
-		});
 		if (null != ClassUtils.getClazz("org.springframework.cloud.loadbalancer.core.ServiceInstanceListSupplier",
 				Thread.currentThread().getContextClassLoader())) {
 			registerBean(applicationContext, "loadBalancerConfiguration", (ctx, name) -> {

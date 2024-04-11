@@ -1,0 +1,121 @@
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for com.tencent.polaris:spring-cloud-2023-plugin:jar:1.7.0-RC.0
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.springframework.cloud:spring-cloud-starter-openfeign:jar -> duplicate declaration of version (?) @ com.tencent.polaris:spring-cloud-2023-plugin:${revision}, /Users/shanjiajun/Documents/GitHub/polaris-java-agent-2023/polaris-agent-plugins/spring-cloud-plugins/spring-cloud-2023-plugin/pom.xml, line 110, column 21
+[WARNING] 'build.plugins.plugin.version' for org.apache.maven.plugins:maven-jar-plugin is missing. @ com.tencent.polaris:spring-cloud-2023-plugin:${revision}, /Users/shanjiajun/Documents/GitHub/polaris-java-agent-2023/polaris-agent-plugins/spring-cloud-plugins/spring-cloud-2023-plugin/pom.xml, line 390, column 21
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] 
+[INFO] ------------< com.tencent.polaris:spring-cloud-2023-plugin >------------
+[INFO] Building spring-cloud-2023-plugin 1.7.0-RC.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.6.1:tree (default-cli) @ spring-cloud-2023-plugin ---
+[INFO] com.tencent.polaris:spring-cloud-2023-plugin:jar:1.7.0-RC.0
+[INFO] +- org.springframework.cloud:spring-cloud-starter-openfeign:jar:4.1.0:provided
+[INFO] |  +- org.springframework.cloud:spring-cloud-starter:jar:4.1.0:compile
+[INFO] |  |  \- org.springframework.security:spring-security-rsa:jar:1.1.1:compile
+[INFO] |  |     \- org.bouncycastle:bcprov-jdk18on:jar:1.74:compile
+[INFO] |  +- org.springframework.cloud:spring-cloud-openfeign-core:jar:4.1.0:provided
+[INFO] |  |  +- io.github.openfeign.form:feign-form-spring:jar:3.8.0:provided
+[INFO] |  |  |  \- io.github.openfeign.form:feign-form:jar:3.8.0:provided
+[INFO] |  |  \- commons-fileupload:commons-fileupload:jar:1.5:provided
+[INFO] |  +- org.springframework:spring-web:jar:6.1.4:compile
+[INFO] |  |  +- org.springframework:spring-beans:jar:6.1.4:compile
+[INFO] |  |  +- org.springframework:spring-core:jar:6.1.4:compile
+[INFO] |  |  |  \- org.springframework:spring-jcl:jar:6.1.4:compile
+[INFO] |  |  \- io.micrometer:micrometer-observation:jar:1.12.3:compile
+[INFO] |  |     \- io.micrometer:micrometer-commons:jar:1.12.3:compile
+[INFO] |  +- org.springframework.cloud:spring-cloud-commons:jar:4.1.0:compile
+[INFO] |  +- io.github.openfeign:feign-core:jar:13.1:provided
+[INFO] |  \- io.github.openfeign:feign-slf4j:jar:13.1:provided
+[INFO] +- com.tencent.polaris:polaris-agent-core-extension:jar:1.7.0-RC.0:compile
+[INFO] +- com.tencent.polaris:polaris-agent-core-common:jar:1.7.0-RC.0:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.30:provided
+[INFO] +- org.apache.commons:commons-lang3:jar:3.10:compile
+[INFO] +- org.springframework.cloud:spring-cloud-loadbalancer:jar:4.1.0:provided
+[INFO] |  +- io.projectreactor:reactor-core:jar:3.6.3:provided
+[INFO] |  |  \- org.reactivestreams:reactive-streams:jar:1.0.4:provided
+[INFO] |  \- io.projectreactor.addons:reactor-extra:jar:3.5.1:provided
+[INFO] +- org.springframework.cloud:spring-cloud-context:jar:4.1.0:provided
+[INFO] |  \- org.springframework.security:spring-security-crypto:jar:6.2.2:compile
+[INFO] +- org.springframework.boot:spring-boot-starter-web:jar:3.2.3:provided
+[INFO] |  +- org.springframework.boot:spring-boot-starter:jar:3.2.3:compile
+[INFO] |  |  +- org.springframework.boot:spring-boot:jar:3.2.3:compile
+[INFO] |  |  +- org.springframework.boot:spring-boot-starter-logging:jar:3.2.3:compile
+[INFO] |  |  |  +- ch.qos.logback:logback-classic:jar:1.4.14:compile
+[INFO] |  |  |  |  \- ch.qos.logback:logback-core:jar:1.4.14:compile
+[INFO] |  |  |  +- org.apache.logging.log4j:log4j-to-slf4j:jar:2.21.1:compile
+[INFO] |  |  |  |  \- org.apache.logging.log4j:log4j-api:jar:2.21.1:compile
+[INFO] |  |  |  \- org.slf4j:jul-to-slf4j:jar:2.0.12:compile
+[INFO] |  |  +- jakarta.annotation:jakarta.annotation-api:jar:2.1.1:compile
+[INFO] |  |  \- org.yaml:snakeyaml:jar:2.2:compile
+[INFO] |  +- org.springframework.boot:spring-boot-starter-json:jar:3.2.3:compile
+[INFO] |  |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.15.4:compile
+[INFO] |  |  |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.15.4:compile
+[INFO] |  |  |  \- com.fasterxml.jackson.core:jackson-core:jar:2.15.4:compile
+[INFO] |  |  +- com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.15.4:compile
+[INFO] |  |  +- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.15.4:compile
+[INFO] |  |  \- com.fasterxml.jackson.module:jackson-module-parameter-names:jar:2.15.4:compile
+[INFO] |  +- org.springframework.boot:spring-boot-starter-tomcat:jar:3.2.3:provided
+[INFO] |  |  +- org.apache.tomcat.embed:tomcat-embed-core:jar:10.1.19:provided
+[INFO] |  |  +- org.apache.tomcat.embed:tomcat-embed-el:jar:10.1.19:provided
+[INFO] |  |  \- org.apache.tomcat.embed:tomcat-embed-websocket:jar:10.1.19:provided
+[INFO] |  \- org.springframework:spring-webmvc:jar:6.1.4:provided
+[INFO] |     +- org.springframework:spring-aop:jar:6.1.4:compile
+[INFO] |     +- org.springframework:spring-context:jar:6.1.4:compile
+[INFO] |     \- org.springframework:spring-expression:jar:6.1.4:compile
+[INFO] +- org.springframework.boot:spring-boot-starter-webflux:jar:3.2.3:provided
+[INFO] |  +- org.springframework.boot:spring-boot-starter-reactor-netty:jar:3.2.3:provided
+[INFO] |  |  \- io.projectreactor.netty:reactor-netty-http:jar:1.1.16:provided
+[INFO] |  |     +- io.netty:netty-codec-http:jar:4.1.107.Final:provided
+[INFO] |  |     |  +- io.netty:netty-common:jar:4.1.107.Final:provided
+[INFO] |  |     |  +- io.netty:netty-buffer:jar:4.1.107.Final:provided
+[INFO] |  |     |  +- io.netty:netty-transport:jar:4.1.107.Final:provided
+[INFO] |  |     |  +- io.netty:netty-codec:jar:4.1.107.Final:provided
+[INFO] |  |     |  \- io.netty:netty-handler:jar:4.1.107.Final:provided
+[INFO] |  |     +- io.netty:netty-codec-http2:jar:4.1.107.Final:provided
+[INFO] |  |     +- io.netty:netty-resolver-dns:jar:4.1.107.Final:provided
+[INFO] |  |     |  +- io.netty:netty-resolver:jar:4.1.107.Final:provided
+[INFO] |  |     |  \- io.netty:netty-codec-dns:jar:4.1.107.Final:provided
+[INFO] |  |     +- io.netty:netty-resolver-dns-native-macos:jar:osx-x86_64:4.1.107.Final:provided
+[INFO] |  |     |  \- io.netty:netty-resolver-dns-classes-macos:jar:4.1.107.Final:provided
+[INFO] |  |     +- io.netty:netty-transport-native-epoll:jar:linux-x86_64:4.1.107.Final:provided
+[INFO] |  |     |  +- io.netty:netty-transport-native-unix-common:jar:4.1.107.Final:provided
+[INFO] |  |     |  \- io.netty:netty-transport-classes-epoll:jar:4.1.107.Final:provided
+[INFO] |  |     \- io.projectreactor.netty:reactor-netty-core:jar:1.1.16:provided
+[INFO] |  |        \- io.netty:netty-handler-proxy:jar:4.1.107.Final:provided
+[INFO] |  |           \- io.netty:netty-codec-socks:jar:4.1.107.Final:provided
+[INFO] |  \- org.springframework:spring-webflux:jar:6.1.4:provided
+[INFO] +- com.tencent.polaris:polaris-all:jar:1.15.3:compile
+[INFO] +- com.google.guava:guava:jar:32.0.1-jre:compile
+[INFO] |  +- com.google.guava:failureaccess:jar:1.0.1:compile
+[INFO] |  +- com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava:compile
+[INFO] |  +- org.checkerframework:checker-qual:jar:3.33.0:compile
+[INFO] |  \- com.google.j2objc:j2objc-annotations:jar:2.8:compile
+[INFO] +- com.tencent.cloud:spring-cloud-tencent-polaris-context:jar:1.14.0-2023.0.0-SNAPSHOT:compile
+[INFO] +- com.tencent.cloud:spring-cloud-tencent-rpc-enhancement:jar:1.14.0-2023.0.0-SNAPSHOT:compile
+[INFO] |  \- org.springframework.boot:spring-boot-starter-aop:jar:3.2.3:compile
+[INFO] |     \- org.aspectj:aspectjweaver:jar:1.9.21:compile
+[INFO] +- com.tencent.cloud:spring-cloud-starter-tencent-polaris-discovery:jar:1.14.0-2023.0.0-SNAPSHOT:compile
+[INFO] +- com.tencent.cloud:spring-cloud-starter-tencent-polaris-config:jar:1.14.0-2023.0.0-SNAPSHOT:compile
+[INFO] +- com.tencent.cloud:spring-cloud-starter-tencent-polaris-router:jar:1.14.0-2023.0.0-SNAPSHOT:compile
+[INFO] +- com.tencent.cloud:spring-cloud-starter-tencent-metadata-transfer:jar:1.14.0-2023.0.0-SNAPSHOT:compile
+[INFO] +- com.tencent.cloud:spring-cloud-tencent-commons:jar:1.14.0-2023.0.0-SNAPSHOT:compile
+[INFO] |  +- com.tencent.cloud:spring-cloud-starter-tencent-threadlocal-plugin:jar:1.14.0-2023.0.0-SNAPSHOT:compile
+[INFO] |  +- org.springframework.boot:spring-boot-autoconfigure:jar:3.2.3:compile
+[INFO] |  +- org.springframework.boot:spring-boot-configuration-processor:jar:3.2.3:compile
+[INFO] |  +- commons-lang:commons-lang:jar:2.6:compile
+[INFO] |  \- commons-io:commons-io:jar:2.11.0:compile
+[INFO] +- com.tencent.cloud:spring-cloud-tencent-lossless-plugin:jar:1.14.0-2023.0.0-SNAPSHOT:compile
+[INFO] \- com.tencent.cloud:spring-cloud-starter-tencent-discovery-adapter-plugin:jar:1.14.0-2023.0.0-SNAPSHOT:compile
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  0.613 s
+[INFO] Finished at: 2024-04-11T23:12:59+08:00
+[INFO] ------------------------------------------------------------------------
