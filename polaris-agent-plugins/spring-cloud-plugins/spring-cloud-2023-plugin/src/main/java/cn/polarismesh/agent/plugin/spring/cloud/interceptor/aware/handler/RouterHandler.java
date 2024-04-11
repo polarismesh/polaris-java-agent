@@ -25,6 +25,7 @@ import com.tencent.cloud.common.metadata.StaticMetadataManager;
 import com.tencent.cloud.polaris.context.ServiceRuleManager;
 import com.tencent.cloud.polaris.context.config.PolarisContextProperties;
 import com.tencent.cloud.polaris.router.config.FeignAutoConfiguration;
+import com.tencent.cloud.polaris.router.config.LoadBalancerConfiguration;
 import com.tencent.cloud.polaris.router.config.RouterAutoConfiguration;
 import com.tencent.cloud.polaris.router.config.RouterConfigModifierAutoConfiguration;
 import com.tencent.cloud.polaris.router.config.properties.PolarisMetadataRouterProperties;
@@ -102,6 +103,16 @@ public class RouterHandler extends AbstractContextHandler {
 			beanFactory.registerBeanDefinition(name,
 					BeanDefinitionBuilder.genericBeanDefinition(PolarisRouterEndpointAutoConfiguration.class).getBeanDefinition());
 		});
+		if (null != ClassUtils.getClazz("org.springframework.cloud.loadbalancer.core.ServiceInstanceListSupplier",
+				Thread.currentThread().getContextClassLoader())) {
+			registerBean(applicationContext, "loadBalancerConfiguration", (ctx, name) -> {
+				ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
+				DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
+				beanFactory.registerBeanDefinition(name,
+						BeanDefinitionBuilder.genericBeanDefinition(LoadBalancerConfiguration.class)
+								.getBeanDefinition());
+			});
+		}
 	}
 
 }

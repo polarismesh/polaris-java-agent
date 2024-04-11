@@ -19,6 +19,7 @@ package cn.polarismesh.agent.examples.alibaba.cloud.cloud;
 
 import com.alibaba.nacos.common.utils.JacksonUtils;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.serviceregistry.Registration;
@@ -41,13 +42,16 @@ public class ProviderApplication {
 
 		private Registration registration;
 
+		@Value("${spring.cloud.tencent.metadata.content.zone}")
+		private String zone;
+
 		public EchoController(Registration registration) {
 			this.registration = registration;
 		}
 
 		@GetMapping("/echo/{string}")
 		public String echo(@PathVariable String string) {
-			String sb = "Hello, I'm provider, receive msg : "
+			String sb = "Hello, I'm provider[" + zone + "], receive msg : "
 					+ string
 					+ "my metadata : "
 					+ JacksonUtils.toJson(registration.getMetadata());

@@ -18,7 +18,6 @@
 package cn.polarismesh.agent.plugin.spring.cloud;
 
 import java.security.ProtectionDomain;
-import java.util.List;
 
 import cn.polarismesh.agent.core.extension.AgentPlugin;
 import cn.polarismesh.agent.core.extension.PluginContext;
@@ -35,7 +34,6 @@ import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.BlockingLoadBa
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.disable.alibaba.DisableSpringCloudAlibabaInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.discovery.DiscoveryInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.discovery.reactive.ReactiveDiscoveryInterceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.router.InterceptingHttpAccessorInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.serviceregistry.RegistryInterceptor;
 
 import org.springframework.context.ApplicationContext;
@@ -81,21 +79,7 @@ public class MainPlugin implements AgentPlugin {
 
 		operations.transform(ClassNames.BLOCKING_LOADBALANCER_CLIENT, BlockingLoadbalancerClientTransform.class);
 
-		operations.transform(ClassNames.INTERCEPTING_HTTP_ACCESSOR ,RestTemplateInterceptorTransform.class);
 	}
-
-	public static class RestTemplateInterceptorTransform implements TransformCallback {
-
-		@Override
-		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-				Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
-			InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
-			InstrumentMethod registerMethod = target.getDeclaredMethod("setInterceptors", List.class.getCanonicalName()); if (registerMethod != null) {
-				registerMethod.addInterceptor(InterceptingHttpAccessorInterceptor.class);
-			} return target.toBytecode();
-		}
-	}
-
 
 	/**
 	 * SpringCloud 注册拦截

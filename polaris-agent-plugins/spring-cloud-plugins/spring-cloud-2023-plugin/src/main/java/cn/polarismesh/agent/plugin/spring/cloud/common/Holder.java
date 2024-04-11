@@ -335,6 +335,14 @@ public class Holder {
         return rpcEnhancementReporterProperties;
     }
 
+    static PolarisConfigProperties getPolarisConfigProperties() {
+        return polarisConfigProperties;
+    }
+
+    static PolarisCryptoConfigProperties getPolarisCryptoConfigProperties() {
+        return polarisCryptoConfigProperties;
+    }
+
     public static ServiceRuleManager newServiceRuleManager() {
         return new ServiceRuleManager(getContextManager().getSDKContext(), getContextManager().getConsumerAPI());
     }

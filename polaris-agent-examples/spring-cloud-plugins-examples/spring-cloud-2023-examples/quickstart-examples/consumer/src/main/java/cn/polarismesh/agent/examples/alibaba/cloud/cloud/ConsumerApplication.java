@@ -17,10 +17,13 @@
 
 package cn.polarismesh.agent.examples.alibaba.cloud.cloud;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,17 +49,25 @@ public class ConsumerApplication {
 	@RestController
 	public static class EchoController {
 
+		private Registration registration;
+
 		private RestTemplate template;
 
-		public EchoController(RestTemplate restTemplate) {
+		@Value("${spring.cloud.tencent.metadata.content.zone}")
+		private String zone;
+
+		public EchoController(RestTemplate restTemplate, Registration registration) {
 			this.template = restTemplate;
+			this.registration = registration;
 		}
 
 		@GetMapping("/echo/{str}")
 		public ResponseEntity<String> rest(@PathVariable String str) {
-			ResponseEntity<String> response = template.getForEntity("http://service-provider/echo/" + str +"123",
+			String content = String.format("%s[%s] -> ", registration.getServiceId(), zone);
+			ResponseEntity<String> response = template.getForEntity("http://service-provider-2023/echo/" + str +"123",
 					String.class);
-			return response;
+			content += response.getBody();
+			return new ResponseEntity<>(content, HttpStatus.OK);
 		}
 
 
