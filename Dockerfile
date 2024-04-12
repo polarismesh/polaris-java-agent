@@ -18,7 +18,7 @@ FROM alpine:3.8
 ARG version
 
 RUN apk update upgrade && \
-    apk add --no-cache bash util-linux
+    apk add --no-cache bash util-linux curl
 
 COPY ./polaris-agent-build/bin/version.txt /app/
 COPY ./polaris-java-agent-${version}.zip /app/
