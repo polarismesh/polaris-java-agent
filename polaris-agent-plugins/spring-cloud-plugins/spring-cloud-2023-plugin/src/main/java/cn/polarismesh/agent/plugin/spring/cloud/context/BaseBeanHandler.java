@@ -15,13 +15,12 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.handler;
+package cn.polarismesh.agent.plugin.spring.cloud.context;
 
 import java.util.function.Supplier;
 
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import com.tencent.cloud.common.metadata.StaticMetadataManager;
-import com.tencent.cloud.metadata.config.MetadataTransferAutoConfiguration;
 import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
 import com.tencent.cloud.polaris.context.ServiceRuleManager;
 import com.tencent.cloud.polaris.context.config.PolarisContextPostConfiguration;
@@ -84,8 +83,6 @@ public class BaseBeanHandler extends AbstractContextHandler {
 			beanFactory.registerBeanDefinition(name, BeanDefinitionBuilder.genericBeanDefinition(
 					PolarisLoadBalancerAutoConfiguration.class).getBeanDefinition());
 		});
-
-
 	}
 
 	private void registerPolarisSDKContextManager(ApplicationContext context) {
@@ -100,6 +97,5 @@ public class BaseBeanHandler extends AbstractContextHandler {
 						}
 					}).getBeanDefinition());
 		});
-
 	}
 }

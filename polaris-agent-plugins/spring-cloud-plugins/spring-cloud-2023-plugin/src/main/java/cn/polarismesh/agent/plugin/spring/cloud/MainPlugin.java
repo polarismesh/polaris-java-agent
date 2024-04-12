@@ -29,12 +29,12 @@ import cn.polarismesh.agent.core.extension.transform.TransformCallback;
 import cn.polarismesh.agent.core.extension.transform.TransformOperations;
 import cn.polarismesh.agent.plugin.spring.cloud.common.ClassNames;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.ApplicationContextAwareInterceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.BlockingLoadBalancerClientInterceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.disable.alibaba.DisableSpringCloudAlibabaInterceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.discovery.DiscoveryInterceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.discovery.reactive.ReactiveDiscoveryInterceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.serviceregistry.RegistryInterceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ApplicationContextAwareInterceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BlockingLoadBalancerClientInterceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.DisableSpringCloudAlibabaInterceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.discovery.DiscoveryInterceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.discovery.ReactiveDiscoveryInterceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.discovery.registry.RegistryInterceptor;
 
 import org.springframework.context.ApplicationContext;
 

@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.serviceregistry.Registration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +39,7 @@ public class ProviderApplication {
 		SpringApplication.run(ProviderApplication.class, args);
 	}
 
+
 	@RestController
 	public static class EchoController {
 
@@ -44,6 +47,14 @@ public class ProviderApplication {
 
 		@Value("${server.port}")
 		private int port;
+
+		@Value("${custom.config:none}")
+		private String customConfig;
+
+		@GetMapping("/custom/config")
+		public ResponseEntity<String> getCustomConfig() {
+			return new ResponseEntity<>(String.valueOf(customConfig), HttpStatus.OK);
+		}
 
 		public EchoController(Registration registration) {
 			this.registration = registration;

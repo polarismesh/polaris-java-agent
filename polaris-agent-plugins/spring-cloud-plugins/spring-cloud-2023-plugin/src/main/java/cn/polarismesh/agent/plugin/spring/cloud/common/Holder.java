@@ -47,6 +47,7 @@ import com.tencent.cloud.polaris.extend.consul.ConsulConfigModifier;
 import com.tencent.cloud.polaris.extend.consul.ConsulContextProperties;
 import com.tencent.cloud.polaris.extend.nacos.NacosConfigModifier;
 import com.tencent.cloud.polaris.extend.nacos.NacosContextProperties;
+import com.tencent.cloud.polaris.router.RouterConfigModifier;
 import com.tencent.cloud.polaris.router.config.properties.PolarisMetadataRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisNearByRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisRuleBasedRouterProperties;
@@ -126,7 +127,7 @@ public class Holder {
         polarisStatProperties = new PolarisStatProperties();
         losslessProperties = new LosslessProperties();
         rpcEnhancementReporterProperties = new RpcEnhancementReporterProperties();
-
+        polarisCryptoConfigProperties = new PolarisCryptoConfigProperties();
         discoveryProperties.setService(Holder.getLocalService());
     }
 
@@ -155,6 +156,8 @@ public class Holder {
             }
             discoveryProperties.setNamespace(namespace);
 
+            polarisContextProperties.setNamespace(namespace);
+            polarisContextProperties.setService(discoveryProperties.getService());
             bindObject("spring.cloud.consul", consulContextProperties, environment);
             bindObject("spring.cloud.nacos.discovery", nacosContextProperties, environment);
 
@@ -163,6 +166,7 @@ public class Holder {
             bindObject("spring.cloud.polaris.router.nearby-router", nearByRouterProperties, environment);
             bindObject("spring.cloud.polaris.router.metadata-router", metadataRouterProperties, environment);
 
+            bindObject("spring.cloud.polaris.config.crypto", polarisCryptoConfigProperties, environment);
             // 配置中心
             bindObject("spring.cloud.polaris.config", polarisConfigProperties, environment);
 
@@ -237,16 +241,19 @@ public class Holder {
                 new ModifyAddress(polarisContextProperties),
                 new DiscoveryConfigModifier(discoveryProperties),
                 new PolarisDiscoveryConfigModifier(discoveryProperties),
+                new RouterConfigModifier(nearByRouterProperties),
                 //new RateLimitConfigModifier(rateLimitProperties),
-                new StatConfigModifier(polarisStatProperties, environment),
+                new StatConfigModifier(polarisStatProperties, environment)
                 //new CircuitBreakerConfigModifier(rpcEnhancementReporterProperties),
-                new LosslessConfigModifier(losslessProperties)
         ));
         if (consulContextProperties.isEnabled()) {
             modifiers.add(new ConsulConfigModifier(consulContextProperties));
         }
         if (nacosContextProperties.isEnabled()) {
             modifiers.add(new NacosConfigModifier(nacosContextProperties));
+        }
+        if (losslessProperties.isEnabled()) {
+            modifiers.add(new LosslessConfigModifier(losslessProperties));
         }
         if (polarisConfigProperties.isEnabled()) {
             modifiers.add(new ConfigurationModifier(polarisConfigProperties, polarisCryptoConfigProperties, polarisContextProperties));
@@ -323,11 +330,11 @@ public class Holder {
         return rpcEnhancementReporterProperties;
     }
 
-    static PolarisConfigProperties getPolarisConfigProperties() {
+    public static PolarisConfigProperties getPolarisConfigProperties() {
         return polarisConfigProperties;
     }
 
-    static PolarisCryptoConfigProperties getPolarisCryptoConfigProperties() {
+    public static PolarisCryptoConfigProperties getPolarisCryptoConfigProperties() {
         return polarisCryptoConfigProperties;
     }
 

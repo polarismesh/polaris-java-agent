@@ -15,10 +15,11 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.plugin.spring.cloud.common;
+package cn.polarismesh.agent.plugin.spring.cloud.discovery;
 
 import java.util.Objects;
 
+import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import com.tencent.cloud.polaris.discovery.PolarisDiscoveryHandler;
 
 /**

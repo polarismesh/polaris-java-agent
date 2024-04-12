@@ -15,17 +15,14 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.plugin.spring.cloud.interceptor.discovery.reactive;
+package cn.polarismesh.agent.plugin.spring.cloud.discovery;
 
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
-import cn.polarismesh.agent.plugin.spring.cloud.common.DiscoveryUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.discovery.PolarisServiceDiscovery;
 import com.tencent.polaris.api.utils.StringUtils;
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.ReactiveDiscoveryClient;
-import reactor.core.publisher.Flux;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +32,7 @@ import java.util.List;
  *
  * @author zhuyuhan
  */
-public class ReactiveDiscoveryInterceptor extends BaseInterceptor {
+public class DiscoveryInterceptor extends BaseInterceptor {
 
 	@Override
 	public void onAfter(Object target, Object[] args, Object result, Throwable throwable) {
@@ -43,19 +40,19 @@ public class ReactiveDiscoveryInterceptor extends BaseInterceptor {
 			return;
 		}
 
-		PolarisServiceDiscovery discovery = new PolarisServiceDiscovery(Holder.getNacosContextProperties(),
-				Holder.getDiscoveryProperties(), DiscoveryUtils.buildDiscoveryHandler());
+		PolarisServiceDiscovery discovery = new PolarisServiceDiscovery(Holder.getNacosContextProperties(), Holder.getDiscoveryProperties(),
+				DiscoveryUtils.buildDiscoveryHandler());
 
 		ReflectionUtils.doWithFields(target.getClass(), field -> {
 			ReflectionUtils.makeAccessible(field);
-			List<ReactiveDiscoveryClient> discoveryClients = (List<ReactiveDiscoveryClient>) ReflectionUtils.getField(field, target);
-			List<ReactiveDiscoveryClient> wraps = new ArrayList<>();
+			List<DiscoveryClient> discoveryClients = (List<DiscoveryClient>) ReflectionUtils.getField(field, target);
+			List<DiscoveryClient> wraps = new ArrayList<>();
 			discoveryClients.forEach(discoveryClient -> wraps.add(new ProxyDiscoveryClient(discovery)));
 			ReflectionUtils.setField(field, target, wraps);
 		}, field -> StringUtils.equals(field.getName(), "discoveryClients"));
 	}
 
-	private static class ProxyDiscoveryClient implements ReactiveDiscoveryClient {
+	private static class ProxyDiscoveryClient implements DiscoveryClient {
 
 		public final String description = "Spring Cloud Tencent Polaris Discovery Client.";
 
@@ -71,13 +68,13 @@ public class ReactiveDiscoveryInterceptor extends BaseInterceptor {
 		}
 
 		@Override
-		public Flux<ServiceInstance> getInstances(String serviceId) {
-			return Flux.fromIterable(discovery.getInstances(serviceId));
+		public List<ServiceInstance> getInstances(String serviceId) {
+			return discovery.getInstances(serviceId);
 		}
 
 		@Override
-		public Flux<String> getServices() {
-			return Flux.fromIterable(discovery.getServices());
+		public List<String> getServices() {
+			return discovery.getServices();
 		}
 	}
 

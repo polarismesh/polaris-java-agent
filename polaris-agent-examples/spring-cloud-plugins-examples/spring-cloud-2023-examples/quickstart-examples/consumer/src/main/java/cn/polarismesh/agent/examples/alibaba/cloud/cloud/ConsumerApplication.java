@@ -56,6 +56,9 @@ public class ConsumerApplication {
 		@Value("${server.port}")
 		private int port;
 
+		@Value("${custom.config:none}")
+		private String customConfig;
+
 		public EchoController(RestTemplate restTemplate, Registration registration) {
 			this.template = restTemplate;
 			this.registration = registration;
@@ -70,6 +73,10 @@ public class ConsumerApplication {
 			return new ResponseEntity<>(content, HttpStatus.OK);
 		}
 
+		@GetMapping("/custom/config")
+		public ResponseEntity<String> getCustomConfig() {
+			return new ResponseEntity<>(String.valueOf(customConfig), HttpStatus.OK);
+		}
 
 	}
 

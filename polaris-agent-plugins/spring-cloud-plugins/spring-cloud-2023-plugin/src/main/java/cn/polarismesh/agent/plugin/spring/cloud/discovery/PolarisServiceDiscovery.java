@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.plugin.spring.cloud.interceptor.discovery;
+package cn.polarismesh.agent.plugin.spring.cloud.discovery;
 
-import cn.polarismesh.agent.plugin.spring.cloud.common.DiscoveryUtils;
 import com.tencent.cloud.common.pojo.PolarisServiceInstance;
 import com.tencent.cloud.polaris.PolarisDiscoveryProperties;
 import com.tencent.cloud.polaris.discovery.PolarisDiscoveryHandler;
