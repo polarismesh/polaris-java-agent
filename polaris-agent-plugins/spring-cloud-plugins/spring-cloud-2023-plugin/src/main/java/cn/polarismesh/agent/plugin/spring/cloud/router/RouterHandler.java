@@ -15,20 +15,19 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.handler;
+package cn.polarismesh.agent.plugin.spring.cloud.router;
 
 import java.util.function.Supplier;
 
 import cn.polarismesh.agent.core.common.utils.ClassUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
+import cn.polarismesh.agent.plugin.spring.cloud.context.AbstractContextHandler;
 import com.tencent.cloud.polaris.router.config.FeignAutoConfiguration;
 import com.tencent.cloud.polaris.router.config.LoadBalancerConfiguration;
 import com.tencent.cloud.polaris.router.config.RouterAutoConfiguration;
-import com.tencent.cloud.polaris.router.config.RouterConfigModifierAutoConfiguration;
 import com.tencent.cloud.polaris.router.config.properties.PolarisMetadataRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisNearByRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisRuleBasedRouterProperties;
-import com.tencent.cloud.polaris.router.endpoint.PolarisRouterEndpointAutoConfiguration;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -72,12 +71,6 @@ public class RouterHandler extends AbstractContextHandler {
 							return Holder.getRouterProperties();
 						}
 					}).getBeanDefinition());
-		});
-		registerBean(applicationContext, "routerConfigModifierAutoConfiguration",  (ctx, name) -> {
-			ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
-			DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
-			beanFactory.registerBeanDefinition(name,
-					BeanDefinitionBuilder.genericBeanDefinition(RouterConfigModifierAutoConfiguration.class).getBeanDefinition());
 		});
 		registerBean(applicationContext, "routerAutoConfiguration",  (ctx, name) -> {
 			ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;

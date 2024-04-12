@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.plugin.spring.cloud.interceptor.disable.alibaba;
+package cn.polarismesh.agent.plugin.spring.cloud.interceptor;
 
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -67,6 +66,7 @@ public class DisableSpringCloudAlibabaInterceptor extends BaseInterceptor {
             properties.setProperty("spring.cloud.sentinel.enabled", "false");
             properties.setProperty("spring.cloud.nacos.discovery.watch.enabled", "false");
             properties.setProperty("spring.cloud.loadbalancer.cache.enabled", "false");
+            properties.setProperty("spring.cloud.nacos.config.enabled", "false");
 
             // 设置 spring.cloud.sentinel.enabled 为 false
             environment.getPropertySources().addFirst(new PropertiesPropertySource(disableSCA, properties));

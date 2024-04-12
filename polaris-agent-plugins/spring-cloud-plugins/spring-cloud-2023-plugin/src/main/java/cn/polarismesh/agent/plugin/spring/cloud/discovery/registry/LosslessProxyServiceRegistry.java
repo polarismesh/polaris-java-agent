@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.plugin.spring.cloud.interceptor.serviceregistry;
+package cn.polarismesh.agent.plugin.spring.cloud.discovery.registry;
 
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import com.tencent.cloud.common.util.ApplicationContextAwareUtils;

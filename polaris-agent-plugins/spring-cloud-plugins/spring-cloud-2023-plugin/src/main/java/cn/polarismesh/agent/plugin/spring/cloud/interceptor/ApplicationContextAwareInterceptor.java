@@ -15,30 +15,26 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware;
+package cn.polarismesh.agent.plugin.spring.cloud.interceptor;
+
+import java.util.Arrays;
+import java.util.List;
 
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.handler.BaseBeanHandler;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.handler.MetadataHandler;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.handler.RouterHandler;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.handler.RpcEnhancementHandler;
+import cn.polarismesh.agent.plugin.spring.cloud.config.ConfigHandler;
+import cn.polarismesh.agent.plugin.spring.cloud.context.BaseBeanHandler;
+import cn.polarismesh.agent.plugin.spring.cloud.metadata.MetadataHandler;
+import cn.polarismesh.agent.plugin.spring.cloud.router.RouterHandler;
+import cn.polarismesh.agent.plugin.spring.cloud.rpc.RpcEnhancementHandler;
 import com.tencent.cloud.common.metadata.MetadataContext;
 import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
+
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * {@link org.springframework.context.support.ApplicationContextAwareProcessor#ApplicationContextAwareProcessor(ConfigurableApplicationContext)}
- *
- * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
- */
 public class ApplicationContextAwareInterceptor extends BaseInterceptor {
 
 	@Override
@@ -63,6 +59,7 @@ public class ApplicationContextAwareInterceptor extends BaseInterceptor {
 	private List<ApplicationContextAware> buildAwares() {
 		return Arrays.asList(
 				new BaseBeanHandler(),
+				new ConfigHandler(),
 				new RpcEnhancementHandler(),
 				new MetadataHandler(),
 				new RouterHandler()

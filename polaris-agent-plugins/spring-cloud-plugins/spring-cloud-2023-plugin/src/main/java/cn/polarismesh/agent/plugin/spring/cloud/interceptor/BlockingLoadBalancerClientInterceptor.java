@@ -1,4 +1,4 @@
-package cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware;
+package cn.polarismesh.agent.plugin.spring.cloud.interceptor;
 
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BaseInterceptor;
 import com.tencent.cloud.common.metadata.MetadataContextHolder;

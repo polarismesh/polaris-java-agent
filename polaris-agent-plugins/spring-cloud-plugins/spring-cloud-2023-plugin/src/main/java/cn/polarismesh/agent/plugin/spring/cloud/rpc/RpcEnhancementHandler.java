@@ -15,13 +15,10 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.handler;
+package cn.polarismesh.agent.plugin.spring.cloud.rpc;
 
-import java.util.function.Supplier;
-
-import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
+import cn.polarismesh.agent.plugin.spring.cloud.context.AbstractContextHandler;
 import com.tencent.cloud.plugin.discovery.adapter.config.NacosDiscoveryAdapterAutoConfiguration;
-import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
 import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +40,6 @@ public class RpcEnhancementHandler extends AbstractContextHandler {
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		registerRpcEnhancementAutoConfiguration(applicationContext);
 	}
-
-
 
 	private void registerRpcEnhancementAutoConfiguration(ApplicationContext context) {
 		registerBean(context, "rpcEnhancementAutoConfiguration", (ctx, name) -> {
