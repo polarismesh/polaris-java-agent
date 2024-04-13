@@ -22,7 +22,6 @@ import java.util.function.Supplier;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.context.AbstractContextHandler;
 import com.tencent.cloud.polaris.config.PolarisConfigAutoConfiguration;
-import com.tencent.cloud.polaris.config.adapter.AffectedConfigurationPropertiesRebinder;
 import com.tencent.cloud.polaris.config.adapter.PolarisConfigFileLocator;
 import com.tencent.cloud.polaris.config.adapter.PolarisPropertySourceManager;
 import com.tencent.cloud.polaris.config.config.PolarisConfigProperties;
@@ -33,8 +32,6 @@ import com.tencent.polaris.configuration.factory.ConfigFileServiceFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.cloud.context.properties.ConfigurationPropertiesBeans;
-import org.springframework.cloud.context.properties.ConfigurationPropertiesRebinder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
@@ -106,19 +103,6 @@ public class ConfigHandler extends AbstractContextHandler {
 						}
 					}).getBeanDefinition());
 		});
-//		registerBean(applicationContext, "affectedConfigurationPropertiesRebinder", (ctx, name) -> {
-//			ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
-//			DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
-//			beanFactory.registerBeanDefinition(name,
-//					BeanDefinitionBuilder.genericBeanDefinition(ConfigurationPropertiesRebinder.class, new Supplier<ConfigurationPropertiesRebinder>() {
-//						@Override
-//						public ConfigurationPropertiesRebinder get() {
-//							ConfigurationPropertiesBeans beans = cfgCtx.getBean(ConfigurationPropertiesBeans.class);
-//							return new AffectedConfigurationPropertiesRebinder(beans);
-//						}
-//					}).getBeanDefinition());
-//		});
-
 		registerBean(applicationContext, "polarisConfigAutoConfiguration",  (ctx, name) -> {
 			ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
 			DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();

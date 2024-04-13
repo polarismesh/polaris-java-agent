@@ -20,12 +20,24 @@ package cn.polarismesh.agent.plugin.spring.cloud.context;
 import java.util.function.Supplier;
 
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.EnvironmentChangeEventListener;
 import com.tencent.cloud.common.metadata.StaticMetadataManager;
+import com.tencent.cloud.plugin.lossless.config.LosslessAutoConfiguration;
+import com.tencent.cloud.polaris.PolarisDiscoveryProperties;
 import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
 import com.tencent.cloud.polaris.context.ServiceRuleManager;
 import com.tencent.cloud.polaris.context.config.PolarisContextPostConfiguration;
 import com.tencent.cloud.polaris.context.config.PolarisContextProperties;
+import com.tencent.cloud.polaris.discovery.PolarisDiscoveryAutoConfiguration;
+import com.tencent.cloud.polaris.discovery.PolarisDiscoveryHandler;
 import com.tencent.cloud.polaris.loadbalancer.PolarisLoadBalancerAutoConfiguration;
+import com.tencent.cloud.polaris.registry.PolarisAutoServiceRegistration;
+import com.tencent.cloud.polaris.registry.PolarisRegistration;
+import com.tencent.cloud.polaris.registry.PolarisServiceRegistry;
+import com.tencent.cloud.polaris.registry.PolarisServiceRegistryAutoConfiguration;
+import com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatProperties;
+import com.tencent.polaris.assembly.api.AssemblyAPI;
+import com.tencent.polaris.client.api.SDKContext;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;

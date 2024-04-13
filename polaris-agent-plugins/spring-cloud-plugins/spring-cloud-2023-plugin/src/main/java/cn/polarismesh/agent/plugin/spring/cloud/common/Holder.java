@@ -36,6 +36,7 @@ import com.tencent.cloud.polaris.DiscoveryConfigModifier;
 import com.tencent.cloud.polaris.PolarisDiscoveryConfigModifier;
 import com.tencent.cloud.polaris.PolarisDiscoveryProperties;
 import com.tencent.cloud.polaris.config.ConfigurationModifier;
+import com.tencent.cloud.polaris.config.adapter.PolarisPropertySourceManager;
 import com.tencent.cloud.polaris.config.config.PolarisConfigProperties;
 import com.tencent.cloud.polaris.config.config.PolarisCryptoConfigProperties;
 import com.tencent.cloud.polaris.context.ModifyAddress;
@@ -114,6 +115,8 @@ public class Holder {
 
     private static Environment environment;
 
+    private static PolarisPropertySourceManager polarisPropertySourceManager;
+
     private static void initProperties() {
         polarisContextProperties = new PolarisContextProperties();
         discoveryProperties = new PolarisDiscoveryProperties();
@@ -129,6 +132,7 @@ public class Holder {
         rpcEnhancementReporterProperties = new RpcEnhancementReporterProperties();
         polarisCryptoConfigProperties = new PolarisCryptoConfigProperties();
         discoveryProperties.setService(Holder.getLocalService());
+        polarisPropertySourceManager = new PolarisPropertySourceManager();
     }
 
     public static void init() {
@@ -348,5 +352,9 @@ public class Holder {
 
     public static LosslessProperties getLosslessProperties() {
         return losslessProperties;
+    }
+
+    public static PolarisPropertySourceManager getPolarisPropertySourceManager() {
+        return polarisPropertySourceManager;
     }
 }

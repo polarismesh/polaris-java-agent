@@ -30,11 +30,7 @@ import cn.polarismesh.agent.core.extension.transform.TransformOperations;
 import cn.polarismesh.agent.plugin.spring.cloud.common.ClassNames;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ApplicationContextAwareInterceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.BlockingLoadBalancerClientInterceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.DisableSpringCloudAlibabaInterceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.discovery.DiscoveryInterceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.discovery.ReactiveDiscoveryInterceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.discovery.registry.RegistryInterceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ConfigurationInjectInterceptor;
 
 import org.springframework.context.ApplicationContext;
 
@@ -56,78 +52,12 @@ public class MainPlugin implements AgentPlugin {
 	 */
 	private void addPolarisTransformers(TransformOperations operations) {
 
-		operations.transform(ClassNames.SERVICE_REGISTRATION, SpringCloudRegistryTransform.class);
-		operations.transform(ClassNames.DISCOVERY_CLIENT, SpringCloudDiscoveryTransform.class);
-		operations.transform(ClassNames.REACTIVE_DISCOVERY_CLIENT, SpringCloudReactiveDiscoveryTransform.class);
-
-		// 北极星路由执行
-		// operations.transform(ClassNames.ROUTER, SpringCloudTrafficRouterTransform.class);
-
-		// 流量标签信息收集
-//		operations.transform(ClassNames.REACTIVE_WEB_FILTER, ReactiveWebFilterTransform.class);
-//		operations.transform(ClassNames.SERVLET_WEB_FILTER, ServletWebFilterTransform.class);
-
-		// 请求发起时需要收集流量标签信息
-//		operations.transform(ClassNames.REST_TEMPLATE, RestTemplateTransform.class);
-//		operations.transform(ClassNames.FEIGN_TEMPLATE, FeignTransform.class);
-
 		// 在 agent 中注入 Spring 的 ApplicationContext
 		operations.transform(ClassNames.APPLICATION_CONTEXT_AWARE, ApplicationContextAwareTransform.class);
 
 		// EnvironmentPostProcessor 处理
-		operations.transform(ClassNames.ENVIRONMENT_POST_PROCESSOR, DisableSpringCloudAlibabaTransform.class);
+		operations.transform(ClassNames.ENVIRONMENT_POST_PROCESSOR, ConfigurationInjectTransform.class);
 
-		operations.transform(ClassNames.BLOCKING_LOADBALANCER_CLIENT, BlockingLoadbalancerClientTransform.class);
-
-	}
-
-	/**
-	 * SpringCloud 注册拦截
-	 */
-	public static class SpringCloudRegistryTransform implements TransformCallback {
-
-		@Override
-		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-				Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
-
-			InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
-			InstrumentMethod registerMethod = target.getDeclaredMethod("start"); if (registerMethod != null) {
-				registerMethod.addInterceptor(RegistryInterceptor.class);
-			} return target.toBytecode();
-		}
-	}
-
-	/**
-	 * Spring Cloud 服务发现拦截
-	 */
-	public static class SpringCloudDiscoveryTransform implements TransformCallback {
-
-		@Override
-		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-				Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
-
-			InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
-			InstrumentMethod constructMethod = target.getConstructor("java.util.List"); if (constructMethod != null) {
-				constructMethod.addInterceptor(DiscoveryInterceptor.class);
-			}
-
-			return target.toBytecode();
-		}
-	}
-
-	public static class SpringCloudReactiveDiscoveryTransform implements TransformCallback {
-
-		@Override
-		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-				Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
-
-			InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
-			InstrumentMethod constructMethod = target.getConstructor("java.util.List"); if (constructMethod != null) {
-				constructMethod.addInterceptor(ReactiveDiscoveryInterceptor.class);
-			}
-
-			return target.toBytecode();
-		}
 	}
 
 	/**
@@ -149,7 +79,7 @@ public class MainPlugin implements AgentPlugin {
 		}
 	}
 
-	public static class DisableSpringCloudAlibabaTransform implements TransformCallback {
+	public static class ConfigurationInjectTransform implements TransformCallback {
 
 		@Override
 		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
@@ -157,23 +87,7 @@ public class MainPlugin implements AgentPlugin {
 			InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
 			InstrumentMethod constructMethod = target.getDeclaredMethod("onApplicationEnvironmentPreparedEvent", "org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent");
 			if (constructMethod != null) {
-				constructMethod.addInterceptor(DisableSpringCloudAlibabaInterceptor.class);
-			}
-
-			return target.toBytecode();
-		}
-	}
-
-	public static class BlockingLoadbalancerClientTransform implements TransformCallback {
-
-		@Override
-		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-				Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
-			InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
-			InstrumentMethod constructMethod = target.getDeclaredMethod("reconstructURI", "org.springframework.cloud"
-					+ ".client.ServiceInstance", "java.net.URI");
-			if (constructMethod != null) {
-				constructMethod.addInterceptor(BlockingLoadBalancerClientInterceptor.class);
+				constructMethod.addInterceptor(ConfigurationInjectInterceptor.class);
 			}
 
 			return target.toBytecode();

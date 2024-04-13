@@ -1,0 +1,36 @@
+server:
+  port: 65200
+
+spring:
+  application:
+    name: sc-gateway-2023
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+    nacos:
+      username: 'nacos'
+      password: 'nacos'
+      discovery:
+        enabled: false
+        server-addr: 127.0.0.1:8848
+      config:
+        enabled: true
+        serverAddr: 127.0.0.1:8848
+        username: 'nacos'
+        password: 'nacos'
+  config:
+    import:
+      - nacos:sc-gateway-2023.properties?refreshEnabled=true
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+logging:
+  level:
+    com.alibaba.cloud.nacos.configdata: debug

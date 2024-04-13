@@ -35,6 +35,7 @@ custom_plugin_properties=${JAVA_AGENT_PLUGIN_CONF}
 echo "${custom_plugin_properties}" > ${polaris_agent_dir_name}/conf/plugin/${java_agent_config_dir}/application.properties
 
 # 第三步，将地域信息拉取并设置进配置文件
+# 腾讯云不能拿到大区，因此腾讯云上的region对应的是北极星的zone，zone对应北极星的campus
 target_config_file=${polaris_agent_dir_name}/conf/plugin/${java_agent_config_dir}/application.properties
 
 echo "start to fetch region, target config file ${target_config_file}"
@@ -42,7 +43,7 @@ region="$(curl -s --connect-timeout 10 -m 10 http://metadata.tencentyun.com/late
 region_code=$?
 echo "region is ${region}, return code is ${region_code}"
 if [ ${region_code} -eq 0 ] && [ -n ${region} ]; then
-  sed -i "s/spring.cloud.tencent.metadata.content.region=\"\"/spring.cloud.tencent.metadata.content.region=${region}/g" ${target_config_file}
+  sed -i "s/spring.cloud.tencent.metadata.content.region=\"\"/spring.cloud.tencent.metadata.content.zone=${region}/g" ${target_config_file}
 fi
 
 echo "start to fetch zone"
@@ -50,5 +51,5 @@ zone="$(curl -s --connect-timeout 10 -m 10 http://metadata.tencentyun.com/latest
 zone_code=$?
 echo "region is ${zone}, return code is ${zone_code}"
 if [ ${zone_code} -eq 0 ] && [ -n ${zone} ]; then
-  sed -i "s/spring.cloud.tencent.metadata.content.zone=\"\"/spring.cloud.tencent.metadata.content.zone=${zone}/g" ${target_config_file}
+  sed -i "s/spring.cloud.tencent.metadata.content.zone=\"\"/spring.cloud.tencent.metadata.content.campus=${zone}/g" ${target_config_file}
 fi
