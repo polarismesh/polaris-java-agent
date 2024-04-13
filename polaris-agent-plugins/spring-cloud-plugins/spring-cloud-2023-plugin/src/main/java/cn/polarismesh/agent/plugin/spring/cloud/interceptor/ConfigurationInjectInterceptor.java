@@ -17,6 +17,10 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.interceptor;
 
+import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
+import com.tencent.cloud.polaris.config.adapter.PolarisConfigFileLocator;
+import com.tencent.polaris.configuration.api.core.ConfigFileService;
+import com.tencent.polaris.configuration.factory.ConfigFileServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -34,9 +38,9 @@ import java.util.Properties;
  *
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-public class DisableSpringCloudAlibabaInterceptor extends BaseInterceptor {
+public class ConfigurationInjectInterceptor extends BaseInterceptor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DisableSpringCloudAlibabaInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationInjectInterceptor.class);
 
     @Override
     public void onBefore(Object target, Object[] args) {
@@ -59,17 +63,19 @@ public class DisableSpringCloudAlibabaInterceptor extends BaseInterceptor {
         }
 
         private void disableSpringCloudAlibabaAbility(ConfigurableEnvironment environment) {
+//            String disableSCA = "__disable__sca__";
+//
+//            Properties properties = new Properties();
+//            properties.setProperty("spring.cloud.sentinel.enabled", "false");
+//            properties.setProperty("spring.cloud.nacos.discovery.watch.enabled", "false");
+//            properties.setProperty("spring.cloud.loadbalancer.cache.enabled", "false");
+//            properties.setProperty("spring.cloud.nacos.config.enabled", "false");
 
-            String disableSCA = "__disable__sca__";
-
+            String disableCheck = "__disable__check__";
             Properties properties = new Properties();
-            properties.setProperty("spring.cloud.sentinel.enabled", "false");
-            properties.setProperty("spring.cloud.nacos.discovery.watch.enabled", "false");
-            properties.setProperty("spring.cloud.loadbalancer.cache.enabled", "false");
-            properties.setProperty("spring.cloud.nacos.config.enabled", "false");
-
+            properties.setProperty("spring.cloud.polaris.config.import-check.enabled", "false");
             // 设置 spring.cloud.sentinel.enabled 为 false
-            environment.getPropertySources().addFirst(new PropertiesPropertySource(disableSCA, properties));
+            environment.getPropertySources().addFirst(new PropertiesPropertySource(disableCheck, properties));
 
             LOGGER.info("[PolarisAgent] disable spring cloud alibaba all ability");
         }

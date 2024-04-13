@@ -20,9 +20,12 @@ package cn.polarismesh.agent.plugin.spring.cloud.interceptor;
 import java.util.Arrays;
 import java.util.List;
 
+import cn.polarismesh.agent.core.common.logger.CommonLogger;
+import cn.polarismesh.agent.core.common.logger.StdoutCommonLoggerFactory;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.config.ConfigHandler;
 import cn.polarismesh.agent.plugin.spring.cloud.context.BaseBeanHandler;
+import cn.polarismesh.agent.plugin.spring.cloud.discovery.DiscoveryHandler;
 import cn.polarismesh.agent.plugin.spring.cloud.metadata.MetadataHandler;
 import cn.polarismesh.agent.plugin.spring.cloud.router.RouterHandler;
 import cn.polarismesh.agent.plugin.spring.cloud.rpc.RpcEnhancementHandler;
@@ -37,9 +40,17 @@ import org.springframework.core.env.ConfigurableEnvironment;
 
 public class ApplicationContextAwareInterceptor extends BaseInterceptor {
 
+	private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE
+			.getLogger(ApplicationContextAwareInterceptor.class.getCanonicalName());
+
 	@Override
 	public void onAfter(Object target, Object[] args, Object result, Throwable throwable) {
 		ConfigurableApplicationContext context = (ConfigurableApplicationContext) args[0];
+		String enable = context.getEnvironment().getProperty("spring.cloud.polaris.enabled");
+		if (null != enable && !Boolean.parseBoolean(enable)) {
+			logger.warn("polaris is disabled, no polaris inject actions will be taken");
+			return;
+		}
 		ApplicationContextAwareUtils utils = new ApplicationContextAwareUtils();
 
 		// MetadataContext 需要读取到 agent 配置的内容
@@ -59,7 +70,7 @@ public class ApplicationContextAwareInterceptor extends BaseInterceptor {
 	private List<ApplicationContextAware> buildAwares() {
 		return Arrays.asList(
 				new BaseBeanHandler(),
-				new ConfigHandler(),
+				new DiscoveryHandler(),
 				new RpcEnhancementHandler(),
 				new MetadataHandler(),
 				new RouterHandler()

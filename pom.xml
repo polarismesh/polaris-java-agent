@@ -15,7 +15,7 @@
 
     <properties>
         <revision>1.7.0-RC.0</revision>
-        <polaris.version>1.15.3</polaris.version>
+        <polaris.version>1.15.4-SNAPSHOT</polaris.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.maven.deploy>false</skip.maven.deploy>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

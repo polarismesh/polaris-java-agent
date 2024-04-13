@@ -20,7 +20,7 @@ spec:
         polarismesh.cn/javaagentVersion: "1.7.0-RC.0"
         polarismesh.cn/javaagentFrameworkName: "spring-cloud"
         polarismesh.cn/javaagentFrameworkVersion: "2023"
-        polarismesh.cn/javaagentConfig: "{\"spring.cloud.polaris.namespace\": \"default\"}"
+        polarismesh.cn/javaagentConfig: "{\"spring.cloud.polaris.namespace\": \"default\", \"spring.cloud.polaris.router.nearby-router.matchLevel\": \"campus\"}"
     spec:
       containers:
         - image: polarismesh/polaris-javaagent-demo-sc-quickstart-2023-scg:1.7.0-RC.0-java17
@@ -35,7 +35,7 @@ spec:
           command:
             - /bin/bash
             - -c
-            - cd /app && java -Dspring.cloud.nacos.config.server-addr=127.0.0.1:8848 -Dserver.port=65101 -jar main.jar
+            - cd /app && java -Dspring.cloud.nacos.config.server-addr=127.0.0.1:8848 -Dspring.cloud.nacos.config.password=nacos -jar main.jar
           lifecycle:
             preStop:
               exec:

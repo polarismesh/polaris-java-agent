@@ -17,21 +17,29 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.router;
 
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import cn.polarismesh.agent.core.common.utils.ClassUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
 import cn.polarismesh.agent.plugin.spring.cloud.context.AbstractContextHandler;
+import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
+import com.tencent.cloud.polaris.router.PolarisRouterServiceInstanceListSupplier;
 import com.tencent.cloud.polaris.router.config.FeignAutoConfiguration;
 import com.tencent.cloud.polaris.router.config.LoadBalancerConfiguration;
 import com.tencent.cloud.polaris.router.config.RouterAutoConfiguration;
 import com.tencent.cloud.polaris.router.config.properties.PolarisMetadataRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisNearByRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisRuleBasedRouterProperties;
+import com.tencent.cloud.polaris.router.spi.RouterRequestInterceptor;
+import com.tencent.cloud.polaris.router.spi.RouterResponseInterceptor;
+import com.tencent.cloud.rpc.enhancement.transformer.InstanceTransformer;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.cloud.loadbalancer.core.ServiceInstanceListSupplier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -89,13 +97,63 @@ public class RouterHandler extends AbstractContextHandler {
 		}
 		if (null != ClassUtils.getClazz("org.springframework.cloud.loadbalancer.core.ServiceInstanceListSupplier",
 				Thread.currentThread().getContextClassLoader())) {
-			registerBean(applicationContext, "loadBalancerConfiguration", (ctx, name) -> {
-				ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
-				DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
-				beanFactory.registerBeanDefinition(name,
-						BeanDefinitionBuilder.genericBeanDefinition(LoadBalancerConfiguration.class)
-								.getBeanDefinition());
+			if (null != ClassUtils.getClazz("org.springframework.web.reactive.function.client.WebClient", Thread.currentThread()
+					.getContextClassLoader())) {
+				String reactiveEnableStr = applicationContext.getEnvironment()
+						.getProperty("spring.cloud.discovery.reactive.enabled");
+				if (null == reactiveEnableStr || Boolean.parseBoolean(reactiveEnableStr)) {
+					registerBean(applicationContext, "polarisRouterDiscoveryClientServiceInstanceListSupplier", (ctx, name) -> {
+						ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
+						DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
+						beanFactory.registerBeanDefinition(name, BeanDefinitionBuilder.genericBeanDefinition(ServiceInstanceListSupplier.class, new Supplier<ServiceInstanceListSupplier>() {
+							@Override
+							public ServiceInstanceListSupplier get() {
+								PolarisSDKContextManager polarisSDKContextManager = (PolarisSDKContextManager) applicationContext.getBean("polarisSDKContextManager");
+								Map<String, RouterRequestInterceptor> requestInterceptors = applicationContext.getBeansOfType(RouterRequestInterceptor.class);
+								Map<String, RouterResponseInterceptor> responseInterceptors = applicationContext.getBeansOfType(RouterResponseInterceptor.class);
+								InstanceTransformer instanceTransformer = applicationContext.getBean("instanceTransformer", InstanceTransformer.class);
+								return new PolarisRouterServiceInstanceListSupplier(
+										ServiceInstanceListSupplier.builder().withDiscoveryClient()
+												.build((ConfigurableApplicationContext) applicationContext),
+										polarisSDKContextManager.getRouterAPI(),
+										new ArrayList<>(requestInterceptors.values()),
+										new ArrayList<>(responseInterceptors.values()),
+										instanceTransformer);
+							}
+						}).getBeanDefinition());
+					});
+				}
+			}
+			String blockingEnable = applicationContext.getEnvironment().getProperty("spring.cloud.discovery.blocking.enabled");
+			if (null == blockingEnable || Boolean.parseBoolean(blockingEnable)) {
+				registerBean(applicationContext, "polarisRouterDiscoveryClientServiceInstanceListSupplier",  (ctx, name) -> {
+					ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
+					DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
+					beanFactory.registerBeanDefinition(name, BeanDefinitionBuilder.genericBeanDefinition(ServiceInstanceListSupplier.class, new Supplier<ServiceInstanceListSupplier>() {
+						@Override
+						public ServiceInstanceListSupplier get() {
+							PolarisSDKContextManager polarisSDKContextManager = (PolarisSDKContextManager) applicationContext.getBean("polarisSDKContextManager");
+							Map<String, RouterRequestInterceptor> requestInterceptors = applicationContext.getBeansOfType(RouterRequestInterceptor.class);
+							Map<String, RouterResponseInterceptor> responseInterceptors = applicationContext.getBeansOfType(RouterResponseInterceptor.class);
+							InstanceTransformer instanceTransformer = applicationContext.getBean("instanceTransformer", InstanceTransformer.class);
+							return new PolarisRouterServiceInstanceListSupplier(
+									ServiceInstanceListSupplier.builder().withBlockingDiscoveryClient().build((ConfigurableApplicationContext) applicationContext),
+									polarisSDKContextManager.getRouterAPI(),
+									new ArrayList<>(requestInterceptors.values()),
+									new ArrayList<>(responseInterceptors.values()),
+									instanceTransformer);
+						}
+					}).getBeanDefinition());
 			});
+
+			}
+//			registerBean(applicationContext, "loadBalancerConfiguration", (ctx, name) -> {
+//				ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
+//				DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
+//				beanFactory.registerBeanDefinition(name,
+//						BeanDefinitionBuilder.genericBeanDefinition(LoadBalancerConfiguration.class)
+//								.getBeanDefinition());
+//			});
 		}
 	}
 
