@@ -235,7 +235,7 @@ public class Holder {
                 logConfig = Holder.class.getClassLoader().getResource("polaris-log4j.xml").getFile();
             }
         }
-        System.setProperty(LoggingConsts.LOGGING_CONFIG_PROPERTY, logConfig);
+        System.setProperty(LoggingConsts.LOGGING_CONFIG_PROPERTY, "jar:" + logConfig);
 
         if (StringUtils.isBlank(polarisContextProperties.getLocalIpAddress())) {
             polarisContextProperties.setLocalIpAddress(environment.getProperty("spring.cloud.client.ip-address"));
