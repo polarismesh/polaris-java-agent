@@ -17,7 +17,7 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.metadata;
 
-import cn.polarismesh.agent.plugin.spring.cloud.context.AbstractContextHandler;
+import cn.polarismesh.agent.plugin.spring.cloud.base.AbstractContextHandler;
 import com.tencent.cloud.metadata.config.MetadataTransferAutoConfiguration;
 
 import org.springframework.beans.BeansException;

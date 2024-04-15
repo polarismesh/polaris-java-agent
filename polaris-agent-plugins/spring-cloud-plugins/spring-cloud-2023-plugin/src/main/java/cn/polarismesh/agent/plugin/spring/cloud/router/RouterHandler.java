@@ -23,11 +23,10 @@ import java.util.function.Supplier;
 
 import cn.polarismesh.agent.core.common.utils.ClassUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
-import cn.polarismesh.agent.plugin.spring.cloud.context.AbstractContextHandler;
+import cn.polarismesh.agent.plugin.spring.cloud.base.AbstractContextHandler;
 import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
 import com.tencent.cloud.polaris.router.PolarisRouterServiceInstanceListSupplier;
 import com.tencent.cloud.polaris.router.config.FeignAutoConfiguration;
-import com.tencent.cloud.polaris.router.config.LoadBalancerConfiguration;
 import com.tencent.cloud.polaris.router.config.RouterAutoConfiguration;
 import com.tencent.cloud.polaris.router.config.properties.PolarisMetadataRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisNearByRouterProperties;
@@ -80,7 +79,7 @@ public class RouterHandler extends AbstractContextHandler {
 						}
 					}).getBeanDefinition());
 		});
-		registerBean(applicationContext, "routerAutoConfiguration",  (ctx, name) -> {
+		registerBean(applicationContext, "routerAutoConfiguration", (ctx, name) -> {
 			ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
 			DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
 			beanFactory.registerBeanDefinition(name,
@@ -88,7 +87,7 @@ public class RouterHandler extends AbstractContextHandler {
 		});
 		if (null != ClassUtils.getClazz("feign.RequestInterceptor",
 				Thread.currentThread().getContextClassLoader())) {
-			registerBean(applicationContext, "feignAutoConfiguration",  (ctx, name) -> {
+			registerBean(applicationContext, "feignAutoConfiguration", (ctx, name) -> {
 				ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
 				DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
 				beanFactory.registerBeanDefinition(name,
@@ -124,9 +123,10 @@ public class RouterHandler extends AbstractContextHandler {
 					});
 				}
 			}
-			String blockingEnable = applicationContext.getEnvironment().getProperty("spring.cloud.discovery.blocking.enabled");
+			String blockingEnable = applicationContext.getEnvironment()
+					.getProperty("spring.cloud.discovery.blocking.enabled");
 			if (null == blockingEnable || Boolean.parseBoolean(blockingEnable)) {
-				registerBean(applicationContext, "polarisRouterDiscoveryClientServiceInstanceListSupplier",  (ctx, name) -> {
+				registerBean(applicationContext, "polarisRouterDiscoveryClientServiceInstanceListSupplier", (ctx, name) -> {
 					ConfigurableApplicationContext cfgCtx = (ConfigurableApplicationContext) ctx;
 					DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) cfgCtx.getBeanFactory();
 					beanFactory.registerBeanDefinition(name, BeanDefinitionBuilder.genericBeanDefinition(ServiceInstanceListSupplier.class, new Supplier<ServiceInstanceListSupplier>() {
@@ -137,14 +137,15 @@ public class RouterHandler extends AbstractContextHandler {
 							Map<String, RouterResponseInterceptor> responseInterceptors = applicationContext.getBeansOfType(RouterResponseInterceptor.class);
 							InstanceTransformer instanceTransformer = applicationContext.getBean("instanceTransformer", InstanceTransformer.class);
 							return new PolarisRouterServiceInstanceListSupplier(
-									ServiceInstanceListSupplier.builder().withBlockingDiscoveryClient().build((ConfigurableApplicationContext) applicationContext),
+									ServiceInstanceListSupplier.builder().withBlockingDiscoveryClient()
+											.build((ConfigurableApplicationContext) applicationContext),
 									polarisSDKContextManager.getRouterAPI(),
 									new ArrayList<>(requestInterceptors.values()),
 									new ArrayList<>(responseInterceptors.values()),
 									instanceTransformer);
 						}
 					}).getBeanDefinition());
-			});
+				});
 
 			}
 //			registerBean(applicationContext, "loadBalancerConfiguration", (ctx, name) -> {

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.plugin.spring.cloud.context;
+package cn.polarismesh.agent.plugin.spring.cloud.base;
 
 import java.util.function.BiConsumer;
 

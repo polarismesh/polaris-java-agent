@@ -56,7 +56,7 @@ public class MainPlugin implements AgentPlugin {
 		operations.transform(ClassNames.APPLICATION_CONTEXT_AWARE, ApplicationContextAwareTransform.class);
 
 		// EnvironmentPostProcessor 处理
-		operations.transform(ClassNames.ENVIRONMENT_POST_PROCESSOR, ConfigurationInjectTransform.class);
+		// operations.transform(ClassNames.ENVIRONMENT_POST_PROCESSOR, ConfigurationInjectTransform.class);
 
 	}
 
