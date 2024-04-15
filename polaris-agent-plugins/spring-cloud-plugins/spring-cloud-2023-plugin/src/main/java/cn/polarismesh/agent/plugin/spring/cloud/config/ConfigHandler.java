@@ -20,7 +20,7 @@ package cn.polarismesh.agent.plugin.spring.cloud.config;
 import java.util.function.Supplier;
 
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
-import cn.polarismesh.agent.plugin.spring.cloud.context.AbstractContextHandler;
+import cn.polarismesh.agent.plugin.spring.cloud.base.AbstractContextHandler;
 import com.tencent.cloud.polaris.config.PolarisConfigAutoConfiguration;
 import com.tencent.cloud.polaris.config.adapter.PolarisConfigFileLocator;
 import com.tencent.cloud.polaris.config.adapter.PolarisPropertySourceManager;

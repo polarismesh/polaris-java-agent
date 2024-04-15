@@ -74,7 +74,6 @@ public class ConfigurationInjectInterceptor extends BaseInterceptor {
             String disableCheck = "__disable__check__";
             Properties properties = new Properties();
             properties.setProperty("spring.cloud.polaris.config.import-check.enabled", "false");
-            // 设置 spring.cloud.sentinel.enabled 为 false
             environment.getPropertySources().addFirst(new PropertiesPropertySource(disableCheck, properties));
 
             LOGGER.info("[PolarisAgent] disable spring cloud alibaba all ability");

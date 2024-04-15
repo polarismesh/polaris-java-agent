@@ -17,7 +17,7 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.rpc;
 
-import cn.polarismesh.agent.plugin.spring.cloud.context.AbstractContextHandler;
+import cn.polarismesh.agent.plugin.spring.cloud.base.AbstractContextHandler;
 import com.tencent.cloud.plugin.discovery.adapter.config.NacosDiscoveryAdapterAutoConfiguration;
 import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementAutoConfiguration;
 import org.slf4j.Logger;

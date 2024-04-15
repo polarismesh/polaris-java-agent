@@ -3,7 +3,7 @@ package cn.polarismesh.agent.plugin.spring.cloud.discovery;
 import java.util.function.Supplier;
 
 import cn.polarismesh.agent.plugin.spring.cloud.common.Holder;
-import cn.polarismesh.agent.plugin.spring.cloud.context.AbstractContextHandler;
+import cn.polarismesh.agent.plugin.spring.cloud.base.AbstractContextHandler;
 import com.tencent.cloud.plugin.lossless.config.LosslessAutoConfiguration;
 import com.tencent.cloud.polaris.PolarisDiscoveryProperties;
 import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
