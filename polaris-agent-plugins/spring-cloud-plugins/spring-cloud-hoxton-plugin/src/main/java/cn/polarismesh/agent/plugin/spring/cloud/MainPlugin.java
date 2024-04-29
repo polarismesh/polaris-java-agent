@@ -27,14 +27,17 @@ import cn.polarismesh.agent.core.extension.transform.TransformCallback;
 import cn.polarismesh.agent.core.extension.transform.TransformOperations;
 import cn.polarismesh.agent.plugin.spring.cloud.common.ClassNames;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.aware.ApplicationContextAwareInterceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.serviceregistry.RegistryInterceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ApplicationContextAwareInterceptor;
 import org.springframework.context.ApplicationContext;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ConfigurationInjectInterceptor;
+
 
 import java.security.ProtectionDomain;
 
 /**
- * Polaris Spring Cloud Hoxton Plugin
+ * Polaris Spring Cloud hoxton Plugin
+ *
+ * @author shuhanliu
  */
 public class MainPlugin implements AgentPlugin {
 
@@ -49,10 +52,13 @@ public class MainPlugin implements AgentPlugin {
 	 */
 	private void addPolarisTransformers(TransformOperations operations) {
 
-		operations.transform(ClassNames.SERVICE_REGISTRATION, SpringCloudRegistryTransform.class);
-
 		// 在 agent 中注入 Spring 的 ApplicationContext
 		operations.transform(ClassNames.APPLICATION_CONTEXT_AWARE, ApplicationContextAwareTransform.class);
+
+
+		// EnvironmentPostProcessor 处理
+		// operations.transform(ClassNames.ENVIRONMENT_POST_PROCESSOR, ConfigurationInjectTransform.class);
+
 	}
 
 	/**
@@ -74,20 +80,19 @@ public class MainPlugin implements AgentPlugin {
 		}
 	}
 
-
-	/**
-	 * SpringCloud 注册拦截
-	 */
-	public static class SpringCloudRegistryTransform implements TransformCallback {
+	public static class ConfigurationInjectTransform implements TransformCallback {
 
 		@Override
 		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-			Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
-
+									Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
 			InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
-			InstrumentMethod registerMethod = target.getDeclaredMethod("start"); if (registerMethod != null) {
-				registerMethod.addInterceptor(RegistryInterceptor.class);
-			} return target.toBytecode();
+			InstrumentMethod constructMethod = target.getDeclaredMethod("onApplicationEnvironmentPreparedEvent", "org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent");
+			if (constructMethod != null) {
+				constructMethod.addInterceptor(ConfigurationInjectInterceptor.class);
+			}
+
+			return target.toBytecode();
 		}
 	}
+
 }

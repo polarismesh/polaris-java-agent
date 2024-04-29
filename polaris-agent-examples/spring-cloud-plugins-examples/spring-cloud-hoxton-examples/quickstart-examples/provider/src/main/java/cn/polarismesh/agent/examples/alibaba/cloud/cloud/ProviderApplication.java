@@ -21,6 +21,7 @@ package cn.polarismesh.agent.examples.alibaba.cloud.cloud;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +31,42 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
+//@SpringBootApplication
+//public class ProviderApplication {
+//
+//	public static void main(String[] args) {
+//		SpringApplication.run(ProviderApplication.class, args);
+//	}
+//
+//	@RefreshScope
+//	@RestController
+//	public static class EchoController {
+//
+//		@Value("${name:}")
+//		private String name;
+//
+//		private Registration registration;
+//
+//		public EchoController(Registration registration) {
+//			this.registration = registration;
+//		}
+//
+//		@GetMapping("/echo/{string}")
+//		public String echo(@PathVariable String string) {
+//			String sb = "Hello, I'm provider, receive msg : "
+//					+ string
+//					+ "my metadata : "
+//					+ registration.getMetadata()
+//					+ " name config : "
+//					+ name;
+//			return sb;
+//		}
+//
+//	}
+//
+//}
+
+@EnableDiscoveryClient
 @SpringBootApplication
 public class ProviderApplication {
 
@@ -37,25 +74,25 @@ public class ProviderApplication {
 		SpringApplication.run(ProviderApplication.class, args);
 	}
 
-	@RefreshScope
+	//	@RefreshScope
 	@RestController
 	public static class EchoController {
 
 		@Value("${name:}")
 		private String name;
 
-		private Registration registration;
+		//	private Registration registration;
 
-		public EchoController(Registration registration) {
-			this.registration = registration;
-		}
+		//	public EchoController(Registration registration) {
+		//		this.registration = registration;
+		//	}
 
 		@GetMapping("/echo/{string}")
 		public String echo(@PathVariable String string) {
 			String sb = "Hello, I'm provider, receive msg : "
 					+ string
 					+ "my metadata : "
-					+ registration.getMetadata()
+					//	+ registration.getMetadata()
 					+ " name config : "
 					+ name;
 			return sb;
