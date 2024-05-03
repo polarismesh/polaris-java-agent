@@ -19,7 +19,11 @@ package cn.polarismesh.agent.core.extension.interceptor;
 
 public interface Interceptor {
 
-    void before(Object target, Object[] args);
+    default void before(Object target, Object[] args) {
 
-    void after(Object target, Object[] args, Object result, Throwable throwable);
+    }
+
+    default void after(Object target, Object[] args, Object result, Throwable throwable) {
+
+    }
 }

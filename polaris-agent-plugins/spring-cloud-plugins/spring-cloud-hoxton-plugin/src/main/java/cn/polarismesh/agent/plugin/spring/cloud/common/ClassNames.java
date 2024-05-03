@@ -88,4 +88,11 @@ public class ClassNames {
 
 
 	public static final String INTERCEPTING_HTTP_ACCESSOR  = "org.springframework.http.client.support.InterceptingHttpAccessor";
+
+	public static final String PROPERTY_BOOTSTRAP_CONFIGURATION = "org.springframework.cloud.bootstrap.config.PropertySourceBootstrapConfiguration";
+
+	public static final String CONFIGURATION_CLAZZ_PARSER = "org.springframework.context.annotation.ConfigurationClassParser";
+
+
+	public static final String CONFIGURATION_CLAZZ_POST_PROCESSOR = "org.springframework.context.annotation.ConfigurationClassPostProcessor";
 }
