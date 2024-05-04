@@ -95,4 +95,8 @@ public class ClassNames {
 
 
 	public static final String CONFIGURATION_CLAZZ_POST_PROCESSOR = "org.springframework.context.annotation.ConfigurationClassPostProcessor";
+
+	public static final String BEAN_DEFINITION_REGISTRY = "org.springframework.beans.factory.support.DefaultListableBeanFactory";
+
+
 }
