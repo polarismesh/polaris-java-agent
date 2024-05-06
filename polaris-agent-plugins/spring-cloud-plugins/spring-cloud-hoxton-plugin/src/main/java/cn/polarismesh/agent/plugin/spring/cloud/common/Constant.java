@@ -17,12 +17,20 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.common;
 
+import java.util.function.Predicate;
+
 public interface Constant {
 
-	String POLARIS_CONF_FILE = "polaris.yml";
-
-	int POLARIS_DEFAULT_WEIGHT = 100;
-
 	String AGENT_CONF_PATH = "__agent_conf_path__";
+
+	String CONFIGURATION_CLAZZ_PARSER = "org.springframework.context.annotation.ConfigurationClassParser";
+
+
+	String CONFIGURATION_CLAZZ_POST_PROCESSOR = "org.springframework.context.annotation.ConfigurationClassPostProcessor";
+
+	String BEAN_DEFINITION_REGISTRY = "org.springframework.beans.factory.support.DefaultListableBeanFactory";
+
+	Predicate<String> DEFAULT_EXCLUSION_FILTER = className ->
+			(className.startsWith("java.lang.annotation.") || className.startsWith("org.springframework.stereotype."));
 
 }

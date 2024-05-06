@@ -17,6 +17,7 @@
 
 package cn.polarismesh.agent.core.common.utils;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -495,6 +496,51 @@ public final class ReflectionUtils {
 		}
 		catch (Exception e) {
 			throw new PolarisAgentException("invokeMethodByName", e);
+		}
+	}
+
+	/**
+	 * 根据类型获取构造器
+	 * @param clazz
+	 * @param parameterTypes
+	 * @return
+	 * @param <T>
+	 */
+	public static <T> Constructor<T> accessibleConstructor(Class<T> clazz, Class<?>... parameterTypes) {
+		try {
+			Constructor<T> ctor = clazz.getDeclaredConstructor(parameterTypes);
+			makeAccessible(ctor);
+			return ctor;
+		} catch (NoSuchMethodException e) {
+			throw new PolarisAgentException("accessibleConstructor failed: ", e);
+		}
+	}
+
+	public static void makeAccessible(Constructor<?> ctor) {
+		if ((!Modifier.isPublic(ctor.getModifiers()) || !Modifier.isPublic(ctor.getDeclaringClass().getModifiers())) && !ctor.isAccessible()) {
+			ctor.setAccessible(true);
+		}
+	}
+
+	public static void makeAccessible(Method ctor) {
+		if ((!Modifier.isPublic(ctor.getModifiers()) || !Modifier.isPublic(ctor.getDeclaringClass().getModifiers())) && !ctor.isAccessible()) {
+			ctor.setAccessible(true);
+		}
+	}
+
+	public static <T> T invokeConstructor(Constructor<T> constructor, Object... params) {
+		try {
+			return constructor.newInstance(params);
+		} catch (Exception e) {
+			throw new PolarisAgentException("invokeConstructor failed: ", e);
+		}
+	}
+
+	public static Object invokeMethod(Method method, Object target, Object... params) {
+		try {
+			return method.invoke(target, params);
+		} catch (Exception e) {
+			throw new PolarisAgentException("invokeMethod failed: ", e);
 		}
 	}
 }

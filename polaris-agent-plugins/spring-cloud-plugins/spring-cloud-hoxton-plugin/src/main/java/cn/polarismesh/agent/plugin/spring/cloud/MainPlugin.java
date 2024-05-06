@@ -17,6 +17,8 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud;
 
+import java.security.ProtectionDomain;
+
 import cn.polarismesh.agent.core.extension.AgentPlugin;
 import cn.polarismesh.agent.core.extension.PluginContext;
 import cn.polarismesh.agent.core.extension.instrument.InstrumentClass;
@@ -25,14 +27,10 @@ import cn.polarismesh.agent.core.extension.instrument.Instrumentor;
 import cn.polarismesh.agent.core.extension.instrument.exception.InstrumentException;
 import cn.polarismesh.agent.core.extension.transform.TransformCallback;
 import cn.polarismesh.agent.core.extension.transform.TransformOperations;
-import cn.polarismesh.agent.plugin.spring.cloud.common.ClassNames;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ApplicationContextAwareInterceptor;
-import org.springframework.context.ApplicationContext;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ConfigurationInjectInterceptor;
-
-
-import java.security.ProtectionDomain;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ConfigurationParserInterceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ConfigurationPostProcessorInterceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.RegisterBeanInterceptor;
 
 /**
  * Polaris Spring Cloud hoxton Plugin
@@ -51,48 +49,55 @@ public class MainPlugin implements AgentPlugin {
 	 * add polaris transformers
 	 */
 	private void addPolarisTransformers(TransformOperations operations) {
+		// 注入默认配置
+		operations.transform(Constant.CONFIGURATION_CLAZZ_POST_PROCESSOR, ConfigurationPostProcessorTransform.class);
 
-		// 在 agent 中注入 Spring 的 ApplicationContext
-		operations.transform(ClassNames.APPLICATION_CONTEXT_AWARE, ApplicationContextAwareTransform.class);
+		// 注入bootstrap的bean定义
+		operations.transform(Constant.CONFIGURATION_CLAZZ_PARSER, ConfigurationParserTransform.class);
 
-
-		// EnvironmentPostProcessor 处理
-		// operations.transform(ClassNames.ENVIRONMENT_POST_PROCESSOR, ConfigurationInjectTransform.class);
-
+		// 注入bean定义的调整设置
+		operations.transform(Constant.BEAN_DEFINITION_REGISTRY, RegisterBeanDefinitionTransform.class);
 	}
 
-	/**
-	 * 注入 spring 的 {@link ApplicationContext}
-	 */
-	public static class ApplicationContextAwareTransform implements TransformCallback {
+	public static class ConfigurationParserTransform implements TransformCallback {
 
 		@Override
-		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-				Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
-
+		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
 			InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
-			InstrumentMethod constructMethod = target.getConstructor("org.springframework.context.ConfigurableApplicationContext");
+			InstrumentMethod constructMethod = target.getDeclaredMethod("parse", "java.util.Set");
 			if (constructMethod != null) {
-				constructMethod.addInterceptor(ApplicationContextAwareInterceptor.class);
+				constructMethod.addInterceptor(ConfigurationParserInterceptor.class);
 			}
 
 			return target.toBytecode();
 		}
 	}
 
-	public static class ConfigurationInjectTransform implements TransformCallback {
+	public static class ConfigurationPostProcessorTransform implements TransformCallback {
 
 		@Override
-		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-									Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
+		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
 			InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
-			InstrumentMethod constructMethod = target.getDeclaredMethod("onApplicationEnvironmentPreparedEvent", "org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent");
+			InstrumentMethod constructMethod = target.getDeclaredMethod("processConfigBeanDefinitions", "org.springframework.beans.factory.support.BeanDefinitionRegistry");
 			if (constructMethod != null) {
-				constructMethod.addInterceptor(ConfigurationInjectInterceptor.class);
+				constructMethod.addInterceptor(ConfigurationPostProcessorInterceptor.class);
 			}
 
 			return target.toBytecode();
 		}
 	}
 
+	public static class RegisterBeanDefinitionTransform implements TransformCallback {
+
+		@Override
+		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
+			InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
+			InstrumentMethod constructMethod = target.getDeclaredMethod("registerBeanDefinition", "java.lang.String", "org.springframework.beans.factory.config.BeanDefinition");
+			if (constructMethod != null) {
+				constructMethod.addInterceptor(RegisterBeanInterceptor.class);
+			}
+
+			return target.toBytecode();
+		}
+	}
 }
