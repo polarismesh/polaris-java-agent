@@ -27,7 +27,6 @@ import cn.polarismesh.agent.core.extension.instrument.Instrumentor;
 import cn.polarismesh.agent.core.extension.instrument.exception.InstrumentException;
 import cn.polarismesh.agent.core.extension.transform.TransformCallback;
 import cn.polarismesh.agent.core.extension.transform.TransformOperations;
-import cn.polarismesh.agent.plugin.spring.cloud.common.ClassNames;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ConfigurationParserInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ConfigurationPostProcessorInterceptor;
@@ -51,13 +50,13 @@ public class MainPlugin implements AgentPlugin {
 	 */
 	private void addPolarisTransformers(TransformOperations operations) {
 		// 注入默认配置
-		operations.transform(ClassNames.CONFIGURATION_CLAZZ_POST_PROCESSOR, ConfigurationPostProcessorTransform.class);
+		operations.transform(Constant.CONFIGURATION_CLAZZ_POST_PROCESSOR, ConfigurationPostProcessorTransform.class);
 
 		// 注入bootstrap的bean定义
-		operations.transform(ClassNames.CONFIGURATION_CLAZZ_PARSER, ConfigurationParserTransform.class);
+		operations.transform(Constant.CONFIGURATION_CLAZZ_PARSER, ConfigurationParserTransform.class);
 
 		// 注入bean定义的调整设置
-		operations.transform(ClassNames.BEAN_DEFINITION_REGISTRY, RegisterBeanDefinitionTransform.class);
+		operations.transform(Constant.BEAN_DEFINITION_REGISTRY, RegisterBeanDefinitionTransform.class);
 	}
 
 	public static class ConfigurationParserTransform implements TransformCallback {

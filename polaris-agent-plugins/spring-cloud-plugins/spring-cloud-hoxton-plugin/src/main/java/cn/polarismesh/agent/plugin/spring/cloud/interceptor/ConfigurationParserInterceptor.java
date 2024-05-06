@@ -20,34 +20,30 @@ package cn.polarismesh.agent.plugin.spring.cloud.interceptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
 import cn.polarismesh.agent.core.common.utils.ClassUtils;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
-import com.tencent.cloud.common.metadata.config.MetadataAutoConfiguration;
-import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
-import com.tencent.cloud.plugin.lossless.config.LosslessAutoConfiguration;
-import com.tencent.cloud.plugin.lossless.config.LosslessPropertiesAutoConfiguration;
-import com.tencent.cloud.plugin.lossless.config.LosslessPropertiesBootstrapConfiguration;
+import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.CommonBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.LoadbalancerBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.LosslessBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.PolarisContextBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.RpcEnhancementBeanInjector;
 import com.tencent.cloud.polaris.DiscoveryPropertiesAutoConfiguration;
 import com.tencent.cloud.polaris.DiscoveryPropertiesBootstrapAutoConfiguration;
 import com.tencent.cloud.polaris.config.PolarisConfigAutoConfiguration;
 import com.tencent.cloud.polaris.config.PolarisConfigBootstrapAutoConfiguration;
-import com.tencent.cloud.polaris.context.config.PolarisContextAutoConfiguration;
-import com.tencent.cloud.polaris.context.config.PolarisContextBootstrapAutoConfiguration;
-import com.tencent.cloud.polaris.context.config.PolarisContextPostConfiguration;
 import com.tencent.cloud.polaris.discovery.PolarisDiscoveryAutoConfiguration;
-import com.tencent.cloud.polaris.loadbalancer.config.PolarisLoadBalancerAutoConfiguration;
 import com.tencent.cloud.polaris.registry.PolarisServiceRegistryAutoConfiguration;
 import com.tencent.cloud.polaris.ribbon.PolarisDiscoveryRibbonAutoConfiguration;
 import com.tencent.cloud.polaris.router.config.FeignAutoConfiguration;
 import com.tencent.cloud.polaris.router.config.RouterAutoConfiguration;
-import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementAutoConfiguration;
-import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementBootstrapConfiguration;
-import com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatPropertiesAutoConfiguration;
-import com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatPropertiesBootstrapConfiguration;
 
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -57,8 +53,16 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 
 public class ConfigurationParserInterceptor implements Interceptor {
 
-	private static final Predicate<String> DEFAULT_EXCLUSION_FILTER = className ->
-			(className.startsWith("java.lang.annotation.") || className.startsWith("org.springframework.stereotype."));
+	private final List<BeanInjector> beanInjectors = new ArrayList<>();
+
+	public ConfigurationParserInterceptor() {
+		beanInjectors.add(new CommonBeanInjector());
+		beanInjectors.add(new PolarisContextBeanInjector());
+		beanInjectors.add(new RpcEnhancementBeanInjector());
+		beanInjectors.add(new LosslessBeanInjector());
+		beanInjectors.add(new LoadbalancerBeanInjector());
+	}
+
 
 	private static boolean isMainBeanDefinition(BeanDefinitionHolder beanDefinitionHolder) {
 		BeanDefinition beanDefinition = beanDefinitionHolder.getBeanDefinition();
@@ -92,40 +96,24 @@ public class ConfigurationParserInterceptor implements Interceptor {
 
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) ReflectionUtils.getObjectByFieldName(target, "registry");
 
-			Object polarisContextBootstrapAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, PolarisContextBootstrapAutoConfiguration.class, "polarisContextBootstrapAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisContextBootstrapAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
-			registry.registerBeanDefinition("polarisContextBootstrapAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-					PolarisContextBootstrapAutoConfiguration.class).getBeanDefinition());
+			for (BeanInjector beanInjector : beanInjectors) {
+				beanInjector.onBootstrapStartup(target, constructor, processConfigurationClass, registry);
+			}
 
 			// rpc
-			Object polarisStatPropertiesBootstrapConfiguration = ReflectionUtils.invokeConstructor(constructor, PolarisStatPropertiesBootstrapConfiguration.class, "polarisStatPropertiesBootstrapConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisStatPropertiesBootstrapConfiguration, DEFAULT_EXCLUSION_FILTER);
-			registry.registerBeanDefinition("polarisStatPropertiesBootstrapConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-					PolarisStatPropertiesAutoConfiguration.class).getBeanDefinition());
-			Object rpcEnhancementBootstrapConfiguration = ReflectionUtils.invokeConstructor(constructor, RpcEnhancementBootstrapConfiguration.class, "rpcEnhancementBootstrapConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, rpcEnhancementBootstrapConfiguration, DEFAULT_EXCLUSION_FILTER);
-			registry.registerBeanDefinition("rpcEnhancementBootstrapConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-					RpcEnhancementBootstrapConfiguration.class).getBeanDefinition());
+
 
 			// lossless
-			Object losslessPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, LosslessPropertiesAutoConfiguration.class, "losslessPropertiesAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, losslessPropertiesAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
-			registry.registerBeanDefinition("losslessPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-					LosslessPropertiesAutoConfiguration.class).getBeanDefinition());
-			Object losslessPropertiesBootstrapConfiguration = ReflectionUtils.invokeConstructor(constructor, LosslessPropertiesBootstrapConfiguration.class, "losslessPropertiesBootstrapConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, losslessPropertiesBootstrapConfiguration, DEFAULT_EXCLUSION_FILTER);
-			registry.registerBeanDefinition("losslessPropertiesBootstrapConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-					LosslessPropertiesBootstrapConfiguration.class).getBeanDefinition());
 
 			// register
 			Object discoveryPropertiesBootstrapAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, DiscoveryPropertiesBootstrapAutoConfiguration.class, "discoveryPropertiesBootstrapAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, discoveryPropertiesBootstrapAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
+			ReflectionUtils.invokeMethod(processConfigurationClass, target, discoveryPropertiesBootstrapAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 			registry.registerBeanDefinition("discoveryPropertiesBootstrapAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 					DiscoveryPropertiesBootstrapAutoConfiguration.class).getBeanDefinition());
 
 			// config
 			Object polarisConfigBootstrapAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, PolarisConfigBootstrapAutoConfiguration.class, "polarisConfigBootstrapAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisConfigBootstrapAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
+			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisConfigBootstrapAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 			registry.registerBeanDefinition("polarisConfigBootstrapAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 					PolarisConfigBootstrapAutoConfiguration.class).getBeanDefinition());
 
@@ -137,82 +125,52 @@ public class ConfigurationParserInterceptor implements Interceptor {
 
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) ReflectionUtils.getObjectByFieldName(target, "registry");
 
-			// sct common
-			Object applicationContextAwareUtils = ReflectionUtils.invokeConstructor(constructor, ApplicationContextAwareUtils.class, "applicationContextAwareUtils");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, applicationContextAwareUtils, DEFAULT_EXCLUSION_FILTER);
-			registry.registerBeanDefinition("applicationContextAwareUtils", BeanDefinitionBuilder.genericBeanDefinition(
-					ApplicationContextAwareUtils.class).getBeanDefinition());
-			Object metadataAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, MetadataAutoConfiguration.class, "metadataAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, metadataAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
-			registry.registerBeanDefinition("metadataAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-					MetadataAutoConfiguration.class).getBeanDefinition());
+			for (BeanInjector beanInjector : beanInjectors) {
+				beanInjector.onApplicationStartup(target, constructor, processConfigurationClass, registry);
+			}
 
-			// polaris-context
-			Object polarisContextAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, PolarisContextAutoConfiguration.class, "polarisContextAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisContextAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
-			registry.registerBeanDefinition("polarisContextAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-					PolarisContextAutoConfiguration.class).getBeanDefinition());
-			Object polarisContextPostConfiguration = ReflectionUtils.invokeConstructor(constructor, PolarisContextPostConfiguration.class, "polarisContextPostConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisContextPostConfiguration, DEFAULT_EXCLUSION_FILTER);
-			registry.registerBeanDefinition("polarisContextPostConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-					PolarisContextPostConfiguration.class).getBeanDefinition());
 
 			// rpc
-			Object polarisStatPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, PolarisStatPropertiesAutoConfiguration.class, "polarisStatPropertiesAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisStatPropertiesAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
-			registry.registerBeanDefinition("polarisStatPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-					PolarisStatPropertiesBootstrapConfiguration.class).getBeanDefinition());
-			Object rpcEnhancementAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, RpcEnhancementAutoConfiguration.class, "rpcEnhancementAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, rpcEnhancementAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
-			registry.registerBeanDefinition("rpcEnhancementAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-					RpcEnhancementAutoConfiguration.class).getBeanDefinition());
+
 
 			// lossless
-			Object losslessAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, LosslessAutoConfiguration.class, "losslessAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, losslessAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
-			registry.registerBeanDefinition("losslessAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-					LosslessAutoConfiguration.class).getBeanDefinition());
 
 			// loadbalancer
-			Object polarisLoadBalancerAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, PolarisLoadBalancerAutoConfiguration.class, "polarisLoadBalancerAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisLoadBalancerAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
-			registry.registerBeanDefinition("polarisLoadBalancerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-					PolarisLoadBalancerAutoConfiguration.class).getBeanDefinition());
 
 			// router
 			Object routerAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, RouterAutoConfiguration.class, "routerAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, routerAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
+			ReflectionUtils.invokeMethod(processConfigurationClass, target, routerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 			registry.registerBeanDefinition("routerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 					RouterAutoConfiguration.class).getBeanDefinition());
 			if (null != ClassUtils.getClazz("feign.RequestInterceptor",
 					Thread.currentThread().getContextClassLoader())) {
 				Object feignAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, FeignAutoConfiguration.class, "feignAutoConfiguration");
-				ReflectionUtils.invokeMethod(processConfigurationClass, target, feignAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
+				ReflectionUtils.invokeMethod(processConfigurationClass, target, feignAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 				registry.registerBeanDefinition("feignAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 						FeignAutoConfiguration.class).getBeanDefinition());
 			}
 
 			// registry
 			Object discoveryPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, DiscoveryPropertiesAutoConfiguration.class, "discoveryPropertiesAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, discoveryPropertiesAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
+			ReflectionUtils.invokeMethod(processConfigurationClass, target, discoveryPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 			registry.registerBeanDefinition("discoveryPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 					DiscoveryPropertiesAutoConfiguration.class).getBeanDefinition());
 			Object polarisDiscoveryAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, PolarisDiscoveryAutoConfiguration.class, "polarisDiscoveryAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisDiscoveryAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
+			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisDiscoveryAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 			registry.registerBeanDefinition("polarisDiscoveryAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 					PolarisDiscoveryAutoConfiguration.class).getBeanDefinition());
 			Object polarisDiscoveryRibbonAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, PolarisDiscoveryRibbonAutoConfiguration.class, "polarisDiscoveryRibbonAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisDiscoveryRibbonAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
+			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisDiscoveryRibbonAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 			registry.registerBeanDefinition("polarisDiscoveryRibbonAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 					PolarisDiscoveryRibbonAutoConfiguration.class).getBeanDefinition());
 			Object polarisServiceRegistryAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, PolarisServiceRegistryAutoConfiguration.class, "polarisServiceRegistryAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisServiceRegistryAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
+			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisServiceRegistryAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 			registry.registerBeanDefinition("polarisServiceRegistryAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 					PolarisServiceRegistryAutoConfiguration.class).getBeanDefinition());
 
 			// config
 			Object polarisConfigAutoConfiguration = ReflectionUtils.invokeConstructor(constructor, PolarisConfigAutoConfiguration.class, "polarisConfigAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisConfigAutoConfiguration, DEFAULT_EXCLUSION_FILTER);
+			ReflectionUtils.invokeMethod(processConfigurationClass, target, polarisConfigAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 			registry.registerBeanDefinition("polarisConfigAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 					PolarisConfigAutoConfiguration.class).getBeanDefinition());
 		}
