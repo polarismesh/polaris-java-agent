@@ -20,8 +20,15 @@ package cn.polarismesh.agent.plugin.spring.cloud.inject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+import cn.polarismesh.agent.core.common.utils.ClassUtils;
+import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
+import com.tencent.cloud.polaris.router.config.FeignAutoConfiguration;
+import com.tencent.cloud.polaris.router.config.RouterAutoConfiguration;
+import com.tencent.cloud.polaris.router.endpoint.PolarisRouterEndpointAutoConfiguration;
 
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 
 public class RouterBeanInjector implements BeanInjector {
@@ -32,6 +39,20 @@ public class RouterBeanInjector implements BeanInjector {
 
 	@Override
 	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry) {
-
+		Object routerAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, RouterAutoConfiguration.class, "routerAutoConfiguration");
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, routerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+		registry.registerBeanDefinition("routerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+				RouterAutoConfiguration.class).getBeanDefinition());
+		if (null != ClassUtils.getClazz("feign.RequestInterceptor",
+					Thread.currentThread().getContextClassLoader())) {
+		Object feignAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, FeignAutoConfiguration.class, "feignAutoConfiguration");
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, feignAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+		registry.registerBeanDefinition("feignAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+				FeignAutoConfiguration.class).getBeanDefinition());
+		}
+		Object polarisRouterEndpointAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisRouterEndpointAutoConfiguration.class, "polarisRouterEndpointAutoConfiguration");
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRouterEndpointAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+		registry.registerBeanDefinition("polarisRouterEndpointAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+				PolarisRouterEndpointAutoConfiguration.class).getBeanDefinition());
 	}
 }

@@ -20,6 +20,7 @@ package cn.polarismesh.agent.plugin.spring.cloud.inject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
@@ -58,5 +59,9 @@ public class PolarisContextBeanInjector implements BeanInjector {
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisLoggingApplicationListener, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisLoggingApplicationListener", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisLoggingApplicationListener.class).getBeanDefinition());
+//		Object polarisSDKContextManager = ReflectionUtils.invokeConstructor(configClassCreator, PolarisSDKContextManager.class, "polarisSDKContextManager");
+//		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisSDKContextManager, Constant.DEFAULT_EXCLUSION_FILTER);
+//		registry.registerBeanDefinition("polarisSDKContextManager", BeanDefinitionBuilder.genericBeanDefinition(
+//				PolarisSDKContextManager.class).getBeanDefinition());
 	}
 }

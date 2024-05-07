@@ -1,0 +1,49 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: service-c-2023
+  name: service-c-2023
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-c-2023
+  template:
+    metadata:
+      labels:
+        app: service-c-2023
+      annotations:
+        polarismesh.cn/javaagent: "true"
+        polarismesh.cn/javaagentVersion: "1.7.0-RC.0"
+        polarismesh.cn/javaagentFrameworkName: "spring-cloud"
+        polarismesh.cn/javaagentFrameworkVersion: "2023"
+        polarismesh.cn/javaagentConfig: "{\"spring.cloud.polaris.namespace\": \"default\", \"spring.cloud.polaris.router.nearby-router.matchLevel\": \"campus\"}"
+    spec:
+      containers:
+        - image: polarismesh/polaris-javaagent-demo-sc-gray-2023-service-c:1.7.0-RC.0-java17
+          imagePullPolicy: Always
+          name: consumer
+          resources:
+            limits:
+              cpu: "500m"
+              memory: 1000Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          command:
+            - /bin/bash
+            - -c
+            - cd /app && java -Dspring.cloud.nacos.config.server-addr=127.0.0.1:8848 -Dspring.cloud.nacos.config.password=nacos -jar main.jar
+          lifecycle:
+            preStop:
+              exec:
+                command: ["curl","-X","PUT","http://127.0.0.1:28080/offline","&&","sleep","30"]
+          readinessProbe:
+            httpGet:
+              path: /online
+              port: 28080
+            initialDelaySeconds: 3
+            periodSeconds: 3
+      restartPolicy: Always
