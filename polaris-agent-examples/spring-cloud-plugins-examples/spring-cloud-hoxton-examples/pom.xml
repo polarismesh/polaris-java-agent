@@ -16,6 +16,7 @@
 
     <modules>
         <module>quickstart-examples</module>
+        <module>gray-release-examples</module>
     </modules>
 
 </project>
