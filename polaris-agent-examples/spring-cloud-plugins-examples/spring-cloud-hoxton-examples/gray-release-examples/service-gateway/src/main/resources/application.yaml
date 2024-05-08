@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: sc-gateway-hoxton
+    name: service-gateway-hoxton
   cloud:
     gateway:
       discovery:
