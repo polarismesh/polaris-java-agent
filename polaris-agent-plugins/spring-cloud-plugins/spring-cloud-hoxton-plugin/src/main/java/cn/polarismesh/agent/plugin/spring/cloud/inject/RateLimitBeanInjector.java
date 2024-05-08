@@ -13,10 +13,11 @@ import com.tencent.cloud.polaris.ratelimit.endpoint.PolarisRateLimitRuleEndpoint
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.core.env.Environment;
 
 public class RateLimitBeanInjector implements BeanInjector {
     @Override
-    public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry) {
+    public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
         Object polarisRateLimitPropertiesBootstrapConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisRateLimitPropertiesBootstrapConfiguration.class, "polarisRateLimitPropertiesBootstrapConfiguration");
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRateLimitPropertiesBootstrapConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("polarisRateLimitPropertiesBootstrapConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
@@ -24,7 +25,7 @@ public class RateLimitBeanInjector implements BeanInjector {
     }
 
     @Override
-    public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry) {
+    public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
         Object polarisRateLimitAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisRateLimitAutoConfiguration.class, "polarisRateLimitAutoConfiguration");
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRateLimitAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("polarisRateLimitAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(

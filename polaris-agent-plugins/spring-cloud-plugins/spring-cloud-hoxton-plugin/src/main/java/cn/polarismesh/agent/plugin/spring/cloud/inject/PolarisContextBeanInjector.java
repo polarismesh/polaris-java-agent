@@ -20,7 +20,6 @@ package cn.polarismesh.agent.plugin.spring.cloud.inject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import com.tencent.cloud.polaris.context.PolarisSDKContextManager;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
@@ -31,11 +30,12 @@ import com.tencent.cloud.polaris.context.logging.PolarisLoggingApplicationListen
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.core.env.Environment;
 
 public class PolarisContextBeanInjector implements BeanInjector {
 	@Override
 	public void onBootstrapStartup(Object configurationParser,
-			Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry) {
+			Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		Object polarisContextBootstrapAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisContextBootstrapAutoConfiguration.class, "polarisContextBootstrapAutoConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisContextBootstrapAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisContextBootstrapAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
@@ -46,7 +46,7 @@ public class PolarisContextBeanInjector implements BeanInjector {
 
 	@Override
 	public void onApplicationStartup(Object configurationParser,
-			Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry) {
+			Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		Object polarisContextAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisContextAutoConfiguration.class, "polarisContextAutoConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisContextAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisContextAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(

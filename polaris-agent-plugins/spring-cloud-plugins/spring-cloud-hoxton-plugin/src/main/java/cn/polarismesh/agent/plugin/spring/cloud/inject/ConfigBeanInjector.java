@@ -22,18 +22,18 @@ import java.lang.reflect.Method;
 
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
-
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
-import com.tencent.cloud.polaris.DiscoveryPropertiesBootstrapAutoConfiguration;
+import com.tencent.cloud.polaris.config.PolarisConfigAutoConfiguration;
+import com.tencent.cloud.polaris.config.PolarisConfigBootstrapAutoConfiguration;
+import com.tencent.cloud.polaris.config.endpoint.PolarisConfigEndpointAutoConfiguration;
+
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import com.tencent.cloud.polaris.config.PolarisConfigBootstrapAutoConfiguration;
-import com.tencent.cloud.polaris.config.PolarisConfigAutoConfiguration;
-import com.tencent.cloud.polaris.config.endpoint.PolarisConfigEndpointAutoConfiguration;
+import org.springframework.core.env.Environment;
 
 public class ConfigBeanInjector implements BeanInjector {
 	@Override
-	public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry) {
+	public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		Object polarisConfigBootstrapAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisConfigBootstrapAutoConfiguration.class, "polarisConfigBootstrapAutoConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisConfigBootstrapAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisConfigBootstrapAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
@@ -41,7 +41,7 @@ public class ConfigBeanInjector implements BeanInjector {
 	}
 
 	@Override
-	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry) {
+	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		Object polarisConfigAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisConfigAutoConfiguration.class, "polarisConfigAutoConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisConfigAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisConfigAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(

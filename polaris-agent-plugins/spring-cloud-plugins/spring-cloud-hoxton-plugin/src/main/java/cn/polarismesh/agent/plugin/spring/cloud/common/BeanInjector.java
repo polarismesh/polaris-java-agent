@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.core.env.Environment;
 
 public interface BeanInjector {
 
@@ -28,11 +29,11 @@ public interface BeanInjector {
 	 * 在Bootstrap启动过程中进行Bean装载
 	 */
 	void onBootstrapStartup(Object configurationParser,
-			Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry);
+			Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment);
 
 	/**
 	 * 在应用启动过程中进行Bean装载
 	 */
 	void onApplicationStartup(Object configurationParser,
-			Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry);
+			Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment);
 }

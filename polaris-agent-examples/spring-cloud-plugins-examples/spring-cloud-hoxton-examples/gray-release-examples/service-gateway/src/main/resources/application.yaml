@@ -16,7 +16,7 @@ spring:
         enabled: false
         server-addr: 127.0.0.1:8848
       config:
-        enabled: true
+        enabled: false
         serverAddr: 127.0.0.1:8848
         username: 'nacos'
         password: 'nacos'
