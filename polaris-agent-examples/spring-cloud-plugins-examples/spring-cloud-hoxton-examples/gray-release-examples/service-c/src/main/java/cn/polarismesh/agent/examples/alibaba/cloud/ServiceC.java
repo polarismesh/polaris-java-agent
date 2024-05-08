@@ -17,9 +17,6 @@
 
 package cn.polarismesh.agent.examples.alibaba.cloud;
 
-import java.util.Collections;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

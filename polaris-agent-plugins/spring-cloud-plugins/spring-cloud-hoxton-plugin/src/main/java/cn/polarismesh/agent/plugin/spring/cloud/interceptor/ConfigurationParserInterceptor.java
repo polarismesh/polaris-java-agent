@@ -44,6 +44,7 @@ import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefiniti
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.core.env.Environment;
 
 public class ConfigurationParserInterceptor implements Interceptor {
 
@@ -94,9 +95,9 @@ public class ConfigurationParserInterceptor implements Interceptor {
 			ReflectionUtils.makeAccessible(processConfigurationClass);
 
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) ReflectionUtils.getObjectByFieldName(target, "registry");
-
+			Environment environment = (Environment) ReflectionUtils.getObjectByFieldName(target, "environment");
 			for (BeanInjector beanInjector : beanInjectors) {
-				beanInjector.onBootstrapStartup(target, constructor, processConfigurationClass, registry);
+				beanInjector.onBootstrapStartup(target, constructor, processConfigurationClass, registry, environment);
 			}
 
 			// rpc
@@ -123,9 +124,9 @@ public class ConfigurationParserInterceptor implements Interceptor {
 			ReflectionUtils.makeAccessible(processConfigurationClass);
 
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) ReflectionUtils.getObjectByFieldName(target, "registry");
-
+			Environment environment = (Environment) ReflectionUtils.getObjectByFieldName(target, "environment");
 			for (BeanInjector beanInjector : beanInjectors) {
-				beanInjector.onApplicationStartup(target, constructor, processConfigurationClass, registry);
+				beanInjector.onApplicationStartup(target, constructor, processConfigurationClass, registry, environment);
 			}
 
 
