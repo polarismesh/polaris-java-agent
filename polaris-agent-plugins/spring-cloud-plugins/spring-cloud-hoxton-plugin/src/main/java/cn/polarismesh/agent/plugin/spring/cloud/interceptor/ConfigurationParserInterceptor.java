@@ -34,6 +34,7 @@ import cn.polarismesh.agent.plugin.spring.cloud.inject.CommonBeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.ConfigBeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.LoadbalancerBeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.LosslessBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.MetadataTransferBeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.PolarisContextBeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.RateLimitBeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.RegistryBeanInjector;
@@ -53,13 +54,14 @@ public class ConfigurationParserInterceptor implements Interceptor {
 	public ConfigurationParserInterceptor() {
 		beanInjectors.add(new CommonBeanInjector());
 		beanInjectors.add(new PolarisContextBeanInjector());
+		beanInjectors.add(new MetadataTransferBeanInjector());
 		beanInjectors.add(new RegistryBeanInjector());
 		beanInjectors.add(new ConfigBeanInjector());
 		beanInjectors.add(new RpcEnhancementBeanInjector());
 		beanInjectors.add(new LosslessBeanInjector());
 		beanInjectors.add(new LoadbalancerBeanInjector());
 		beanInjectors.add(new RouterBeanInjector());
-		beanInjectors.add(new CircuitBreakerBeanInjector());
+		//beanInjectors.add(new CircuitBreakerBeanInjector());
 		beanInjectors.add(new RateLimitBeanInjector());
 	}
 
