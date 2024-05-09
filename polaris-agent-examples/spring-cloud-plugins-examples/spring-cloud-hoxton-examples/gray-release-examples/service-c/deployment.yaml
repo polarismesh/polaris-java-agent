@@ -3,27 +3,26 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: service-c-2023
-  name: service-c-2023
+    app: service-c-hoxton
+  name: service-c-hoxton
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: service-c-2023
+      app: service-c-hoxton
   template:
     metadata:
       labels:
-        app: service-c-2023
+        app: service-c-hoxton
       annotations:
         polarismesh.cn/javaagent: "true"
-        polarismesh.cn/javaagentVersion: "1.7.0-RC.0"
+        polarismesh.cn/javaagentVersion: "1.7.0-RC2"
         polarismesh.cn/javaagentFrameworkName: "spring-cloud"
-        polarismesh.cn/javaagentFrameworkVersion: "2023"
-        polarismesh.cn/javaagentConfig: "{\"spring.cloud.polaris.namespace\": \"default\", \"spring.cloud.polaris.router.nearby-router.matchLevel\": \"campus\"}"
+        polarismesh.cn/javaagentFrameworkVersion: "hoxton"
     spec:
       containers:
-        - image: polarismesh/polaris-javaagent-demo-sc-gray-2023-service-c:1.7.0-RC.0-java17
+        - image: polarismesh/polaris-javaagent-demo-sc-gray-hoxton-service-c:1.7.0-java8
           imagePullPolicy: Always
           name: consumer
           resources:
@@ -35,7 +34,7 @@ spec:
           command:
             - /bin/bash
             - -c
-            - cd /app && java -Dspring.cloud.nacos.config.server-addr=127.0.0.1:8848 -Dspring.cloud.nacos.config.password=nacos -jar main.jar
+            - cd /app && java -Dserver.port=65201 -jar main.jar
           lifecycle:
             preStop:
               exec:

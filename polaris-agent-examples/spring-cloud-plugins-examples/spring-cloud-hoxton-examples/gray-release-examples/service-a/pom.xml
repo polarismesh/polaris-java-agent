@@ -13,6 +13,7 @@
 	<name>2023-service-a</name>
 	<description>Demo Service-A Project For Spring Cloud Alibaba</description>
 	<artifactId>polaris-javaagent-demo-sc-gray-hoxton-service-a</artifactId>
+	<version>1.7.0</version>
 	<packaging>jar</packaging>
 
 	<dependencyManagement>

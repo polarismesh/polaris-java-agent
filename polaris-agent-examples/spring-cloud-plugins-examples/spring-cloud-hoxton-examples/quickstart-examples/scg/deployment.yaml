@@ -17,13 +17,12 @@ spec:
         app: hoxton-scg
       annotations:
         polarismesh.cn/javaagent: "true"
-        polarismesh.cn/javaagentVersion: "1.6.1"
+        polarismesh.cn/javaagentVersion: "1.7.0-RC2"
         polarismesh.cn/javaagentFrameworkName: "spring-cloud"
         polarismesh.cn/javaagentFrameworkVersion: "hoxton"
-        polarismesh.cn/javaagentConfig: "{\"spring.cloud.polaris.lossless.enabled\": \"true\", \"spring.cloud.polaris.namespace\": \"default\"}"
     spec:
       containers:
-        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-hoxton-scg:1.6.1-java8
+        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-hoxton-scg:1.7.0-java8
           imagePullPolicy: Always
           name: consumer
           resources:
@@ -35,7 +34,7 @@ spec:
           command:
             - /bin/bash
             - -c
-            - cd /app && java -Dspring.cloud.nacos.discovery.server-addr=10.0.90.37:8848 -Dspring.cloud.nacos.config.server-addr=10.0.90.37:8848 -Dserver.port=11582 -jar main.jar
+            - cd /app && java -Dserver.port=65000 -jar main.jar
           lifecycle:
             preStop:
               exec:
