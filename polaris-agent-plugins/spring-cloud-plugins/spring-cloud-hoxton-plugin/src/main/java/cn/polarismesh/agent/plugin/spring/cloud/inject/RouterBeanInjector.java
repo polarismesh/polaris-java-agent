@@ -19,6 +19,7 @@ package cn.polarismesh.agent.plugin.spring.cloud.inject;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import cn.polarismesh.agent.core.common.utils.ClassUtils;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
@@ -31,6 +32,7 @@ import com.tencent.cloud.polaris.router.endpoint.PolarisRouterEndpointAutoConfig
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
 
 public class RouterBeanInjector implements BeanInjector {
 	@Override
@@ -39,6 +41,7 @@ public class RouterBeanInjector implements BeanInjector {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		Object routerAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, RouterAutoConfiguration.class, "routerAutoConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, routerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
@@ -55,5 +58,22 @@ public class RouterBeanInjector implements BeanInjector {
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRouterEndpointAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisRouterEndpointAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisRouterEndpointAutoConfiguration.class).getBeanDefinition());
+
+		// make FeignRibbonClientAutoConfiguration later
+		Map<Object, Object> configurationClasses =  (Map<Object, Object>) ReflectionUtils.getObjectByFieldName(configurationParser, "configurationClasses");
+		Object targetConfigClass = null;
+		for (Object configClass : configurationClasses.keySet()) {
+			Object resource = ReflectionUtils.getObjectByFieldName(configClass, "resource");
+			if (resource instanceof ClassPathResource) {
+				ClassPathResource classPathResource = (ClassPathResource) resource;
+				if ("org/springframework/cloud/openfeign/ribbon/FeignRibbonClientAutoConfiguration.class".equals(classPathResource.getPath())) {
+					targetConfigClass = configurationClasses.remove(configClass);
+					break;
+				}
+			}
+		}
+		if (null != targetConfigClass) {
+			configurationClasses.put(targetConfigClass, targetConfigClass);
+		}
 	}
 }

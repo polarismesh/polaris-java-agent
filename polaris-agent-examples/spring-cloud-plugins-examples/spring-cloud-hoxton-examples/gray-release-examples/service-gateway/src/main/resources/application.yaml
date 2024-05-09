@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: service-gateway-hoxton
+    name: sc-gateway-hoxton
   cloud:
     gateway:
       discovery:
@@ -22,7 +22,7 @@ spring:
         password: 'nacos'
   config:
     import:
-      - nacos:sc-gateway-2023.properties?refreshEnabled=true
+      - nacos:sc-gateway-hoxton.properties?refreshEnabled=true
 management:
   endpoint:
     health:

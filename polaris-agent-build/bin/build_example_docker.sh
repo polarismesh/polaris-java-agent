@@ -46,38 +46,45 @@ for docker_file in ${docker_files}; do
 
     dir_name=${folder_name##*/} 
   
-  cp Dockerfile Dockerfile-${dir_name}
-  docker_tag="${version}-java8"
+    cp Dockerfile Dockerfile-${dir_name}
 
-  filename=$(find ./target -maxdepth 1 -name "*.jar" | grep -v "javadoc" | grep -v "sources" | head -n 1)
-  if [ -z "${filename}" ]; then
-    echo "jar file not found"
-    exit 1
-  fi
-  echo "jar file path is ${filename}"
+    filename=$(find ./target -maxdepth 1 -name "*.jar" | grep -v "javadoc" | grep -v "sources" | head -n 1)
+    if [ -z "${filename}" ]; then
+      echo "jar file not found"
+      exit 1
+    fi
+    echo "jar file path is ${filename}"
 
-  filename=${filename##*/}
-  echo "jar sub file path is ${filename}"
-  if [ `grep -c "java_version" Dockerfile` -gt 0 ]
-  then
-    echo "docker repository java8: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
-    docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --build-arg java_version=8 --platform ${platforms} --push ./
+    version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
+    if [ -z "${version}" ]; then
+          echo "version not defined, skip"
+          continue
+    fi
 
-    docker_tag="${version}-java11"
-    echo "docker repository java11: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
-    docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --build-arg java_version=11 --platform ${platforms} --push ./
+    filename=${filename##*/}
+    echo "jar sub file path is ${filename}, version is ${version}"
 
-    docker_tag="${version}-java17"
-    echo "docker repository java17: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
-    docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --build-arg java_version=17 --platform ${platforms} --push ./
-  else
-    docker_tag="${version}-java17"
-    echo "docker repository java17: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
-    docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --platform ${platforms} --push ./
-  fi
+    if [ `grep -c "java_version" Dockerfile` -gt 0 ]
+    then
+      docker_tag="${version}-java8"
+      echo "docker repository java8: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
+      docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --build-arg java_version=8 --platform ${platforms} --push ./
 
-  rm -f Dockerfile-${dir_name}
-  popd 
+      docker_tag="${version}-java11"
+      echo "docker repository java11: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
+      docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --build-arg java_version=11 --platform ${platforms} --push ./
+
+      docker_tag="${version}-java17"
+      echo "docker repository java17: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
+      docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --build-arg java_version=17 --platform ${platforms} --push ./
+    else
+      docker_tag="${version}-java17"
+      echo "docker repository java17: ${docker_repository}/${repo_name}, tag : ${docker_tag}"
+      docker buildx build -f Dockerfile-${dir_name} --no-cache -t ${docker_repository}/${repo_name}:${docker_tag}  --build-arg file_name=${filename} --platform ${platforms} --push ./
+    fi
+
+    rm -f Dockerfile-${dir_name}
+    popd
   fi
 done
 popd

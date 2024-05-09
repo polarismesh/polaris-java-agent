@@ -17,7 +17,7 @@
 		<module>spring-cloud-2021-examples</module>
 		<module>spring-cloud-2020-examples</module>
 		<module>spring-cloud-hoxton-examples</module>
-                <module>spring-cloud-2023-examples</module>
-       </modules>
+		<module>spring-cloud-2023-examples</module>
+	</modules>
 
 </project>

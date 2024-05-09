@@ -31,41 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-//@SpringBootApplication
-//public class ProviderApplication {
-//
-//	public static void main(String[] args) {
-//		SpringApplication.run(ProviderApplication.class, args);
-//	}
-//
-//	@RefreshScope
-//	@RestController
-//	public static class EchoController {
-//
-//		@Value("${name:}")
-//		private String name;
-//
-//		private Registration registration;
-//
-//		public EchoController(Registration registration) {
-//			this.registration = registration;
-//		}
-//
-//		@GetMapping("/echo/{string}")
-//		public String echo(@PathVariable String string) {
-//			String sb = "Hello, I'm provider, receive msg : "
-//					+ string
-//					+ "my metadata : "
-//					+ registration.getMetadata()
-//					+ " name config : "
-//					+ name;
-//			return sb;
-//		}
-//
-//	}
-//
-//}
-
 @EnableDiscoveryClient
 @SpringBootApplication
 public class ProviderApplication {
@@ -81,21 +46,13 @@ public class ProviderApplication {
 		@Value("${name:}")
 		private String name;
 
-		//	private Registration registration;
-
-		//	public EchoController(Registration registration) {
-		//		this.registration = registration;
-		//	}
-
 		@GetMapping("/echo/{string}")
 		public String echo(@PathVariable String string) {
-			String sb = "Hello, I'm provider, receive msg : "
+			return "Hello, I'm provider, receive msg : "
 					+ string
-					+ "my metadata : "
-					//	+ registration.getMetadata()
+					+ ", my metadata : "
 					+ " name config : "
 					+ name;
-			return sb;
 		}
 
 	}
