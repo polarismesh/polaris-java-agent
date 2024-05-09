@@ -57,8 +57,8 @@ for docker_file in ${docker_files}; do
 
     version=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
     if [ -z "${version}" ]; then
-          echo "version not defined"
-          exit 1
+          echo "version not defined, skip"
+          continue
     fi
 
     filename=${filename##*/}
