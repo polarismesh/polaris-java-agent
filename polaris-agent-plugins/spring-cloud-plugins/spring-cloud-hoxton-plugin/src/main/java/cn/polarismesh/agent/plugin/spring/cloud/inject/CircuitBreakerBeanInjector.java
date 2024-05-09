@@ -44,36 +44,24 @@ public class CircuitBreakerBeanInjector  implements BeanInjector {
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, reactivePolarisCircuitBreakerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("reactivePolarisCircuitBreakerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
                 ReactivePolarisCircuitBreakerAutoConfiguration.class).getBeanDefinition());
-        if (null != ClassUtils.getClazz("feign.Feign",
-                Thread.currentThread().getContextClassLoader())) {
-            if (null != ClassUtils.getClazz("org.springframework.cloud.openfeign.FeignClientFactoryBean",
-                    Thread.currentThread().getContextClassLoader())) {
-                Object polarisCircuitBreakerFeignClientAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisCircuitBreakerFeignClientAutoConfiguration.class, "polarisCircuitBreakerFeignClientAutoConfiguration");
-                ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisCircuitBreakerFeignClientAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-                registry.registerBeanDefinition("polarisCircuitBreakerFeignClientAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-                        PolarisCircuitBreakerFeignClientAutoConfiguration.class).getBeanDefinition());
-            }
+        if (null != ClassUtils.getClazz("feign.Feign", Thread.currentThread().getContextClassLoader())
+                && null != ClassUtils.getClazz("org.springframework.cloud.openfeign.FeignClientFactoryBean", Thread.currentThread().getContextClassLoader())) {
+            Object polarisCircuitBreakerFeignClientAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisCircuitBreakerFeignClientAutoConfiguration.class, "polarisCircuitBreakerFeignClientAutoConfiguration");
+            ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisCircuitBreakerFeignClientAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+            registry.registerBeanDefinition("polarisCircuitBreakerFeignClientAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+                    PolarisCircuitBreakerFeignClientAutoConfiguration.class).getBeanDefinition());
         }
-        if (null != ClassUtils.getClazz("org.springframework.web.reactive.DispatcherHandler",
-                Thread.currentThread().getContextClassLoader())) {
-            if (null != ClassUtils.getClazz("com.tencent.cloud.polaris.circuitbreaker.config.ReactivePolarisCircuitBreakerAutoConfiguration",
-                    Thread.currentThread().getContextClassLoader())) {
-                if (null != ClassUtils.getClazz("org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory",
-                        Thread.currentThread().getContextClassLoader())) {
-                    if (null != ClassUtils.getClazz("com.tencent.cloud.polaris.circuitbreaker.ReactivePolarisCircuitBreakerFactory",
-                            Thread.currentThread().getContextClassLoader())) {
-                        if (null != ClassUtils.getClazz("org.springframework.cloud.gateway.config.GatewayAutoConfiguration",
-                                Thread.currentThread().getContextClassLoader())) {
-                            String property = environment.getProperty("spring.cloud.gateway.enabled");
-                            if (Boolean.parseBoolean(property)) {
-                                Object gatewayPolarisCircuitBreakerAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, GatewayPolarisCircuitBreakerAutoConfiguration.class, "gatewayPolarisCircuitBreakerAutoConfiguration");
-                                ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, gatewayPolarisCircuitBreakerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-                                registry.registerBeanDefinition("gatewayPolarisCircuitBreakerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-                                        GatewayPolarisCircuitBreakerAutoConfiguration.class).getBeanDefinition());
-                            }
-                        }
-                    }
-                }
+        if (null != ClassUtils.getClazz("org.springframework.web.reactive.DispatcherHandler", Thread.currentThread().getContextClassLoader())
+                && null != ClassUtils.getClazz("com.tencent.cloud.polaris.circuitbreaker.config.ReactivePolarisCircuitBreakerAutoConfiguration", Thread.currentThread().getContextClassLoader())
+                && null != ClassUtils.getClazz("org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory", Thread.currentThread().getContextClassLoader())
+                && null != ClassUtils.getClazz("com.tencent.cloud.polaris.circuitbreaker.ReactivePolarisCircuitBreakerFactory", Thread.currentThread().getContextClassLoader())
+                && null != ClassUtils.getClazz("org.springframework.cloud.gateway.config.GatewayAutoConfiguration", Thread.currentThread().getContextClassLoader())) {
+            String property = environment.getProperty("spring.cloud.gateway.enabled");
+            if (Boolean.parseBoolean(property)) {
+                Object gatewayPolarisCircuitBreakerAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, GatewayPolarisCircuitBreakerAutoConfiguration.class, "gatewayPolarisCircuitBreakerAutoConfiguration");
+                ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, gatewayPolarisCircuitBreakerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+                registry.registerBeanDefinition("gatewayPolarisCircuitBreakerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+                        GatewayPolarisCircuitBreakerAutoConfiguration.class).getBeanDefinition());
             }
         }
         Object polarisCircuitBreakerEndpointAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisCircuitBreakerEndpointAutoConfiguration.class, "polarisCircuitBreakerEndpointAutoConfiguration");
