@@ -48,25 +48,13 @@ public class RpcEnhancementBeanInjector implements BeanInjector {
 
 	@Override
 	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-		if (null != ClassUtils.getClazz("com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatProperties",
-				Thread.currentThread().getContextClassLoader())) {
-			String property = environment.getProperty("spring.cloud.polaris.enabled");
-			if (Boolean.parseBoolean(property)) {
 				Object polarisStatPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisStatPropertiesAutoConfiguration.class, "polarisStatPropertiesAutoConfiguration");
 				ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisStatPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 				registry.registerBeanDefinition("polarisStatPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 						PolarisStatPropertiesBootstrapConfiguration.class).getBeanDefinition());
-			}
-		}
-		if (null != ClassUtils.getClazz("com.tencent.cloud.rpc.enhancement.config.RpcEnhancementReporterProperties",
-				Thread.currentThread().getContextClassLoader())) {
-			String property = environment.getProperty("spring.cloud.tencent.rpc-enhancement.enabled");
-			if (Boolean.parseBoolean(property)) {
 				Object rpcEnhancementAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, RpcEnhancementAutoConfiguration.class, "rpcEnhancementAutoConfiguration");
 				ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, rpcEnhancementAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 				registry.registerBeanDefinition("rpcEnhancementAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 						RpcEnhancementAutoConfiguration.class).getBeanDefinition());
-			}
-		}
 	}
 }
