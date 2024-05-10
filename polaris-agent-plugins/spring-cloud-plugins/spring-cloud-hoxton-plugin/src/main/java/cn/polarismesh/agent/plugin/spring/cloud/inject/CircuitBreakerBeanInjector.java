@@ -35,10 +35,16 @@ public class CircuitBreakerBeanInjector  implements BeanInjector {
 
     @Override
     public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-        Object polarisCircuitBreakerAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisCircuitBreakerAutoConfiguration.class, "polarisCircuitBreakerAutoConfiguration");
-        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisCircuitBreakerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-        registry.registerBeanDefinition("polarisCircuitBreakerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-                PolarisCircuitBreakerAutoConfiguration.class).getBeanDefinition());
+        if (null != ClassUtils.getClazz("com.tencent.cloud.rpc.enhancement.config.RpcEnhancementAutoConfiguration",
+                Thread.currentThread().getContextClassLoader())) {
+            String property = environment.getProperty("spring.cloud.polaris.circuitbreaker.enabled");
+            if (Boolean.parseBoolean(property)) {
+                Object polarisCircuitBreakerAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisCircuitBreakerAutoConfiguration.class, "polarisCircuitBreakerAutoConfiguration");
+                ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisCircuitBreakerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+                registry.registerBeanDefinition("polarisCircuitBreakerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+                        PolarisCircuitBreakerAutoConfiguration.class).getBeanDefinition());
+            }
+        }
         if (null != ClassUtils.getClazz("reactor.core.publisher.Mono", Thread.currentThread().getContextClassLoader())
                 && null != ClassUtils.getClazz("reactor.core.publisher.Flux", Thread.currentThread().getContextClassLoader())) {
             Object reactivePolarisCircuitBreakerAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, ReactivePolarisCircuitBreakerAutoConfiguration.class, "reactivePolarisCircuitBreakerAutoConfiguration");
@@ -66,10 +72,16 @@ public class CircuitBreakerBeanInjector  implements BeanInjector {
                         GatewayPolarisCircuitBreakerAutoConfiguration.class).getBeanDefinition());
             }
         }
-        Object polarisCircuitBreakerEndpointAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisCircuitBreakerEndpointAutoConfiguration.class, "polarisCircuitBreakerEndpointAutoConfiguration");
-        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisCircuitBreakerEndpointAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-        registry.registerBeanDefinition("polarisCircuitBreakerEndpointAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-                PolarisCircuitBreakerEndpointAutoConfiguration.class).getBeanDefinition());
+        if (null != ClassUtils.getClazz("org.springframework.boot.actuate.endpoint.annotation.Endpoint",
+                Thread.currentThread().getContextClassLoader())) {
+            String property = environment.getProperty("spring.cloud.polaris.circuitbreaker.enabled");
+            if (Boolean.parseBoolean(property)) {
+                Object polarisCircuitBreakerEndpointAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisCircuitBreakerEndpointAutoConfiguration.class, "polarisCircuitBreakerEndpointAutoConfiguration");
+                ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisCircuitBreakerEndpointAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+                registry.registerBeanDefinition("polarisCircuitBreakerEndpointAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+                        PolarisCircuitBreakerEndpointAutoConfiguration.class).getBeanDefinition());
+            }
+        }
     }
 }
 
