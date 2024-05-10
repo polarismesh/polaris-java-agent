@@ -16,6 +16,7 @@
     <properties>
         <revision>1.7.0-RC2</revision>
         <polaris.version>1.15.5-SNAPSHOT</polaris.version>
+        <guava.version>32.0.1-jre</guava.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.maven.deploy>false</skip.maven.deploy>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -52,6 +53,13 @@
                 <version>${slf4j.vesion}</version>
                 <scope>provided</scope>
             </dependency>
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
