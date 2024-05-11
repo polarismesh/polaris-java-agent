@@ -53,7 +53,7 @@ public class ServiceA {
 	@RestController
 	public static class EchoController {
 
-		private Registration registration;
+		//private Registration registration;
 
 		private RestTemplate template;
 
@@ -63,7 +63,7 @@ public class ServiceA {
 		@Value("${spring.cloud.tencent.metadata.content.lane:base}")
 		private String lane;
 
-		public EchoController(RestTemplate restTemplate, Registration registration) {
+		public EchoController(RestTemplate restTemplate) {
 			this.template = restTemplate;
 		//	this.registration = registration;
 		}

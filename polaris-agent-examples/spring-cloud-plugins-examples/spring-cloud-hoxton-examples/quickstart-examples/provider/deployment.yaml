@@ -3,18 +3,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: hoxton-provider
-  name: hoxton-provider
+    app: service-provider-hoxton
+  name: service-provider-hoxton
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: hoxton-provider
+      app: service-provider-hoxton
   template:
     metadata:
       labels:
-        app: hoxton-provider
+        app: service-provider-hoxton
       annotations:
         polarismesh.cn/javaagent: "true"
         polarismesh.cn/javaagentVersion: "1.7.0-RC2"

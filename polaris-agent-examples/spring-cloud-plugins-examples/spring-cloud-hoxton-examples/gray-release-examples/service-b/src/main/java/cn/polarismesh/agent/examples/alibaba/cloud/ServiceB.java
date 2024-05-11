@@ -50,8 +50,6 @@ public class ServiceB {
 	@RestController
 	public static class EchoController {
 
-		private Registration registration;
-
 		private RestTemplate restTemplate;
 
 		@Autowired
@@ -60,9 +58,8 @@ public class ServiceB {
 		@Value("${spring.cloud.tencent.metadata.content.lane:base}")
 		private String lane;
 
-		public EchoController(RestTemplate restTemplate, Registration registration) {
+		public EchoController(RestTemplate restTemplate) {
 			this.restTemplate = restTemplate;
-		//	this.registration = registration;
 		}
 
 

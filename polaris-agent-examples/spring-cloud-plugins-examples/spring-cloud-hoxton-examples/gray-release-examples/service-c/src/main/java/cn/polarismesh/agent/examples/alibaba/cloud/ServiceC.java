@@ -47,15 +47,8 @@ public class ServiceC {
 	@RestController
 	public static class EchoController {
 
-		private Registration registration;
-
 		@Value("${spring.cloud.tencent.metadata.content.lane:base}")
 		private String lane;
-
-	//	public EchoController(Registration registration) {
-	//		this.registration = registration;
-	//	}
-
 
 		@GetMapping("/echo")
 		public String echo() {

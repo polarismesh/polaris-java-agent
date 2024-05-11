@@ -54,7 +54,7 @@ public class ConsumerApplication {
 
 		@GetMapping("/echo/{str}")
 		public ResponseEntity<String> rest(@PathVariable String str) {
-			ResponseEntity<String> response = template.getForEntity("http://service-provider/echo/" + str,
+			ResponseEntity<String> response = template.getForEntity("http://service-provider-hoxton/echo/" + str,
 					String.class);
 			return response;
 		}

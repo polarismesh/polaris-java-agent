@@ -3,18 +3,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: hoxton-scg
-  name: hoxton-scg
+    app: scg-gateway-hoxton
+  name: scg-gateway-hoxton
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: hoxton-scg
+      app: scg-gateway-hoxton
   template:
     metadata:
       labels:
-        app: hoxton-scg
+        app: scg-gateway-hoxton
       annotations:
         polarismesh.cn/javaagent: "true"
         polarismesh.cn/javaagentVersion: "1.7.0-RC2"
