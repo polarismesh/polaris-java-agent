@@ -3,18 +3,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: hoxton-consumer
-  name: hoxton-consumer
+    app: service-consumer-hoxton
+  name: service-consumer-hoxton
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: hoxton-consumer
+      app: service-consumer-hoxton
   template:
     metadata:
       labels:
-        app: hoxton-consumer
+        app: service-consumer-hoxton
       annotations:
         polarismesh.cn/javaagent: "true"
         polarismesh.cn/javaagentVersion: "1.7.0-RC2"
