@@ -46,8 +46,9 @@ public class ProviderApplication {
 		@Value("${name:}")
 		private String name;
 
-		@Value("${spring.cloud.tencent.metadata.content.env}")
-		private String env;
+
+		@Value("${server.port}")
+		private String port;
 
 		@GetMapping("/echo/{string}")
 		public String echo(@PathVariable String string) {
@@ -56,7 +57,8 @@ public class ProviderApplication {
 					+ ", my metadata : "
 					+ " name config : "
 					+ name
-			        + env;
+					+ "    "
+			        + port;
 		}
 
 	}
