@@ -35,6 +35,11 @@ import org.springframework.core.env.Environment;
 
 public class RpcEnhancementBeanInjector implements BeanInjector {
 	@Override
+	public String getModule() {
+		return "spring-cloud-tencent-rpc-enhancement";
+	}
+
+	@Override
 	public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		Object polarisStatPropertiesBootstrapConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisStatPropertiesBootstrapConfiguration.class, "polarisStatPropertiesBootstrapConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisStatPropertiesBootstrapConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);

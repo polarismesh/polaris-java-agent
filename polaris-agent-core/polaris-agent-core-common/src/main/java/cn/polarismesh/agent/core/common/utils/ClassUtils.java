@@ -27,7 +27,7 @@ public class ClassUtils {
         try {
             return (Class<T>) Class.forName(clazzName, false, classLoader);
         } catch (ClassNotFoundException e) {
-            logger.warn(String.format("class %s not found, error %s", clazzName, e.getLocalizedMessage()));
+            logger.info(String.format("class %s not found", clazzName));
         }
         return null;
     }

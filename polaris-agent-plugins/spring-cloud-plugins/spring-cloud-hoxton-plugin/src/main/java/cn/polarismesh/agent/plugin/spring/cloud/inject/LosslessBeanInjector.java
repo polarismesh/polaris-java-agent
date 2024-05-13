@@ -33,6 +33,11 @@ import org.springframework.core.env.Environment;
 
 public class LosslessBeanInjector implements BeanInjector {
 	@Override
+	public String getModule() {
+		return "spring-cloud-tencent-lossless-plugin";
+	}
+
+	@Override
 	public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		Object losslessPropertiesBootstrapConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, LosslessPropertiesBootstrapConfiguration.class, "losslessPropertiesBootstrapConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, losslessPropertiesBootstrapConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);

@@ -36,6 +36,11 @@ import org.springframework.core.io.ClassPathResource;
 
 public class RouterBeanInjector implements BeanInjector {
 	@Override
+	public String getModule() {
+		return "spring-cloud-starter-tencent-polaris-router";
+	}
+
+	@Override
 	public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 
 	}

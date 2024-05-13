@@ -36,6 +36,11 @@ import org.springframework.core.env.Environment;
 
 public class RegistryBeanInjector implements BeanInjector {
 	@Override
+	public String getModule() {
+		return "spring-cloud-starter-tencent-polaris-discovery";
+	}
+
+	@Override
 	public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		Object discoveryPropertiesBootstrapAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, DiscoveryPropertiesBootstrapAutoConfiguration.class, "discoveryPropertiesBootstrapAutoConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, discoveryPropertiesBootstrapAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
@@ -65,9 +70,5 @@ public class RegistryBeanInjector implements BeanInjector {
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisDiscoveryEndpointAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisDiscoveryEndpointAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisDiscoveryEndpointAutoConfiguration.class).getBeanDefinition());
-//		Object polarisFeignBeanPostProcessor = ReflectionUtils.invokeConstructor(configClassCreator, PolarisFeignBeanPostProcessor.class, "polarisFeignBeanPostProcessor");
-//		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisFeignBeanPostProcessor, Constant.DEFAULT_EXCLUSION_FILTER);
-//		registry.registerBeanDefinition("polarisFeignBeanPostProcessor", BeanDefinitionBuilder.genericBeanDefinition(
-//				PolarisFeignBeanPostProcessor.class).getBeanDefinition());
 	}
 }

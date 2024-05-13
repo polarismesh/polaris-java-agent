@@ -19,6 +19,10 @@ package cn.polarismesh.agent.plugin.spring.cloud.inject;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
@@ -33,6 +37,18 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.env.Environment;
 
 public class PolarisContextBeanInjector implements BeanInjector {
+	@Override
+	public String getModule() {
+		return "spring-cloud-tencent-polaris-context";
+	}
+
+	@Override
+	public Map<String, List<String>> getClassNameForType() {
+		Map<String, List<String>> values = new HashMap<>();
+		values.put("org.springframework.context.ApplicationListener", Collections.singletonList("com.tencent.cloud.polaris.context.logging.PolarisLoggingApplicationListener"));
+		return values;
+	}
+
 	@Override
 	public void onBootstrapStartup(Object configurationParser,
 			Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
@@ -55,13 +71,5 @@ public class PolarisContextBeanInjector implements BeanInjector {
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisContextPostConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisContextPostConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisContextPostConfiguration.class).getBeanDefinition());
-		Object polarisLoggingApplicationListener = ReflectionUtils.invokeConstructor(configClassCreator, PolarisLoggingApplicationListener.class, "polarisLoggingApplicationListener");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisLoggingApplicationListener, Constant.DEFAULT_EXCLUSION_FILTER);
-		registry.registerBeanDefinition("polarisLoggingApplicationListener", BeanDefinitionBuilder.genericBeanDefinition(
-				PolarisLoggingApplicationListener.class).getBeanDefinition());
-//		Object polarisSDKContextManager = ReflectionUtils.invokeConstructor(configClassCreator, PolarisSDKContextManager.class, "polarisSDKContextManager");
-//		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisSDKContextManager, Constant.DEFAULT_EXCLUSION_FILTER);
-//		registry.registerBeanDefinition("polarisSDKContextManager", BeanDefinitionBuilder.genericBeanDefinition(
-//				PolarisSDKContextManager.class).getBeanDefinition());
 	}
 }

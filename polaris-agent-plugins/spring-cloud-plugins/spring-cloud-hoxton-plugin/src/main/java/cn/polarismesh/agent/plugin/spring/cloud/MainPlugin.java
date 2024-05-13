@@ -31,6 +31,7 @@ import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ConfigurationParserInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ConfigurationPostProcessorInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.RegisterBeanInterceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.SpringFactoriesLoaderInterceptor;
 
 /**
  * Polaris Spring Cloud hoxton Plugin
@@ -57,6 +58,9 @@ public class MainPlugin implements AgentPlugin {
 
 		// 注入bean定义的调整设置
 		operations.transform(Constant.BEAN_DEFINITION_REGISTRY, RegisterBeanDefinitionTransform.class);
+
+		// 注入JNI定义
+		operations.transform(Constant.SPRING_FACTORIES_LOADER, SpringFactoriesLoaderTransform.class);
 	}
 
 	public static class ConfigurationParserTransform implements TransformCallback {
@@ -100,4 +104,19 @@ public class MainPlugin implements AgentPlugin {
 			return target.toBytecode();
 		}
 	}
+
+	public static class SpringFactoriesLoaderTransform implements TransformCallback {
+
+		@Override
+		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws InstrumentException {
+			InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classFileBuffer);
+			InstrumentMethod constructMethod = target.getDeclaredMethod("loadSpringFactories", "java.lang.ClassLoader");
+			if (constructMethod != null) {
+				constructMethod.addInterceptor(SpringFactoriesLoaderInterceptor.class);
+			}
+
+			return target.toBytecode();
+		}
+	}
+
 }

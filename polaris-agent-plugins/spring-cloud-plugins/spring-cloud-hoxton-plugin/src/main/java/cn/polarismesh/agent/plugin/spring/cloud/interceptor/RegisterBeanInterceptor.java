@@ -46,5 +46,6 @@ public class RegisterBeanInterceptor implements Interceptor {
 		}
 		BeanDefinition beanDefinition = (BeanDefinition) args[1];
 		beanDefinition.setPrimary(true);
+		LOGGER.info("[PolarisJavaAgent] bean {} has been made primary", beanName);
 	}
 }

@@ -40,6 +40,8 @@ import cn.polarismesh.agent.plugin.spring.cloud.inject.RateLimitBeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.RegistryBeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.RouterBeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.RpcEnhancementBeanInjector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -48,6 +50,8 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.env.Environment;
 
 public class ConfigurationParserInterceptor implements Interceptor {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationParserInterceptor.class);
 
 	private final List<BeanInjector> beanInjectors = new ArrayList<>();
 
@@ -99,8 +103,10 @@ public class ConfigurationParserInterceptor implements Interceptor {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) ReflectionUtils.getObjectByFieldName(target, "registry");
 			Environment environment = (Environment) ReflectionUtils.getObjectByFieldName(target, "environment");
 			for (BeanInjector beanInjector : beanInjectors) {
+				LOGGER.info("[PolarisJavaAgent] start to inject bootstrap bean definitions in module {}", beanInjector.getModule());
 				beanInjector.onBootstrapStartup(target, constructor, processConfigurationClass, registry, environment);
 			}
+			LOGGER.info("[PolarisJavaAgent] successfully injected spring cloud tencent bootstrap bean definitions");
 
 		} else if (isMainBeanDefinition(beanDefinitionHolder)) {
 			Class<?> clazz = ClassUtils.getClazz("org.springframework.context.annotation.ConfigurationClass", null);
@@ -111,8 +117,10 @@ public class ConfigurationParserInterceptor implements Interceptor {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) ReflectionUtils.getObjectByFieldName(target, "registry");
 			Environment environment = (Environment) ReflectionUtils.getObjectByFieldName(target, "environment");
 			for (BeanInjector beanInjector : beanInjectors) {
+				LOGGER.info("[PolarisJavaAgent] start to inject application bean definitions in module {}", beanInjector.getModule());
 				beanInjector.onApplicationStartup(target, constructor, processConfigurationClass, registry, environment);
 			}
+			LOGGER.info("[PolarisJavaAgent] successfully injected spring cloud tencent application bean definitions");
 
 		}
 	}

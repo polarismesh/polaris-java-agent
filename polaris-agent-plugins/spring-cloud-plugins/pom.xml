@@ -18,7 +18,8 @@
 		<module>spring-cloud-2020-plugin</module>
 		<module>spring-cloud-hoxton-plugin</module>
 		<module>spring-cloud-2023-plugin</module>
-        </modules>
+		<module>spring-cloud-plugin-common</module>
+	</modules>
 
 	<properties>
 		<jdk.version>1.8</jdk.version>

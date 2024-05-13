@@ -16,6 +16,11 @@ import org.springframework.core.env.Environment;
 
 public class CircuitBreakerBeanInjector  implements BeanInjector {
     @Override
+    public String getModule() {
+        return "spring-cloud-starter-tencent-polaris-circuitbreaker";
+    }
+
+    @Override
     public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
         Object polarisCircuitBreakerBootstrapConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisCircuitBreakerBootstrapConfiguration.class, "polarisCircuitBreakerBootstrapConfiguration");
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisCircuitBreakerBootstrapConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);

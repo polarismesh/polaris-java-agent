@@ -41,8 +41,10 @@ public class ConfigurationPostProcessorInterceptor implements Interceptor {
 			return;
 		}
 		for (PropertiesPropertySource propertiesPropertySource : propertySources) {
+			LOGGER.info("[PolarisJavaAgent] start to add propertiesPropertySource {}", propertiesPropertySource.getName());
 			environment.getPropertySources().addFirst(propertiesPropertySource);
 		}
+		LOGGER.info("[PolarisJavaAgent] successfully injected agent properties into environment, size is " + propertySources.size());
 	}
 
 }
