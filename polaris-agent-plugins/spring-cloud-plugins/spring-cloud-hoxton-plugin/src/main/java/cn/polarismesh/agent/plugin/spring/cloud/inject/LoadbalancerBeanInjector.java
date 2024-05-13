@@ -31,6 +31,11 @@ import org.springframework.core.env.Environment;
 
 public class LoadbalancerBeanInjector implements BeanInjector {
 	@Override
+	public String getModule() {
+		return "spring-cloud-tencent-polaris-loadbalancer";
+	}
+
+	@Override
 	public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 
 	}

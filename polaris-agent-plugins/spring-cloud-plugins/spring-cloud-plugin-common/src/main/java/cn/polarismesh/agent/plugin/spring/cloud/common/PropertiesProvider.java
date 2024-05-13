@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.tencent.polaris.api.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +61,7 @@ public class PropertiesProvider {
 			Properties properties = new Properties();
 			String confPath = Paths.get(configPath, "plugin", "spring-cloud-hoxton", "application.properties").toString();
 			String cmdVal = System.getProperty("polaris.agent.user.application.conf");
-			if (StringUtils.isNotBlank(cmdVal)) {
+			if (null != cmdVal && !cmdVal.isEmpty()) {
 				confPath = cmdVal;
 			}
 			try {

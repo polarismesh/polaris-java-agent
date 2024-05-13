@@ -30,6 +30,8 @@ public interface Constant {
 
 	String BEAN_DEFINITION_REGISTRY = "org.springframework.beans.factory.support.DefaultListableBeanFactory";
 
+	String SPRING_FACTORIES_LOADER = "org.springframework.core.io.support.SpringFactoriesLoader";
+
 	Predicate<String> DEFAULT_EXCLUSION_FILTER = className ->
 			(className.startsWith("java.lang.annotation.") || className.startsWith("org.springframework.stereotype."));
 

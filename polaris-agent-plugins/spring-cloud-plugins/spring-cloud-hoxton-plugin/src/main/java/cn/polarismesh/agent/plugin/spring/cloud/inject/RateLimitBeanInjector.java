@@ -17,6 +17,11 @@ import org.springframework.core.env.Environment;
 
 public class RateLimitBeanInjector implements BeanInjector {
     @Override
+    public String getModule() {
+        return "spring-cloud-starter-tencent-polaris-ratelimit";
+    }
+
+    @Override
     public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
         Object polarisRateLimitPropertiesBootstrapConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisRateLimitPropertiesBootstrapConfiguration.class, "polarisRateLimitPropertiesBootstrapConfiguration");
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRateLimitPropertiesBootstrapConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
