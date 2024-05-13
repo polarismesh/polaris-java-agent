@@ -23,7 +23,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.tencent.polaris.api.utils.StringUtils;
 import org.slf4j.Logger;
@@ -35,36 +37,42 @@ public class PropertiesProvider {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesProvider.class);
 
+	private static final Map<String, List<PropertiesPropertySource>> LOADED_RESOURCES = new ConcurrentHashMap<>();
+
+	private static final String CONFIG_FILE_NAME = "default-plugin.conf";
+
 	/**
 	 * load the properties source from default application.yaml
 	 * @return propertySources
 	 */
 	public static List<PropertiesPropertySource> loadPropertiesSource() {
-		InputStream stream = PropertiesProvider.class.getClassLoader().getResourceAsStream("default-plugin.conf");
-		Properties defaultProperties = new Properties();
-		try {
-			defaultProperties.load(stream);
-		} catch (IOException e) {
-			throw new IllegalStateException("fail to load default-plugin.conf", e);
-		}
-		List<PropertiesPropertySource> propertySources = new ArrayList<>();
-		propertySources.add(new PropertiesPropertySource("__default_polaris_agent_spring_cloud_tencent__", defaultProperties));
+		return LOADED_RESOURCES.computeIfAbsent(CONFIG_FILE_NAME, fileName -> {
+			InputStream stream = PropertiesProvider.class.getClassLoader().getResourceAsStream(fileName);
+			Properties defaultProperties = new Properties();
+			try {
+				defaultProperties.load(stream);
+			} catch (IOException e) {
+				throw new IllegalStateException("fail to load file " + fileName, e);
+			}
+			List<PropertiesPropertySource> propertySources = new ArrayList<>();
+			propertySources.add(new PropertiesPropertySource("__default_polaris_agent_spring_cloud_tencent__", defaultProperties));
 
-		String configPath = Paths.get(System.getProperty(Constant.AGENT_CONF_PATH), "conf").toString();
-		LOGGER.info("load property sources from config path " + configPath);
-		Properties properties = new Properties();
-		String confPath = Paths.get(configPath, "plugin", "spring-cloud-hoxton", "application.properties").toString();
-		String cmdVal = System.getProperty("polaris.agent.user.application.conf");
-		if (StringUtils.isNotBlank(cmdVal)) {
-			confPath = cmdVal;
-		}
-		try {
-			properties.load(Files.newInputStream(Paths.get(confPath).toFile().toPath()));
-		}
-		catch (IOException e) {
-			throw new IllegalStateException("fail to load config from " + configPath, e);
-		}
-		propertySources.add(new PropertiesPropertySource("__polaris_agent_spring_cloud_tencent__", properties));
-		return propertySources;
+			String configPath = Paths.get(System.getProperty(Constant.AGENT_CONF_PATH), "conf").toString();
+			LOGGER.info("load property sources from config path " + configPath);
+			Properties properties = new Properties();
+			String confPath = Paths.get(configPath, "plugin", "spring-cloud-hoxton", "application.properties").toString();
+			String cmdVal = System.getProperty("polaris.agent.user.application.conf");
+			if (StringUtils.isNotBlank(cmdVal)) {
+				confPath = cmdVal;
+			}
+			try {
+				properties.load(Files.newInputStream(Paths.get(confPath).toFile().toPath()));
+			}
+			catch (IOException e) {
+				throw new IllegalStateException("fail to load config from " + configPath, e);
+			}
+			propertySources.add(new PropertiesPropertySource("__polaris_agent_spring_cloud_tencent__", properties));
+			return propertySources;
+		});
 	}
 }
