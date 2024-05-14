@@ -2,19 +2,33 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<parent>
-		<artifactId>quickstart-example</artifactId>
-		<groupId>com.tencent.cloud</groupId>
-		<version>1.14.0-Hoxton.SR12-SNAPSHOT</version>
-		<relativePath/>
-	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>quickstart-callee-service-b</artifactId>
-	<name>Quickstart Callee Service B</name>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.3.7.RELEASE</version>
+		<relativePath/>
+	</parent>
+
+	<artifactId>caller-service</artifactId>
+	<name>Quickstart Caller Service</name>
+	<properties>
+		<spring.cloud.version>Hoxton.SR12</spring.cloud.version>
+		<spring.cloud.tencent.version>1.14.0-Hoxton.SR12-SNAPSHOT</spring.cloud.tencent.version>
+		<spring.boot.version>2.3.12.RELEASE</spring.boot.version>
+		<slf4j.vesion>1.7.30</slf4j.vesion>
+	</properties>
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>com.tencent.cloud</groupId>
+				<artifactId>spring-cloud-tencent-dependencies</artifactId>
+				<version>1.14.0-Hoxton.SR12-SNAPSHOT</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<dependency>
 				<groupId>com.alibaba.cloud</groupId>
 				<artifactId>spring-cloud-alibaba-dependencies</artifactId>
@@ -42,7 +56,17 @@
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
 		</dependency>
 
 		<dependency>

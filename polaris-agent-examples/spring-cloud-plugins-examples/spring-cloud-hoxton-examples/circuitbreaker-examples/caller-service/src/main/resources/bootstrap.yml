@@ -5,7 +5,7 @@ spring:
     name: QuickstartCallerService
   cloud:
     polaris:
-      address: grpc://106.55.74.24:8091
+      address: grpc://127.0.0.1:8091
       namespace: default
       enabled: true
       discovery:

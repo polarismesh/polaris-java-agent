@@ -3,18 +3,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: hoxton-callee-a
-  name: hoxton-callee-a
+    app: hoxton-callee-1
+  name: hoxton-callee-1
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: hoxton-callee-a
+      app: hoxton-callee-1
   template:
     metadata:
       labels:
-        app: hoxton-callee-a
+        app: hoxton-callee-1
       annotations:
         polarismesh.cn/javaagent: "true"
         polarismesh.cn/javaagentVersion: "1.7.0-RC2"
@@ -22,7 +22,7 @@ spec:
         polarismesh.cn/javaagentFrameworkVersion: "hoxton"
     spec:
       containers:
-        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-hoxton-callee-a:1.7.0-java8
+        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-hoxton-callee-1:1.7.0-java8
           imagePullPolicy: Always
           name: provider
           resources:
@@ -34,7 +34,7 @@ spec:
           command:
             - /bin/bash
             - -c
-            - cd /app && java -Dserver.port=65007 -jar main.jar
+            - cd /app && java -Dserver.port=48084 -jar main.jar
           lifecycle:
             preStop:
               exec:
