@@ -43,13 +43,13 @@ region="$(curl -s --connect-timeout 10 -m 10 http://metadata.tencentyun.com/late
 region_code=$?
 echo "region is ${region}, return code is ${region_code}"
 if [ ${region_code} -eq 0 ] && [ -n ${region} ]; then
-  sed -i "s/spring.cloud.tencent.metadata.content.region=\"\"/spring.cloud.tencent.metadata.content.zone=${region}/g" ${target_config_file}
+  sed -i "s/spring.cloud.tencent.metadata.content.zone=\"\"/spring.cloud.tencent.metadata.content.zone=${region}/g" ${target_config_file}
 fi
 
 echo "start to fetch zone"
 zone="$(curl -s --connect-timeout 10 -m 10 http://metadata.tencentyun.com/latest/meta-data/placement/zone)"
 zone_code=$?
-echo "region is ${zone}, return code is ${zone_code}"
+echo "zone is ${zone}, return code is ${zone_code}"
 if [ ${zone_code} -eq 0 ] && [ -n ${zone} ]; then
-  sed -i "s/spring.cloud.tencent.metadata.content.zone=\"\"/spring.cloud.tencent.metadata.content.campus=${zone}/g" ${target_config_file}
+  sed -i "s/spring.cloud.tencent.metadata.content.campus=\"\"/spring.cloud.tencent.metadata.content.campus=${zone}/g" ${target_config_file}
 fi
