@@ -11,8 +11,11 @@
 		<relativePath/>
 	</parent>
 
+	<packaging>jar</packaging>
+	<version>1.7.0</version>
 	<artifactId>caller-service</artifactId>
 	<name>Quickstart Caller Service</name>
+
 	<properties>
 		<spring.cloud.version>Hoxton.SR12</spring.cloud.version>
 		<spring.cloud.tencent.version>1.14.0-Hoxton.SR12-SNAPSHOT</spring.cloud.tencent.version>
