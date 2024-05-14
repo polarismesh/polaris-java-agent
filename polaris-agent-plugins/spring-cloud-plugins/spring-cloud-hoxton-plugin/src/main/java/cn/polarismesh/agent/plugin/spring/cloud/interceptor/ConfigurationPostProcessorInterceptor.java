@@ -22,6 +22,7 @@ import java.util.List;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.common.PropertiesProvider;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,10 @@ public class ConfigurationPostProcessorInterceptor implements Interceptor {
 	@Override
 	public void before(Object target, Object[] args) {
 		ConfigurableEnvironment environment = (ConfigurableEnvironment) ReflectionUtils.getObjectByFieldName(target, "environment");
+		if (!Utils.checkSpringApplicationNameExists(environment)) {
+			LOGGER.warn("[PolarisJavaAgent] skip inject polaris java agent configuration for no spring application name");
+			return;
+		}
 		List<PropertiesPropertySource> propertySources = PropertiesProvider.loadPropertiesSource();
 		MutablePropertySources mutablePropertySources = environment.getPropertySources();
 		if (mutablePropertySources.contains(propertySources.get(0).getName())) {
@@ -42,7 +47,7 @@ public class ConfigurationPostProcessorInterceptor implements Interceptor {
 		}
 		for (PropertiesPropertySource propertiesPropertySource : propertySources) {
 			LOGGER.info("[PolarisJavaAgent] start to add propertiesPropertySource {}", propertiesPropertySource.getName());
-			environment.getPropertySources().addFirst(propertiesPropertySource);
+			environment.getPropertySources().addLast(propertiesPropertySource);
 		}
 		LOGGER.info("[PolarisJavaAgent] successfully injected agent properties into environment, size is " + propertySources.size());
 	}

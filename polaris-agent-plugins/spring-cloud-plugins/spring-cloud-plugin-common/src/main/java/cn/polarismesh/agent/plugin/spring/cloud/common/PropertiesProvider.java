@@ -54,8 +54,6 @@ public class PropertiesProvider {
 				throw new IllegalStateException("fail to load file " + fileName, e);
 			}
 			List<PropertiesPropertySource> propertySources = new ArrayList<>();
-			propertySources.add(new PropertiesPropertySource("__default_polaris_agent_spring_cloud_tencent__", defaultProperties));
-
 			String configPath = Paths.get(System.getProperty(Constant.AGENT_CONF_PATH), "conf").toString();
 			LOGGER.info("load property sources from config path " + configPath);
 			Properties properties = new Properties();
@@ -71,6 +69,7 @@ public class PropertiesProvider {
 				throw new IllegalStateException("fail to load config from " + configPath, e);
 			}
 			propertySources.add(new PropertiesPropertySource("__polaris_agent_spring_cloud_tencent__", properties));
+			propertySources.add(new PropertiesPropertySource("__default_polaris_agent_spring_cloud_tencent__", defaultProperties));
 			return propertySources;
 		});
 	}
