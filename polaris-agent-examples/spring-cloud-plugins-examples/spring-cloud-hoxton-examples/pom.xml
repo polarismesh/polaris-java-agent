@@ -17,7 +17,6 @@
     <modules>
         <module>quickstart-examples</module>
         <module>gray-release-examples</module>
-        <module>circuitbreaker-examples</module>
     </modules>
 
 </project>
