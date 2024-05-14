@@ -34,7 +34,7 @@ spec:
           command:
             - /bin/bash
             - -c
-            - cd /app && java -Dserver.port=65008 -jar main.jar
+            - cd /app && java -Dserver.port=48082 -jar main.jar
           lifecycle:
             preStop:
               exec:
