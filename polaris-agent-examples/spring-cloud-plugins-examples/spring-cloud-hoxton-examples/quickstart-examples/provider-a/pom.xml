@@ -11,11 +11,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.tencent.polaris</groupId>
-	<artifactId>polaris-javaagent-demo-sc-quickstart-hoxton-provider</artifactId>
+	<artifactId>polaris-javaagent-demo-sc-quickstart-hoxton-provider-a</artifactId>
 	<packaging>jar</packaging>
 	<version>1.7.0</version>
 
-	<name>hoxton-provider</name>
+	<name>hoxton-provider-a</name>
 	<description>Demo Provider Project For Spring Cloud Alibaba</description>
 
 	<dependencyManagement>
@@ -54,6 +54,36 @@
 		<dependency>
 			<groupId>com.alibaba.cloud</groupId>
 			<artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-loadbalancer</artifactId>
 		</dependency>
 
 		<dependency>

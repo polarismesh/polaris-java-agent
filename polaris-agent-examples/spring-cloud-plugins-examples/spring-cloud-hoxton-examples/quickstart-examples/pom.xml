@@ -13,7 +13,8 @@
 	<artifactId>hoxton-quickstart-examples</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>provider</module>
+		<module>provider-b</module>
+		<module>provider-a</module>
 		<module>consumer</module>
 		<module>scg</module>
 	</modules>

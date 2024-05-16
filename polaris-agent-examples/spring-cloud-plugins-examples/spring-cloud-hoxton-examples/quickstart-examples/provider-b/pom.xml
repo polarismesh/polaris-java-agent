@@ -11,12 +11,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.tencent.polaris</groupId>
-	<artifactId>polaris-javaagent-demo-sc-quickstart-hoxton-consumer</artifactId>
+	<artifactId>polaris-javaagent-demo-sc-quickstart-hoxton-provider-b</artifactId>
 	<packaging>jar</packaging>
 	<version>1.7.0</version>
 
-	<name>hoxton-consumer</name>
-	<description>Demo Consumer Project For Spring Cloud Alibaba</description>
+	<name>hoxton-provider-b</name>
+	<description>Demo Provider Project For Spring Cloud Alibaba</description>
 
 	<dependencyManagement>
 		<dependencies>
@@ -52,14 +52,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-loadbalancer</artifactId>
+			<groupId>com.alibaba.cloud</groupId>
+			<artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -84,6 +85,12 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-loadbalancer</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
