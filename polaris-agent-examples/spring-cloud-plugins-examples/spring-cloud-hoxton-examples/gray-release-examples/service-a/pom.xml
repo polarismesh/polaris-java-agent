@@ -10,7 +10,7 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<name>2023-service-a</name>
+	<name>hoxton-service-a</name>
 	<description>Demo Service-A Project For Spring Cloud Alibaba</description>
 	<artifactId>polaris-javaagent-demo-sc-gray-hoxton-service-a</artifactId>
 	<version>1.7.0</version>

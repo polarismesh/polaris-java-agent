@@ -11,6 +11,7 @@
 	<name>2023-service-gateway</name>
 	<description>Demo Service-Gateway Project For Spring Cloud Alibaba 2023</description>
 	<packaging>jar</packaging>
+	<version>1.7.0</version>
 
 	<dependencyManagement>
 		<dependencies>
