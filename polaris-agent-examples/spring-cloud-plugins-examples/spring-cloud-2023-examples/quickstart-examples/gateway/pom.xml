@@ -11,6 +11,7 @@
 	<description>Demo Provider Project For Spring Cloud Alibaba 2023</description>
 	<artifactId>polaris-javaagent-demo-sc-quickstart-2023-scg</artifactId>
 	<packaging>jar</packaging>
+	<version>1.7.0</version>
 
 	<dependencyManagement>
 		<dependencies>
