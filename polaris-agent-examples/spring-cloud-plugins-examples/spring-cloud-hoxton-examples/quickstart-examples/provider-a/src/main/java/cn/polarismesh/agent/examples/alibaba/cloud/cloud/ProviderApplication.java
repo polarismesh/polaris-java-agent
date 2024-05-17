@@ -18,6 +18,8 @@
 package cn.polarismesh.agent.examples.alibaba.cloud.cloud;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -43,12 +45,22 @@ public class ProviderApplication {
 	@RestController
 	public static class EchoController {
 
+		private static final Logger LOG = LoggerFactory.getLogger(ProviderApplication.class);
+
 		@Value("${name:}")
 		private String name;
 
-
 		@Value("${server.port}")
 		private String port;
+
+		@Value("${spring.cloud.client.ip-address:127.0.0.1}")
+		private String ip;
+
+		@GetMapping("/circuitBreak")
+		public String circuitBreak() {
+			LOG.info("Quickstart Callee Service [{}:{}] is called right.", ip, port);
+			return String.format("Quickstart Callee Service [%s:%s] is called right.", ip, port);
+		}
 
 		@GetMapping("/echo/{string}")
 		public String echo(@PathVariable String string) {

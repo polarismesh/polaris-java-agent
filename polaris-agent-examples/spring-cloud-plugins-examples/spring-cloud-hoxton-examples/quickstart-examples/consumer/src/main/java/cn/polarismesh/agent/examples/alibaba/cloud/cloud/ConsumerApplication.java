@@ -17,15 +17,22 @@
 
 package cn.polarismesh.agent.examples.alibaba.cloud.cloud;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
@@ -52,14 +59,67 @@ public class ConsumerApplication {
 			this.template = restTemplate;
 		}
 
+		@Autowired
+		@Qualifier("defaultRestTemplate")
+		private RestTemplate defaultRestTemplate;
+
+		@Autowired
+		private CircuitBreakerFactory circuitBreakerFactory;
+
+		@Bean
+		@LoadBalanced
+		public RestTemplate defaultRestTemplate() {
+			DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory("http://service-provider-hoxton");
+			RestTemplate restTemplate = new RestTemplate();
+			restTemplate.setUriTemplateHandler(uriBuilderFactory);
+			return restTemplate;
+		}
+
+		@GetMapping("/rest")
+		public String circuitBreakRestTemplate() {
+			return circuitBreakerFactory
+					.create("service-provider-hoxton#/circuitBreak")
+					.run(() -> defaultRestTemplate.getForObject("/circuitBreak", String.class),
+							throwable -> "trigger the refuse for service callee."
+					);
+		}
+
 		@GetMapping("/echo/{str}")
 		public ResponseEntity<String> rest(@PathVariable String str) {
 			ResponseEntity<String> response = template.getForEntity("http://service-provider-hoxton/echo/" + str,
 					String.class);
 			return response;
 		}
+	}
+	@FeignClient(name = "service-provider-hoxton", contextId = "fallback-from-polaris")
+	public interface CircuitBreakerQuickstartCalleeService {
 
+		/**
+		 * Check circuit break.
+		 *
+		 * @return circuit break info
+		 */
+		@GetMapping("/circuitBreak")
+		String circuitBreak();
+	}
+	@Component
+	public class CircuitBreakerQuickstartCalleeServiceFallback implements CircuitBreakerQuickstartCalleeServiceWithFallback {
 
+		@Override
+		public String circuitBreak() {
+			return "fallback: trigger the refuse for service callee.";
+		}
 	}
 
+	@FeignClient(name = "service-provider-hoxton", contextId = "fallback-from-code", fallback = CircuitBreakerQuickstartCalleeServiceFallback.class)
+	public interface CircuitBreakerQuickstartCalleeServiceWithFallback {
+
+		/**
+		 * Check circuit break.
+		 *
+		 * @return circuit break info
+		 */
+		@GetMapping("/circuitBreak")
+		String circuitBreak();
+	}
 }
