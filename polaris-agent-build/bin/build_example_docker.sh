@@ -15,8 +15,6 @@ cd ../..
 workdir=$(pwd)
 echo "workdir is ${workdir}"
 
-docker_tag=$1
-
 docker_repository="${DOCKER_REPOSITORY}"
 if [[ "${docker_repository}" == "" ]]; then
     docker_repository="polarismesh"
