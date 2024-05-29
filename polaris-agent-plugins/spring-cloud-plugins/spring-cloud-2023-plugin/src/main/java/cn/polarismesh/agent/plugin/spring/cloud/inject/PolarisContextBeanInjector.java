@@ -26,9 +26,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
-import cn.polarismesh.agent.plugin.spring.cloud.con.BeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.con.Constant;
-import cn.polarismesh.agent.plugin.spring.cloud.con.Utils;
+import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import com.tencent.cloud.polaris.context.config.PolarisContextAutoConfiguration;
 import com.tencent.cloud.polaris.context.config.PolarisContextBootstrapAutoConfiguration;
 import com.tencent.cloud.polaris.context.config.PolarisContextPostConfiguration;

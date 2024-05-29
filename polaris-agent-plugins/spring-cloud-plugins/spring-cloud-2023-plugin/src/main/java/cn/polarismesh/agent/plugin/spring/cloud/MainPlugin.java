@@ -27,7 +27,7 @@ import cn.polarismesh.agent.core.extension.instrument.Instrumentor;
 import cn.polarismesh.agent.core.extension.instrument.exception.InstrumentException;
 import cn.polarismesh.agent.core.extension.transform.TransformCallback;
 import cn.polarismesh.agent.core.extension.transform.TransformOperations;
-import cn.polarismesh.agent.plugin.spring.cloud.con.Constant;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ConfigurationParserInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ConfigurationPostProcessorInterceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.RegisterBeanInterceptor;

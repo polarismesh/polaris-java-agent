@@ -22,9 +22,9 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
-import cn.polarismesh.agent.plugin.spring.cloud.con.BeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.con.Constant;
-import cn.polarismesh.agent.plugin.spring.cloud.con.Utils;
+import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import com.tencent.cloud.polaris.loadbalancer.PolarisLoadBalancerAutoConfiguration;
 import org.springframework.cloud.loadbalancer.config.LoadBalancerAutoConfiguration;
 import org.slf4j.Logger;
@@ -45,32 +45,26 @@ public class LoadbalancerBeanInjector implements BeanInjector {
 
 	@Override
 	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-//		if (!(Utils.checkPolarisEnabled(environment) && Utils.checkKeyEnabled(environment, "spring.cloud.polaris.loadbalancer.enabled"))) {
-//			LOGGER.warn("[PolarisJavaAgent] polaris loadbalancer not enabled, skip inject application bean definitions for module {}", getModule());
-//			return;
-//		}
 		Object polarisLoadBalancerAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisLoadBalancerAutoConfiguration.class, "polarisLoadBalancerAutoConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisLoadBalancerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisLoadBalancerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisLoadBalancerAutoConfiguration.class).getBeanDefinition());
-
-		// make LoadBalancerAutoConfiguration later
-		Map<Object, Object> configurationClasses =  (Map<Object, Object>) ReflectionUtils.getObjectByFieldName(configurationParser, "configurationClasses");
-		Object targetConfigClass = null;
-		for (Object configClass : configurationClasses.keySet()) {
-			Object resource = ReflectionUtils.getObjectByFieldName(configClass, "resource");
-			if (resource instanceof ClassPathResource) {
-				ClassPathResource classPathResource = (ClassPathResource) resource;
-				if ("loadBalancerInterceptor".equals(classPathResource.getPath())) {
-					targetConfigClass = configurationClasses.remove(configClass);
-					break;
-				}
-			}
-		}
-		if (null != targetConfigClass) {
-			configurationClasses.put(targetConfigClass, targetConfigClass);
-		}
-
+//		// make LoadBalancerAutoConfiguration later
+//		Map<Object, Object> configurationClasses =  (Map<Object, Object>) ReflectionUtils.getObjectByFieldName(configurationParser, "configurationClasses");
+//		Object targetConfigClass = null;
+//		for (Object configClass : configurationClasses.keySet()) {
+//			Object resource = ReflectionUtils.getObjectByFieldName(configClass, "resource");
+//			if (resource instanceof ClassPathResource) {
+//				ClassPathResource classPathResource = (ClassPathResource) resource;
+//				if ("loadBalancerInterceptor".equals(classPathResource.getPath())) {
+//					targetConfigClass = configurationClasses.remove(configClass);
+//					break;
+//				}
+//			}
+//		}
+//		if (null != targetConfigClass) {
+//			configurationClasses.put(targetConfigClass, targetConfigClass);
+//		}
 		LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
 	}
 }

@@ -34,13 +34,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>jakarta.servlet</groupId>-->
-<!--                <artifactId>jakarta.servlet-api</artifactId>-->
-<!--                <version>6.0.0</version>-->
-<!--                <scope>provided</scope>-->
-<!--            </dependency>-->
-            <!-- Spring Cloud Dependencies -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-starter-bootstrap</artifactId>
@@ -63,11 +56,11 @@
     </dependencyManagement>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>com.google.protobuf</groupId>-->
-<!--            <artifactId>protobuf-java</artifactId>-->
-<!--            <version>3.21.7</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.21.7</version>
+        </dependency>
         <dependency>
             <groupId>com.tencent.polaris</groupId>
             <artifactId>spring-cloud-plugin-common</artifactId>

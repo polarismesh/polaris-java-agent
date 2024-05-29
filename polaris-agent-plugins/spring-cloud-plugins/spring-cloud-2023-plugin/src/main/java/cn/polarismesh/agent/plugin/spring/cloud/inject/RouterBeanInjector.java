@@ -24,9 +24,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.polarismesh.agent.core.common.utils.ClassUtils;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
-import cn.polarismesh.agent.plugin.spring.cloud.con.BeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.con.Constant;
-import cn.polarismesh.agent.plugin.spring.cloud.con.Utils;
+import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import com.tencent.cloud.polaris.DiscoveryPropertiesAutoConfiguration;
 import com.tencent.cloud.polaris.contract.config.PolarisContractPropertiesAutoConfiguration;
 import com.tencent.cloud.polaris.router.config.properties.PolarisNearByRouterProperties;
@@ -58,12 +58,6 @@ public class RouterBeanInjector implements BeanInjector {
 
 	@Override
 	public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-//		if (!(Utils.checkPolarisEnabled(environment) && Utils.checkKeyEnabled(environment, "spring.cloud.polaris.discovery.enabled"))) {
-//			LOGGER.warn("[PolarisJavaAgent] polaris discovery not enabled, skip inject bootstrap bean definitions for module {}", getModule());
-//			return;
-//		}
-//		bootstrapLoaded.set(true);
-
 		Object polarisNearByRouterProperties = ReflectionUtils.invokeConstructor(configClassCreator, PolarisNearByRouterProperties.class, "polarisNearByRouterProperties");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisNearByRouterProperties, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisNearByRouterProperties", BeanDefinitionBuilder.genericBeanDefinition(
@@ -93,29 +87,6 @@ public class RouterBeanInjector implements BeanInjector {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-//		if (!(Utils.checkPolarisEnabled(environment) && Utils.checkKeyEnabled(environment, "spring.cloud.polaris.router.enabled"))) {
-//			LOGGER.warn("[PolarisJavaAgent] polaris router not enabled, skip inject application bean definitions for module {}", getModule());
-//			return;
-//		}
-
-		if (null != ClassUtils.getClazz("feign.RequestInterceptor",
-					Thread.currentThread().getContextClassLoader())) {
-		Object feignAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, FeignAutoConfiguration.class, "feignAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, feignAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-		registry.registerBeanDefinition("feignAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-				FeignAutoConfiguration.class).getBeanDefinition());
-		}
-		Object polarisRouterEndpointAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisRouterEndpointAutoConfiguration.class, "polarisRouterEndpointAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRouterEndpointAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-		registry.registerBeanDefinition("polarisRouterEndpointAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-				PolarisRouterEndpointAutoConfiguration.class).getBeanDefinition());
-		Object routerAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, RouterAutoConfiguration.class, "routerAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, routerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-		registry.registerBeanDefinition("routerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-				RouterAutoConfiguration.class).getBeanDefinition());
-
-
-
 		LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
 	}
 }

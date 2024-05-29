@@ -36,7 +36,6 @@ public class RegisterBeanInterceptor implements Interceptor {
 //		primaryBeanNames.add("routerAutoConfiguration");
 //		primaryBeanNames.add("polarisRouterEndpointAutoConfiguration");
 //		primaryBeanNames.add("feignAutoConfiguration");
-//		primaryBeanNames.add("autoServiceRegistrationProperties");
 	}
 
 	@Override

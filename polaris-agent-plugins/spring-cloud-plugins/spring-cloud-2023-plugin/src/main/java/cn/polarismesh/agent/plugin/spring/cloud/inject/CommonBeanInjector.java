@@ -21,14 +21,16 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import cn.polarismesh.agent.core.common.utils.ClassUtils;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
-import cn.polarismesh.agent.plugin.spring.cloud.con.BeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import cn.polarismesh.agent.plugin.spring.cloud.con.Constant;
-import cn.polarismesh.agent.plugin.spring.cloud.con.Utils;
 import com.tencent.cloud.common.metadata.config.MetadataAutoConfiguration;
 import com.tencent.cloud.common.metadata.endpoint.PolarisMetadataEndpointAutoConfiguration;
 import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
 import com.tencent.cloud.polaris.config.PolarisConfigBootstrapAutoConfiguration;
+import com.tencent.cloud.polaris.router.config.FeignAutoConfiguration;
 import com.tencent.cloud.polaris.router.config.RouterAutoConfiguration;
 import com.tencent.cloud.polaris.router.endpoint.PolarisRouterEndpointAutoConfiguration;
 import org.slf4j.Logger;
@@ -51,37 +53,41 @@ public class CommonBeanInjector implements BeanInjector {
 
 	@Override
 	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-//		if (!Utils.checkPolarisEnabled(environment)) {
-//			LOGGER.warn("[PolarisJavaAgent] polaris not enabled, skip inject application bean definitions for module {}", getModule());
-//			return;
-//		}
-
 		Object metadataAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, MetadataAutoConfiguration.class, "metadataAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, metadataAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, metadataAutoConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("metadataAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				MetadataAutoConfiguration.class).getBeanDefinition());
 		Object polarisMetadataEndpointAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisMetadataEndpointAutoConfiguration.class, "polarisMetadataEndpointAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisMetadataEndpointAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisMetadataEndpointAutoConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisMetadataEndpointAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisMetadataEndpointAutoConfiguration.class).getBeanDefinition());
 		Object applicationContextAwareUtils = ReflectionUtils.invokeConstructor(configClassCreator, ApplicationContextAwareUtils.class, "applicationContextAwareUtils");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, applicationContextAwareUtils, Constant.DEFAULT_EXCLUSION_FILTER);
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, applicationContextAwareUtils, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("applicationContextAwareUtils", BeanDefinitionBuilder.genericBeanDefinition(
 				ApplicationContextAwareUtils.class).getBeanDefinition());
+		if (null != ClassUtils.getClazz("feign.RequestInterceptor",
+				Thread.currentThread().getContextClassLoader())) {
+			Object feignAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, FeignAutoConfiguration.class, "feignAutoConfiguration");
+			ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, feignAutoConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
+			registry.registerBeanDefinition("feignAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+					FeignAutoConfiguration.class).getBeanDefinition());
+		}
+		Object polarisRouterEndpointAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisRouterEndpointAutoConfiguration.class, "polarisRouterEndpointAutoConfiguration");
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRouterEndpointAutoConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
+		registry.registerBeanDefinition("polarisRouterEndpointAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+				PolarisRouterEndpointAutoConfiguration.class).getBeanDefinition());
+		Object routerAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, RouterAutoConfiguration.class, "routerAutoConfiguration");
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, routerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+		registry.registerBeanDefinition("routerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+				RouterAutoConfiguration.class).getBeanDefinition());
+
 
 		LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
 	}
 
 
-
 	@Override
 	public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-//		if (!(Utils.checkPolarisEnabled(environment) && Utils.checkKeyEnabled(environment, "spring.cloud.polaris.config.enabled"))) {
-//			LOGGER.warn("[PolarisJavaAgent] polaris config not enabled, skip inject bootstrap bean definitions for module {}", getModule());
-//			return;
-//		}
-//		bootstrapLoaded.set(true);
-
 		LOGGER.info("[PolarisJavaAgent] success to inject bootstrap bean definitions for module {}", getModule());
 	}
 }

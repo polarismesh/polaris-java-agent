@@ -21,8 +21,8 @@ import java.util.List;
 
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.con.PropertiesProvider;
-import cn.polarismesh.agent.plugin.spring.cloud.con.Utils;
+import cn.polarismesh.agent.plugin.spring.cloud.common.PropertiesProvider;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

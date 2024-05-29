@@ -22,9 +22,9 @@ import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
-import cn.polarismesh.agent.plugin.spring.cloud.con.BeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.con.Constant;
-import cn.polarismesh.agent.plugin.spring.cloud.con.Utils;
+import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import com.tencent.cloud.plugin.lossless.config.LosslessAutoConfiguration;
 import com.tencent.cloud.plugin.lossless.config.LosslessPropertiesAutoConfiguration;
 import com.tencent.cloud.plugin.lossless.config.LosslessPropertiesBootstrapConfiguration;
@@ -48,11 +48,6 @@ public class LosslessBeanInjector implements BeanInjector {
 
 	@Override
 	public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-//		if (!(Utils.checkPolarisEnabled(environment) && Utils.checkKeyEnabled(environment, "spring.cloud.polaris.lossless.enabled"))) {
-//			LOGGER.warn("[PolarisJavaAgent] polaris lossless not enabled, skip inject bootstrap bean definitions for module {}", getModule());
-//			return;
-//		}
-//		bootstrapLoaded.set(true);
 		Object losslessPropertiesBootstrapConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, LosslessPropertiesBootstrapConfiguration.class, "losslessPropertiesBootstrapConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, losslessPropertiesBootstrapConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("losslessPropertiesBootstrapConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
@@ -62,13 +57,6 @@ public class LosslessBeanInjector implements BeanInjector {
 
 	@Override
 	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-//		if (!(Utils.checkPolarisEnabled(environment) && Utils.checkKeyEnabled(environment, "spring.cloud.polaris.lossless.enabled"))) {
-//			LOGGER.warn("[PolarisJavaAgent] polaris lossless not enabled, skip inject application bean definitions for module {}", getModule());
-//			return;
-//		}
-//		if (!bootstrapLoaded.get()) {
-//			onBootstrapStartup(configurationParser, configClassCreator, processConfigurationClass, registry, environment);
-//		}
 		Object losslessPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, LosslessPropertiesAutoConfiguration.class, "losslessPropertiesAutoConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, losslessPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("losslessPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(

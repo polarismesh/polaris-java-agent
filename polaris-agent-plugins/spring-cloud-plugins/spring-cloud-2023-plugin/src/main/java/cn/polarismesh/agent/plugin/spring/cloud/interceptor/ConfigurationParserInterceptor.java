@@ -28,9 +28,9 @@ import java.util.function.Predicate;
 import cn.polarismesh.agent.core.common.utils.ClassUtils;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.con.BeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.con.PropertiesProvider;
-import cn.polarismesh.agent.plugin.spring.cloud.con.Utils;
+import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.common.PropertiesProvider;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.CommonBeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.ConfigBeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.LoadbalancerBeanInjector;
@@ -66,12 +66,9 @@ public class ConfigurationParserInterceptor implements Interceptor {
 		beanInjectors.add(new RegistryBeanInjector());
 		beanInjectors.add(new RpcEnhancementBeanInjector());
 		beanInjectors.add(new PolarisContextBeanInjector());
-		beanInjectors.add(new ConfigBeanInjector());
 		beanInjectors.add(new RouterBeanInjector());
-//		beanInjectors.add(new LosslessBeanInjector());
 		beanInjectors.add(new LoadbalancerBeanInjector());
-//		beanInjectors.add(new CircuitBreakerBeanInjector());
-//		beanInjectors.add(new RateLimitBeanInjector());
+		beanInjectors.add(new ConfigBeanInjector());
 	}
 
 
@@ -94,9 +91,6 @@ public class ConfigurationParserInterceptor implements Interceptor {
 	@Override
 	public void after(Object target, Object[] args, Object result, Throwable throwable) {
 		Set<?> candidates = (Set<?>) args[0];
-//		if (candidates.size() != 1) {
-//			return;
-//		}
 		BeanDefinitionHolder beanDefinitionHolder = (BeanDefinitionHolder) candidates.iterator().next();
 		if ("bootstrapImportSelectorConfiguration".equals(beanDefinitionHolder.getBeanName())) {
 			// bootstrap
@@ -122,11 +116,9 @@ public class ConfigurationParserInterceptor implements Interceptor {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) ReflectionUtils.getObjectByFieldName(target, "registry");
 			Environment environment = (Environment) ReflectionUtils.getObjectByFieldName(target, "environment");
 			for (BeanInjector beanInjector : beanInjectors) {
-				if (beanInjector instanceof RegistryBeanInjector) {
+				if (!(beanInjector instanceof CommonBeanInjector)) {
 					LOGGER.info("[PolarisJavaAgent] start to inject application bean definitions in module {}", beanInjector.getModule());
 					beanInjector.onApplicationStartup(target, constructor, processConfigurationClass, registry, environment);
-				} else {
-					// 在这里处理其他类型的 beanInjector
 				}
 			}
 			LOGGER.info("[PolarisJavaAgent] successfully injected spring cloud tencent application bean definitions");
@@ -147,11 +139,9 @@ public class ConfigurationParserInterceptor implements Interceptor {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) ReflectionUtils.getObjectByFieldName(target, "registry");
 			Environment environment = (Environment) ReflectionUtils.getObjectByFieldName(target, "environment");
 			for (BeanInjector beanInjector : beanInjectors) {
-				if (!(beanInjector instanceof RegistryBeanInjector)) {
+				if (beanInjector instanceof CommonBeanInjector) {
 					LOGGER.info("[PolarisJavaAgent] start to inject application bean definitions in module {}", beanInjector.getModule());
 					beanInjector.onApplicationStartup(target, constructor, processConfigurationClass, registry, environment);
-				} else {
-					// 在这里处理其他类型的 beanInjector
 				}
 			}
 			LOGGER.info("[PolarisJavaAgent] successfully injected spring cloud tencent application bean definitions");

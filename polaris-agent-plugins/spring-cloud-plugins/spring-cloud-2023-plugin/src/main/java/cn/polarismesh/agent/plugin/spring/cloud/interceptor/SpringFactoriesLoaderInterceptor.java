@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.con.BeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.CommonBeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.ConfigBeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.LoadbalancerBeanInjector;
@@ -53,10 +53,7 @@ public class SpringFactoriesLoaderInterceptor implements Interceptor {
 		beanInjectors.add(new RouterBeanInjector());
 		beanInjectors.add(new CommonBeanInjector());
 		beanInjectors.add(new MetadataTransferBeanInjector());
-//		beanInjectors.add(new LosslessBeanInjector());
 		beanInjectors.add(new LoadbalancerBeanInjector());
-//		beanInjectors.add(new CircuitBreakerBeanInjector());
-//		beanInjectors.add(new RateLimitBeanInjector());
 	}
 
 
