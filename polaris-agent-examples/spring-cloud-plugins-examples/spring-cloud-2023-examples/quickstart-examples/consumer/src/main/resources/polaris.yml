@@ -1,0 +1,8 @@
+consumer:
+  serviceRouter:
+    plugin:
+      # 设置就近路由插件配置
+      nearbyBasedRouter:
+        # 描述:就近路由的最小匹配级别，需要显示设置
+        # 范围: zone(腾讯云地域信息，eg: ap-guangzhou)、campus(腾讯云可用区, eg: ap-guangzhou-3)
+        matchLevel: campus

@@ -66,13 +66,20 @@ public class ConsumerApplication {
 			this.registration = registration;
 		}
 
+//		@GetMapping("/echo/{str}")
+//		public ResponseEntity<String> rest(@PathVariable String str) {
+//			String content = String.format("%s[%d] -> ", registration.getServiceId(), port);
+//			ResponseEntity<String> response = template.getForEntity("http://service-provider-2023/echo/" + str +"123",
+//					String.class);
+//			content += response.getBody();
+//			return new ResponseEntity<>(content, HttpStatus.OK);
+//		}
+
 		@GetMapping("/echo/{str}")
 		public ResponseEntity<String> rest(@PathVariable String str) {
-			String content = String.format("%s[%d] -> ", registration.getServiceId(), port);
-			ResponseEntity<String> response = template.getForEntity("http://service-provider-2023/echo/" + str +"123",
+			ResponseEntity<String> response = template.getForEntity("http://service-provider-2023/echo/" + str,
 					String.class);
-			content += response.getBody();
-			return new ResponseEntity<>(content, HttpStatus.OK);
+			return response;
 		}
 
 		@GetMapping("/custom/config")
