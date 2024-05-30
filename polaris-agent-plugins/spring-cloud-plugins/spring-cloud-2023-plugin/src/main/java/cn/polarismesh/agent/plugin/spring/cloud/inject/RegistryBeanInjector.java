@@ -85,7 +85,6 @@ public class RegistryBeanInjector implements BeanInjector {
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRefreshConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisRefreshConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisRefreshConfiguration.class).getBeanDefinition());
-
 		Object polarisServiceRegistryAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisServiceRegistryAutoConfiguration.class, "polarisServiceRegistryAutoConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisServiceRegistryAutoConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisServiceRegistryAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(

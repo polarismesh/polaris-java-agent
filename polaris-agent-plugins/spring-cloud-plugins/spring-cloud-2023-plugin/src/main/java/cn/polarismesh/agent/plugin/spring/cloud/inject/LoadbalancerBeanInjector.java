@@ -49,22 +49,6 @@ public class LoadbalancerBeanInjector implements BeanInjector {
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisLoadBalancerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisLoadBalancerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisLoadBalancerAutoConfiguration.class).getBeanDefinition());
-//		// make LoadBalancerAutoConfiguration later
-//		Map<Object, Object> configurationClasses =  (Map<Object, Object>) ReflectionUtils.getObjectByFieldName(configurationParser, "configurationClasses");
-//		Object targetConfigClass = null;
-//		for (Object configClass : configurationClasses.keySet()) {
-//			Object resource = ReflectionUtils.getObjectByFieldName(configClass, "resource");
-//			if (resource instanceof ClassPathResource) {
-//				ClassPathResource classPathResource = (ClassPathResource) resource;
-//				if ("loadBalancerInterceptor".equals(classPathResource.getPath())) {
-//					targetConfigClass = configurationClasses.remove(configClass);
-//					break;
-//				}
-//			}
-//		}
-//		if (null != targetConfigClass) {
-//			configurationClasses.put(targetConfigClass, targetConfigClass);
-//		}
 		LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
 	}
 }

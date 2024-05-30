@@ -33,9 +33,6 @@ public class RegisterBeanInterceptor implements Interceptor {
 	private final Set<String> primaryBeanNames = new HashSet<>();
 
 	public RegisterBeanInterceptor() {
-//		primaryBeanNames.add("routerAutoConfiguration");
-//		primaryBeanNames.add("polarisRouterEndpointAutoConfiguration");
-//		primaryBeanNames.add("feignAutoConfiguration");
 	}
 
 	@Override

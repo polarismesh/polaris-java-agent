@@ -72,16 +72,10 @@ public class CommonBeanInjector implements BeanInjector {
 			registry.registerBeanDefinition("feignAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 					FeignAutoConfiguration.class).getBeanDefinition());
 		}
-//		Object polarisRouterEndpointAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisRouterEndpointAutoConfiguration.class, "polarisRouterEndpointAutoConfiguration");
-//		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRouterEndpointAutoConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
-//		registry.registerBeanDefinition("polarisRouterEndpointAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-//				PolarisRouterEndpointAutoConfiguration.class).getBeanDefinition());
 		Object routerAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, RouterAutoConfiguration.class, "routerAutoConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, routerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("routerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				RouterAutoConfiguration.class).getBeanDefinition());
-
-
 		LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
 	}
 

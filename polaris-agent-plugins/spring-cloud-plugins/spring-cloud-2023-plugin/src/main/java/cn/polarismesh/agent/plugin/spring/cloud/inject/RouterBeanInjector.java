@@ -78,10 +78,8 @@ public class RouterBeanInjector implements BeanInjector {
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisContractPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisContractPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisContractPropertiesAutoConfiguration.class).getBeanDefinition());
-
 		LOGGER.info("[PolarisJavaAgent] success to inject bootstrap bean definitions for module {}", getModule());
 	}
-
 
 
 	@Override
