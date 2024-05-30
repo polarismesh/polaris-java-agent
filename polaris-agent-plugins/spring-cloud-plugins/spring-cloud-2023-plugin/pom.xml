@@ -56,11 +56,11 @@
     </dependencyManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.21.7</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.google.protobuf</groupId>-->
+<!--            <artifactId>protobuf-java</artifactId>-->
+<!--            <version>3.21.7</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.tencent.polaris</groupId>
             <artifactId>spring-cloud-plugin-common</artifactId>
@@ -155,10 +155,10 @@
                     <artifactId>polaris-plugin-api</artifactId>
                 </exclusion>
 
-                <exclusion>
-                    <groupId>com.tencent.polaris</groupId>
-                    <artifactId>connector-polaris-grpc</artifactId>
-                </exclusion>
+<!--                <exclusion>-->
+<!--                    <groupId>com.tencent.polaris</groupId>-->
+<!--                    <artifactId>connector-polaris-grpc</artifactId>-->
+<!--                </exclusion>-->
 
                 <exclusion>
                     <groupId>com.tencent.polaris</groupId>
