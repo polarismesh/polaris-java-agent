@@ -50,14 +50,14 @@ public class MetadataTransferBeanInjector implements BeanInjector {
 	@Override
 	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
-	}
-
-	@Override
-	public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		Object metadataTransferAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, MetadataTransferAutoConfiguration.class, "metadataTransferAutoConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, metadataTransferAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("metadataTransferAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				MetadataTransferAutoConfiguration.class).getBeanDefinition());
+	}
+
+	@Override
+	public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		LOGGER.info("[PolarisJavaAgent] success to inject bootstrap bean definitions for module {}", getModule());
 	}
 
