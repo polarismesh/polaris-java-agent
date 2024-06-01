@@ -70,35 +70,35 @@ public class RegistryBeanInjector implements BeanInjector {
 	@Override
 	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		Object polarisDiscoveryAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisDiscoveryAutoConfiguration.class, "polarisDiscoveryAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisDiscoveryAutoConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisDiscoveryAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisDiscoveryAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisDiscoveryAutoConfiguration.class).getBeanDefinition());
 		Object polarisDiscoveryClientConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisDiscoveryClientConfiguration.class, "polarisDiscoveryClientConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisDiscoveryClientConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisDiscoveryClientConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisDiscoveryClientConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisDiscoveryClientConfiguration.class).getBeanDefinition());
 		Object polarisReactiveDiscoveryClientConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisReactiveDiscoveryClientConfiguration.class, "polarisReactiveDiscoveryClientConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisReactiveDiscoveryClientConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisReactiveDiscoveryClientConfiguration,Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisReactiveDiscoveryClientConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisReactiveDiscoveryClientConfiguration.class).getBeanDefinition());
 		Object polarisRefreshConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisRefreshConfiguration.class, "polarisRefreshConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRefreshConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRefreshConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisRefreshConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisRefreshConfiguration.class).getBeanDefinition());
 		Object polarisServiceRegistryAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisServiceRegistryAutoConfiguration.class, "polarisServiceRegistryAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisServiceRegistryAutoConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisServiceRegistryAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisServiceRegistryAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisServiceRegistryAutoConfiguration.class).getBeanDefinition());
 		Object polarisDiscoveryEndpointAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisDiscoveryEndpointAutoConfiguration.class, "polarisDiscoveryEndpointAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisDiscoveryEndpointAutoConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisDiscoveryEndpointAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisDiscoveryEndpointAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisDiscoveryEndpointAutoConfiguration.class).getBeanDefinition());
 		Object discoveryPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, DiscoveryPropertiesAutoConfiguration.class, "discoveryPropertiesAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, discoveryPropertiesAutoConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, discoveryPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("discoveryPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				DiscoveryPropertiesAutoConfiguration.class).getBeanDefinition());
 		Object discoveryPropertiesBootstrapAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, DiscoveryPropertiesBootstrapAutoConfiguration.class, "discoveryPropertiesBootstrapAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, discoveryPropertiesBootstrapAutoConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, discoveryPropertiesBootstrapAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("discoveryPropertiesBootstrapAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				DiscoveryPropertiesBootstrapAutoConfiguration.class).getBeanDefinition());
 		LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());

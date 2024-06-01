@@ -25,7 +25,7 @@ import cn.polarismesh.agent.core.common.utils.ClassUtils;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
-import cn.polarismesh.agent.plugin.spring.cloud.con.Constant;
+import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import com.tencent.cloud.common.metadata.config.MetadataAutoConfiguration;
 import com.tencent.cloud.common.metadata.endpoint.PolarisMetadataEndpointAutoConfiguration;
 import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
@@ -54,21 +54,21 @@ public class CommonBeanInjector implements BeanInjector {
 	@Override
 	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		Object metadataAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, MetadataAutoConfiguration.class, "metadataAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, metadataAutoConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, metadataAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("metadataAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				MetadataAutoConfiguration.class).getBeanDefinition());
 		Object polarisMetadataEndpointAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisMetadataEndpointAutoConfiguration.class, "polarisMetadataEndpointAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisMetadataEndpointAutoConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisMetadataEndpointAutoConfiguration,Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisMetadataEndpointAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisMetadataEndpointAutoConfiguration.class).getBeanDefinition());
 		Object applicationContextAwareUtils = ReflectionUtils.invokeConstructor(configClassCreator, ApplicationContextAwareUtils.class, "applicationContextAwareUtils");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, applicationContextAwareUtils, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, applicationContextAwareUtils, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("applicationContextAwareUtils", BeanDefinitionBuilder.genericBeanDefinition(
 				ApplicationContextAwareUtils.class).getBeanDefinition());
 		if (null != ClassUtils.getClazz("feign.RequestInterceptor",
 				Thread.currentThread().getContextClassLoader())) {
 			Object feignAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, FeignAutoConfiguration.class, "feignAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, feignAutoConfiguration, cn.polarismesh.agent.plugin.spring.cloud.con.Constant.DEFAULT_EXCLUSION_FILTER);
+			ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, feignAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 			registry.registerBeanDefinition("feignAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 					FeignAutoConfiguration.class).getBeanDefinition());
 		}
