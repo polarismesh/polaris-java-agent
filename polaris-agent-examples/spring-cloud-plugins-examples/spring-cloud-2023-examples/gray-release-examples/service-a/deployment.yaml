@@ -17,13 +17,13 @@ spec:
         app: service-a-2023
       annotations:
         polarismesh.cn/javaagent: "true"
-        polarismesh.cn/javaagentVersion: "1.7.0-RC.0"
+        polarismesh.cn/javaagentVersion: "1.7.0-RC3"
         polarismesh.cn/javaagentFrameworkName: "spring-cloud"
         polarismesh.cn/javaagentFrameworkVersion: "2023"
         polarismesh.cn/javaagentConfig: "{\"spring.cloud.polaris.namespace\": \"default\", \"spring.cloud.polaris.router.nearby-router.matchLevel\": \"campus\"}"
     spec:
       containers:
-        - image: polarismesh/polaris-javaagent-demo-sc-gray-2023-service-a:1.7.0-RC.0-java17
+        - image: polarismesh/polaris-javaagent-demo-sc-gray-2023-service-a:1.7.0-RC3-java17
           imagePullPolicy: Always
           name: consumer
           resources:
