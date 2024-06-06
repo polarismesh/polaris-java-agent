@@ -3,26 +3,26 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: scg-gateway-hoxton
-  name: scg-gateway-hoxton
+    app: scg-gateway-2022
+  name: scg-gateway-2022
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: scg-gateway-hoxton
+      app: scg-gateway-2022
   template:
     metadata:
       labels:
-        app: scg-gateway-hoxton
+        app: scg-gateway-2022
       annotations:
         polarismesh.cn/javaagent: "true"
-        polarismesh.cn/javaagentVersion: "1.7.0-RC2"
+        polarismesh.cn/javaagentVersion: "1.7.0-RC4"
         polarismesh.cn/javaagentFrameworkName: "spring-cloud"
-        polarismesh.cn/javaagentFrameworkVersion: "hoxton"
+        polarismesh.cn/javaagentFrameworkVersion: "2022"
     spec:
       containers:
-        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-hoxton-scg:1.7.0-java8
+        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-2022-scg:1.7.0-RC4-java17
           imagePullPolicy: Always
           name: consumer
           resources:

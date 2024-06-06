@@ -30,14 +30,6 @@ public class RateLimitBeanInjector implements BeanInjector {
 
     @Override
     public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-        Object polarisRateLimitPropertiesBootstrapConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisRateLimitPropertiesBootstrapConfiguration.class, "polarisRateLimitPropertiesBootstrapConfiguration");
-        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRateLimitPropertiesBootstrapConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-        registry.registerBeanDefinition("polarisRateLimitPropertiesBootstrapConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-                PolarisRateLimitPropertiesBootstrapConfiguration.class).getBeanDefinition());
-        Object polarisRateLimitPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisRateLimitPropertiesAutoConfiguration.class, "polarisRateLimitPropertiesAutoConfiguration");
-        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRateLimitPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-        registry.registerBeanDefinition("polarisRateLimitPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-                PolarisRateLimitPropertiesAutoConfiguration.class).getBeanDefinition());
         LOGGER.info("[PolarisJavaAgent] success to inject bootstrap bean definitions for module {}", getModule());
     }
 
@@ -51,6 +43,14 @@ public class RateLimitBeanInjector implements BeanInjector {
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRateLimitRuleEndpointAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("polarisRateLimitRuleEndpointAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
                 PolarisRateLimitRuleEndpointAutoConfiguration.class).getBeanDefinition());
+        Object polarisRateLimitPropertiesBootstrapConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisRateLimitPropertiesBootstrapConfiguration.class, "polarisRateLimitPropertiesBootstrapConfiguration");
+        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRateLimitPropertiesBootstrapConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+        registry.registerBeanDefinition("polarisRateLimitPropertiesBootstrapConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+                PolarisRateLimitPropertiesBootstrapConfiguration.class).getBeanDefinition());
+        Object polarisRateLimitPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisRateLimitPropertiesAutoConfiguration.class, "polarisRateLimitPropertiesAutoConfiguration");
+        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRateLimitPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+        registry.registerBeanDefinition("polarisRateLimitPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+                PolarisRateLimitPropertiesAutoConfiguration.class).getBeanDefinition());
         LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
     }
 }

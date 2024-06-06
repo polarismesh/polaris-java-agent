@@ -52,6 +52,10 @@ public class RpcEnhancementBeanInjector implements BeanInjector {
 	@Override
 	public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		LOGGER.info("[PolarisJavaAgent] success to inject bootstrap bean definitions for module {}", getModule());
+	}
+
+	@Override
+	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		Object polarisStatPropertiesBootstrapConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisStatPropertiesBootstrapConfiguration.class, "polarisStatPropertiesBootstrapConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisStatPropertiesBootstrapConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisStatPropertiesBootstrapConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
@@ -68,16 +72,6 @@ public class RpcEnhancementBeanInjector implements BeanInjector {
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, rpcEnhancementAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("rpcEnhancementAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				RpcEnhancementAutoConfiguration.class).getBeanDefinition());
-	}
-
-	@Override
-	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-
-//		Object instanceTransformer = ReflectionUtils.invokeConstructor(configClassCreator, InstanceTransformer.class, "instanceTransformer");
-//		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, instanceTransformer, Constant.DEFAULT_EXCLUSION_FILTER);
-//		registry.registerBeanDefinition("instanceTransformer", BeanDefinitionBuilder.genericBeanDefinition(
-//				InstanceTransformer.class).getBeanDefinition());
-
 		LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
 	}
 }

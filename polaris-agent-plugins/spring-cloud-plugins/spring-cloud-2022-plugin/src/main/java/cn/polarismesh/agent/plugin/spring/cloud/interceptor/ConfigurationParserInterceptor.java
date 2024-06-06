@@ -63,6 +63,8 @@ public class ConfigurationParserInterceptor implements Interceptor {
     private boolean judge = false;
 
 	public ConfigurationParserInterceptor() {
+		beanInjectors.add(new CircuitBreakerBeanInjector());
+		beanInjectors.add(new RateLimitBeanInjector());
 		beanInjectors.add(new CommonBeanInjector());
 		beanInjectors.add(new MetadataTransferBeanInjector());
 		beanInjectors.add(new RegistryBeanInjector());
@@ -72,8 +74,6 @@ public class ConfigurationParserInterceptor implements Interceptor {
 		beanInjectors.add(new LoadbalancerBeanInjector());
 		beanInjectors.add(new ConfigBeanInjector());
 		beanInjectors.add(new LosslessBeanInjector());
-		beanInjectors.add(new CircuitBreakerBeanInjector());
-		beanInjectors.add(new RateLimitBeanInjector());
 	}
 
 
@@ -153,8 +153,6 @@ public class ConfigurationParserInterceptor implements Interceptor {
 
 		}
 	}
-
-
 
 
 }

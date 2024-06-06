@@ -50,7 +50,6 @@ public class MetadataTransferBeanInjector implements BeanInjector {
 	@Override
 	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
-
 	}
 
 	@Override
@@ -60,6 +59,5 @@ public class MetadataTransferBeanInjector implements BeanInjector {
 		registry.registerBeanDefinition("metadataTransferAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				MetadataTransferAutoConfiguration.class).getBeanDefinition());
 	}
-
 
 }

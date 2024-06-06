@@ -3,26 +3,26 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: service-consumer-hoxton
-  name: service-consumer-hoxton
+    app: service-consumer-2022
+  name: service-consumer-2022
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: service-consumer-hoxton
+      app: service-consumer-2022
   template:
     metadata:
       labels:
-        app: service-consumer-hoxton
+        app: service-consumer-2022
       annotations:
         polarismesh.cn/javaagent: "true"
-        polarismesh.cn/javaagentVersion: "1.7.0-RC2"
+        polarismesh.cn/javaagentVersion: "1.7.0-RC4"
         polarismesh.cn/javaagentFrameworkName: "spring-cloud"
-        polarismesh.cn/javaagentFrameworkVersion: "hoxton"
+        polarismesh.cn/javaagentFrameworkVersion: "2022"
     spec:
       containers:
-        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-hoxton-consumer:1.7.0-java8
+        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-2022-consumer:1.7.0-RC4-java17
           imagePullPolicy: Always
           name: consumer
           resources:

@@ -56,12 +56,10 @@ public class LosslessBeanInjector implements BeanInjector {
 
 	@Override
 	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-
 		Object losslessAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, LosslessAutoConfiguration.class, "losslessAutoConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, losslessAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("losslessAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				LosslessAutoConfiguration.class).getBeanDefinition());
-
 		Object losslessPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, LosslessPropertiesAutoConfiguration.class, "losslessPropertiesAutoConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, losslessPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("losslessPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(

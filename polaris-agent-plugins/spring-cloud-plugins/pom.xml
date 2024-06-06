@@ -16,6 +16,7 @@
 	<modules>
 		<module>spring-cloud-2021-plugin</module>
 		<module>spring-cloud-2020-plugin</module>
+		<module>spring-cloud-2022-plugin</module>
 		<module>spring-cloud-hoxton-plugin</module>
 		<module>spring-cloud-2023-plugin</module>
 		<module>spring-cloud-plugin-common</module>

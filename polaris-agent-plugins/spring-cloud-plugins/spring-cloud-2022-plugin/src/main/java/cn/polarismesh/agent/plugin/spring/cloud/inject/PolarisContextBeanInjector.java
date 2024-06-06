@@ -62,25 +62,24 @@ public class PolarisContextBeanInjector implements BeanInjector {
 	public void onBootstrapStartup(Object configurationParser,
 			Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 
-		Object polarisContextBootstrapAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisContextBootstrapAutoConfiguration.class, "polarisContextBootstrapAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisContextBootstrapAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-		registry.registerBeanDefinition("polarisContextBootstrapAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-				PolarisContextBootstrapAutoConfiguration.class).getBeanDefinition());
-		Object polarisContextAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisContextAutoConfiguration.class, "polarisContextAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisContextAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-		registry.registerBeanDefinition("polarisContextAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-				PolarisContextAutoConfiguration.class).getBeanDefinition());
 		LOGGER.info("[PolarisJavaAgent] success to inject bootstrap bean definitions for module {}", getModule());
 	}
 
 	@Override
 	public void onApplicationStartup(Object configurationParser,
 			Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-
+		Object polarisContextAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisContextAutoConfiguration.class, "polarisContextAutoConfiguration");
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisContextAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+		registry.registerBeanDefinition("polarisContextAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+				PolarisContextAutoConfiguration.class).getBeanDefinition());
 		Object polarisContextPostConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisContextPostConfiguration.class, "polarisContextPostConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisContextPostConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisContextPostConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisContextPostConfiguration.class).getBeanDefinition());
+		Object polarisContextBootstrapAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisContextBootstrapAutoConfiguration.class, "polarisContextBootstrapAutoConfiguration");
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisContextBootstrapAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+		registry.registerBeanDefinition("polarisContextBootstrapAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+				PolarisContextBootstrapAutoConfiguration.class).getBeanDefinition());
 		LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
 	}
 }

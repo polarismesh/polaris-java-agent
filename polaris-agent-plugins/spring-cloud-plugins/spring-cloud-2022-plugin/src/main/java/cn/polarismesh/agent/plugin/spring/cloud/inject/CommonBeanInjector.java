@@ -60,7 +60,6 @@ public class CommonBeanInjector implements BeanInjector {
 
 	@Override
 	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-
 		Object metadataAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, MetadataAutoConfiguration.class, "metadataAutoConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, metadataAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("metadataAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
@@ -73,11 +72,6 @@ public class CommonBeanInjector implements BeanInjector {
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, applicationContextAwareUtils, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("applicationContextAwareUtils", BeanDefinitionBuilder.genericBeanDefinition(
 				ApplicationContextAwareUtils.class).getBeanDefinition());
-
-
-
-
-
 		LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
 	}
 
@@ -85,27 +79,5 @@ public class CommonBeanInjector implements BeanInjector {
 	@Override
 	public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
 		LOGGER.info("[PolarisJavaAgent] success to inject bootstrap bean definitions for module {}", getModule());
-		Object polarisNearByRouterProperties = ReflectionUtils.invokeConstructor(configClassCreator, PolarisNearByRouterProperties.class, "polarisNearByRouterProperties");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisNearByRouterProperties, Constant.DEFAULT_EXCLUSION_FILTER);
-		registry.registerBeanDefinition("polarisNearByRouterProperties", BeanDefinitionBuilder.genericBeanDefinition(
-				PolarisNearByRouterProperties.class).getBeanDefinition());
-
-		Object polarisRuleBasedRouterProperties = ReflectionUtils.invokeConstructor(configClassCreator, PolarisRuleBasedRouterProperties.class, "polarisRuleBasedRouterProperties");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRuleBasedRouterProperties, Constant.DEFAULT_EXCLUSION_FILTER);
-		registry.registerBeanDefinition("polarisRuleBasedRouterProperties", BeanDefinitionBuilder.genericBeanDefinition(
-				PolarisRuleBasedRouterProperties.class).getBeanDefinition());
-		Object routerConfigModifierAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, RouterConfigModifierAutoConfiguration.class, "routerConfigModifierAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, routerConfigModifierAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-		registry.registerBeanDefinition("routerConfigModifierAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-				RouterConfigModifierAutoConfiguration.class).getBeanDefinition());
-
-		Object polarisContractPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisContractPropertiesAutoConfiguration.class, "polarisContractPropertiesAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisContractPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-		registry.registerBeanDefinition("polarisContractPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-				PolarisContractPropertiesAutoConfiguration.class).getBeanDefinition());
-		Object polarisMetadataRouterProperties = ReflectionUtils.invokeConstructor(configClassCreator, PolarisMetadataRouterProperties.class, "polarisMetadataRouterProperties");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisMetadataRouterProperties, Constant.DEFAULT_EXCLUSION_FILTER);
-		registry.registerBeanDefinition("polarisMetadataRouterProperties", BeanDefinitionBuilder.genericBeanDefinition(
-				PolarisMetadataRouterProperties.class).getBeanDefinition());
 	}
 }

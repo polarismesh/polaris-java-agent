@@ -3,26 +3,26 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: service-provider-hoxton-b
-  name: service-provider-hoxton-b
+    app: service-provider-2022-b
+  name: service-provider-2022-b
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: service-provider-hoxton-b
+      app: service-provider-2022-b
   template:
     metadata:
       labels:
-        app: service-provider-hoxton-b
+        app: service-provider-2022-b
       annotations:
         polarismesh.cn/javaagent: "true"
-        polarismesh.cn/javaagentVersion: "1.7.0-RC2"
+        polarismesh.cn/javaagentVersion: "1.7.0-RC4"
         polarismesh.cn/javaagentFrameworkName: "spring-cloud"
-        polarismesh.cn/javaagentFrameworkVersion: "hoxton"
+        polarismesh.cn/javaagentFrameworkVersion: "2022"
     spec:
       containers:
-        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-hoxton-provider-b:1.7.0-java8
+        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-2022-provider-b:1.7.0-RC4-java17
           imagePullPolicy: Always
           name: provider
           resources:
