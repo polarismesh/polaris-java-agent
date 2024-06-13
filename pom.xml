@@ -14,7 +14,7 @@
     <url>https://github.com/polarismesh/polaris-java-agent</url>
 
     <properties>
-        <revision>1.7.0-RC3</revision>
+        <revision>1.7.0-RC4</revision>
         <polaris.version>1.15.5</polaris.version>
         <guava.version>32.0.1-jre</guava.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
