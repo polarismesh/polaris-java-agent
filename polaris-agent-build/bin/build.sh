@@ -39,7 +39,7 @@ cp "polaris-agent-core/polaris-agent-core-optional-java17/target/polaris-agent-c
 cp "polaris-agent-core/polaris-agent-core-extension/target/polaris-agent-core-extension-${version}.jar" "${folder_name}/boot/"
 
 pushd "polaris-agent-plugins"
-plugin_folders=$(find . -maxdepth 2 | grep -E ".+-plugin$")
+plugin_folders=$(find . -maxdepth 2 | grep -E ".+-plugin.+-")
 for plugin_folder in ${plugin_folders}; do
   file_name=${plugin_folder##*/}
   cp "${plugin_folder}/target/${file_name}-${version}.jar" "../${folder_name}/plugins/"
