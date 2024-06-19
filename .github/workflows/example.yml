@@ -1,4 +1,4 @@
-name: Release
+name: Example Release
 
 on:
   workflow_dispatch:
@@ -36,7 +36,7 @@ jobs:
 
       - name: Install xmllint
         run: sudo apt-get install libxml2-utils
-        
+
       - name: Get version
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
