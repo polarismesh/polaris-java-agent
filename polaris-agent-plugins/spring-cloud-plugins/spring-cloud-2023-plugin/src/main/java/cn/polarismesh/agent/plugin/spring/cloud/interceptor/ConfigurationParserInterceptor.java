@@ -117,7 +117,7 @@ public class ConfigurationParserInterceptor implements Interceptor {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) ReflectionUtils.getObjectByFieldName(target, "registry");
 			Environment environment = (Environment) ReflectionUtils.getObjectByFieldName(target, "environment");
 			for (BeanInjector beanInjector : beanInjectors) {
-				if (!(beanInjector instanceof CommonBeanInjector)) {
+				if (!(beanInjector instanceof RouterBeanInjector)) {
 					LOGGER.info("[PolarisJavaAgent] start to inject application bean definitions in module {}", beanInjector.getModule());
 					beanInjector.onApplicationStartup(target, constructor, processConfigurationClass, registry, environment);
 				}
@@ -140,7 +140,7 @@ public class ConfigurationParserInterceptor implements Interceptor {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) ReflectionUtils.getObjectByFieldName(target, "registry");
 			Environment environment = (Environment) ReflectionUtils.getObjectByFieldName(target, "environment");
 			for (BeanInjector beanInjector : beanInjectors) {
-				if (beanInjector instanceof CommonBeanInjector) {
+				if (beanInjector instanceof RouterBeanInjector) {
 					LOGGER.info("[PolarisJavaAgent] start to inject application bean definitions in module {}", beanInjector.getModule());
 					beanInjector.onApplicationStartup(target, constructor, processConfigurationClass, registry, environment);
 				}
