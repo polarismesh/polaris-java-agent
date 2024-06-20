@@ -7,10 +7,10 @@ spring:
   cloud:
     nacos:
       discovery:
-        enabled: false
+        enabled: true
         server-addr: 127.0.0.1:8848
       config:
-        enabled: false
+        enabled: true
         serverAddr: 127.0.0.1:8848
         username: 'nacos'
         password: 'nacos'
