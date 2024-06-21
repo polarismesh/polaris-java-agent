@@ -20,12 +20,27 @@ cp -f /app/version.txt ${java_agent_dir}/
 cd ${java_agent_dir}
 unzip ${polaris_agent_dir_name}.zip
 
-echo "inject with framework ${JAVA_AGENT_FRAMEWORK_NAME} and version ${JAVA_AGENT_FRAMEWORK_VERSION}"
+check_string_not_empty() {
+  local string_to_check="$1"
+  local trimmed
+
+  # 删除所有空白字符后检查字符串是否为空
+  trimmed=$(echo "$string_to_check" | tr -d '[:space:]')
+
+  if test -n "$trimmed"; then
+    return 0  # 变量非空且不全是空格，返回0（成功）
+  else
+    return 1  # 变量为空或全是空格，返回1（失败）
+  fi
+}
 
 # 第一步，需要确定 agent-plugin 启用哪个
 custom_plugin_id=""
-if [ -n ${JAVA_AGENT_FRAMEWORK_NAME} ] && [ -n ${JAVA_AGENT_FRAMEWORK_VERSION} ]; then
+if check_string_not_empty "${JAVA_AGENT_FRAMEWORK_NAME}"  && check_string_not_empty "${JAVA_AGENT_FRAMEWORK_VERSION}"; then
   custom_plugin_id="${JAVA_AGENT_FRAMEWORK_NAME}-${JAVA_AGENT_FRAMEWORK_VERSION}-plugin"
+  echo "inject with framework ${JAVA_AGENT_FRAMEWORK_NAME} and version ${JAVA_AGENT_FRAMEWORK_VERSION}"
+else
+  echo "JAVA_AGENT_FRAMEWORK_NAME [${JAVA_AGENT_FRAMEWORK_NAME}] or JAVA_AGENT_FRAMEWORK_VERSION [${JAVA_AGENT_FRAMEWORK_VERSION}] is empty"
 fi
 echo "plugins.enable=${custom_plugin_id}" > ${polaris_agent_dir_name}/conf/polaris-agent.config
 
