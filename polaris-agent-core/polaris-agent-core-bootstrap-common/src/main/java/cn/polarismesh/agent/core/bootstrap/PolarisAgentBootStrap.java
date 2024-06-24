@@ -20,6 +20,7 @@ package cn.polarismesh.agent.core.bootstrap;
 import cn.polarismesh.agent.core.bootstrap.starter.BootStrapStarter;
 import cn.polarismesh.agent.core.bootstrap.util.AgentDirUtils;
 import cn.polarismesh.agent.core.common.utils.JarFileUtils;
+import cn.polarismesh.agent.core.bootstrap.SetProperties;
 
 import java.lang.instrument.Instrumentation;
 import java.util.List;
@@ -40,8 +41,8 @@ public class PolarisAgentBootStrap {
             return;
         }
 
-        System.setProperty("spring.cloud.nacos.config.enabled", "false");
-        System.setProperty("spring.cloud.nacos.discovery.enabled", "false");
+        SetProperties setProperties = new SetProperties();
+        setProperties.initialize();
 
         logger.info("[Bootstrap] polaris-agent agentArgs:" + agentArgs);
         logger.info("[Bootstrap] polarisAgentBootStrap.ClassLoader:" + PolarisAgentBootStrap.class.getClassLoader());
