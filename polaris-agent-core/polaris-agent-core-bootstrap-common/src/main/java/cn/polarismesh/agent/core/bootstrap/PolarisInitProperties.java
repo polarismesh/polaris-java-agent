@@ -1,6 +1,6 @@
 package cn.polarismesh.agent.core.bootstrap;
 
-public class SetProperties {
+public class PolarisInitProperties {
 
     public void initialize() {
 
