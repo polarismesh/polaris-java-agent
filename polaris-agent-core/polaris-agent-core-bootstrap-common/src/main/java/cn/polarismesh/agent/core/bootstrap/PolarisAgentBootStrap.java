@@ -40,6 +40,9 @@ public class PolarisAgentBootStrap {
             return;
         }
 
+        System.setProperty("spring.cloud.nacos.config.enabled", "false");
+        System.setProperty("spring.cloud.nacos.discovery.enabled", "false");
+
         logger.info("[Bootstrap] polaris-agent agentArgs:" + agentArgs);
         logger.info("[Bootstrap] polarisAgentBootStrap.ClassLoader:" + PolarisAgentBootStrap.class.getClassLoader());
         logger.info("[Bootstrap] contextClassLoader:" + Thread.currentThread().getContextClassLoader());
