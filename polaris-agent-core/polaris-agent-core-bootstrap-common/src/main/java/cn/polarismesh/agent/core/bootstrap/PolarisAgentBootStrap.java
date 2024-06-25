@@ -20,6 +20,7 @@ package cn.polarismesh.agent.core.bootstrap;
 import cn.polarismesh.agent.core.bootstrap.starter.BootStrapStarter;
 import cn.polarismesh.agent.core.bootstrap.util.AgentDirUtils;
 import cn.polarismesh.agent.core.common.utils.JarFileUtils;
+import cn.polarismesh.agent.core.bootstrap.PolarisInitProperties;
 
 import java.lang.instrument.Instrumentation;
 import java.util.List;
@@ -39,6 +40,9 @@ public class PolarisAgentBootStrap {
             logger.warn("[Bootstrap] polaris-bootstrap already started. skipping agent loading.");
             return;
         }
+
+        PolarisInitProperties polarisInitProperties = new PolarisInitProperties();
+        polarisInitProperties.initialize();
 
         logger.info("[Bootstrap] polaris-agent agentArgs:" + agentArgs);
         logger.info("[Bootstrap] polarisAgentBootStrap.ClassLoader:" + PolarisAgentBootStrap.class.getClassLoader());

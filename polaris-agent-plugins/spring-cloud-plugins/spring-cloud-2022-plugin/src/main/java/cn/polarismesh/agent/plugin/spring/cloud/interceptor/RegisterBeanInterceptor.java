@@ -33,7 +33,9 @@ public class RegisterBeanInterceptor implements Interceptor {
 	private final Set<String> primaryBeanNames = new HashSet<>();
 
 	public RegisterBeanInterceptor() {
-//		primaryBeanNames.add("metadataTransferAutoConfiguratio");
+		primaryBeanNames.add("polarisAutoServiceRegistration");
+		primaryBeanNames.add("polarisRegistration");
+		primaryBeanNames.add("polarisServiceRegistry");
 	}
 
 	@Override

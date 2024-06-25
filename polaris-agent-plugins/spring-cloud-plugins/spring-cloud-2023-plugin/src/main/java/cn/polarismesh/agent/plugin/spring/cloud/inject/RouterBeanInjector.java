@@ -58,6 +58,25 @@ public class RouterBeanInjector implements BeanInjector {
 
 	@Override
 	public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
+		LOGGER.info("[PolarisJavaAgent] success to inject bootstrap bean definitions for module {}", getModule());
+	}
+
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
+		LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
+		if (null != ClassUtils.getClazz("feign.RequestInterceptor",
+				Thread.currentThread().getContextClassLoader())) {
+			Object feignAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, FeignAutoConfiguration.class, "feignAutoConfiguration");
+			ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, feignAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+			registry.registerBeanDefinition("feignAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+					FeignAutoConfiguration.class).getBeanDefinition());
+		}
+		Object routerAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, RouterAutoConfiguration.class, "routerAutoConfiguration");
+		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, routerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+		registry.registerBeanDefinition("routerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+				RouterAutoConfiguration.class).getBeanDefinition());
 		Object polarisNearByRouterProperties = ReflectionUtils.invokeConstructor(configClassCreator, PolarisNearByRouterProperties.class, "polarisNearByRouterProperties");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisNearByRouterProperties, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisNearByRouterProperties", BeanDefinitionBuilder.genericBeanDefinition(
@@ -78,13 +97,5 @@ public class RouterBeanInjector implements BeanInjector {
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisContractPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisContractPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisContractPropertiesAutoConfiguration.class).getBeanDefinition());
-		LOGGER.info("[PolarisJavaAgent] success to inject bootstrap bean definitions for module {}", getModule());
-	}
-
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public void onApplicationStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-		LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
 	}
 }
