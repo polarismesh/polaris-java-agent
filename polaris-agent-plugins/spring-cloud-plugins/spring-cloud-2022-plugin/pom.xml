@@ -13,8 +13,8 @@
     <artifactId>spring-cloud-2022-plugin</artifactId>
 
     <properties>
-        <spring.cloud.version>2022.0.4</spring.cloud.version>
-        <spring.cloud.tencent.version>1.14.0-2022.0.5-SNAPSHOT</spring.cloud.tencent.version>
+        <spring.cloud.version>2022.0.5</spring.cloud.version>
+        <spring.cloud.tencent.version>1.14.0-2022.0.5-RC2</spring.cloud.tencent.version>
         <spring.boot.version>3.1.7</spring.boot.version>
         <slf4j.vesion>1.7.30</slf4j.vesion>
         <jdk.version>17</jdk.version>
@@ -148,10 +148,10 @@
                     <artifactId>polaris-plugin-api</artifactId>
                 </exclusion>
 
-<!--                <exclusion>-->
-<!--                    <groupId>com.tencent.polaris</groupId>-->
-<!--                    <artifactId>connector-polaris-grpc</artifactId>-->
-<!--                </exclusion>-->
+                <!--                <exclusion>-->
+                <!--                    <groupId>com.tencent.polaris</groupId>-->
+                <!--                    <artifactId>connector-polaris-grpc</artifactId>-->
+                <!--                </exclusion>-->
 
                 <exclusion>
                     <groupId>com.tencent.polaris</groupId>

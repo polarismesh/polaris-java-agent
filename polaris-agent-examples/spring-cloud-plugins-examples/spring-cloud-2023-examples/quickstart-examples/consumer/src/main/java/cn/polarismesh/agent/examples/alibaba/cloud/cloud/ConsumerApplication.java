@@ -19,7 +19,9 @@ package cn.polarismesh.agent.examples.alibaba.cloud.cloud;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -37,34 +39,35 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 public class ConsumerApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ConsumerApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ConsumerApplication.class, args);
+    }
 
-	@LoadBalanced
-	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
+    @LoadBalanced
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 
-	@RestController
-	@RefreshScope
-	public static class EchoController {
+    @RestController
+    @RefreshScope
+    @ImportAutoConfiguration(RefreshAutoConfiguration.class)
+    public static class EchoController {
 
-		private Registration registration;
+        private Registration registration;
 
-		private RestTemplate template;
+        private RestTemplate template;
 
-		@Value("${server.port}")
-		private int port;
+        @Value("${server.port}")
+        private int port;
 
-		@Value("${custom.config:none}")
-		private String customConfig;
+        @Value("${custom.config:none}")
+        private String customConfig;
 
-		public EchoController(RestTemplate restTemplate, Registration registration) {
-			this.template = restTemplate;
-			this.registration = registration;
-		}
+        public EchoController(RestTemplate restTemplate, Registration registration) {
+            this.template = restTemplate;
+            this.registration = registration;
+        }
 
 //		@GetMapping("/echo/{str}")
 //		public ResponseEntity<String> rest(@PathVariable String str) {
@@ -75,18 +78,18 @@ public class ConsumerApplication {
 //			return new ResponseEntity<>(content, HttpStatus.OK);
 //		}
 
-		@GetMapping("/echo/{str}")
-		public ResponseEntity<String> rest(@PathVariable String str) {
-			ResponseEntity<String> response = template.getForEntity("http://service-provider-2023/echo/" + str,
-					String.class);
-			return response;
-		}
+        @GetMapping("/echo/{str}")
+        public ResponseEntity<String> rest(@PathVariable String str) {
+            ResponseEntity<String> response = template.getForEntity("http://service-provider-2023/echo/" + str,
+                    String.class);
+            return response;
+        }
 
-		@GetMapping("/custom/config")
-		public ResponseEntity<String> getCustomConfig() {
-			return new ResponseEntity<>(String.valueOf(customConfig), HttpStatus.OK);
-		}
+        @GetMapping("/custom/config")
+        public ResponseEntity<String> getCustomConfig() {
+            return new ResponseEntity<>(String.valueOf(customConfig), HttpStatus.OK);
+        }
 
-	}
+    }
 
 }

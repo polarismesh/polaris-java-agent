@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,42 +38,42 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 public class ProviderApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ProviderApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ProviderApplication.class, args);
+    }
 
-	//	@RefreshScope
-	@RestController
-	public static class EchoController {
+    @RefreshScope
+    @RestController
+    public static class EchoController {
 
-		private static final Logger LOG = LoggerFactory.getLogger(ProviderApplication.class);
+        private static final Logger LOG = LoggerFactory.getLogger(ProviderApplication.class);
 
-		@Value("${name:}")
-		private String name;
+        @Value("${name:}")
+        private String name;
 
-		@Value("${server.port}")
-		private String port;
+        @Value("${server.port}")
+        private String port;
 
-		@Value("${spring.cloud.client.ip-address:127.0.0.1}")
-		private String ip;
+        @Value("${spring.cloud.client.ip-address:127.0.0.1}")
+        private String ip;
 
-		@GetMapping("/circuitBreak")
-		public ResponseEntity<String> circuitBreak() throws InterruptedException {
-			LOG.info("Quickstart Callee Service [{}:{}] is called wrong.", ip, port);
-			return new ResponseEntity<>("failed for call quickstart callee service.", HttpStatus.BAD_GATEWAY);
-		}
+        @GetMapping("/circuitBreak")
+        public ResponseEntity<String> circuitBreak() throws InterruptedException {
+            LOG.info("Quickstart Callee Service [{}:{}] is called wrong.", ip, port);
+            return new ResponseEntity<>("failed for call quickstart callee service.", HttpStatus.BAD_GATEWAY);
+        }
 
-		@GetMapping("/echo/{string}")
-		public String echo(@PathVariable String string) {
-			return "Hello, I'm provider, receive msg : "
-					+ string
-					+ ", my metadata : "
-					+ " name config : "
-					+ name
-					+ "    "
-			        + port;
-		}
+        @GetMapping("/echo/{string}")
+        public String echo(@PathVariable String string) {
+            return "Hello, I'm provider, receive msg : "
+                    + string
+                    + ", my metadata : "
+                    + " name config : "
+                    + name
+                    + "    "
+                    + port;
+        }
 
-	}
+    }
 
 }
