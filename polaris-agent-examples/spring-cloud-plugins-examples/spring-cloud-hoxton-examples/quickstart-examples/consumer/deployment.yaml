@@ -17,7 +17,7 @@ spec:
         app: service-consumer-hoxton
       annotations:
         polarismesh.cn/javaagent: "true"
-        polarismesh.cn/javaagentVersion: "1.7.0-RC2"
+        polarismesh.cn/javaagentVersion: "1.7.0-RC4"
         polarismesh.cn/javaagentFrameworkName: "spring-cloud"
         polarismesh.cn/javaagentFrameworkVersion: "hoxton"
     spec:
@@ -38,7 +38,7 @@ spec:
           lifecycle:
             preStop:
               exec:
-                command: ["curl","-X","PUT","http://127.0.0.1:28080/offline","&&","sleep","30"]
+                command: [ "curl","-X","PUT","http://127.0.0.1:28080/offline","&&","sleep","30" ]
           readinessProbe:
             httpGet:
               path: /online

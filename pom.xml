@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.tencent.polaris</groupId>
@@ -14,7 +14,7 @@
     <url>https://github.com/polarismesh/polaris-java-agent</url>
 
     <properties>
-        <revision>1.7.0-RC4</revision>
+        <revision>1.7.0-RC5</revision>
         <polaris.version>1.15.5</polaris.version>
         <guava.version>32.0.1-jre</guava.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
