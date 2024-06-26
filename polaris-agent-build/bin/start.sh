@@ -20,24 +20,38 @@ cp -f /app/version.txt ${java_agent_dir}/
 cd ${java_agent_dir}
 unzip ${polaris_agent_dir_name}.zip
 
-echo "inject with framework ${JAVA_AGENT_FRAMEWORK_NAME} and version ${JAVA_AGENT_FRAMEWORK_VERSION}"
+check_string_not_empty() {
+  local string_to_check="$1"
+  local trimmed
+
+  # 删除所有空白字符后检查字符串是否为空
+  trimmed=$(echo "$string_to_check" | tr -d '[:space:]')
+
+  if test -n "$trimmed"; then
+    return 0  # 变量非空且不全是空格，返回0（成功）
+  else
+    return 1  # 变量为空或全是空格，返回1（失败）
+  fi
+}
 
 # 第一步，需要确定 agent-plugin 启用哪个
-custom_plugin_id="${JAVA_AGENT_FRAMEWORK_NAME}-${JAVA_AGENT_FRAMEWORK_VERSION}-plugin"
+custom_plugin_id=""
+if check_string_not_empty "${JAVA_AGENT_FRAMEWORK_NAME}"  && check_string_not_empty "${JAVA_AGENT_FRAMEWORK_VERSION}"; then
+  custom_plugin_id="${JAVA_AGENT_FRAMEWORK_NAME}-${JAVA_AGENT_FRAMEWORK_VERSION}-plugin"
+  echo "inject with framework ${JAVA_AGENT_FRAMEWORK_NAME} and version ${JAVA_AGENT_FRAMEWORK_VERSION}"
+else
+  echo "JAVA_AGENT_FRAMEWORK_NAME [${JAVA_AGENT_FRAMEWORK_NAME}] or JAVA_AGENT_FRAMEWORK_VERSION [${JAVA_AGENT_FRAMEWORK_VERSION}] is empty"
+fi
 echo "plugins.enable=${custom_plugin_id}" > ${polaris_agent_dir_name}/conf/polaris-agent.config
 
 # 第二步，将 plugin 所需要的配置注入到 plugin 对应的目录中去
-java_agent_config_dir="${JAVA_AGENT_FRAMEWORK_NAME}-${JAVA_AGENT_FRAMEWORK_VERSION}"
-echo "inject with config dir ${java_agent_config_dir}"
 echo "inject with default config ${JAVA_AGENT_PLUGIN_CONF}"
-
 custom_plugin_properties=${JAVA_AGENT_PLUGIN_CONF}
-echo "${custom_plugin_properties}" > ${polaris_agent_dir_name}/conf/plugin/${java_agent_config_dir}/application.properties
+target_config_file=${polaris_agent_dir_name}/conf/plugin/spring-cloud/application.properties
+echo "${custom_plugin_properties}" > "${target_config_file}"
 
 # 第三步，将地域信息拉取并设置进配置文件
 # 腾讯云不能拿到大区，因此腾讯云上的region对应的是北极星的zone，zone对应北极星的campus
-target_config_file=${polaris_agent_dir_name}/conf/plugin/${java_agent_config_dir}/application.properties
-
 echo "start to fetch region, target config file ${target_config_file}"
 region="$(curl -s --connect-timeout 10 -m 10 http://metadata.tencentyun.com/latest/meta-data/placement/region)"
 region_code=$?

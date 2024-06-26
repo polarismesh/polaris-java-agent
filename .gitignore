@@ -43,3 +43,4 @@ backup/
 *.tar.gz
 *.zip
 polaris-java-agent-*
+*/version.txt

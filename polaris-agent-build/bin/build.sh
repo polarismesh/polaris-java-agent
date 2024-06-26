@@ -47,6 +47,13 @@ for plugin_folder in ${plugin_folders}; do
     cp -r "${plugin_folder}/src/main/conf/." "../${folder_name}/conf/"
   fi
 done
+plugin_config_folders=$(find . -maxdepth 2 | grep -E ".+-plugin-common$")
+for plugin_config_folder in ${plugin_config_folders}; do
+  file_name=${plugin_config_folder##*/}
+  if [ -d "${plugin_config_folder}/src/main/conf" ]; then
+    cp -r "${plugin_config_folder}/src/main/conf/." "../${folder_name}/conf/"
+  fi
+done
 popd
 
 # do package

@@ -57,7 +57,7 @@ public class PropertiesProvider {
             String configPath = Paths.get(System.getProperty(Constant.AGENT_CONF_PATH), "conf").toString();
             LOGGER.info("load property sources from config path " + configPath);
             Properties properties = new Properties();
-            String confPath = Paths.get(configPath, "plugin", "spring-cloud-2022", "application.properties").toString();
+            String confPath = Paths.get(configPath, "plugin", "spring-cloud", "application.properties").toString();
             String cmdVal = System.getProperty("polaris.agent.user.application.conf");
             if (null != cmdVal && !cmdVal.isEmpty()) {
                 confPath = cmdVal;
