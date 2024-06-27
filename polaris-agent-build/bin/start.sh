@@ -62,7 +62,6 @@ else
   sed -i "s/spring.cloud.polaris.config.address=grpc\/\:\/\/127.0.0.1\/\:8093/spring.cloud.polaris.address=${polaris_config_address}/g" ${target_config_file}
 fi
 
-
 # 第三步，将地域信息拉取并设置进配置文件
 # 腾讯云不能拿到大区，因此腾讯云上的region对应的是北极星的zone，zone对应北极星的campus
 echo "start to fetch region, target config file ${target_config_file}"
