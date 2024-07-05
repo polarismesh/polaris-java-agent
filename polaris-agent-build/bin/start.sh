@@ -59,7 +59,7 @@ else
   echo "read polaris discovery port: ${POLARIS_DISCOVER_PORT}"
   echo "read polaris config ip: ${POLARIS_CONFIG_IP}"
   echo "read polaris config port: ${POLARIS_CONFIG_PORT}"
-  polaris_address="grpc\\\:\/\/${POLARIS_SERVER_IP}\/\:${POLARIS_DISCOVER_PORT}"
+  polaris_address="grpc\\\:\/\/${POLARIS_SERVER_IP}\\\:${POLARIS_DISCOVER_PORT}"
   polaris_config_address="grpc\\\:\/\/${POLARIS_CONFIG_IP}\\\:${POLARIS_CONFIG_PORT}"
   echo "read polaris address: ${polaris_address}"
   echo "read polaris config address: ${polaris_config_address}"
