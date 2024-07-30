@@ -20,6 +20,7 @@ package cn.polarismesh.agent.plugin.spring.cloud.interceptor;
 import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.*;
+import com.tencent.polaris.api.utils.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,11 +64,14 @@ public class SpringFactoriesLoaderInterceptor implements Interceptor {
             @Override
             public Boolean apply(ClassLoader classLoader) {
                 Map<String, List<String>> loadedClasses = (Map<String, List<String>>) result;
+                if (loadedClasses == null) {
+                    loadedClasses = new ConcurrentHashMap<>();
+                }
 
                 for (BeanInjector beanInjector : beanInjectors) {
                     LOGGER.info("[PolarisJavaAgent] start to inject JNI definition in module {}", beanInjector.getModule());
                     Map<String, List<String>> classNames = beanInjector.getClassNameForType();
-                    if (classNames.isEmpty()) {
+                    if (CollectionUtils.isEmpty(classNames)) {
                         continue;
                     }
                     for (Map.Entry<String, List<String>> entry : classNames.entrySet()) {
