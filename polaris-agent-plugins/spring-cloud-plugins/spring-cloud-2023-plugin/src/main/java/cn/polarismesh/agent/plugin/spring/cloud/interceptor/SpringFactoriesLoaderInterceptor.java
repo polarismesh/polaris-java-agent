@@ -51,6 +51,9 @@ public class SpringFactoriesLoaderInterceptor implements Interceptor {
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         Map<String, List<String>> oldFactories = (Map<String, List<String>>) ReflectionUtils.getObjectByFieldName(target, "factories");
+        if (CollectionUtils.isEmpty(oldFactories)) {
+            oldFactories = new HashMap<>();
+        }
         Map<String, List<String>> newFactories = new HashMap<>();
         for (Map.Entry<String, List<String>> entry : oldFactories.entrySet()) {
             newFactories.put(entry.getKey(), new ArrayList<>(entry.getValue()));
