@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: service-consumer-hoxton
+  cloud:
+    polaris:
+      namespace: default
+      enabled: true
+      discovery:
+        enabled: true
+        register: true
+      config:
+        enabled: true
+        auto-refresh: true
+        groups:
+          - name: ${spring.application.name}
+            files: [ "config/caller.properties" ]
+      circuitbreaker:
+        enabled: true
+      contract:
+        exposure: true
+        report:
+          enabled: true
+      admin:
+        port: 28084
+      stat:
+        enabled: true
+      ratelimit:
+        enabled: true
+        maxQueuingTime: 500
+    tencent:
+      metadata:
+        content:
+          label1: value2
+#          region: huanan
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - polaris-discovery
+          - polaris-ratelimit
+          - polaris-config
+label:
+  key-value: user2:lisi
