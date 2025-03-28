@@ -1,0 +1,12 @@
+spring:
+  config:
+    import: optional:polaris
+  cloud:
+    polaris:
+      address: grpc://127.0.0.1:8091
+      config:
+        enabled: true
+        auto-refresh: true
+        groups:
+          - name: ${spring.application.name}
+            files: [ "config/callee.properties" ]
