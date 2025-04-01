@@ -1,7 +1,6 @@
 package cn.polarismesh.agent.examples.alibaba.cloud.cloud;
 
 
-import cn.polarismesh.agent.examples.alibaba.cloud.cloud.config.ConfigurationPropertiesSample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +33,6 @@ public class ConsumerController {
 
 	@Autowired
 	private CircuitBreakerFactory circuitBreakerFactory;
-
-	@Autowired
-	private ConfigurationPropertiesSample configurationPropertiesSample;
-
-	@GetMapping("/config/name")
-	public String getConfigName() {
-		LOG.info("getConfigName:{}", configurationPropertiesSample.getName());
-		return configurationPropertiesSample.getName();
-	}
 
 	@GetMapping("/rest/circuitBreak")
 	public String circuitBreakRestTemplate() {
