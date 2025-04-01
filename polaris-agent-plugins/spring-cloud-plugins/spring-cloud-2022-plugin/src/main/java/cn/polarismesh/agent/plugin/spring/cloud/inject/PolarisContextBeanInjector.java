@@ -53,10 +53,6 @@ public class PolarisContextBeanInjector implements BeanInjector {
     public Map<String, List<String>> getClassNameForType() {
         Map<String, List<String>> values = new HashMap<>();
         values.put("org.springframework.context.ApplicationListener", Collections.singletonList("com.tencent.cloud.polaris.context.logging.PolarisLoggingApplicationListener"));
-//        values.put("org.springframework.boot.context.config.ConfigDataLocationResolver", Collections.singletonList("com.tencent.cloud.polaris.config.configdata.PolarisConfigDataLocationResolver"));
-//        values.put("org.springframework.boot.context.config.ConfigDataLoader", Collections.singletonList("com.tencent.cloud.polaris.config.configdata.PolarisConfigDataLoader"));
-//        values.put("org.springframework.boot.diagnostics.FailureAnalyzer", Collections.singletonList("com.tencent.cloud.polaris.config.configdata.PolarisImportExceptionFailureAnalyzer"));
-//        values.put("org.springframework.boot.env.EnvironmentPostProcessor", Collections.singletonList("com.tencent.cloud.polaris.config.configdata.PolarisConfigDataMissingEnvironmentPostProcessor"));
         return values;
     }
 

@@ -54,7 +54,8 @@ public class SpringFactoriesLoaderInterceptor implements Interceptor {
     @SuppressWarnings("unchecked")
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        Map<String, List<String>> oldFactories = (Map<String, List<String>>) ReflectionUtils.getObjectByFieldName(target, "factories");
+        Map<String, List<String>> oldFactories = (Map<String, List<String>>) ReflectionUtils.getObjectByFieldName(
+                target, "factories");
         if (CollectionUtils.isEmpty(oldFactories)) {
             oldFactories = new HashMap<>();
         }
@@ -64,7 +65,11 @@ public class SpringFactoriesLoaderInterceptor implements Interceptor {
         }
 
         for (BeanInjector beanInjector : beanInjectors) {
-            LOGGER.info("[PolarisJavaAgent] start to inject JNI definition in module {}", beanInjector.getModule());
+            String message = String.format("[PolarisJavaAgent] start to inject JNI definition in module %s",
+                    beanInjector.getModule());
+            // 静默阶段, 需要手动输出日志
+            System.out.println(message);
+            LOGGER.info(message);
             Map<String, List<String>> classNames = beanInjector.getClassNameForType();
             if (CollectionUtils.isEmpty(classNames)) {
                 continue;
