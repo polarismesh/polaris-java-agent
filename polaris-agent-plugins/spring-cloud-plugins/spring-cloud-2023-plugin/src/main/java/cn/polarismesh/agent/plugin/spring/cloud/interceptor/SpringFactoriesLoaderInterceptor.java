@@ -20,13 +20,23 @@ package cn.polarismesh.agent.plugin.spring.cloud.interceptor;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.*;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.CommonBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.ConfigBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.LoadbalancerBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.MetadataTransferBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.PolarisContextBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.RegistryBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.RouterBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.RpcEnhancementBeanInjector;
 import com.tencent.polaris.api.utils.CollectionUtils;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class SpringFactoriesLoaderInterceptor implements Interceptor {
 
@@ -60,7 +70,11 @@ public class SpringFactoriesLoaderInterceptor implements Interceptor {
         }
 
         for (BeanInjector beanInjector : beanInjectors) {
-            LOGGER.info("[PolarisJavaAgent] start to inject JNI definition in module {}", beanInjector.getModule());
+            String message = String.format("[PolarisJavaAgent] start to inject JNI definition in module %s",
+                    beanInjector.getModule());
+            // 静默阶段, 需要手动输出日志
+            System.out.println(message);
+            LOGGER.info(message);
             Map<String, List<String>> classNames = beanInjector.getClassNameForType();
             if (CollectionUtils.isEmpty(classNames)) {
                 continue;

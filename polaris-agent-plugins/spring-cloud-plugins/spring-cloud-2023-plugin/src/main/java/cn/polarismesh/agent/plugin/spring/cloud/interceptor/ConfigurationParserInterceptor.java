@@ -17,6 +17,21 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.interceptor;
 
+import cn.polarismesh.agent.core.common.utils.ClassUtils;
+import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
+import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.CircuitBreakerBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.CommonBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.ConfigBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.LoadbalancerBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.LosslessBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.MetadataTransferBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.PolarisContextBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.RateLimitBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.RegistryBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.RouterBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.RpcEnhancementBeanInjector;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -24,33 +39,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
-
-import cn.polarismesh.agent.core.common.utils.ClassUtils;
-import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
-import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.common.PropertiesProvider;
-import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.CommonBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.ConfigBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.LoadbalancerBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.LosslessBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.MetadataTransferBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.PolarisContextBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.RegistryBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.RouterBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.RpcEnhancementBeanInjector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertiesPropertySource;
 
 public class ConfigurationParserInterceptor implements Interceptor {
 
@@ -62,14 +57,17 @@ public class ConfigurationParserInterceptor implements Interceptor {
 
 	public ConfigurationParserInterceptor() {
 		beanInjectors.add(new CommonBeanInjector());
+		beanInjectors.add(new PolarisContextBeanInjector());
 		beanInjectors.add(new MetadataTransferBeanInjector());
 		beanInjectors.add(new RegistryBeanInjector());
-		beanInjectors.add(new RpcEnhancementBeanInjector());
-		beanInjectors.add(new PolarisContextBeanInjector());
-		beanInjectors.add(new RouterBeanInjector());
-		beanInjectors.add(new LoadbalancerBeanInjector());
 		beanInjectors.add(new ConfigBeanInjector());
+		beanInjectors.add(new RpcEnhancementBeanInjector());
 		beanInjectors.add(new LosslessBeanInjector());
+		beanInjectors.add(new LoadbalancerBeanInjector());
+		beanInjectors.add(new RouterBeanInjector());
+		beanInjectors.add(new CircuitBreakerBeanInjector());
+		beanInjectors.add(new RateLimitBeanInjector());
+
 	}
 
 

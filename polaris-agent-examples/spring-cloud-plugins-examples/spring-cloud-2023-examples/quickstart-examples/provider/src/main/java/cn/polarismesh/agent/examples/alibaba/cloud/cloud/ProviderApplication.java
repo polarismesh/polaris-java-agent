@@ -18,7 +18,8 @@
 package cn.polarismesh.agent.examples.alibaba.cloud.cloud;
 
 import com.alibaba.nacos.common.utils.JacksonUtils;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -45,17 +46,38 @@ public class ProviderApplication {
 	@RefreshScope
 	public static class EchoController {
 
+		private static final Logger LOG = LoggerFactory.getLogger(ProviderApplication.class);
+
 		private Registration registration;
 
-		@Value("${server.port}")
+		@Value("${spring.application.name}")
+		private String svcName;
+
+		@Value("${spring.cloud.client.ip-address:127.0.0.1}")
+		private String ip;
+
+		@Value("${server.port:0}")
 		private int port;
 
-		@Value("${custom.config:none}")
-		private String customConfig;
+		@Value("${name:}")
+		private String name;
 
-		@GetMapping("/custom/config")
-		public ResponseEntity<String> getCustomConfig() {
-			return new ResponseEntity<>(String.valueOf(customConfig), HttpStatus.OK);
+		@Value("${nacos.config:none}")
+		private String nacosConfig;
+
+		@Value("${polaris.config:none}")
+		private String polarisConfig;
+
+		@GetMapping("/nacos/config")
+		public ResponseEntity<String> getNacosConfig() {
+			LOG.info("{} [{}:{}] is called right. nacos config:{}", svcName, ip, port, nacosConfig);
+			return new ResponseEntity<>(String.valueOf(nacosConfig), HttpStatus.OK);
+		}
+
+		@GetMapping("/polaris/config")
+		public ResponseEntity<String> getPolarisConfig() {
+			LOG.info("{} [{}:{}] is called right. polaris config:{}", svcName, ip, port, polarisConfig);
+			return new ResponseEntity<>(String.valueOf(polarisConfig), HttpStatus.OK);
 		}
 
 		public EchoController(Registration registration) {
@@ -64,13 +86,10 @@ public class ProviderApplication {
 
 		@GetMapping("/echo/{string}")
 		public String echo(@PathVariable String string) {
-			String sb = "Hello, I'm provider[" + port + "], receive msg : "
-					+ string
-					+ "my metadata : "
-					+ JacksonUtils.toJson(registration.getMetadata());
-			return sb;
+			String result = String.format("Hello, I'm %s[%s:%s], receive msg : %s, my metadata : %s, name config:"
+					+ "%s", svcName, ip, port, string, JacksonUtils.toJson(registration.getMetadata()), name);
+			LOG.info("{} -- response result: {}", svcName, result);
+			return result;
 		}
-
 	}
-
 }

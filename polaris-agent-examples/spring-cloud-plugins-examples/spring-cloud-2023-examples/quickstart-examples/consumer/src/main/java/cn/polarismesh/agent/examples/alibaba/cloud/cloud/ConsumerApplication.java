@@ -58,7 +58,7 @@ public class ConsumerApplication {
 
         private RestTemplate template;
 
-        @Value("${server.port}")
+        @Value("${server.port:0}")
         private int port;
 
         @Value("${custom.config:none}")
