@@ -2,10 +2,23 @@ spring:
   application:
     name: service-provider-hoxton
   cloud:
+    nacos:
+      username: nacos
+      password: nacos
+      discovery:
+        enabled: true
+        server-addr: 127.0.0.1:8848
+      config:
+        enabled: true
+        server-addr: 127.0.0.1:8848
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        data-id: ${spring.application.name}.yaml
     polaris:
       namespace: default
       enabled: true
       discovery:
+        heartbeat-interval: 300000
         enabled: true
         register: true
       config:
@@ -19,7 +32,7 @@ spring:
         report:
           enabled: true
       admin:
-        port: 28084
+        port: 28082
       stat:
         enabled: true
       ratelimit:

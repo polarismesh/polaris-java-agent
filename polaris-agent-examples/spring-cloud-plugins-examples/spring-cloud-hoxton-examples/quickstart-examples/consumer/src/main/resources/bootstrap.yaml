@@ -21,7 +21,7 @@ spring:
         report:
           enabled: true
       admin:
-        port: 28084
+        port: 28081
       stat:
         enabled: true
       ratelimit:
