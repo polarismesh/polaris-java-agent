@@ -17,32 +17,17 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.inject;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import cn.polarismesh.agent.core.common.utils.ClassUtils;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import com.tencent.cloud.common.metadata.config.MetadataAutoConfiguration;
 import com.tencent.cloud.common.metadata.endpoint.PolarisMetadataEndpointAutoConfiguration;
 import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
-import com.tencent.cloud.polaris.DiscoveryPropertiesAutoConfiguration;
-import com.tencent.cloud.polaris.DiscoveryPropertiesBootstrapAutoConfiguration;
-import com.tencent.cloud.polaris.config.PolarisConfigBootstrapAutoConfiguration;
-import com.tencent.cloud.polaris.contract.config.PolarisContractPropertiesAutoConfiguration;
-import com.tencent.cloud.polaris.router.config.FeignAutoConfiguration;
-import com.tencent.cloud.polaris.router.config.RouterAutoConfiguration;
-import com.tencent.cloud.polaris.router.config.RouterConfigModifierAutoConfiguration;
-import com.tencent.cloud.polaris.router.config.properties.PolarisMetadataRouterProperties;
-import com.tencent.cloud.polaris.router.config.properties.PolarisNearByRouterProperties;
-import com.tencent.cloud.polaris.router.config.properties.PolarisRuleBasedRouterProperties;
-import com.tencent.cloud.polaris.router.endpoint.PolarisRouterEndpointAutoConfiguration;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.env.Environment;
