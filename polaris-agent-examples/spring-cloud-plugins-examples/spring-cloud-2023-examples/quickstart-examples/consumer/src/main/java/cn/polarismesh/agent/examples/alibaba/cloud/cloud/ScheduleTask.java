@@ -40,7 +40,7 @@ public class ScheduleTask {
         for (String str : testStrings) {
             try {
                 ResponseEntity<String> response = circuitBreaker.run(
-                        () -> template.getForEntity("http://service-provider-2022/echo/" + str, String.class),
+                        () -> template.getForEntity("http://service-provider-2023/echo/" + str, String.class),
                         throwable -> {
                             LOG.error("自动请求失败: {}", throwable.getMessage(), throwable);
                             return ResponseEntity.status(503).body("服务暂不可用");
