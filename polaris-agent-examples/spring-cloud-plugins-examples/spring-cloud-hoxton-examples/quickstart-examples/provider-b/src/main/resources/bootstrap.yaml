@@ -31,8 +31,6 @@ spring:
         exposure: true
         report:
           enabled: true
-      admin:
-        port: 28083
       stat:
         enabled: true
       ratelimit:
