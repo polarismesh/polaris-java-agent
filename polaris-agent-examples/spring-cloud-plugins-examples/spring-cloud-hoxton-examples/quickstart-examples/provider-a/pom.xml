@@ -13,7 +13,7 @@
     <groupId>com.tencent.polaris</groupId>
     <artifactId>polaris-javaagent-demo-sc-quickstart-hoxton-provider-a</artifactId>
     <packaging>jar</packaging>
-    <version>1.7.0</version>
+    <version>2.0.2-RC1</version>
 
     <name>hoxton-provider-a</name>
     <description>Demo Provider Project For Spring Cloud Alibaba</description>
