@@ -17,6 +17,14 @@ spec:
         app: service-provider-2022-b
       annotations:
         polarismesh.cn/javaagent: "true"
+        polarismesh.cn/javaagentConfig: |
+          {
+          	"spring.config.import": "optional:polaris",
+          	"spring.cloud.polaris.config.enabled": "true",
+            "spring.cloud.polaris.config.address": "127.0.0.1:8903",
+          	"spring.cloud.polaris.config.groups[0].name": "service-provider-2022",
+          	"spring.cloud.polaris.config.groups[0].files[0]": "config/callee.properties"
+          }
     spec:
       containers:
         - image: polarismesh/polaris-javaagent-demo-sc-quickstart-2022-provider-b:2.0.2-RC1-java17
@@ -31,7 +39,7 @@ spec:
           command:
             - /bin/bash
             - -c
-            - cd /app && java -Dserver.port=65004 -jar main.jar
+            - cd /app && java -Dserver.port=65004 -Dspring.cloud.nacos.config.server-addr=127.0.0.1:8848 -jar main.jar
           lifecycle:
             preStop:
               exec:
