@@ -26,7 +26,6 @@ import com.tencent.cloud.polaris.context.config.PolarisContextBootstrapAutoConfi
 import com.tencent.cloud.polaris.context.config.PolarisContextPostConfiguration;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -52,9 +51,8 @@ public class PolarisContextBeanInjector implements BeanInjector {
     @Override
     public Map<String, List<String>> getClassNameForType() {
         Map<String, List<String>> values = new HashMap<>();
-        values.put("org.springframework.context.ApplicationListener", Arrays.asList(
-                "com.tencent.cloud.polaris.context.logging.PolarisLoggingApplicationListener",
-                "com.tencent.cloud.polaris.context.listener.FailedEventApplicationListener"));
+        values.put("org.springframework.context.ApplicationListener", Collections.singletonList(
+                "com.tencent.cloud.polaris.context.logging.PolarisLoggingApplicationListener"));
         values.put("org.springframework.boot.env.EnvironmentPostProcessor", Collections.singletonList(
                 "com.tencent.cloud.polaris.context.config.PolarisContextEnvironmentPostProcessor"));
         return values;
