@@ -14,7 +14,7 @@
 	<description>Demo Service-A Project For Spring Cloud Alibaba</description>
 	<artifactId>polaris-javaagent-demo-sc-gray-2023-service-a</artifactId>
 	<packaging>jar</packaging>
-	<version>2.0.2-RC1</version>
+	<version>2.0.1.0-RC1</version>
 
 
 	<dependencyManagement>
