@@ -21,7 +21,8 @@ spec:
           {
           	"spring.cloud.polaris.config.enabled": "true",
           	"spring.cloud.polaris.config.groups[0].name": "service-provider-hoxton",
-          	"spring.cloud.polaris.config.groups[0].files[0]": "config/callee.properties"
+          	"spring.cloud.polaris.config.groups[0].files[0]": "config/callee.properties",
+            "spring.cloud.polaris.lossless.enabled": "true"
           }
     spec:
       containers:

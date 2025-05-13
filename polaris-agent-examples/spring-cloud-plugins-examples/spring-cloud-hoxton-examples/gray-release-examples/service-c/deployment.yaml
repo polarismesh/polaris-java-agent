@@ -17,6 +17,10 @@ spec:
         app: service-c-hoxton
       annotations:
         polarismesh.cn/javaagent: "true"
+        polarismesh.cn/javaagentConfig: |
+          {
+            "spring.cloud.polaris.lossless.enabled": "true"
+          }
     spec:
       containers:
         - image: polarismesh/polaris-javaagent-demo-sc-gray-hoxton-service-c:2.0.2-RC1-java8
