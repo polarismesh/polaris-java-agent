@@ -25,7 +25,7 @@ public class ScheduleTask {
     @Autowired
     private CircuitBreakerFactory circuitBreakerFactory;
 
-    @Value("${consumer.auto.test:true}")
+    @Value("${consumer.auto.test.enabled:false}")
     private Boolean autoTest;
 
     @Scheduled(fixedDelayString = "${consumer.auto.test.interval:30000}")
