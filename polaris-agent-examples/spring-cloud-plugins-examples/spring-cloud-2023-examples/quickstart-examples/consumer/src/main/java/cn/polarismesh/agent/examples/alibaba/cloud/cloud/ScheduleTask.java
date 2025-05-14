@@ -32,7 +32,6 @@ public class ScheduleTask {
     @Scheduled(fixedDelayString = "${consumer.auto.test.interval:30000}")
     public void autoSendRequest() {
         if (!autoTest) {
-            LOG.info("自动请求关闭");
             return;
         }
 
