@@ -19,7 +19,6 @@ spec:
         polarismesh.cn/javaagent: "true"
         polarismesh.cn/javaagentConfig: |
           {
-          	"spring.cloud.polaris.router.nearby-router.matchLevel": "CAMPUS",
             "spring.cloud.polaris.lossless.enabled": "true"
           }
     spec:

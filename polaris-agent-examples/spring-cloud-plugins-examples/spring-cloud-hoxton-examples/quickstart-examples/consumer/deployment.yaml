@@ -20,9 +20,7 @@ spec:
         polarismesh.cn/javaagentConfig: |
           {
           	"spring.cloud.polaris.circuitbreaker.enabled": "true",
-          	"spring.cloud.polaris.router.nearby-router.matchLevel": "CAMPUS",
-            "spring.cloud.polaris.lossless.enabled": "true",
-          	"spring.cloud.polaris.lossless.healthCheckPath": "/actuator/health"
+            "spring.cloud.polaris.lossless.enabled": "true"
           }
     spec:
       containers:
