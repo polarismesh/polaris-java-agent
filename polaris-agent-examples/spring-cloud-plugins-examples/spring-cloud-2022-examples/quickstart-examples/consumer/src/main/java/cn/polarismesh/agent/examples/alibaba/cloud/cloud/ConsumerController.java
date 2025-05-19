@@ -28,7 +28,10 @@ public class ConsumerController {
 	@Qualifier("defaultRestTemplate")
 	private RestTemplate defaultRestTemplate;
 
-    @Autowired
+	@Autowired
+	private ConsumerServiceWithFallback consumerServiceWithFallback;
+
+	@Autowired
 	private ConsumerService consumerService;
 
 	@Autowired
@@ -53,6 +56,11 @@ public class ConsumerController {
 
 	@GetMapping("/feign/circuitBreak/fallbackFromCode")
 	public String circuitBreakFeignFallbackFromCode() {
+		return consumerServiceWithFallback.circuitBreak();
+	}
+
+	@GetMapping("/feign/circuitBreak/fallbackFromPolaris")
+	public String circuitBreakFeignFallbackFromPolaris() {
 		return consumerService.circuitBreak();
 	}
 

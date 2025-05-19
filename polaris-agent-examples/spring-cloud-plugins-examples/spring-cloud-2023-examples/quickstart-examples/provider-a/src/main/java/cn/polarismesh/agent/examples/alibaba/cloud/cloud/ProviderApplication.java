@@ -91,5 +91,11 @@ public class ProviderApplication {
 			LOG.info("{} -- response result: {}", svcName, result);
 			return result;
 		}
+
+		@GetMapping("/circuitBreak")
+		public String circuitBreak() {
+			LOG.info("{} [{}:{}] is called right.", svcName, ip, port);
+			return String.format("Quickstart Callee Service [%s:%s] is called right.", ip, port);
+		}
 	}
 }

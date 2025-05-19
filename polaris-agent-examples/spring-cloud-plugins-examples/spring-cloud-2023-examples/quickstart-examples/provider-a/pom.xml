@@ -10,9 +10,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>2023-provider</name>
+    <name>2023-provider-a</name>
     <description>Demo Provider Project For Spring Cloud Alibaba 2023</description>
-    <artifactId>polaris-javaagent-demo-sc-quickstart-2023-provider</artifactId>
+    <artifactId>polaris-javaagent-demo-sc-quickstart-2023-provider-a</artifactId>
     <packaging>jar</packaging>
     <version>2.0.1.0-RC1</version>
 

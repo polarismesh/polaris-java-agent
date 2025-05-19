@@ -3,8 +3,10 @@ package cn.polarismesh.agent.examples.alibaba.cloud.cloud;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@FeignClient(name = "service-provider-2022", contextId = "fallback-from-polaris")
-public interface ConsumerService {
+@FeignClient(name = "service-provider-hoxton", contextId = "fallback-from-code",
+        fallback = ConsumerServiceFallback.class)
+public interface ConsumerServiceWithFallback {
+
     /**
      * Check circuit break.
      *

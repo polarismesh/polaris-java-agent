@@ -66,6 +66,12 @@ public class ProviderApplication {
         @Value("${polaris.config:none}")
         private String polarisConfig;
 
+        @Value("${ifBadGateway:true}")
+        private Boolean ifBadGateway;
+
+        @Value("${ifDelay:false}")
+        private Boolean ifDelay;
+
         @GetMapping("/nacos/config")
         public ResponseEntity<String> getNacosConfig() {
             LOG.info("{} [{}:{}] is called right. nacos config:{}", svcName, ip, port, nacosConfig);
@@ -79,9 +85,26 @@ public class ProviderApplication {
         }
 
         @GetMapping("/circuitBreak")
-        public String circuitBreak() {
-            LOG.info("{} [{}:{}] is called right.", svcName, ip, port);
-            return String.format("Quickstart Callee Service [%s:%s] is called right.", ip, port);
+        public ResponseEntity<String> circuitBreak() {
+            if (ifBadGateway) {
+                String response = String.format("%s [%s:%s] is called wrong.", svcName, ip, port);
+                LOG.info("Circuit break triggered - bad gateway: {}", response);
+                return new ResponseEntity<>(response, HttpStatus.BAD_GATEWAY);
+            }
+            if (ifDelay) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    LOG.warn("Sleep interrupted", e);
+                    Thread.currentThread().interrupt();
+                }
+                String response = String.format("%s [%s:%s] is called slow.", svcName, ip, port);
+                LOG.info("Circuit break triggered - slow response: {}", response);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+            String response = String.format("%s [%s:%s] is called right.", svcName, ip, port);
+            LOG.info("Normal response: {}", response);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
         @GetMapping("/echo/{string}")
