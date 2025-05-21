@@ -24,7 +24,7 @@ spec:
           }
     spec:
       containers:
-        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-2023-consumer:2.0.1.0-RC1-java17
+        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-2023-consumer:2.0.1.0-java17
           imagePullPolicy: Always
           name: consumer
           resources:

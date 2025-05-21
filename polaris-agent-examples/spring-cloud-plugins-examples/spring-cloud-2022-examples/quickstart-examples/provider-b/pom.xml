@@ -13,7 +13,7 @@
 	<groupId>com.tencent.polaris</groupId>
 	<artifactId>polaris-javaagent-demo-sc-quickstart-2022-provider-b</artifactId>
 	<packaging>jar</packaging>
-	<version>2.0.1.0-RC1</version>
+	<version>2.0.1.0</version>
 
 	<name>2022-provider-b</name>
 	<description>Demo Provider Project For Spring Cloud Alibaba</description>
