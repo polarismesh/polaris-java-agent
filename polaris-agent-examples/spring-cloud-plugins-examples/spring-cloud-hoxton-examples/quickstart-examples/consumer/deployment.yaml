@@ -20,7 +20,8 @@ spec:
         polarismesh.cn/javaagentConfig: |
           {
           	"spring.cloud.polaris.circuitbreaker.enabled": "true",
-            "spring.cloud.polaris.lossless.enabled": "true"
+            "spring.cloud.polaris.lossless.enabled": "true",
+            "spring.cloud.polaris.router.enabled": "true"
           }
     spec:
       containers:
