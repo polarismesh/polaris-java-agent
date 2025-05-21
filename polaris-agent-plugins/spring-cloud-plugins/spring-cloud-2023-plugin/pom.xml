@@ -14,8 +14,8 @@
 
     <properties>
         <spring.cloud.version>2023.0.3</spring.cloud.version>
-        <spring.cloud.tencent.version>2.0.1.0-2023.0.3-SNAPSHOT</spring.cloud.tencent.version>
-        <polaris.version>2.0.1.0-SNAPSHOT</polaris.version>
+        <spring.cloud.tencent.version>2.0.1.0-2023.0.3</spring.cloud.tencent.version>
+        <polaris.version>2.0.1.0</polaris.version>
         <spring.boot.version>3.2.3</spring.boot.version>
         <slf4j.vesion>1.7.30</slf4j.vesion>
         <jdk.version>17</jdk.version>

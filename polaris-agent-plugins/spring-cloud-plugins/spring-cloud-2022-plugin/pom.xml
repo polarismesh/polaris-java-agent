@@ -14,8 +14,8 @@
 
     <properties>
         <spring.cloud.version>2022.0.5</spring.cloud.version>
-        <spring.cloud.tencent.version>2.0.0.1-2022.0.5-SNAPSHOT</spring.cloud.tencent.version>
-        <polaris.version>2.0.0.2-SNAPSHOT</polaris.version>
+        <spring.cloud.tencent.version>2.0.0.1-2022.0.5</spring.cloud.tencent.version>
+        <polaris.version>2.0.0.2</polaris.version>
         <spring.boot.version>3.1.7</spring.boot.version>
         <slf4j.vesion>1.7.30</slf4j.vesion>
         <jdk.version>17</jdk.version>
