@@ -17,12 +17,17 @@ spec:
         app: service-provider-hoxton-a
       annotations:
         polarismesh.cn/javaagent: "true"
-        polarismesh.cn/javaagentVersion: "1.7.0-RC4"
-        polarismesh.cn/javaagentFrameworkName: "spring-cloud"
-        polarismesh.cn/javaagentFrameworkVersion: "hoxton"
+        polarismesh.cn/javaagentConfig: |
+          {
+          	"spring.cloud.polaris.config.enabled": "true",
+          	"spring.cloud.polaris.config.groups[0].name": "service-provider-hoxton",
+          	"spring.cloud.polaris.config.groups[0].files[0]": "config/callee.properties",
+            "spring.cloud.polaris.lossless.enabled": "true",
+            "spring.cloud.polaris.ratelimit.enabled": "true"
+          }
     spec:
       containers:
-        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-hoxton-provider-a:1.7.0-java8
+        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-hoxton-provider-a:2.0.1.0-java8
           imagePullPolicy: Always
           name: provider
           resources:
@@ -34,7 +39,7 @@ spec:
           command:
             - /bin/bash
             - -c
-            - cd /app && java -Dserver.port=65001 -jar main.jar
+            - cd /app && java -Dserver.port=65001 -Dspring.cloud.nacos.config.server-addr=127.0.0.1:8848 -jar main.jar
           lifecycle:
             preStop:
               exec:

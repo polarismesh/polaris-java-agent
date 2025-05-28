@@ -1,19 +1,20 @@
 package cn.polarismesh.agent.plugin.spring.cloud.inject;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import cn.polarismesh.agent.core.common.utils.ClassUtils;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
-import com.tencent.cloud.polaris.circuitbreaker.config.*;
+import com.tencent.cloud.polaris.circuitbreaker.config.GatewayPolarisCircuitBreakerAutoConfiguration;
+import com.tencent.cloud.polaris.circuitbreaker.config.PolarisCircuitBreakerAutoConfiguration;
+import com.tencent.cloud.polaris.circuitbreaker.config.PolarisCircuitBreakerBootstrapConfiguration;
+import com.tencent.cloud.polaris.circuitbreaker.config.PolarisCircuitBreakerFeignClientAutoConfiguration;
 import com.tencent.cloud.polaris.circuitbreaker.endpoint.PolarisCircuitBreakerEndpointAutoConfiguration;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.cloud.openfeign.PolarisFeignCircuitBreakerTargeterAutoConfiguration;
@@ -67,14 +68,6 @@ public class CircuitBreakerBeanInjector implements BeanInjector {
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisCircuitBreakerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("polarisCircuitBreakerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				PolarisCircuitBreakerAutoConfiguration.class).getBeanDefinition());
-		if (null != ClassUtils.getClazz("reactor.core.publisher.Mono", Thread.currentThread().getContextClassLoader())
-				&& null != ClassUtils.getClazz("reactor.core.publisher.Flux", Thread.currentThread()
-				.getContextClassLoader())) {
-			Object reactivePolarisCircuitBreakerAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, ReactivePolarisCircuitBreakerAutoConfiguration.class, "reactivePolarisCircuitBreakerAutoConfiguration");
-			ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, reactivePolarisCircuitBreakerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-			registry.registerBeanDefinition("reactivePolarisCircuitBreakerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-					ReactivePolarisCircuitBreakerAutoConfiguration.class).getBeanDefinition());
-		}
 		if (null != ClassUtils.getClazz("feign.Feign", Thread.currentThread().getContextClassLoader())
 				&& null != ClassUtils.getClazz("org.springframework.cloud.openfeign.FeignClientFactoryBean", Thread.currentThread()
 				.getContextClassLoader())) {
@@ -83,16 +76,10 @@ public class CircuitBreakerBeanInjector implements BeanInjector {
 			registry.registerBeanDefinition("polarisCircuitBreakerFeignClientAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 					PolarisCircuitBreakerFeignClientAutoConfiguration.class).getBeanDefinition());
 		}
-		if (null != ClassUtils.getClazz("org.springframework.web.reactive.DispatcherHandler", Thread.currentThread()
-				.getContextClassLoader())
-				&& null != ClassUtils.getClazz("com.tencent.cloud.polaris.circuitbreaker.config.ReactivePolarisCircuitBreakerAutoConfiguration", Thread.currentThread()
-				.getContextClassLoader())
-				&& null != ClassUtils.getClazz("org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory", Thread.currentThread()
-				.getContextClassLoader())
-				&& null != ClassUtils.getClazz("com.tencent.cloud.polaris.circuitbreaker.ReactivePolarisCircuitBreakerFactory", Thread.currentThread()
-				.getContextClassLoader())
-				&& null != ClassUtils.getClazz("org.springframework.cloud.gateway.config.GatewayAutoConfiguration", Thread.currentThread()
-				.getContextClassLoader())) {
+		if (null != ClassUtils.getClazz("org.springframework.web.reactive.DispatcherHandler",
+				Thread.currentThread().getContextClassLoader()) && null != ClassUtils.getClazz(
+				"org.springframework.cloud.gateway.config.GatewayAutoConfiguration",
+				Thread.currentThread().getContextClassLoader())) {
 			String property = environment.getProperty("spring.cloud.gateway.enabled");
 			if (Boolean.parseBoolean(property)) {
 				Object gatewayPolarisCircuitBreakerAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, GatewayPolarisCircuitBreakerAutoConfiguration.class, "gatewayPolarisCircuitBreakerAutoConfiguration");

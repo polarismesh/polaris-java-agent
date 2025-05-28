@@ -17,9 +17,6 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.inject;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
@@ -27,9 +24,10 @@ import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import com.tencent.cloud.common.metadata.config.MetadataAutoConfiguration;
 import com.tencent.cloud.common.metadata.endpoint.PolarisMetadataEndpointAutoConfiguration;
 import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.env.Environment;

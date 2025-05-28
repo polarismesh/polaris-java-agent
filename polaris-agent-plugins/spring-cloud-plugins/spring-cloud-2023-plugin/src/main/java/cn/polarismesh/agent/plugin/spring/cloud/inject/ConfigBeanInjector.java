@@ -24,15 +24,18 @@ import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import com.tencent.cloud.polaris.config.PolarisConfigAutoConfiguration;
 import com.tencent.cloud.polaris.config.PolarisConfigBootstrapAutoConfiguration;
 import com.tencent.cloud.polaris.config.endpoint.PolarisConfigEndpointAutoConfiguration;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.env.Environment;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ConfigBeanInjector implements BeanInjector {
 
@@ -43,6 +46,20 @@ public class ConfigBeanInjector implements BeanInjector {
     @Override
     public String getModule() {
         return "spring-cloud-starter-tencent-polaris-config";
+    }
+
+    @Override
+    public Map<String, List<String>> getClassNameForType() {
+        Map<String, List<String>> values = new HashMap<>();
+        values.put("org.springframework.boot.context.config.ConfigDataLocationResolver", Collections.singletonList(
+                "com.tencent.cloud.polaris.config.configdata.PolarisConfigDataLocationResolver"));
+        values.put("org.springframework.boot.context.config.ConfigDataLoader",
+                Collections.singletonList("com.tencent.cloud.polaris.config.configdata.PolarisConfigDataLoader"));
+        values.put("org.springframework.boot.diagnostics.FailureAnalyzer", Collections.singletonList(
+                "com.tencent.cloud.polaris.config.configdata.PolarisImportExceptionFailureAnalyzer"));
+        values.put("org.springframework.boot.env.EnvironmentPostProcessor", Collections.singletonList(
+                "com.tencent.cloud.polaris.config.configdata.PolarisConfigDataMissingEnvironmentPostProcessor"));
+        return values;
     }
 
     @Override

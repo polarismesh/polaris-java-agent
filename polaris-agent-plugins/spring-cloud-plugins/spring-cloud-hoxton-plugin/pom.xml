@@ -14,7 +14,8 @@
 
     <properties>
         <spring.cloud.version>Hoxton.SR12</spring.cloud.version>
-        <spring.cloud.tencent.version>1.14.0-Hoxton.SR12-RC3</spring.cloud.tencent.version>
+        <spring.cloud.tencent.version>2.0.0.2-Hoxton.SR12</spring.cloud.tencent.version>
+        <polaris.version>2.0.0.2</polaris.version>
         <spring.boot.version>2.3.12.RELEASE</spring.boot.version>
         <slf4j.vesion>1.7.30</slf4j.vesion>
     </properties>
@@ -130,6 +131,7 @@
         <dependency>
             <groupId>com.tencent.polaris</groupId>
             <artifactId>polaris-all</artifactId>
+            <version>${polaris.version}</version>
         </dependency>
 
         <dependency>
