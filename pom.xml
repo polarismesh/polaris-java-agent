@@ -14,7 +14,7 @@
     <url>https://github.com/polarismesh/polaris-java-agent</url>
 
     <properties>
-        <revision>2.0.1.0</revision>
+        <revision>2.0.2.0</revision>
         <polaris.version>2.0.1.0</polaris.version>
         <guava.version>32.0.1-jre</guava.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,6 +22,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <!-- Maven Plugin Versions -->
+        <maven.clean.plugin.version>3.1.0</maven.clean.plugin.version>
         <jacoco.version>0.8.3</jacoco.version>
         <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
         <maven.flatten.plugin.version>1.2.7</maven.flatten.plugin.version>
@@ -65,6 +66,21 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>${maven.clean.plugin.version}</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${project.basedir}</directory>
+                            <includes>
+                                <include>dependency-reduced-pom.xml</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
