@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.tencent.polaris</groupId>
-    <artifactId>java-agent</artifactId>
+    <artifactId>polaris-java-agent</artifactId>
     <packaging>pom</packaging>
     <version>${revision}</version>
 
