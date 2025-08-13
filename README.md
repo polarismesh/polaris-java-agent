@@ -18,9 +18,7 @@ polaris-java-agent provides a non-invasive way for Java applications to connect 
 
 Currently, Java applications developed based on the following frameworks are supported for access:
 
-- [x] dubbox(version >= 2.8.4)
-- [x] dubbo(version >= 2.7.0)
-- [ ] spring-cloud(version >= 2020.0.0)
+- [x] spring-cloud(version >= 2021.0.0)
 
 This document describes how to use polaris-java-agent to access polaris service governance.
 
@@ -44,5 +42,4 @@ polaris-java-agent provides the following configuration items, all of which can 
 
 ## Guide
 
-- [dubbo2 access](./polaris-agent-examples/dubbo2/README.md)
-- [dubbox access](./polaris-agent-examples/dubbox/README.md)
+- [Spring Cloud access](https://github.com/Tencent/spring-cloud-tencent/wiki/SCT-Agent-%E6%A6%82%E8%BF%B0)
