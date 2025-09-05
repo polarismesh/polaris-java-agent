@@ -30,13 +30,14 @@ import com.tencent.cloud.polaris.router.config.properties.PolarisNamespaceRouter
 import com.tencent.cloud.polaris.router.config.properties.PolarisNearByRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisRuleBasedRouterProperties;
 import com.tencent.cloud.polaris.router.endpoint.PolarisRouterEndpointAutoConfiguration;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.env.Environment;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
 public class RouterBeanInjector implements BeanInjector {
 

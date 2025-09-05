@@ -13,14 +13,35 @@
     <artifactId>spring-cloud-2021-plugin</artifactId>
 
     <properties>
-        <spring.cloud.version>2021.0.8</spring.cloud.version>
-        <spring.cloud.tencent.version>1.12.4-2021.0.8</spring.cloud.tencent.version>
-        <spring.boot.version>2.6.13</spring.boot.version>
-        <slf4j.vesion>1.7.30</slf4j.vesion>
+        <spring.cloud.version>2021.0.9</spring.cloud.version>
+        <spring.cloud.tencent.version>2.0.2.1-2021.0.9</spring.cloud.tencent.version>
+        <spring.boot.version>2.7.18</spring.boot.version>
+        <slf4j.vesion>1.7.36</slf4j.vesion>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-logging</artifactId>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <scope>provided</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -49,6 +70,11 @@
     <dependencies>
         <dependency>
             <groupId>com.tencent.polaris</groupId>
+            <artifactId>spring-cloud-plugin-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.tencent.polaris</groupId>
             <artifactId>polaris-agent-core-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -58,32 +84,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>polaris-all</artifactId>
-            <version>${polaris.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>connector-consul</artifactId>
-            <version>${polaris.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.tencent.polaris</groupId>
-            <artifactId>connector-nacos</artifactId>
-            <version>${polaris.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.vesion}</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.10</version>
         </dependency>
 
         <!-- Spring Cloud -->
@@ -116,82 +120,7 @@
         <!-- Spring Cloud Tencent -->
         <dependency>
             <groupId>com.tencent.cloud</groupId>
-            <artifactId>spring-cloud-starter-tencent-polaris-discovery</artifactId>
-            <version>${spring.cloud.tencent.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-web</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-webflux</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework.cloud</groupId>
-                    <artifactId>spring-cloud-loadbalancer</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.tencent.cloud</groupId>
-            <artifactId>spring-cloud-starter-tencent-polaris-config</artifactId>
-            <version>${spring.cloud.tencent.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.cloud</groupId>
-                    <artifactId>spring-cloud-context</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.tencent.cloud</groupId>
-            <artifactId>spring-cloud-starter-tencent-polaris-ratelimit</artifactId>
-            <version>${spring.cloud.tencent.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-web</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-webflux</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.tencent.cloud</groupId>
-            <artifactId>spring-cloud-starter-tencent-polaris-circuitbreaker</artifactId>
-            <version>${spring.cloud.tencent.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.tencent.cloud</groupId>
-            <artifactId>spring-cloud-starter-tencent-polaris-router</artifactId>
-            <version>${spring.cloud.tencent.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-web</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-webflux</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework.cloud</groupId>
-                    <artifactId>spring-cloud-starter-openfeign</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.tencent.cloud</groupId>
-            <artifactId>spring-cloud-starter-tencent-metadata-transfer</artifactId>
-            <version>${spring.cloud.tencent.version}</version>
+            <artifactId>spring-cloud-starter-tencent-all</artifactId>
         </dependency>
     </dependencies>
 

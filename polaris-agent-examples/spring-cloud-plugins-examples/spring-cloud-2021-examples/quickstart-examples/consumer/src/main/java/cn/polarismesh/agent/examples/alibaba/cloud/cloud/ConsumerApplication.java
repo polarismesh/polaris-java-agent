@@ -20,17 +20,17 @@ package cn.polarismesh.agent.examples.alibaba.cloud.cloud;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
 @SpringBootApplication
+@EnableFeignClients
 public class ConsumerApplication {
 
 	public static void main(String[] args) {
@@ -43,23 +43,14 @@ public class ConsumerApplication {
 		return new RestTemplate();
 	}
 
-	@RestController
-	public static class EchoController {
-
-		private RestTemplate template;
-
-		public EchoController(RestTemplate restTemplate) {
-			this.template = restTemplate;
-		}
-
-		@GetMapping("/echo/{str}")
-		public ResponseEntity<String> rest(@PathVariable String str) {
-			ResponseEntity<String> response = template.getForEntity("http://service-provider/echo/" + str,
-					String.class);
-			return response;
-		}
-
-
+    @Bean
+    @LoadBalanced
+    public RestTemplate defaultRestTemplate() {
+        DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory(
+                "http://service-provider-2021");
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setUriTemplateHandler(uriBuilderFactory);
+        return restTemplate;
 	}
 
 }

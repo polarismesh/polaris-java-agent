@@ -26,15 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class SpringFactoriesLoaderInterceptor implements Interceptor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SpringFactoriesLoaderInterceptor.class);
 
     private final List<BeanInjector> beanInjectors = new ArrayList<>();
-
-    private final Map<ClassLoader, Boolean> parsedClasses = new ConcurrentHashMap<>();
 
     public SpringFactoriesLoaderInterceptor() {
         beanInjectors.add(new CommonBeanInjector());
@@ -49,7 +46,6 @@ public class SpringFactoriesLoaderInterceptor implements Interceptor {
         beanInjectors.add(new CircuitBreakerBeanInjector());
         beanInjectors.add(new RateLimitBeanInjector());
     }
-
 
     @SuppressWarnings("unchecked")
     @Override

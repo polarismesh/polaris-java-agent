@@ -23,14 +23,16 @@ import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import com.tencent.cloud.common.metadata.config.MetadataAutoConfiguration;
 import com.tencent.cloud.common.metadata.endpoint.PolarisMetadataEndpointAutoConfiguration;
 import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.tencent.cloud.polaris.context.logging.PolarisLoggingApplicationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.env.Environment;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CommonBeanInjector implements BeanInjector {
 
@@ -57,8 +59,11 @@ public class CommonBeanInjector implements BeanInjector {
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, applicationContextAwareUtils, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("applicationContextAwareUtils", BeanDefinitionBuilder.genericBeanDefinition(
 				ApplicationContextAwareUtils.class).getBeanDefinition());
-
-		LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
+        Object polarisLoggingApplicationListener = ReflectionUtils.invokeConstructor(configClassCreator, PolarisLoggingApplicationListener.class, "polarisLoggingApplicationListener");
+        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisLoggingApplicationListener, Constant.DEFAULT_EXCLUSION_FILTER);
+        registry.registerBeanDefinition("polarisLoggingApplicationListener", BeanDefinitionBuilder.genericBeanDefinition(
+                PolarisLoggingApplicationListener.class).getBeanDefinition());
+        LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
 	}
 
 
