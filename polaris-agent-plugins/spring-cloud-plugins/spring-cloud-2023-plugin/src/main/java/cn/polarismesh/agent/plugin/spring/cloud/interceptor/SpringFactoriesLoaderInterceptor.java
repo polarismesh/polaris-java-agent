@@ -20,34 +20,18 @@ package cn.polarismesh.agent.plugin.spring.cloud.interceptor;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.CircuitBreakerBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.CommonBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.ConfigBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.LoadbalancerBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.LosslessBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.MetadataTransferBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.PolarisContextBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.RateLimitBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.RegistryBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.RouterBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.RpcEnhancementBeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.*;
 import com.tencent.polaris.api.utils.CollectionUtils;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 public class SpringFactoriesLoaderInterceptor implements Interceptor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SpringFactoriesLoaderInterceptor.class);
 
     private final List<BeanInjector> beanInjectors = new ArrayList<>();
-
-    private final Map<Class<?>, Boolean> parsedClasses = new ConcurrentHashMap<>();
 
     public SpringFactoriesLoaderInterceptor() {
         beanInjectors.add(new CommonBeanInjector());
@@ -66,7 +50,8 @@ public class SpringFactoriesLoaderInterceptor implements Interceptor {
     @SuppressWarnings("unchecked")
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        Map<String, List<String>> oldFactories = (Map<String, List<String>>) ReflectionUtils.getObjectByFieldName(target, "factories");
+        Map<String, List<String>> oldFactories = (Map<String, List<String>>) ReflectionUtils.getObjectByFieldName(
+                target, "factories");
         if (CollectionUtils.isEmpty(oldFactories)) {
             oldFactories = new HashMap<>();
         }

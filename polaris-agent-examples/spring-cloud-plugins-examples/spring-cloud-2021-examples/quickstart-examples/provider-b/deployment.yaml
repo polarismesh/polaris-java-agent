@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: service-provider-2021-b
+  name: service-provider-2021-b
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-provider-2021-b
+  template:
+    metadata:
+      labels:
+        app: service-provider-2021-b
+      annotations:
+        polarismesh.cn/javaagent: "true"
+        polarismesh.cn/javaagentConfig: |
+          {
+            "spring.config.import": "optional:polaris",
+          	"spring.cloud.polaris.config.enabled": "true",
+            "spring.cloud.polaris.config.address": "grpc://127.0.0.1:8903",
+          	"spring.cloud.polaris.config.groups[0].name": "service-provider-2021",
+          	"spring.cloud.polaris.config.groups[0].files[0]": "config/callee.properties",
+            "spring.cloud.polaris.lossless.enabled": "true",
+            "spring.cloud.polaris.ratelimit.enabled": "true"
+          }
+    spec:
+      containers:
+        - image: polarismesh/polaris-javaagent-demo-sc-quickstart-2021-provider-b:2.0.1.0-java8
+          imagePullPolicy: Always
+          name: consumer
+          resources:
+            limits:
+              cpu: "500m"
+              memory: 1000Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          command:
+            - /bin/bash
+            - -c
+            - cd /app && java -Dspring.cloud.nacos.config.server-addr=127.0.0.1:8848 -Dspring.cloud.nacos.config.password=nacos -jar main.jar
+          lifecycle:
+            preStop:
+              exec:
+                command: [ "curl","-X","PUT","http://127.0.0.1:28080/offline","&&","sleep","30" ]
+          readinessProbe:
+            httpGet:
+              path: /online
+              port: 28080
+            initialDelaySeconds: 3
+            periodSeconds: 3
+      restartPolicy: Always

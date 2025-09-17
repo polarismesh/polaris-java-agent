@@ -28,6 +28,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 
@@ -70,6 +72,15 @@ public class ConsumerController {
 		LOG.info("response:{}", response);
 		return response;
 	}
+
+    @GetMapping("/rest/circuitBreak/fallbackFromPolaris")
+    public ResponseEntity<String> circuitBreakRestTemplateFallbackFromPolaris() {
+        try {
+            return defaultRestTemplate.getForEntity("/circuitBreak", String.class);
+        } catch (HttpClientErrorException | HttpServerErrorException httpClientErrorException) {
+            return new ResponseEntity<>(httpClientErrorException.getResponseBodyAsString(), httpClientErrorException.getStatusCode());
+        }
+    }
 
 	@GetMapping("/feign/circuitBreak/fallbackFromCode")
 	public String circuitBreakFeignFallbackFromCode() {

@@ -15,7 +15,6 @@
 
     <properties>
         <revision>2.0.2.0</revision>
-        <polaris.version>2.0.1.0</polaris.version>
         <guava.version>32.0.1-jre</guava.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.maven.deploy>false</skip.maven.deploy>
@@ -41,13 +40,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- polaris -->
-            <dependency>
-                <groupId>com.tencent.polaris</groupId>
-                <artifactId>polaris-all</artifactId>
-                <version>${polaris.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>

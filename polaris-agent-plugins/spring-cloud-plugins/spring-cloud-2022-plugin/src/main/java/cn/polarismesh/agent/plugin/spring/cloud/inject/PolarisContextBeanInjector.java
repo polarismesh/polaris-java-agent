@@ -24,6 +24,12 @@ import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import com.tencent.cloud.polaris.context.config.PolarisContextAutoConfiguration;
 import com.tencent.cloud.polaris.context.config.PolarisContextBootstrapAutoConfiguration;
 import com.tencent.cloud.polaris.context.config.PolarisContextPostConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.core.env.Environment;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -31,11 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.core.env.Environment;
 
 public class PolarisContextBeanInjector implements BeanInjector {
 
@@ -61,7 +62,6 @@ public class PolarisContextBeanInjector implements BeanInjector {
     @Override
     public void onBootstrapStartup(Object configurationParser,
                                    Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-
         if (!(Utils.checkPolarisEnabled(environment))) {
             LOGGER.warn("[PolarisJavaAgent] polaris not enabled, skip inject bootstrap bean definitions for module {}", getModule());
             return;
