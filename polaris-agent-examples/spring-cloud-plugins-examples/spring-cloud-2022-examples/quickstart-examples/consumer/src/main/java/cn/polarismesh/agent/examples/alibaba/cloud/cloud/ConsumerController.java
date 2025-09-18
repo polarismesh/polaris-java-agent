@@ -18,19 +18,23 @@
 package cn.polarismesh.agent.examples.alibaba.cloud.cloud;
 
 
+import com.alibaba.cloud.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Map;
 
 
 @RestController
@@ -66,11 +70,36 @@ public class ConsumerController {
 	}
 
 	@GetMapping("/echo/{str}")
-	public ResponseEntity<String> rest(@PathVariable String str) {
-		ResponseEntity<String> response = template.getForEntity("http://service-provider-2022/echo/" + str,
-				String.class);
-		LOG.info("response:{}", response);
-		return response;
+    public ResponseEntity<String> rest(@RequestHeader Map<String, String> headerMap,
+                                       @PathVariable String str,
+                                       @RequestParam String param) {
+        String url = UriComponentsBuilder
+                .fromHttpUrl("http://service-provider-2021/echo/" + str)
+                .queryParam("param", param)
+                .toUriString();
+
+        HttpHeaders headers = new HttpHeaders();
+        for (Map.Entry<String, String> entry : headerMap.entrySet()) {
+            if (StringUtils.isNotBlank(entry.getKey()) && StringUtils.isNotBlank(entry.getValue())
+                    && !entry.getKey().contains("sct-")
+                    && !entry.getKey().contains("SCT-")
+                    && !entry.getKey().contains("polaris-")
+                    && !entry.getKey().contains("POLARIS-")) {
+                headers.add(entry.getKey(), entry.getValue());
+            }
+        }
+
+        // 创建 HttpEntity 实例并传入 HttpHeaders
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        // 使用 exchange 方法发送 GET 请求，并获取响应
+        try {
+            ResponseEntity<String> response = template.exchange(url, HttpMethod.GET, entity, String.class);
+            LOG.info("response:{}", response);
+            return response;
+        } catch (HttpClientErrorException | HttpServerErrorException httpClientErrorException) {
+            return new ResponseEntity<>(httpClientErrorException.getResponseBodyAsString(), httpClientErrorException.getStatusCode());
+        }
 	}
 
     @GetMapping("/rest/circuitBreak/fallbackFromPolaris")

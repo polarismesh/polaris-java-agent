@@ -18,6 +18,7 @@
 package cn.polarismesh.agent.examples.alibaba.cloud.cloud;
 
 
+import com.alibaba.nacos.common.utils.JacksonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,9 +28,9 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
@@ -85,9 +86,9 @@ public class ProviderApplication {
         }
 
         @GetMapping("/echo/{string}")
-        public String echo(@PathVariable String string) {
-            String result = String.format("Hello, I'm %s [%s:%s], receive msg : %s, name config:%s", svcName, ip, port,
-                    string, name);
+        public String echo(@RequestHeader Map<String, String> headerMap, @PathVariable String string, @RequestParam String param) {
+            String result = String.format("Hello, I'm %s[%s:%s], receive msg : %s, param : %s, header : %s, name config:"
+                    + "%s", svcName, ip, port, string, param, JacksonUtils.toJson(headerMap), name);
             LOG.info("{} -- response result: {}", svcName, result);
             return result;
         }

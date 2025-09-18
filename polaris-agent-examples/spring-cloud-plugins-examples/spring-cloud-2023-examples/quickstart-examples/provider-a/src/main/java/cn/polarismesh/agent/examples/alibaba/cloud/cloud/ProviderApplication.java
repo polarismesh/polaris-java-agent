@@ -27,9 +27,9 @@ import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
@@ -85,12 +85,12 @@ public class ProviderApplication {
 		}
 
 		@GetMapping("/echo/{string}")
-		public String echo(@PathVariable String string) {
-			String result = String.format("Hello, I'm %s[%s:%s], receive msg : %s, my metadata : %s, name config:"
-					+ "%s", svcName, ip, port, string, JacksonUtils.toJson(registration.getMetadata()), name);
-			LOG.info("{} -- response result: {}", svcName, result);
-			return result;
-		}
+        public String echo(@RequestHeader Map<String, String> headerMap, @PathVariable String string, @RequestParam String param) {
+            String result = String.format("Hello, I'm %s[%s:%s], receive msg : %s, param : %s, header : %s, my metadata : %s, name config:"
+                    + "%s", svcName, ip, port, string, param, JacksonUtils.toJson(headerMap), JacksonUtils.toJson(registration.getMetadata()), name);
+            LOG.info("{} -- response result: {}", svcName, result);
+            return result;
+        }
 
 		@GetMapping("/circuitBreak")
 		public String circuitBreak() {
