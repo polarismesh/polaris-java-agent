@@ -85,7 +85,9 @@ public class ProviderApplication {
 		}
 
 		@GetMapping("/echo/{string}")
-        public String echo(@RequestHeader Map<String, String> headerMap, @PathVariable String string, @RequestParam String param) {
+        public String echo(@RequestHeader Map<String, String> headerMap,
+                           @PathVariable String string,
+                           @RequestParam(required = false) String param) {
             String result = String.format("Hello, I'm %s[%s:%s], receive msg : %s, param : %s, header : %s, my metadata : %s, name config:"
                     + "%s", svcName, ip, port, string, param, JacksonUtils.toJson(headerMap), JacksonUtils.toJson(registration.getMetadata()), name);
 			LOG.info("{} -- response result: {}", svcName, result);

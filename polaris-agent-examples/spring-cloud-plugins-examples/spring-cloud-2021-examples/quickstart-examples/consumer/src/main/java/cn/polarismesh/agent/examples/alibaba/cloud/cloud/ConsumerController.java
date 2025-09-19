@@ -72,7 +72,7 @@ public class ConsumerController {
     @GetMapping("/echo/{str}")
     public ResponseEntity<String> rest(@RequestHeader Map<String, String> headerMap,
                                        @PathVariable String str,
-                                       @RequestParam String param) {
+                                       @RequestParam(required = false) String param) {
         String url = UriComponentsBuilder
                 .fromHttpUrl("http://service-provider-2021/echo/" + str)
                 .queryParam("param", param)
