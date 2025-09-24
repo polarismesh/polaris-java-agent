@@ -373,7 +373,16 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>com.tencent.cloud</groupId>
+            <artifactId>spring-cloud-starter-tencent-polaris-auth</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-cloud-starter-tencent-metadata-transfer</artifactId>
+                    <groupId>com.tencent.cloud</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>com.tencent.cloud</groupId>
             <artifactId>spring-cloud-starter-tencent-discovery-adapter-plugin</artifactId>
@@ -429,7 +438,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
     </dependencies>
 
     <build>
