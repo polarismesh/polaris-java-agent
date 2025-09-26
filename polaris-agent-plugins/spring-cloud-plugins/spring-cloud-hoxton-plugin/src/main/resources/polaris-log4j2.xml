@@ -35,8 +35,8 @@
         </RollingFile>
 
         <RollingFile name="POLARIS_CIRCUIT_BREAKER_EVENT_LOG_FILE"
-                fileName="${sys:polaris.log.home}/polaris-circuitbreaker-event.log"
-                filePattern="${sys:polaris.log.home}/polaris-circuitbreaker-event.log.%d{yyyy-MM-dd}.%i">
+                fileName="${sys:polaris.log.home}/polaris-circuitbreaker.log"
+                filePattern="${sys:polaris.log.home}/polaris-circuitbreaker.log.%d{yyyy-MM-dd}.%i">
             <PatternLayout>
                 <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%-5t:%c{2}] %m%n</Pattern>
             </PatternLayout>
@@ -113,7 +113,7 @@
                 additivity="false">
             <AppenderRef ref="POLARIS_UPDATE_EVENT_LOG_FILE"/>
         </Logger>
-        <Logger name="polaris-circuitbreaker-event"
+        <Logger name="polaris-circuitbreaker"
                 level="${sys:polaris.circuitbreaker.event.log.level:-info}"
                 additivity="false">
             <AppenderRef ref="POLARIS_CIRCUIT_BREAKER_EVENT_LOG_FILE"/>

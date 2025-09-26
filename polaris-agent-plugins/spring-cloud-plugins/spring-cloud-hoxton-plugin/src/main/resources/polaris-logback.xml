@@ -41,10 +41,10 @@
 
     <appender name="POLARIS_CIRCUIT_BREAKER_EVENT_LOG_FILE"
             class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${polaris.log.home}/polaris-circuitbreaker-event.log</file>
+        <file>${polaris.log.home}/polaris-circuitbreaker.log</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>${polaris.log.home}/polaris-circuitbreaker-event.log.%i
+            <fileNamePattern>${polaris.log.home}/polaris-circuitbreaker.log.%i
             </fileNamePattern>
             <maxIndex>${polaris.circuitbreaker.event.log.retain.count:-7}</maxIndex>
         </rollingPolicy>
@@ -137,7 +137,7 @@
         <appender-ref ref="POLARIS_UPDATE_EVENT_LOG_FILE_ASYNC"/>
     </logger>
 
-    <logger name="polaris-circuitbreaker-event"
+    <logger name="polaris-circuitbreaker"
             level="${polaris.circuitbreaker.event.log.level:-info}"
             additivity="false">
         <appender-ref ref="POLARIS_CIRCUIT_BREAKER_EVENT_LOG_FILE"/>
