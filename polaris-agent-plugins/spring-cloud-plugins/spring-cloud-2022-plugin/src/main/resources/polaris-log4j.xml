@@ -29,7 +29,7 @@
     </appender>
     <appender name="POLARIS_CIRCUIT_BREAKER_EVENT_LOG_FILE"
             class="org.apache.log4j.RollingFileAppender">
-        <param name="File" value="${polaris.log.home}/polaris-circuitbreaker-event.log"/>
+        <param name="File" value="${polaris.log.home}/polaris-circuitbreaker.log"/>
         <param name="Append" value="true"/>
         <param name="MaxBackupIndex" value="10"/>
         <param name="MaxFileSize" value="10MB"/>
@@ -84,7 +84,7 @@
         <level value="INFO"/>
         <appender-ref ref="POLARIS_UPDATE_EVENT_LOG_FILE_ASYNC"/>
     </logger>
-    <logger name="polaris-circuitbreaker-event" additivity="false">
+    <logger name="polaris-circuitbreaker" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="POLARIS_CIRCUIT_BREAKER_EVENT_LOG_FILE"/>
     </logger>
