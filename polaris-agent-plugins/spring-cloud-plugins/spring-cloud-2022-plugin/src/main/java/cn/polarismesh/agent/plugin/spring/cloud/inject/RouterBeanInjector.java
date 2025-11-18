@@ -29,7 +29,6 @@ import com.tencent.cloud.polaris.router.config.properties.PolarisMetadataRouterP
 import com.tencent.cloud.polaris.router.config.properties.PolarisNamespaceRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisNearByRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisRuleBasedRouterProperties;
-import com.tencent.cloud.polaris.router.endpoint.PolarisRouterEndpointAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -88,13 +87,6 @@ public class RouterBeanInjector implements BeanInjector {
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, routerConfigModifierAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("routerConfigModifierAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
                 RouterConfigModifierAutoConfiguration.class).getBeanDefinition());
-        Object polarisRouterEndpointAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator,
-                PolarisRouterEndpointAutoConfiguration.class, "polarisRouterEndpointAutoConfiguration");
-        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser,
-                polarisRouterEndpointAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-        registry.registerBeanDefinition("polarisRouterEndpointAutoConfiguration",
-                BeanDefinitionBuilder.genericBeanDefinition(
-                        PolarisRouterEndpointAutoConfiguration.class).getBeanDefinition());
         LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
     }
 }

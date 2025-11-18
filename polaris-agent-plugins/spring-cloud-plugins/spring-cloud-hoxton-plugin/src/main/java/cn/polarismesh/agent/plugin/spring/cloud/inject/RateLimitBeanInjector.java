@@ -17,10 +17,6 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.inject;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
@@ -28,13 +24,15 @@ import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import com.tencent.cloud.polaris.ratelimit.config.PolarisRateLimitAutoConfiguration;
 import com.tencent.cloud.polaris.ratelimit.config.PolarisRateLimitPropertiesAutoConfiguration;
 import com.tencent.cloud.polaris.ratelimit.config.PolarisRateLimitPropertiesBootstrapConfiguration;
-import com.tencent.cloud.polaris.ratelimit.endpoint.PolarisRateLimitRuleEndpointAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.env.Environment;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RateLimitBeanInjector implements BeanInjector {
 
@@ -77,10 +75,6 @@ public class RateLimitBeanInjector implements BeanInjector {
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRateLimitPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("polarisRateLimitPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
                 PolarisRateLimitPropertiesAutoConfiguration.class).getBeanDefinition());
-        Object polarisRateLimitRuleEndpointAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisRateLimitRuleEndpointAutoConfiguration.class, "polarisRateLimitRuleEndpointAutoConfiguration");
-        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRateLimitRuleEndpointAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-        registry.registerBeanDefinition("polarisRateLimitRuleEndpointAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-                PolarisRateLimitRuleEndpointAutoConfiguration.class).getBeanDefinition());
         LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
     }
 }

@@ -29,16 +29,16 @@ import com.tencent.cloud.polaris.router.config.properties.PolarisMetadataRouterP
 import com.tencent.cloud.polaris.router.config.properties.PolarisNamespaceRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisNearByRouterProperties;
 import com.tencent.cloud.polaris.router.config.properties.PolarisRuleBasedRouterProperties;
-import com.tencent.cloud.polaris.router.endpoint.PolarisRouterEndpointAutoConfiguration;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 public class RouterBeanInjector implements BeanInjector {
 
@@ -66,10 +66,6 @@ public class RouterBeanInjector implements BeanInjector {
 		registry.registerBeanDefinition("feignAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
 				FeignAutoConfiguration.class).getBeanDefinition());
 		}
-		Object polarisRouterEndpointAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisRouterEndpointAutoConfiguration.class, "polarisRouterEndpointAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisRouterEndpointAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-		registry.registerBeanDefinition("polarisRouterEndpointAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-				PolarisRouterEndpointAutoConfiguration.class).getBeanDefinition());
 
 		Object polarisNearByRouterProperties = ReflectionUtils.invokeConstructor(configClassCreator,
 				PolarisNearByRouterProperties.class, "polarisNearByRouterProperties");

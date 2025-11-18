@@ -27,7 +27,6 @@ import com.tencent.cloud.polaris.discovery.PolarisDiscoveryAutoConfiguration;
 import com.tencent.cloud.polaris.discovery.PolarisDiscoveryClientConfiguration;
 import com.tencent.cloud.polaris.discovery.reactive.PolarisReactiveDiscoveryClientConfiguration;
 import com.tencent.cloud.polaris.discovery.refresh.PolarisRefreshConfiguration;
-import com.tencent.cloud.polaris.endpoint.PolarisDiscoveryEndpointAutoConfiguration;
 import com.tencent.cloud.polaris.registry.PolarisServiceRegistryAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,10 +96,6 @@ public class RegistryBeanInjector implements BeanInjector {
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisServiceRegistryAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("polarisServiceRegistryAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
                 PolarisServiceRegistryAutoConfiguration.class).getBeanDefinition());
-        Object polarisDiscoveryEndpointAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisDiscoveryEndpointAutoConfiguration.class, "polarisDiscoveryEndpointAutoConfiguration");
-        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisDiscoveryEndpointAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-        registry.registerBeanDefinition("polarisDiscoveryEndpointAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-                PolarisDiscoveryEndpointAutoConfiguration.class).getBeanDefinition());
         LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
     }
 }
