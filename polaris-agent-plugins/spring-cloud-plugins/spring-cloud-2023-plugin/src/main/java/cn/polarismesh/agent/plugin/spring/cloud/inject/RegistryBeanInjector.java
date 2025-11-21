@@ -74,10 +74,6 @@ public class RegistryBeanInjector implements BeanInjector {
         if (!bootstrapLoaded.get()) {
             onBootstrapStartup(configurationParser, configClassCreator, processConfigurationClass, registry, environment);
         }
-        Object nacosDiscoveryRegistryAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, NacosDiscoveryRegistryAutoConfiguration.class, "nacosDiscoveryRegistryAutoConfiguration");
-        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, nacosDiscoveryRegistryAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-        registry.registerBeanDefinition("nacosDiscoveryRegistryAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-                NacosDiscoveryRegistryAutoConfiguration.class).getBeanDefinition());
         Object discoveryPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, DiscoveryPropertiesAutoConfiguration.class, "discoveryPropertiesAutoConfiguration");
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, discoveryPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("discoveryPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
@@ -102,6 +98,11 @@ public class RegistryBeanInjector implements BeanInjector {
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisServiceRegistryAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("polarisServiceRegistryAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
                 PolarisServiceRegistryAutoConfiguration.class).getBeanDefinition());
+        // inject nacos registry
+        Object nacosDiscoveryRegistryAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, NacosDiscoveryRegistryAutoConfiguration.class, "nacosDiscoveryRegistryAutoConfiguration");
+        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, nacosDiscoveryRegistryAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+        registry.registerBeanDefinition("nacosDiscoveryRegistryAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+                NacosDiscoveryRegistryAutoConfiguration.class).getBeanDefinition());
         Object nacosBeanDefinitionRegistryPostProcessor = ReflectionUtils.invokeConstructor(configClassCreator, NacosBeanDefinitionRegistryPostProcessor.class, "nacosBeanDefinitionRegistryPostProcessor");
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, nacosBeanDefinitionRegistryPostProcessor, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("nacosBeanDefinitionRegistryPostProcessor", BeanDefinitionBuilder.genericBeanDefinition(
