@@ -56,6 +56,7 @@ public class ConfigurationParserInterceptor implements Interceptor {
         beanInjectors.add(new RouterBeanInjector());
         beanInjectors.add(new CircuitBreakerBeanInjector());
         beanInjectors.add(new RateLimitBeanInjector());
+        beanInjectors.add(new AuthBeanInjector());
     }
 
 
