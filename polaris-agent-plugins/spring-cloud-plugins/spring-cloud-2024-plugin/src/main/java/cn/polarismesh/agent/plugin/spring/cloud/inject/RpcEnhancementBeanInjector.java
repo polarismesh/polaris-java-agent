@@ -21,7 +21,7 @@ import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
-import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementPropertiesAutoConfiguration;
+import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementAutoConfiguration;
 import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementPropertiesBootstrapConfiguration;
 import com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatPropertiesAutoConfiguration;
 import com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatPropertiesBootstrapConfiguration;
@@ -77,10 +77,10 @@ public class RpcEnhancementBeanInjector implements BeanInjector {
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisStatPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("polarisStatPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
                 PolarisStatPropertiesAutoConfiguration.class).getBeanDefinition());
-        Object rpcEnhancementPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, RpcEnhancementPropertiesAutoConfiguration.class, "rpcEnhancementPropertiesAutoConfiguration");
-        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, rpcEnhancementPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-        registry.registerBeanDefinition("rpcEnhancementPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-                RpcEnhancementPropertiesAutoConfiguration.class).getBeanDefinition());
+        Object rpcEnhancementAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, RpcEnhancementAutoConfiguration.class, "rpcEnhancementAutoConfiguration");
+        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, rpcEnhancementAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+        registry.registerBeanDefinition("rpcEnhancementAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+                RpcEnhancementAutoConfiguration.class).getBeanDefinition());
         LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
     }
 }
