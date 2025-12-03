@@ -74,7 +74,7 @@ public class ConsumerController {
                                        @PathVariable String str,
                                        @RequestParam(required = false) String param) {
         String url = UriComponentsBuilder
-                .fromHttpUrl("http://service-provider-2021/echo/" + str)
+                .fromHttpUrl("http://service-provider-2022/echo/" + str)
                 .queryParam("param", param)
                 .toUriString();
 
