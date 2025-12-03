@@ -20,7 +20,7 @@ package cn.polarismesh.agent.plugin.spring.cloud.inject;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
-import cn.polarismesh.agent.plugin.spring.cloud.common.NacosBeanDefinitionRegistryPostProcessor;
+import cn.polarismesh.agent.plugin.spring.cloud.interceptor.NacosBeanDefinitionRegistryPostProcessor;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import com.tencent.cloud.polaris.DiscoveryPropertiesAutoConfiguration;
 import com.tencent.cloud.polaris.DiscoveryPropertiesBootstrapAutoConfiguration;
@@ -62,6 +62,10 @@ public class RegistryBeanInjector implements BeanInjector {
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, discoveryPropertiesBootstrapAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("discoveryPropertiesBootstrapAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
                 DiscoveryPropertiesBootstrapAutoConfiguration.class).getBeanDefinition());
+        Object nacosBeanDefinitionRegistryPostProcessor = ReflectionUtils.invokeConstructor(configClassCreator, NacosBeanDefinitionRegistryPostProcessor.class, "nacosBeanDefinitionRegistryPostProcessor");
+        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, nacosBeanDefinitionRegistryPostProcessor, Constant.DEFAULT_EXCLUSION_FILTER);
+        registry.registerBeanDefinition("nacosBeanDefinitionRegistryPostProcessor", BeanDefinitionBuilder.genericBeanDefinition(
+                NacosBeanDefinitionRegistryPostProcessor.class).getBeanDefinition());
         LOGGER.info("[PolarisJavaAgent] success to inject bootstrap bean definitions for module {}", getModule());
     }
 

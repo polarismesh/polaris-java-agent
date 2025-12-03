@@ -14,7 +14,7 @@
 
     <properties>
         <spring.cloud.version>2023.0.6</spring.cloud.version>
-        <spring.cloud.tencent.version>2.1.0.0-2023.0.6</spring.cloud.tencent.version>
+        <spring.cloud.tencent.version>2.1.0.1-2023.0.6-SNAPSHOT</spring.cloud.tencent.version>
         <spring.boot.version>3.2.3</spring.boot.version>
         <slf4j.vesion>1.7.30</slf4j.vesion>
         <jdk.home>${env.JAVA_17_HOME}</jdk.home>
