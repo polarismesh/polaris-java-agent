@@ -19,6 +19,7 @@
 		<module>spring-cloud-hoxton-plugin</module>
 		<module>spring-cloud-2023-plugin</module>
 		<module>spring-cloud-plugin-common</module>
+		<module>spring-cloud-2024-plugin</module>
 	</modules>
 
 	<properties>
