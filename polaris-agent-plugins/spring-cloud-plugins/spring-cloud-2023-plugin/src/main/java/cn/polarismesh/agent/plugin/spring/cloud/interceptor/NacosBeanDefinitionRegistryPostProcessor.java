@@ -16,6 +16,7 @@ package cn.polarismesh.agent.plugin.spring.cloud.interceptor;
 import java.util.HashSet;
 import java.util.Set;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
@@ -25,16 +26,24 @@ public class NacosBeanDefinitionRegistryPostProcessor implements BeanDefinitionR
     private final Set<String> nacosBeans = new HashSet<>();
 
     public NacosBeanDefinitionRegistryPostProcessor() {
-        nacosBeans.add("nacosAutoServiceRegistration");
-        nacosBeans.add("nacosDiscoveryClient");
-//        nacosBeans.add("loadBalancerNacosAutoConfiguration");
-//        nacosBeans.add("nacosLoadBalancer");
+        nacosBeans.add("com.alibaba.cloud.nacos.discovery.NacosDiscoveryAutoConfiguration");
+        nacosBeans.add("com.alibaba.cloud.nacos.endpoint.NacosDiscoveryEndpointAutoConfiguration");
+        nacosBeans.add("com.alibaba.cloud.nacos.registry.NacosServiceRegistryAutoConfiguration");
+        nacosBeans.add("com.alibaba.cloud.nacos.discovery.NacosDiscoveryClientConfiguration");
+        nacosBeans.add("com.alibaba.cloud.nacos.discovery.NacosDiscoveryHeartBeatConfiguration");
+        nacosBeans.add("com.alibaba.cloud.nacos.discovery.reactive.NacosReactiveDiscoveryClientConfiguration");
+        nacosBeans.add("com.alibaba.cloud.nacos.discovery.configclient.NacosConfigServerAutoConfiguration");
+        nacosBeans.add("com.alibaba.cloud.nacos.loadbalancer.LoadBalancerNacosAutoConfiguration");
+        nacosBeans.add("com.alibaba.cloud.nacos.NacosServiceAutoConfiguration");
+        nacosBeans.add("com.alibaba.cloud.nacos.util.UtilIPv6AutoConfiguration");
     }
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        for (String beanName : nacosBeans) {
-            if (registry.containsBeanDefinition(beanName)) {
+        // remove all spring cloud alibaba discovery related beans.
+        for (String beanName : registry.getBeanDefinitionNames()) {
+            BeanDefinition bd = registry.getBeanDefinition(beanName);
+            if (nacosBeans.contains(bd.getFactoryBeanName()) || nacosBeans.contains(bd.getBeanClassName())) {
                 registry.removeBeanDefinition(beanName);
             }
         }

@@ -22,6 +22,7 @@ import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import com.tencent.cloud.polaris.loadbalancer.PolarisLoadBalancerAutoConfiguration;
+import com.tencent.cloud.polaris.loadbalancer.PolarisLoadBalancerPropertiesAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -50,6 +51,10 @@ public class LoadbalancerBeanInjector implements BeanInjector {
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisLoadBalancerAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("polarisLoadBalancerAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
                 PolarisLoadBalancerAutoConfiguration.class).getBeanDefinition());
+        Object polarisLoadBalancerPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisLoadBalancerPropertiesAutoConfiguration.class, "polarisLoadBalancerPropertiesAutoConfiguration");
+        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisLoadBalancerPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+        registry.registerBeanDefinition("polarisLoadBalancerPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+                PolarisLoadBalancerPropertiesAutoConfiguration.class).getBeanDefinition());
         LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
     }
 }
