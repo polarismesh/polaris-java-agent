@@ -11,7 +11,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.plugin.spring.cloud.interceptor;
+package cn.polarismesh.agent.plugin.spring.cloud.inject;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -40,7 +40,7 @@ public class NacosBeanDefinitionRegistryPostProcessor implements BeanDefinitionR
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        // remove all spring cloud alibaba discovery related beans.
+        // remove all spring cloud alibaba discovery related beanDefinitions.
         for (String beanName : registry.getBeanDefinitionNames()) {
             BeanDefinition bd = registry.getBeanDefinition(beanName);
             if (nacosBeans.contains(bd.getFactoryBeanName()) || nacosBeans.contains(bd.getBeanClassName())) {

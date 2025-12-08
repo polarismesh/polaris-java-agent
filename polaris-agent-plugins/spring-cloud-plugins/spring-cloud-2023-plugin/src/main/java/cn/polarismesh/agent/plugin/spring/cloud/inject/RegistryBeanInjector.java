@@ -20,7 +20,6 @@ package cn.polarismesh.agent.plugin.spring.cloud.inject;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
-import cn.polarismesh.agent.plugin.spring.cloud.interceptor.NacosBeanDefinitionRegistryPostProcessor;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import com.tencent.cloud.polaris.DiscoveryPropertiesAutoConfiguration;
 import com.tencent.cloud.polaris.DiscoveryPropertiesBootstrapAutoConfiguration;
