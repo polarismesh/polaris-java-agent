@@ -22,7 +22,7 @@ import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import com.tencent.cloud.polaris.context.config.PolarisContextAutoConfiguration;
-import com.tencent.cloud.polaris.context.config.PolarisContextBootstrapAutoConfiguration;
+import com.tencent.cloud.polaris.context.config.PolarisContextPropertiesBootstrapAutoConfiguration;
 import com.tencent.cloud.polaris.context.config.PolarisContextPostConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,10 +65,10 @@ public class PolarisContextBeanInjector implements BeanInjector {
             return;
         }
         bootstrapLoaded.set(true);
-        Object polarisContextBootstrapAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisContextBootstrapAutoConfiguration.class, "polarisContextBootstrapAutoConfiguration");
-        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisContextBootstrapAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-        registry.registerBeanDefinition("polarisContextBootstrapAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-                PolarisContextBootstrapAutoConfiguration.class).getBeanDefinition());
+        Object polarisContextPropertiesBootstrapAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisContextPropertiesBootstrapAutoConfiguration.class, "polarisContextPropertiesBootstrapAutoConfiguration");
+        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisContextPropertiesBootstrapAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+        registry.registerBeanDefinition("polarisContextPropertiesBootstrapAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+                PolarisContextPropertiesBootstrapAutoConfiguration.class).getBeanDefinition());
         LOGGER.info("[PolarisJavaAgent] success to inject bootstrap bean definitions for module {}", getModule());
     }
 

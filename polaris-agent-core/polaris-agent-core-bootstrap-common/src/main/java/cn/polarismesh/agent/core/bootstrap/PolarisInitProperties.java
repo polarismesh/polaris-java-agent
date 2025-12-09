@@ -21,5 +21,6 @@ public class PolarisInitProperties {
 
     public void initialize() {
         System.setProperty("spring.cloud.loadbalancer.nacos.enabled", "false");
+        System.setProperty("spring.cloud.nacos.discovery.enabled", "false");
     }
 }
