@@ -20,6 +20,7 @@ package cn.polarismesh.agent.plugin.spring.cloud.inject;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
+import com.tencent.cloud.common.async.PolarisAsyncPropertiesAutoConfiguration;
 import com.tencent.cloud.common.metadata.config.MetadataAutoConfiguration;
 import com.tencent.cloud.common.util.ApplicationContextAwareUtils;
 import com.tencent.cloud.polaris.context.logging.PolarisLoggingApplicationListener;
@@ -58,12 +59,11 @@ public class CommonBeanInjector implements BeanInjector {
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisLoggingApplicationListener, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("polarisLoggingApplicationListener", BeanDefinitionBuilder.genericBeanDefinition(
                 PolarisLoggingApplicationListener.class).getBeanDefinition());
+        Object polarisAsyncPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisAsyncPropertiesAutoConfiguration.class, "polarisAsyncPropertiesAutoConfiguration");
+        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisAsyncPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+        registry.registerBeanDefinition("polarisAsyncPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+                PolarisAsyncPropertiesAutoConfiguration.class).getBeanDefinition());
         LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
     }
 
-
-    @Override
-    public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-        LOGGER.info("[PolarisJavaAgent] success to inject bootstrap bean definitions for module {}", getModule());
-    }
 }

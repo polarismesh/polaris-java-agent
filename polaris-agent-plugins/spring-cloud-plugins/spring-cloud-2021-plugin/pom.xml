@@ -14,7 +14,7 @@
 
     <properties>
         <spring.cloud.version>2021.0.9</spring.cloud.version>
-        <spring.cloud.tencent.version>2.1.0.2-2021.0.9</spring.cloud.tencent.version>
+        <spring.cloud.tencent.version>2.1.1.0-2021.0.9-SNAPSHOT</spring.cloud.tencent.version>
         <spring.boot.version>2.7.18</spring.boot.version>
         <slf4j.vesion>1.7.36</slf4j.vesion>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>

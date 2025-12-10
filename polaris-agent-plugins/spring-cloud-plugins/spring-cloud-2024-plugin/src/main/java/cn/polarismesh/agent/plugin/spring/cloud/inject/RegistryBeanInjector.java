@@ -89,10 +89,6 @@ public class RegistryBeanInjector implements BeanInjector {
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, nacosDiscoveryRegistryAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("nacosDiscoveryRegistryAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
                 NacosDiscoveryRegistryAutoConfiguration.class).getBeanDefinition());
-//        Object nacosBeanDefinitionRegistryPostProcessor = ReflectionUtils.invokeConstructor(configClassCreator, NacosBeanDefinitionRegistryPostProcessor.class, "nacosBeanDefinitionRegistryPostProcessor");
-//        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, nacosBeanDefinitionRegistryPostProcessor, Constant.DEFAULT_EXCLUSION_FILTER);
-//        registry.registerBeanDefinition("nacosBeanDefinitionRegistryPostProcessor", BeanDefinitionBuilder.genericBeanDefinition(
-//                NacosBeanDefinitionRegistryPostProcessor.class).getBeanDefinition());
         LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
     }
 }
