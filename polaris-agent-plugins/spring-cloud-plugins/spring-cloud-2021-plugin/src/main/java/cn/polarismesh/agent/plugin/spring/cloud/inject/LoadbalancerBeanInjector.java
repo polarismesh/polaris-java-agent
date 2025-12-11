@@ -23,7 +23,6 @@ import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import com.tencent.cloud.polaris.loadbalancer.PolarisLoadBalancerAutoConfiguration;
 import com.tencent.cloud.polaris.loadbalancer.PolarisLoadBalancerPropertiesAutoConfiguration;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -36,8 +35,6 @@ import java.lang.reflect.Method;
 public class LoadbalancerBeanInjector implements BeanInjector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadbalancerBeanInjector.class);
-
-    private final AtomicBoolean bootstrapLoaded = new AtomicBoolean(false);
 
     @Override
     public String getModule() {

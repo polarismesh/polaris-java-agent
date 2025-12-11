@@ -32,13 +32,10 @@ import org.springframework.core.env.Environment;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RpcEnhancementBeanInjector implements BeanInjector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcEnhancementBeanInjector.class);
-
-    private final AtomicBoolean bootstrapLoaded = new AtomicBoolean(false);
 
     @Override
     public String getModule() {
@@ -50,9 +47,6 @@ public class RpcEnhancementBeanInjector implements BeanInjector {
         if (!(Utils.checkPolarisEnabled(environment) && Utils.checkKeyEnabled(environment, "spring.cloud.tencent.rpc-enhancement.enabled"))) {
             LOGGER.warn("[PolarisJavaAgent] polaris rpc-enhancement not enabled, skip inject application bean definitions for module {}", getModule());
             return;
-        }
-        if (!bootstrapLoaded.get()) {
-            onBootstrapStartup(configurationParser, configClassCreator, processConfigurationClass, registry, environment);
         }
         Object polarisStatPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisStatPropertiesAutoConfiguration.class, "polarisStatPropertiesAutoConfiguration");
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisStatPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);

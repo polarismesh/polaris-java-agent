@@ -39,7 +39,6 @@ public class CircuitBreakerBeanInjector implements BeanInjector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CircuitBreakerBeanInjector.class);
 
-    private final AtomicBoolean bootstrapLoaded = new AtomicBoolean(false);
 
     @Override
     public String getModule() {

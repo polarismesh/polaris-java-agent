@@ -37,13 +37,10 @@ import org.springframework.core.env.Environment;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RegistryBeanInjector implements BeanInjector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryBeanInjector.class);
-
-    private final AtomicBoolean bootstrapLoaded = new AtomicBoolean(false);
 
     @Override
     public String getModule() {

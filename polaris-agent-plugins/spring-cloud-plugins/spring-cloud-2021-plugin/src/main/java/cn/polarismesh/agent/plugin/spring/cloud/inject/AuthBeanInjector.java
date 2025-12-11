@@ -24,7 +24,6 @@ import com.tencent.cloud.polaris.auth.config.PolarisAuthAutoConfiguration;
 import com.tencent.cloud.polaris.auth.config.PolarisAuthPropertiesAutoConfiguration;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;

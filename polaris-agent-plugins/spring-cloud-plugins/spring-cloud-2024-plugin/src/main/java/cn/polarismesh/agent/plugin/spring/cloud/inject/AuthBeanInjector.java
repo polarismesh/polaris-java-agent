@@ -16,7 +16,6 @@
  */
 package cn.polarismesh.agent.plugin.spring.cloud.inject;
 
-import cn.polarismesh.agent.core.common.utils.ClassUtils;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
@@ -25,7 +24,6 @@ import com.tencent.cloud.polaris.auth.config.PolarisAuthAutoConfiguration;
 import com.tencent.cloud.polaris.auth.config.PolarisAuthPropertiesAutoConfiguration;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -35,8 +33,6 @@ import org.springframework.core.env.Environment;
 public class AuthBeanInjector implements BeanInjector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthBeanInjector.class);
-
-    private final AtomicBoolean bootstrapLoaded = new AtomicBoolean(false);
 
     @Override
     public String getModule() {
