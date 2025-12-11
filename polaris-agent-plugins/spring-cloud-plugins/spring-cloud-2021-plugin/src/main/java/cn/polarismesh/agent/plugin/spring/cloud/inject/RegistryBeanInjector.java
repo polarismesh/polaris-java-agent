@@ -22,12 +22,13 @@ import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import com.tencent.cloud.polaris.DiscoveryPropertiesAutoConfiguration;
-import com.tencent.cloud.polaris.DiscoveryPropertiesBootstrapAutoConfiguration;
 import com.tencent.cloud.polaris.discovery.PolarisDiscoveryAutoConfiguration;
 import com.tencent.cloud.polaris.discovery.PolarisDiscoveryClientConfiguration;
 import com.tencent.cloud.polaris.discovery.reactive.PolarisReactiveDiscoveryClientConfiguration;
 import com.tencent.cloud.polaris.discovery.refresh.PolarisRefreshConfiguration;
+import com.tencent.cloud.polaris.eager.config.PolarisEagerLoadAutoConfiguration;
 import com.tencent.cloud.polaris.registry.PolarisServiceRegistryAutoConfiguration;
+import com.tencent.cloud.polaris.registry.nacos.NacosDiscoveryRegistryAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -47,20 +48,6 @@ public class RegistryBeanInjector implements BeanInjector {
     @Override
     public String getModule() {
         return "spring-cloud-starter-tencent-polaris-discovery";
-    }
-
-    @Override
-    public void onBootstrapStartup(Object configurationParser, Constructor<?> configClassCreator, Method processConfigurationClass, BeanDefinitionRegistry registry, Environment environment) {
-        if (!(Utils.checkPolarisEnabled(environment) && Utils.checkKeyEnabled(environment, "spring.cloud.polaris.discovery.enabled"))) {
-            LOGGER.warn("[PolarisJavaAgent] polaris discovery not enabled, skip inject bootstrap bean definitions for module {}", getModule());
-            return;
-        }
-        bootstrapLoaded.set(true);
-        Object discoveryPropertiesBootstrapAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, DiscoveryPropertiesBootstrapAutoConfiguration.class, "discoveryPropertiesBootstrapAutoConfiguration");
-        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, discoveryPropertiesBootstrapAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-        registry.registerBeanDefinition("discoveryPropertiesBootstrapAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-                DiscoveryPropertiesBootstrapAutoConfiguration.class).getBeanDefinition());
-        LOGGER.info("[PolarisJavaAgent] success to inject bootstrap bean definitions for module {}", getModule());
     }
 
     @Override
@@ -96,6 +83,15 @@ public class RegistryBeanInjector implements BeanInjector {
         ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisServiceRegistryAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
         registry.registerBeanDefinition("polarisServiceRegistryAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
                 PolarisServiceRegistryAutoConfiguration.class).getBeanDefinition());
+        Object polarisEagerLoadAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisEagerLoadAutoConfiguration.class, "polarisEagerLoadAutoConfiguration");
+        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisEagerLoadAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+        registry.registerBeanDefinition("polarisEagerLoadAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+                PolarisEagerLoadAutoConfiguration.class).getBeanDefinition());
+        // inject nacos registry
+        Object nacosDiscoveryRegistryAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, NacosDiscoveryRegistryAutoConfiguration.class, "nacosDiscoveryRegistryAutoConfiguration");
+        ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, nacosDiscoveryRegistryAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
+        registry.registerBeanDefinition("nacosDiscoveryRegistryAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
+                NacosDiscoveryRegistryAutoConfiguration.class).getBeanDefinition());
         LOGGER.info("[PolarisJavaAgent] success to inject application bean definitions for module {}", getModule());
     }
 }
