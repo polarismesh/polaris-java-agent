@@ -13,7 +13,7 @@ spring:
       username: 'nacos'
       password: 'nacos'
       discovery:
-        enabled: false
+        enabled: true
         server-addr: 127.0.0.1:8848
       config:
         enabled: true
