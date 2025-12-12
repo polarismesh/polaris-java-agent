@@ -68,6 +68,7 @@ public class PropertiesProvider {
                 throw new IllegalStateException("fail to load config from " + configPath, e);
             }
             properties.setProperty("spring.cloud.nacos.discovery.enabled", "false");
+            properties.setProperty("eureka.client.enabled", "false");
             propertySources.add(new PropertiesPropertySource("__polaris_agent_spring_cloud_tencent__", properties));
             propertySources.add(new PropertiesPropertySource("__default_polaris_agent_spring_cloud_tencent__", defaultProperties));
             return propertySources;

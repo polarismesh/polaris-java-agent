@@ -24,5 +24,7 @@ public class PolarisInitProperties {
         // ban nacos as sct currently does not support double registration
         System.setProperty("spring.cloud.nacos.discovery.enabled", "false");
 
+        // ban eureka as sct currently does not support double registration
+        System.setProperty("eureka.client.enabled", "false");
     }
 }
