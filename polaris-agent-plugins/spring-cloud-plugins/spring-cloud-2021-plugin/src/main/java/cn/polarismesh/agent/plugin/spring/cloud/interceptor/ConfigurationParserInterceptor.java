@@ -65,14 +65,64 @@ public class ConfigurationParserInterceptor implements Interceptor {
         if (beanDefinition instanceof AnnotatedGenericBeanDefinition) {
             AnnotatedGenericBeanDefinition annotatedBeanDefinition = (AnnotatedGenericBeanDefinition) beanDefinition;
             Class<?> beanClass = annotatedBeanDefinition.getBeanClass();
-            Annotation[] annotations = beanClass.getAnnotations();
-            for (Annotation annotation : annotations) {
-                Class<? extends Annotation> aClass = annotation.annotationType();
-                if ("org.springframework.boot.autoconfigure.SpringBootApplication".equals(aClass.getCanonicalName())) {
-                    return true;
-                }
+            return hasSpringBootApplicationAnnotation(beanClass);
+        }
+        return false;
+    }
+
+    /**
+     * 递归检查类上是否包含 @SpringBootApplication 注解（包括元注解）
+     *
+     * @param clazz 要检查的类
+     * @return 如果找到 @SpringBootApplication 注解返回 true，否则返回 false
+     */
+    private static boolean hasSpringBootApplicationAnnotation(Class<?> clazz) {
+        if (clazz == null) {
+            return false;
+        }
+
+        Annotation[] annotations = clazz.getAnnotations();
+        for (Annotation annotation : annotations) {
+            if (isSpringBootApplicationAnnotation(annotation.annotationType(), new java.util.HashSet<>())) {
+                return true;
             }
         }
+        return false;
+    }
+
+    /**
+     * 递归检查注解类型是否为 @SpringBootApplication 或包含该注解
+     *
+     * @param annotationType 要检查的注解类型
+     * @param visited        已访问的注解类型集合，用于防止循环引用
+     * @return 如果是或包含 @SpringBootApplication 返回 true，否则返回 false
+     */
+    private static boolean isSpringBootApplicationAnnotation(Class<? extends Annotation> annotationType, Set<Class<? extends Annotation>> visited) {
+        // 防止循环引用
+        if (visited.contains(annotationType)) {
+            return false;
+        }
+        visited.add(annotationType);
+
+        // 检查是否是目标注解
+        if ("org.springframework.boot.autoconfigure.SpringBootApplication".equals(annotationType.getCanonicalName())) {
+            return true;
+        }
+
+        // 跳过 Java 标准注解包，提高性能
+        String packageName = annotationType.getPackage() != null ? annotationType.getPackage().getName() : "";
+        if (packageName.startsWith("java.lang.annotation")) {
+            return false;
+        }
+
+        // 递归检查元注解
+        Annotation[] metaAnnotations = annotationType.getAnnotations();
+        for (Annotation metaAnnotation : metaAnnotations) {
+            if (isSpringBootApplicationAnnotation(metaAnnotation.annotationType(), visited)) {
+                return true;
+            }
+        }
+
         return false;
     }
 

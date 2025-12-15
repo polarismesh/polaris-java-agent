@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
@@ -34,7 +33,7 @@ import java.util.Map;
 /**
  * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
  */
-@SpringBootApplication
+@MySpringBootApplication
 public class ProviderApplication {
 
 	public static void main(String[] args) {

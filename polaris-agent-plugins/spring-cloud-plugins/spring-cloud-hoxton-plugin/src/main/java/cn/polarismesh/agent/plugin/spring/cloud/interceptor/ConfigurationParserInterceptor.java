@@ -17,6 +17,19 @@
 
 package cn.polarismesh.agent.plugin.spring.cloud.interceptor;
 
+import cn.polarismesh.agent.core.common.utils.ClassUtils;
+import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
+import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
+import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
+import cn.polarismesh.agent.plugin.spring.cloud.inject.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.core.env.Environment;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -24,30 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
-
-import cn.polarismesh.agent.core.common.utils.ClassUtils;
-import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
-import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
-import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.CircuitBreakerBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.CommonBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.ConfigBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.LoadbalancerBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.LosslessBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.MetadataTransferBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.PolarisContextBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.RateLimitBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.RegistryBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.RouterBeanInjector;
-import cn.polarismesh.agent.plugin.spring.cloud.inject.RpcEnhancementBeanInjector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanDefinitionHolder;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.core.env.Environment;
 
 public class ConfigurationParserInterceptor implements Interceptor {
 
@@ -75,14 +64,64 @@ public class ConfigurationParserInterceptor implements Interceptor {
 		if (beanDefinition instanceof AnnotatedGenericBeanDefinition) {
 			AnnotatedGenericBeanDefinition annotatedBeanDefinition = (AnnotatedGenericBeanDefinition)beanDefinition;
 			Class<?> beanClass = annotatedBeanDefinition.getBeanClass();
-			Annotation[] annotations = beanClass.getAnnotations();
-			for (Annotation annotation : annotations) {
-				Class<? extends Annotation> aClass = annotation.annotationType();
-				if ("org.springframework.boot.autoconfigure.SpringBootApplication".equals(aClass.getCanonicalName())) {
-					return true;
-				}
+			return hasSpringBootApplicationAnnotation(beanClass);
+		}
+		return false;
+	}
+
+	/**
+	 * 递归检查类上是否包含 @SpringBootApplication 注解（包括元注解）
+	 *
+	 * @param clazz 要检查的类
+	 * @return 如果找到 @SpringBootApplication 注解返回 true，否则返回 false
+	 */
+	private static boolean hasSpringBootApplicationAnnotation(Class<?> clazz) {
+		if (clazz == null) {
+			return false;
+		}
+
+		Annotation[] annotations = clazz.getAnnotations();
+		for (Annotation annotation : annotations) {
+			if (isSpringBootApplicationAnnotation(annotation.annotationType(), new java.util.HashSet<>())) {
+				return true;
 			}
 		}
+		return false;
+	}
+
+	/**
+	 * 递归检查注解类型是否为 @SpringBootApplication 或包含该注解
+	 *
+	 * @param annotationType 要检查的注解类型
+	 * @param visited        已访问的注解类型集合，用于防止循环引用
+	 * @return 如果是或包含 @SpringBootApplication 返回 true，否则返回 false
+	 */
+	private static boolean isSpringBootApplicationAnnotation(Class<? extends Annotation> annotationType, Set<Class<? extends Annotation>> visited) {
+		// 防止循环引用
+		if (visited.contains(annotationType)) {
+			return false;
+		}
+		visited.add(annotationType);
+
+		// 检查是否是目标注解
+		if ("org.springframework.boot.autoconfigure.SpringBootApplication".equals(annotationType.getCanonicalName())) {
+			return true;
+		}
+
+		// 跳过 Java 标准注解包，提高性能
+		String packageName = annotationType.getPackage() != null ? annotationType.getPackage().getName() : "";
+		if (packageName.startsWith("java.lang.annotation")) {
+			return false;
+		}
+
+		// 递归检查元注解
+		Annotation[] metaAnnotations = annotationType.getAnnotations();
+		for (Annotation metaAnnotation : metaAnnotations) {
+			if (isSpringBootApplicationAnnotation(metaAnnotation.annotationType(), visited)) {
+				return true;
+			}
+		}
+
 		return false;
 	}
 
