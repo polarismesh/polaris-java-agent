@@ -1,0 +1,54 @@
+name: Junit Test
+
+on:
+  push:
+    branches:
+      - main
+      - release/*
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    branches:
+      - main
+      - release/*
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup JDK 8
+        uses: AdoptOpenJDK/install-jdk@v1
+        with:
+          version: '8'
+          architecture: x64
+          targets: 'JAVA_8_HOME'
+
+      - name: Setup JDK 11
+        uses: AdoptOpenJDK/install-jdk@v1
+        with:
+          version: '11'
+          architecture: x64
+          targets: 'JAVA_11_HOME'
+
+      - name: Setup JDK 17
+        uses: AdoptOpenJDK/install-jdk@v1
+        with:
+          version: '17'
+          architecture: x64
+          targets: 'JAVA_17_HOME;JAVA_HOME'
+
+      - name: Install xmllint
+        run: sudo apt-get install libxml2-utils
+
+      - name: Get version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      - name: Test with Maven
+        run: |
+          export use_docker_env=false
+          echo $JAVA_HOME
+          echo $JAVA_8_HOME
+          mvn clean test -B -U --file pom.xml
