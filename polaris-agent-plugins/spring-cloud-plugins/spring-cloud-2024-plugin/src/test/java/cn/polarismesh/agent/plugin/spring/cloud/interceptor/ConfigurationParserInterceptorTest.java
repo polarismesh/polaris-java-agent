@@ -83,7 +83,7 @@ public class ConfigurationParserInterceptorTest {
      * 测试 bootstrap 启动时的 bean 注入
      */
     @Test
-    public void testAfter_BootstrapStartup() throws Exception {
+    public void testAfter_BootstrapStartup() {
         // 准备测试数据
         BeanDefinitionHolder holder = mock(BeanDefinitionHolder.class);
         when(holder.getBeanName()).thenReturn("bootstrapImportSelectorConfiguration");
@@ -135,7 +135,7 @@ public class ConfigurationParserInterceptorTest {
      * 测试主应用启动时的 bean 注入
      */
     @Test
-    public void testAfter_ApplicationStartup() throws Exception {
+    public void testAfter_ApplicationStartup() {
         // 准备测试数据 - 创建带有 @SpringBootApplication 注解的 Bean 定义
         // 使用真实的 AnnotatedGenericBeanDefinition 实例而不是 mock
         AnnotatedGenericBeanDefinition beanDefinition = new AnnotatedGenericBeanDefinition(TestApplication.class);
