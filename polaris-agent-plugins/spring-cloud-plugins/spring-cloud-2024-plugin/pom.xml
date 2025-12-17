@@ -12,9 +12,9 @@
     <artifactId>spring-cloud-2024-plugin</artifactId>
 
     <properties>
-        <spring.cloud.version>2024.0.2</spring.cloud.version>
-        <spring.cloud.tencent.version>2.1.1.0-2024.0.2-SNAPSHOT</spring.cloud.tencent.version>
-        <spring.boot.version>3.4.8</spring.boot.version>
+        <spring.cloud.version>2024.0.3</spring.cloud.version>
+        <spring.cloud.tencent.version>2.1.1.0-2024.0.3-SNAPSHOT</spring.cloud.tencent.version>
+        <spring.boot.version>3.4.12</spring.boot.version>
         <slf4j.vesion>2.0.17</slf4j.vesion>
         <jdk.version>17</jdk.version>
         <jdk.home>${env.JAVA_17_HOME}</jdk.home>
