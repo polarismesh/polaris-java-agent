@@ -129,7 +129,7 @@ public class ConfigurationParserInterceptor implements Interceptor {
 	@Override
 	public void after(Object target, Object[] args, Object result, Throwable throwable) {
 		Set<?> candidates = (Set<?>) args[0];
-		if (CollectionUtils.isEmpty(candidates) || candidates.size() != 1) {
+		if (candidates.size() != 1) {
 			LOGGER.warn("[PolarisJavaAgent] skip inject because candidates size is {}", CollectionUtils.isEmpty(candidates) ? 0 : candidates.size());
 			if (CollectionUtils.isNotEmpty(candidates)) {
 				for (Object candidate : candidates) {
