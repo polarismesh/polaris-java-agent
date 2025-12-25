@@ -22,7 +22,6 @@ import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.core.extension.interceptor.Interceptor;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.inject.*;
-import com.tencent.polaris.api.utils.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
@@ -129,15 +128,6 @@ public class ConfigurationParserInterceptor implements Interceptor {
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         Set<?> candidates = (Set<?>) args[0];
-        if (CollectionUtils.isEmpty(candidates) || candidates.size() != 1) {
-            LOGGER.warn("[PolarisJavaAgent] skip inject because candidates size is {}", CollectionUtils.isEmpty(candidates) ? 0 : candidates.size());
-            if (CollectionUtils.isNotEmpty(candidates)) {
-                for (Object candidate : candidates) {
-                    LOGGER.warn("[PolarisJavaAgent] skip inject candidate: {}", ((BeanDefinitionHolder) candidate).getBeanName());
-                }
-            }
-            return;
-        }
         BeanDefinitionHolder beanDefinitionHolder = (BeanDefinitionHolder) candidates.iterator().next();
         if ("bootstrapImportSelectorConfiguration".equals(beanDefinitionHolder.getBeanName())) {
             // bootstrap

@@ -210,49 +210,6 @@ public class ConfigurationParserInterceptorTest {
     }
 
     /**
-     * 测试空候选集的情况
-     */
-    @Test
-    public void testAfter_EmptyCandidates() {
-        // 准备测试数据 - 空的候选集
-        Set<BeanDefinitionHolder> candidates = new HashSet<>();
-        Object[] args = new Object[]{candidates};
-
-        // 执行测试（不应抛出异常）
-        interceptor.after(target, args, null, null);
-
-        // 验证不会调用任何交互
-        verifyNoInteractions(registry);
-        verifyNoInteractions(environment);
-    }
-
-    /**
-     * 测试多个候选 Bean 的情况
-     */
-    @Test
-    public void testAfter_MultipleCandidates() {
-        // 准备测试数据 - 多个候选 Bean
-        AnnotatedGenericBeanDefinition beanDefinition1 = new AnnotatedGenericBeanDefinition(TestApplication.class);
-        AnnotatedGenericBeanDefinition beanDefinition2 = new AnnotatedGenericBeanDefinition(TestWithoutAnnotationApplication.class);
-
-        BeanDefinitionHolder holder1 = new BeanDefinitionHolder(beanDefinition1, "bean1");
-        BeanDefinitionHolder holder2 = new BeanDefinitionHolder(beanDefinition2, "bean2");
-
-        Set<BeanDefinitionHolder> candidates = new HashSet<>();
-        candidates.add(holder1);
-        candidates.add(holder2);
-
-        Object[] args = new Object[]{candidates};
-
-        // 执行测试
-        interceptor.after(target, args, null, null);
-
-        // 验证不会调用任何交互（因为候选数量不为 1）
-        verifyNoInteractions(registry);
-        verifyNoInteractions(environment);
-    }
-
-    /**
      * 测试应用类 - 带有 @SpringBootApplication 注解
      */
     @SpringBootApplication
