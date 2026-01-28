@@ -42,7 +42,9 @@ jobs:
           targets: 'JAVA_17_HOME;JAVA_HOME'
 
       - name: Install xmllint
-        run: sudo apt-get install libxml2-utils
+        run: |
+          sudo apt-get update
+          sudo apt-get install libxml2-utils
 
       - name: Get version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
