@@ -14,7 +14,7 @@
     <url>https://github.com/polarismesh/polaris-java-agent</url>
 
     <properties>
-        <revision>2.1.0.0</revision>
+        <revision>2.1.1.0</revision>
         <slf4j.version>1.7.25</slf4j.version>
         <json_path_version>2.8.0</json_path_version>
         <junit.version>4.13.1</junit.version>
