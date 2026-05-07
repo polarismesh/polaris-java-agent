@@ -69,6 +69,8 @@ echo "plugins.enable=${custom_plugin_id}" > ${polaris_agent_dir_name}/conf/polar
 
 # 第二步，将 plugin 所需要的配置注入到 plugin 对应的目录中去（按框架分流）
 has_spring_cloud=false
+has_dubbo=false
+dubbo_config_file=""
 for i in "${!framework_names[@]}"; do
   name="${framework_names[$i]}"
   case "${name}" in
@@ -95,6 +97,7 @@ for i in "${!framework_names[@]}"; do
       cat ${target_config_file}
       ;;
     dubbo)
+      has_dubbo=true
       echo "inject config for dubbo plugin"
       if ! check_string_not_empty "${POLARIS_SERVER_IP}" || ! check_string_not_empty "${POLARIS_DISCOVER_PORT}"; then
         echo "WARNING: POLARIS_SERVER_IP or POLARIS_DISCOVER_PORT is empty, skip dubbo config injection"
@@ -114,23 +117,43 @@ for i in "${!framework_names[@]}"; do
   esac
 done
 
-# 第三步，将地域信息拉取并设置进配置文件（仅 spring-cloud 需要）
-if [ "${has_spring_cloud}" = true ]; then
-  echo "start to fetch region, target config file ${target_config_file}"
+# 第三步，将地域信息拉取并设置进配置文件
+# 腾讯云 metadata 只能拿到 region 和 zone 两级，无法获取大区信息，映射关系如下：
+#   腾讯云 region（如 ap-guangzhou）  → 北极星 zone
+#   腾讯云 zone（如 ap-guangzhou-3）  → 北极星 campus
+#   北极星 region（大区）             → 腾讯云无法获取，留空
+if [ "${has_spring_cloud}" = true ] || [ "${has_dubbo}" = true ]; then
+  echo "start to fetch region from tencent cloud metadata"
   region="$(curl -s --connect-timeout 10 -m 10 http://metadata.tencentyun.com/latest/meta-data/placement/region)"
   region_code=$?
   echo "region is ${region}, return code is ${region_code}"
-  if [ ${region_code} -eq 0 ] && [ -n ${region} ]; then
-    sed -i "s/spring.cloud.tencent.metadata.content.zone=\"\"/spring.cloud.tencent.metadata.content.zone=${region}/g" ${target_config_file}
-  fi
 
-  echo "start to fetch zone"
+  echo "start to fetch zone from tencent cloud metadata"
   zone="$(curl -s --connect-timeout 10 -m 10 http://metadata.tencentyun.com/latest/meta-data/placement/zone)"
   zone_code=$?
   echo "zone is ${zone}, return code is ${zone_code}"
-  if [ ${zone_code} -eq 0 ] && [ -n ${zone} ]; then
-    sed -i "s/spring.cloud.tencent.metadata.content.campus=\"\"/spring.cloud.tencent.metadata.content.campus=${zone}/g" ${target_config_file}
+
+  # 注入 Spring Cloud 地域信息（腾讯云 region → 北极星 zone，腾讯云 zone → 北极星 campus）
+  if [ "${has_spring_cloud}" = true ]; then
+    echo "inject region info into spring-cloud config: ${target_config_file}"
+    if [ ${region_code} -eq 0 ] && [ -n ${region} ]; then
+      sed -i "s/spring.cloud.tencent.metadata.content.zone=\"\"/spring.cloud.tencent.metadata.content.zone=${region}/g" ${target_config_file}
+    fi
+    if [ ${zone_code} -eq 0 ] && [ -n ${zone} ]; then
+      sed -i "s/spring.cloud.tencent.metadata.content.campus=\"\"/spring.cloud.tencent.metadata.content.campus=${zone}/g" ${target_config_file}
+    fi
+    cat ${target_config_file}
   fi
 
-  cat ${target_config_file}
+  # 注入 Dubbo 地域信息（腾讯云 region → 北极星 zone，腾讯云 zone → 北极星 campus）
+  if [ "${has_dubbo}" = true ] && [ -n "${dubbo_config_file}" ]; then
+    echo "inject region info into dubbo config: ${dubbo_config_file}"
+    if [ ${region_code} -eq 0 ] && [ -n ${region} ]; then
+      sed -i "s/dubbo.registry.parameters.polaris_metadata_content_zone=\"\"/dubbo.registry.parameters.polaris_metadata_content_zone=${region}/g" ${dubbo_config_file}
+    fi
+    if [ ${zone_code} -eq 0 ] && [ -n ${zone} ]; then
+      sed -i "s/dubbo.registry.parameters.polaris_metadata_content_campus=\"\"/dubbo.registry.parameters.polaris_metadata_content_campus=${zone}/g" ${dubbo_config_file}
+    fi
+    cat ${dubbo_config_file}
+  fi
 fi
