@@ -20,21 +20,16 @@ package cn.polarismesh.agent.core.asm.instrument.plugin;
 import cn.polarismesh.agent.core.common.conf.ConfigManager;
 import cn.polarismesh.agent.core.common.logger.CommonLogger;
 import cn.polarismesh.agent.core.common.logger.StdoutCommonLoggerFactory;
-import cn.polarismesh.agent.core.common.utils.JarFileUtils;
 import cn.polarismesh.agent.core.common.utils.StringUtils;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.jar.JarFile;
 
 public class PluginNameFilter implements PluginFilter {
 
     private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE
             .getLogger(PluginNameFilter.class.getCanonicalName());
-
-    private static final String SPRING_BOOT_VERSION = "Spring-Boot-Version";
 
     private final Set<String> pluginNames;
 
@@ -50,8 +45,14 @@ public class PluginNameFilter implements PluginFilter {
     private static Set<String> getLoadablePluginNames() {
         String enablePlugins = ConfigManager.INSTANCE.getConfigValue(ConfigManager.KEY_PLUGIN_ENABLE);
         logger.info("Enable plugins: " + enablePlugins);
-        enablePlugins = appendSpringCloudPluginNameIfNeeded(enablePlugins);
-        logger.info("Enable plugins after appendSpringCloudPluginNameIfNeeded: " + enablePlugins);
+        if (StringUtils.isEmpty(enablePlugins)) {
+            logger.info("Enable plugins is empty, try to auto-detect");
+            enablePlugins = appendSpringCloudPluginNameIfNeeded(enablePlugins);
+            logger.info("Enable plugins after appendSpringCloudPluginNameIfNeeded: " + enablePlugins);
+            enablePlugins = appendDubboPluginNameIfNeeded(enablePlugins);
+            logger.info("Enable plugins after appendDubboPluginNameIfNeeded: " + enablePlugins);
+        }
+        logger.info("Final Enable plugins: " + enablePlugins);
         if (StringUtils.isEmpty(enablePlugins)) {
             return Collections.emptySet();
         }
@@ -66,7 +67,7 @@ public class PluginNameFilter implements PluginFilter {
         return values;
     }
 
-    private static String appendSpringCloudPluginNameIfNeeded(String enablePlugins) {
+    static String appendSpringCloudPluginNameIfNeeded(String enablePlugins) {
         if (StringUtils.hasText(enablePlugins)) {
             String[] names = enablePlugins.split(",");
             for (String name : names) {
@@ -76,54 +77,64 @@ public class PluginNameFilter implements PluginFilter {
             }
         }
 
-        JarFile jarFile = null;
-        try {
-            String classPath = System.getProperty("java.class.path");
-            logger.info("Class path: " + classPath);
-            String[] paths = classPath.split(":");
-            String mainJarPath = paths[0];
-            logger.info("Main jar: " + mainJarPath);
-            jarFile = new JarFile(mainJarPath);
-            String versionStr = JarFileUtils.getManifestValue(jarFile, SPRING_BOOT_VERSION, "");
-            logger.info("Spring Boot Version: " + versionStr);
-            String springCloudPluginNamePattern = "spring-cloud-%s-plugin";
-            String springCloudVersion = getSpringCloudVersion(versionStr);
-            if (StringUtils.hasText(springCloudVersion)) {
-                String springCloudPluginName = String.format(springCloudPluginNamePattern, springCloudVersion);
-                logger.info("Spring Cloud Version: " + springCloudVersion);
-                if (StringUtils.hasText(enablePlugins)) {
-                    enablePlugins = enablePlugins + "," + springCloudPluginName;
-                } else {
-                    enablePlugins = springCloudPluginName;
-                }
-            } else {
-                logger.warn("No compatible Spring Cloud version found for Spring Boot version: " + versionStr);
-            }
-        } catch (IOException ioException) {
-            logger.warn("Cannot get Spring Boot Version from MANIFEST.", ioException);
-        } finally {
-            if (jarFile != null) {
-                try {
-                    jarFile.close();
-                } catch (IOException ioException) {
-                    logger.warn("Cannot close jarFile", ioException);
-                }
-            }
+        SpringBootVersionDetector detector = new SpringBootVersionDetector();
+        String bootVersion = detector.detectVersion();
+        if (bootVersion.isEmpty()) {
+            logger.warn("No Spring Boot version detected from"
+                    + " MANIFEST, classpath or fat JAR");
+            return enablePlugins;
         }
-        return enablePlugins;
+
+        String pluginName = detector.getPluginName(bootVersion);
+        if (pluginName.isEmpty()) {
+            logger.warn("No compatible Spring Cloud plugin for"
+                    + " Spring Boot version: " + bootVersion);
+            return enablePlugins;
+        }
+
+        logger.info("Auto-detected Spring Boot version: "
+                + bootVersion + ", plugin: " + pluginName);
+        if (StringUtils.hasText(enablePlugins)) {
+            return enablePlugins + "," + pluginName;
+        }
+        return pluginName;
     }
 
-    private static String getSpringCloudVersion(String versionStr) {
-        String springCloudVersion = "";
-        if (versionStr.startsWith("2.2") || versionStr.startsWith("2.3")) {
-            springCloudVersion = "hoxton";
-        } else if (versionStr.startsWith("2.6") || versionStr.startsWith("2.7")) {
-            springCloudVersion = "2021";
-        } else if (versionStr.startsWith("3.0") || versionStr.startsWith("3.1")) {
-            springCloudVersion = "2022";
-        } else if (versionStr.startsWith("3.2") || versionStr.startsWith("3.3")) {
-            springCloudVersion = "2023";
+    /**
+     * 自动检测 Dubbo 版本并追加对应插件名.
+     * 如果 enablePlugins 中已包含 dubbo- 开头的插件，则跳过.
+     */
+    static String appendDubboPluginNameIfNeeded(
+            String enablePlugins) {
+        if (StringUtils.hasText(enablePlugins)) {
+            String[] names = enablePlugins.split(",");
+            for (String name : names) {
+                if (StringUtils.hasText(name)
+                        && name.contains("dubbo-")) {
+                    return enablePlugins;
+                }
+            }
         }
-        return springCloudVersion;
+
+        DubboVersionDetector detector = new DubboVersionDetector();
+        String dubboVersion = detector.detectVersion();
+        if (dubboVersion.isEmpty()) {
+            return enablePlugins;
+        }
+
+        String pluginName = detector.getPluginName(dubboVersion);
+        if (pluginName.isEmpty()) {
+            logger.warn("Unsupported Dubbo version: "
+                    + dubboVersion);
+            return enablePlugins;
+        }
+
+        logger.info("Auto-detected Dubbo version: "
+                + dubboVersion + ", plugin: " + pluginName);
+        if (StringUtils.hasText(enablePlugins)) {
+            return enablePlugins + "," + pluginName;
+        }
+        return pluginName;
     }
+
 }

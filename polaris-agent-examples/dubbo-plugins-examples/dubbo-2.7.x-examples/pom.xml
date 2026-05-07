@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>dubbo-plugins-examples</artifactId>
+        <groupId>com.tencent.polaris</groupId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>dubbo-2.7.x-examples</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>dubbo-example-api</module>
+        <module>dubbo-example-provider</module>
+        <module>dubbo-example-consumer</module>
+        <module>spring-cloud-dubbo-examples</module>
+    </modules>
+    <properties>
+        <apache.dubbo.version>2.7.23</apache.dubbo.version>
+        <nacos.client.version>2.1.1</nacos.client.version>
+        <spring.version>5.3.20</spring.version>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo</artifactId>
+                <version>${apache.dubbo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-registry-nacos</artifactId>
+                <version>${apache.dubbo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.nacos</groupId>
+                <artifactId>nacos-client</artifactId>
+                <version>${nacos.client.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>
