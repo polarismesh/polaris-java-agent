@@ -37,7 +37,8 @@ check_string_not_empty() {
     return 1  # 变量为空或全是空格，返回1（失败）
   fi
 }
-
+echo "JAVA_AGENT_FRAMEWORK_NAME is ${JAVA_AGENT_FRAMEWORK_NAME}"
+echo "JAVA_AGENT_FRAMEWORK_VERSION is ${JAVA_AGENT_FRAMEWORK_VERSION}"
 # 第一步，需要确定 agent-plugin 启用哪个（支持逗号分隔的多框架）
 custom_plugin_id=""
 if check_string_not_empty "${JAVA_AGENT_FRAMEWORK_NAME}" && check_string_not_empty "${JAVA_AGENT_FRAMEWORK_VERSION}"; then
@@ -61,11 +62,18 @@ if check_string_not_empty "${JAVA_AGENT_FRAMEWORK_NAME}" && check_string_not_emp
     fi
   done
 else
-  echo "JAVA_AGENT_FRAMEWORK_NAME [${JAVA_AGENT_FRAMEWORK_NAME}] or JAVA_AGENT_FRAMEWORK_VERSION [${JAVA_AGENT_FRAMEWORK_VERSION}] is empty"
-  framework_names=()
-  framework_versions=()
+  # 未指定框架时，不写入 plugins.enable，但仍需注入所有框架的配置
+  echo "JAVA_AGENT_FRAMEWORK_NAME [${JAVA_AGENT_FRAMEWORK_NAME}] or JAVA_AGENT_FRAMEWORK_VERSION [${JAVA_AGENT_FRAMEWORK_VERSION}] is empty, inject config for all frameworks"
+  framework_names=("spring-cloud" "dubbo")
+  framework_versions=("2021" "2.7.x")
+  custom_plugin_id=""
+  echo "default frameworks: ${framework_names[*]}, versions: ${framework_versions[*]}"
 fi
-echo "plugins.enable=${custom_plugin_id}" > ${polaris_agent_dir_name}/conf/polaris-agent.config
+if check_string_not_empty "${custom_plugin_id}"; then
+  echo "plugins.enable=${custom_plugin_id}" > ${polaris_agent_dir_name}/conf/polaris-agent.config
+else
+  echo "plugins.enable not set, skip writing polaris-agent.config"
+fi
 
 # 第二步，将 plugin 所需要的配置注入到 plugin 对应的目录中去（按框架分流）
 has_spring_cloud=false
