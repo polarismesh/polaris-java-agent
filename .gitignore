@@ -44,3 +44,6 @@ backup/
 *.zip
 polaris-java-agent-*
 */version.txt
+
+### Superpowers (AI dev docs — local only) ###
+docs/
