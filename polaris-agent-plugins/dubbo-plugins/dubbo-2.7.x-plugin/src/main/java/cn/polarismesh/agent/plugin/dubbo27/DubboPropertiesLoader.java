@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -41,6 +43,10 @@ public final class DubboPropertiesLoader {
     /** 相对于 agent 根目录的配置文件路径。 */
     static final String CONFIG_FILE_PATH =
             "conf/plugin/dubbo/dubbo-polaris.properties";
+
+    /** Dubbo 注册中心扩展参数 JVM 系统属性前缀。 */
+    static final String REGISTRY_PARAMETERS_PREFIX =
+            "dubbo.registry.parameters.";
 
     private DubboPropertiesLoader() {
     }
@@ -74,5 +80,25 @@ public final class DubboPropertiesLoader {
                     + ", cause: " + e.getMessage());
         }
         return props;
+    }
+
+    /**
+     * 从 JVM 系统属性读取注册中心扩展参数.
+     *
+     * <p>读取所有 {@code -Ddubbo.registry.parameters.*} 形式的系统属性，
+     * 去掉 {@code dubbo.registry.parameters.} 前缀后返回。</p>
+     *
+     * @return 注册中心扩展参数 Map，不为 null
+     */
+    public static Map<String, String> loadSystemRegistryParameters() {
+        Properties props = System.getProperties();
+        Map<String, String> params = new HashMap<String, String>();
+        for (String key : props.stringPropertyNames()) {
+            if (key.startsWith(REGISTRY_PARAMETERS_PREFIX)) {
+                params.put(key.substring(REGISTRY_PARAMETERS_PREFIX.length()),
+                        props.getProperty(key));
+            }
+        }
+        return params;
     }
 }

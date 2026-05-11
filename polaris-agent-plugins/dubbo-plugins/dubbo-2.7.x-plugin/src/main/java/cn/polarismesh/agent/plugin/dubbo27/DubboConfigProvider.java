@@ -74,6 +74,7 @@ public final class DubboConfigProvider {
                         props.getProperty(key));
             }
         }
+        params.putAll(DubboPropertiesLoader.loadSystemRegistryParameters());
         return params;
     }
 }
