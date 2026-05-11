@@ -66,7 +66,7 @@ public final class DubboConfigProvider {
      */
     public static Map<String, String> getRegistryParameters() {
         Properties props = DubboPropertiesLoader.loadProperties();
-        String prefix = "dubbo.registry.parameters.";
+        String prefix = DubboConstants.KEY_DUBBO_REGISTRY_PARAMETERS_PREFIX;
         Map<String, String> params = new HashMap<String, String>();
         for (String key : props.stringPropertyNames()) {
             if (key.startsWith(prefix)) {
