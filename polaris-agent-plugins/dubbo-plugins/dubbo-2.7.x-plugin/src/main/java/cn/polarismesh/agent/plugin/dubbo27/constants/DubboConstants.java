@@ -34,4 +34,6 @@ public interface DubboConstants {
 
     /** 系统属性键: Dubbo 注册中心地址，同时作为 Polaris 地址来源. */
     String KEY_DUBBO_REGISTRY_ADDRESS = "dubbo.registry.address";
+
+    String KEY_DUBBO_REGISTRY_PARAMETERS_PREFIX = "dubbo.registry.parameters.";
 }
