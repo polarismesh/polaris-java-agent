@@ -111,6 +111,17 @@ else
   else
     echo "WARNING: POLARIS_SERVER_IP or POLARIS_DISCOVER_PORT is empty, skip dubbo address injection"
   fi
+
+  # 注入 Dubbo Config-Center 配置 (与上方 registry 注入对称,使用同一对 env vars)
+  if check_string_not_empty "${POLARIS_CONFIG_IP}" && check_string_not_empty "${POLARIS_CONFIG_PORT}"; then
+    echo "read polaris config ip: ${POLARIS_CONFIG_IP}"
+    echo "read polaris config port: ${POLARIS_CONFIG_PORT}"
+    polaris_dubbo_config_address="polaris://${POLARIS_CONFIG_IP}:${POLARIS_CONFIG_PORT}"
+    echo "read polaris dubbo config-center address: ${polaris_dubbo_config_address}"
+    sed -i "s|dubbo.config-center.address=polaris://127.0.0.1:8093|dubbo.config-center.address=${polaris_dubbo_config_address}|g" ${dubbo_config_file}
+  else
+    echo "WARNING: POLARIS_CONFIG_IP or POLARIS_CONFIG_PORT is empty, skip dubbo config-center address injection"
+  fi
   cat ${dubbo_config_file}
 fi
 

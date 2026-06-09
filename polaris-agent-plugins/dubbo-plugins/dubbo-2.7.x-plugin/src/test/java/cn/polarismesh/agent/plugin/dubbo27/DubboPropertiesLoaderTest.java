@@ -20,6 +20,7 @@ package cn.polarismesh.agent.plugin.dubbo27;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Properties;
 
 import org.assertj.core.api.Assertions;
@@ -96,5 +97,28 @@ public class DubboPropertiesLoaderTest {
         Properties props = DubboPropertiesLoader.loadProperties();
 
         Assertions.assertThat(props).isEmpty();
+    }
+
+    @Test
+    public void testLoadSystemParametersByPrefix_collectsAndStripsPrefix() {
+        // 通用前缀剥离 - 任意前缀都应正确收集并去掉前缀
+        System.setProperty("foo.bar.alpha", "1");
+        System.setProperty("foo.bar.beta", "2");
+        System.setProperty("foo.bar.", "should-be-empty-key");
+        System.setProperty("other.unrelated", "ignored");
+        try {
+            Map<String, String> result =
+                    DubboPropertiesLoader.loadSystemParametersByPrefix("foo.bar.");
+
+            Assertions.assertThat(result)
+                    .containsEntry("alpha", "1")
+                    .containsEntry("beta", "2")
+                    .doesNotContainKey("unrelated");
+        } finally {
+            System.clearProperty("foo.bar.alpha");
+            System.clearProperty("foo.bar.beta");
+            System.clearProperty("foo.bar.");
+            System.clearProperty("other.unrelated");
+        }
     }
 }

@@ -42,6 +42,10 @@ public class DubboConfigProviderTest {
     public void tearDown() {
         System.clearProperty(DubboConstants.KEY_DUBBO_REGISTRY_ADDRESS);
         System.clearProperty(
+                DubboConstants.KEY_DUBBO_CONFIG_CENTER_ADDRESS);
+        System.clearProperty(
+                DubboConstants.KEY_POLARIS_AGENT_DUBBO_CONFIG_CENTER_ENABLED);
+        System.clearProperty(
                 DubboPropertiesLoader.AGENT_CONF_PATH_PROPERTY);
     }
 
@@ -157,5 +161,34 @@ public class DubboConfigProviderTest {
                 DubboConfigProvider.getRegistryParameters();
 
         Assertions.assertThat(params).isEmpty();
+    }
+
+    @Test
+    public void testGetConfigCenterAddress_default() {
+        // 未设置任何配置时，返回常量默认 (8093 端口)
+        System.clearProperty(
+                DubboConstants.KEY_DUBBO_CONFIG_CENTER_ADDRESS);
+
+        String address =
+                DubboConfigProvider.getConfigCenterAddress();
+        Assertions.assertThat(address)
+                .isEqualTo("polaris://127.0.0.1:8093");
+    }
+
+    @Test
+    public void testGetConfigCenterAddress_systemProperty() {
+        // -Ddubbo.config-center.address 覆盖默认值
+        System.setProperty(
+                DubboConstants.KEY_DUBBO_CONFIG_CENTER_ADDRESS,
+                "polaris://10.0.0.1:8093");
+        try {
+            String address =
+                    DubboConfigProvider.getConfigCenterAddress();
+            Assertions.assertThat(address)
+                    .isEqualTo("polaris://10.0.0.1:8093");
+        } finally {
+            System.clearProperty(
+                    DubboConstants.KEY_DUBBO_CONFIG_CENTER_ADDRESS);
+        }
     }
 }

@@ -24,49 +24,80 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Dubbo 插件配置提供者，负责获取 Polaris 服务端地址和注册中心扩展参数.
+ * Dubbo 插件配置提供者，负责获取 Polaris 服务端地址、注册中心扩展参数,
+ * 以及 config-center 相关配置。
  *
- * <p>地址优先级：JVM 系统属性 {@code dubbo.registry.address}
- * &gt; 本地配置文件 {@code conf/plugin/dubbo/dubbo-polaris.properties}
- * &gt; 默认值 {@code polaris://127.0.0.1:8091}.</p>
+ * <p>地址优先级 (标量):
+ *   JVM 系统属性 &gt; 本地配置文件 &gt; 默认值。</p>
+ * <p>扩展参数 (前缀 Map):
+ *   文件按前缀收集,sysprop 按前缀收集后 putAll 覆盖。</p>
  */
 public final class DubboConfigProvider {
 
     private DubboConfigProvider() {
     }
 
-    /**
-     * 获取 Polaris 服务端地址.
-     *
-     * <p>依次尝试：JVM 系统属性、本地配置文件、硬编码默认值。</p>
-     *
-     * @return Polaris 服务端地址，不为 null
-     */
+    // === 已有 API,行为不变 ===
+
     public static String getPolarisServerAddress() {
-        String address = System.getProperty(
-                DubboConstants.KEY_DUBBO_REGISTRY_ADDRESS);
-        if (address == null || address.trim().isEmpty()) {
-            address = DubboPropertiesLoader.loadProperties()
-                    .getProperty(
-                            DubboConstants.KEY_DUBBO_REGISTRY_ADDRESS);
-        }
-        if (address == null || address.trim().isEmpty()) {
-            return DubboConstants.DEFAULT_POLARIS_ADDRESS;
-        }
-        return address.trim();
+        return resolveString(
+                DubboConstants.KEY_DUBBO_REGISTRY_ADDRESS,
+                DubboConstants.DEFAULT_POLARIS_ADDRESS);
+    }
+
+    public static Map<String, String> getRegistryParameters() {
+        return collectParametersByPrefix(
+                DubboConstants.KEY_DUBBO_REGISTRY_PARAMETERS_PREFIX);
+    }
+
+    // === 新增: config-center API ===
+
+    /**
+     * 获取 Polaris config-center 地址。
+     * 优先级: sysprop > properties 文件 > 默认值 (polaris://127.0.0.1:8093)。
+     */
+    public static String getConfigCenterAddress() {
+        return resolveString(
+                DubboConstants.KEY_DUBBO_CONFIG_CENTER_ADDRESS,
+                DubboConstants.DEFAULT_CONFIG_CENTER_ADDRESS);
     }
 
     /**
-     * 获取注册中心扩展参数.
-     *
-     * <p>从配置文件读取所有 {@code dubbo.registry.parameters.*} 键，
-     * 去掉前缀后返回。文件不存在或无匹配项时返回空 Map。</p>
-     *
-     * @return 注册中心扩展参数 Map，不为 null
+     * 获取 config-center 扩展参数 (含 token、加密开关等)。
      */
-    public static Map<String, String> getRegistryParameters() {
+    public static Map<String, String> getConfigCenterParameters() {
+        return collectParametersByPrefix(
+                DubboConstants.KEY_DUBBO_CONFIG_CENTER_PARAMETERS_PREFIX);
+    }
+
+    /**
+     * 获取 config-center 注入开关。默认 true。
+     */
+    public static boolean isConfigCenterEnabled() {
+        String value = resolveString(
+                DubboConstants.KEY_POLARIS_AGENT_DUBBO_CONFIG_CENTER_ENABLED,
+                DubboConstants.DEFAULT_CONFIG_CENTER_ENABLED);
+        return Boolean.parseBoolean(value);
+    }
+
+    // === 私有公共逻辑 ===
+
+    /** sysprop > properties 文件 > 默认值,空字符串视为未配。 */
+    private static String resolveString(String key, String defaultValue) {
+        Properties props = System.getProperties();
+        String value = props.getProperty(key);
+        if (value == null || value.trim().isEmpty()) {
+            value = DubboPropertiesLoader.loadProperties().getProperty(key);
+        }
+        if (value == null || value.trim().isEmpty()) {
+            return defaultValue;
+        }
+        return value.trim();
+    }
+
+    /** properties 文件按前缀收集 + sysprop 按前缀收集,sysprop 覆盖文件。 */
+    private static Map<String, String> collectParametersByPrefix(String prefix) {
         Properties props = DubboPropertiesLoader.loadProperties();
-        String prefix = DubboConstants.KEY_DUBBO_REGISTRY_PARAMETERS_PREFIX;
         Map<String, String> params = new HashMap<String, String>();
         for (String key : props.stringPropertyNames()) {
             if (key.startsWith(prefix)) {
@@ -74,7 +105,8 @@ public final class DubboConfigProvider {
                         props.getProperty(key));
             }
         }
-        params.putAll(DubboPropertiesLoader.loadSystemRegistryParameters());
+        params.putAll(
+                DubboPropertiesLoader.loadSystemParametersByPrefix(prefix));
         return params;
     }
 }

@@ -81,42 +81,141 @@ public class DubboBootstrapInterceptorTest {
 
     @Test
     public void testSkipAlreadyPolarisRegistry() {
-        // 已经是 polaris 协议的注册中心不应被修改
+        // 已有 polaris registry → agent 完全 no-op:
+        // 对象引用、protocol、address 全部不变。
         RegistryConfig polarisReg = new RegistryConfig();
+        polarisReg.setId("user-polaris");
         polarisReg.setProtocol(DubboConstants.POLARIS_PROTOCOL);
         polarisReg.setAddress("polaris://10.0.0.1:8091");
-        ApplicationModel.getConfigManager()
-                .addRegistry(polarisReg);
+        ApplicationModel.getConfigManager().addRegistry(polarisReg);
 
         interceptor.after(new Object(), null, null, null);
 
+        Collection<RegistryConfig> all =
+                ApplicationModel.getConfigManager().getRegistries();
+        Assertions.assertThat(all).hasSize(1);
+        // 对象引用未被替换
+        Assertions.assertThat(all.iterator().next()).isSameAs(polarisReg);
+        // 字段全部未动
         Assertions.assertThat(polarisReg.getProtocol())
                 .isEqualTo(DubboConstants.POLARIS_PROTOCOL);
         Assertions.assertThat(polarisReg.getAddress())
                 .isEqualTo("polaris://10.0.0.1:8091");
+        Assertions.assertThat(polarisReg.getId())
+                .isEqualTo("user-polaris");
     }
 
     @Test
-    public void testReplaceMultipleRegistries() {
-        // 多个注册中心都应被替换
-        RegistryConfig firstReg = new RegistryConfig();
-        firstReg.setId("reg1");
-        firstReg.setProtocol("zookeeper");
-        firstReg.setAddress("zookeeper://host1:2181");
-        RegistryConfig secondReg = new RegistryConfig();
-        secondReg.setId("reg2");
-        secondReg.setProtocol("nacos");
-        secondReg.setAddress("nacos://host2:8848");
-        ConfigManager configManager =
-                ApplicationModel.getConfigManager();
-        configManager.addRegistry(firstReg);
-        configManager.addRegistry(secondReg);
+    public void testAfter_polarisOnly_skipsRewrite() {
+        // 仅 1 个 polaris registry → no-op (与 testSkipAlreadyPolarisRegistry 同语义,
+        // 但加入了 parameters 与自定义 address 验证)
+        RegistryConfig userPolaris = new RegistryConfig();
+        userPolaris.setId("custom-id");
+        userPolaris.setProtocol(DubboConstants.POLARIS_PROTOCOL);
+        userPolaris.setAddress("polaris://my-polaris.example.com:8091");
+        Map<String, String> userParams = new HashMap<String, String>();
+        userParams.put("custom_param", "custom_value");
+        userPolaris.setParameters(userParams);
+        ApplicationModel.getConfigManager().addRegistry(userPolaris);
 
         interceptor.after(new Object(), null, null, null);
 
-        Assertions.assertThat(firstReg.getProtocol())
+        Collection<RegistryConfig> all =
+                ApplicationModel.getConfigManager().getRegistries();
+        Assertions.assertThat(all).hasSize(1);
+        Assertions.assertThat(all.iterator().next()).isSameAs(userPolaris);
+        Assertions.assertThat(userPolaris.getAddress())
+                .isEqualTo("polaris://my-polaris.example.com:8091");
+        Assertions.assertThat(userPolaris.getParameters())
+                .containsEntry("custom_param", "custom_value");
+    }
+
+    @Test
+    public void testAfter_polarisPlusNacos_skipsRewriteBoth() {
+        // polaris + nacos 共存 → 两个都不改、不删 (核心新语义,vs 旧 single 模式删 nacos)
+        RegistryConfig polaris = new RegistryConfig();
+        polaris.setId("user-polaris");
+        polaris.setProtocol(DubboConstants.POLARIS_PROTOCOL);
+        polaris.setAddress("polaris://10.0.0.1:8091");
+        RegistryConfig nacos = new RegistryConfig();
+        nacos.setId("user-nacos");
+        nacos.setProtocol("nacos");
+        nacos.setAddress("nacos://1.2.3.4:8848");
+        ConfigManager configManager =
+                ApplicationModel.getConfigManager();
+        configManager.addRegistry(polaris);
+        configManager.addRegistry(nacos);
+
+        interceptor.after(new Object(), null, null, null);
+
+        Collection<RegistryConfig> all = configManager.getRegistries();
+        Assertions.assertThat(all).hasSize(2);
+        // 两个原对象都还在
+        Assertions.assertThat(all).contains(polaris, nacos);
+        // 字段全部未动
+        Assertions.assertThat(polaris.getProtocol())
                 .isEqualTo(DubboConstants.POLARIS_PROTOCOL);
-        Assertions.assertThat(secondReg.getProtocol())
+        Assertions.assertThat(polaris.getAddress())
+                .isEqualTo("polaris://10.0.0.1:8091");
+        Assertions.assertThat(nacos.getProtocol()).isEqualTo("nacos");
+        Assertions.assertThat(nacos.getAddress())
+                .isEqualTo("nacos://1.2.3.4:8848");
+    }
+
+    @Test
+    public void testMultipleRegistries_keepsFirstZeroRemovesRest() {
+        // 多个非-polaris registry → 改写 id="...RegistryConfig#0" 那条为 polaris,
+        // 其他全部删除。验证 pickFirst 优先选 #0 而非 HashMap iter().next()。
+        RegistryConfig nacos = new RegistryConfig();
+        nacos.setId(DubboConstants.AUTO_REGISTRY_ID_PREFIX_ZERO);
+        nacos.setProtocol("nacos");
+        nacos.setAddress("nacos://1.2.3.4:8848");
+        RegistryConfig zk = new RegistryConfig();
+        zk.setId("org.apache.dubbo.config.RegistryConfig#1");
+        zk.setProtocol("zookeeper");
+        zk.setAddress("zookeeper://5.6.7.8:2181");
+        ConfigManager configManager =
+                ApplicationModel.getConfigManager();
+        configManager.addRegistry(nacos);
+        configManager.addRegistry(zk);
+
+        interceptor.after(new Object(), null, null, null);
+
+        Collection<RegistryConfig> remaining =
+                configManager.getRegistries();
+        Assertions.assertThat(remaining).hasSize(1);
+        RegistryConfig survivor = remaining.iterator().next();
+        // 改写的就是 #0 那条对象本身 (内存引用不变,仅字段变)
+        Assertions.assertThat(survivor).isSameAs(nacos);
+        Assertions.assertThat(survivor.getProtocol())
+                .isEqualTo(DubboConstants.POLARIS_PROTOCOL);
+        Assertions.assertThat(survivor.getAddress())
+                .isEqualTo("polaris://127.0.0.1:8091");
+    }
+
+    @Test
+    public void testAfter_pickFirstFallback_whenNoZeroId() {
+        // 多个 registry 但都不是 #0 id → fallback 到 iterator().next()
+        // (HashMap 顺序不稳定,只断言"剩 1 个 polaris" + "无异常")。
+        RegistryConfig nacos = new RegistryConfig();
+        nacos.setId("my-nacos");
+        nacos.setProtocol("nacos");
+        nacos.setAddress("nacos://1.2.3.4:8848");
+        RegistryConfig zk = new RegistryConfig();
+        zk.setId("my-zk");
+        zk.setProtocol("zookeeper");
+        zk.setAddress("zookeeper://5.6.7.8:2181");
+        ConfigManager configManager =
+                ApplicationModel.getConfigManager();
+        configManager.addRegistry(nacos);
+        configManager.addRegistry(zk);
+
+        interceptor.after(new Object(), null, null, null);
+
+        Collection<RegistryConfig> remaining =
+                configManager.getRegistries();
+        Assertions.assertThat(remaining).hasSize(1);
+        Assertions.assertThat(remaining.iterator().next().getProtocol())
                 .isEqualTo(DubboConstants.POLARIS_PROTOCOL);
     }
 

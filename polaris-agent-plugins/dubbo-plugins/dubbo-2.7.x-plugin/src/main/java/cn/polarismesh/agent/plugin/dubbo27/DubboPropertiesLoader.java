@@ -80,19 +80,21 @@ public final class DubboPropertiesLoader {
     }
 
     /**
-     * 从 JVM 系统属性读取注册中心扩展参数.
+     * 从 JVM 系统属性按前缀读取扩展参数 (通用化版本)。
      *
-     * <p>读取所有 {@code -Ddubbo.registry.parameters.*} 形式的系统属性，
-     * 去掉 {@code dubbo.registry.parameters.} 前缀后返回。</p>
+     * <p>例如 prefix = "dubbo.registry.parameters." 会读取所有
+     * {@code -Ddubbo.registry.parameters.*} 形式的系统属性,
+     * 并去掉前缀后返回。</p>
      *
-     * @return 注册中心扩展参数 Map，不为 null
+     * @param prefix 属性键前缀 (含尾部点号)
+     * @return 去前缀后的 Key/Value Map,不为 null
      */
-    public static Map<String, String> loadSystemRegistryParameters() {
+    public static Map<String, String> loadSystemParametersByPrefix(String prefix) {
         Properties props = System.getProperties();
         Map<String, String> params = new HashMap<String, String>();
         for (String key : props.stringPropertyNames()) {
-            if (key.startsWith(DubboConstants.KEY_DUBBO_REGISTRY_PARAMETERS_PREFIX)) {
-                params.put(key.substring(DubboConstants.KEY_DUBBO_REGISTRY_PARAMETERS_PREFIX.length()),
+            if (key.startsWith(prefix)) {
+                params.put(key.substring(prefix.length()),
                         props.getProperty(key));
             }
         }
