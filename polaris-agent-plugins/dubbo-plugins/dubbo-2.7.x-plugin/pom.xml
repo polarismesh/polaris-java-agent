@@ -51,6 +51,12 @@
             <artifactId>dubbo-registry-polaris</artifactId>
             <version>${dubbo.java.polaris.version}</version>
         </dependency>
+        <!-- 北极星 Dubbo 配置中心扩展，shade 打包进插件 JAR -->
+        <dependency>
+            <groupId>com.tencent.polaris</groupId>
+            <artifactId>dubbo-configcenter-polaris</artifactId>
+            <version>${dubbo.java.polaris.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -89,6 +95,10 @@
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/dubbo/org.apache.dubbo.registry.RegistryFactory</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/dubbo/org.apache.dubbo.common.config.configcenter.DynamicConfigurationFactory</resource>
                                 </transformer>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
