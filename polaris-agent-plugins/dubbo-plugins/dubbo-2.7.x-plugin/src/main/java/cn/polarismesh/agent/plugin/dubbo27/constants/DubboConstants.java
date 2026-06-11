@@ -62,4 +62,6 @@ public interface DubboConstants {
      */
     String AUTO_REGISTRY_ID_PREFIX_ZERO = "org.apache.dubbo.config.RegistryConfig#0";
 
+    String AUTO_CONFIG_CENTER_ID_PREFIX_ZERO = "org.apache.dubbo.config.spring.ConfigCenterBean#0";
+
 }

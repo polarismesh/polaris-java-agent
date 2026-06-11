@@ -26,24 +26,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
+import org.apache.dubbo.config.ApplicationConfig;
 import org.apache.dubbo.config.ConfigCenterConfig;
+import org.apache.dubbo.config.MetadataReportConfig;
 import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.rpc.model.ApplicationModel;
 
-/**
- * DubboBootstrap.initialize() 拦截器，在初始化完成后替换注册中心为 Polaris.
- *
- * <p>在 DubboBootstrap.initialize() 的 after 阶段执行，确保在
- * {@code startConfigCenter()} 内部的 {@code configManager.refreshAll()}
- * 以及 {@code loadRemoteConfigs()} 全部完成后再替换，避免被 refresh 机制覆盖。
- * 通过 ConfigManager 获取所有 RegistryConfig，将非 polaris 协议的注册中心
- * 替换为 polaris 协议和地址，同时注入扩展参数。
- * Polaris 地址依次从 JVM 系统属性 {@code dubbo.registry.address}、
- * 本地配置文件、默认值 {@code polaris://127.0.0.1:8091} 读取.</p>
- */
 public class DubboBootstrapInterceptor implements Interceptor {
 
     private static final Logger LOGGER =
@@ -52,6 +44,18 @@ public class DubboBootstrapInterceptor implements Interceptor {
 
     @Override
     public void before(Object target, Object[] args) {
+        injectConfigCenter();
+        disableMetadataReport();
+
+    }
+
+    @Override
+    public void after(Object target, Object[] args,
+            Object result, Throwable throwable) {
+        modifyExistedRegistry();
+    }
+
+    public void injectConfigCenter() {
         // fail-safe 总入口: ASM 框架对 before() 不包 try/catch,
         // 此处任何抛出都会让 DubboBootstrap.initialize() 失败 → 应用启动失败,
         // 因此整段必须 try { ... } catch (Throwable) 兜底。
@@ -72,6 +76,7 @@ public class DubboBootstrapInterceptor implements Interceptor {
             Map<String, String> polarisParameters =
                     DubboConfigProvider.getConfigCenterParameters();
 
+            // 分支 0: 无任何 config-center → 新增 polaris
             if (centers == null || centers.isEmpty()) {
                 LOGGER.info("No ConfigCenter found, adding Polaris "
                         + "ConfigCenter at " + polarisAddress);
@@ -81,16 +86,20 @@ public class DubboBootstrapInterceptor implements Interceptor {
                 return;
             }
 
+            // 分支 1: 已有 polaris config-center → no-op
             for (ConfigCenterConfig cc : centers) {
                 if (DubboConstants.POLARIS_PROTOCOL.equals(cc.getProtocol())) {
-                    continue; // 已经是 polaris,不动
+                    LOGGER.info("Polaris ConfigCenter already present (id="
+                            + cc.getId() + ", address="
+                            + cc.getAddress()
+                            + "), agent skips config-center rewrite");
+                    return;
                 }
-                LOGGER.info("Replacing ConfigCenter ["
-                        + cc.getProtocol() + "://" + cc.getAddress()
-                        + "] -> [" + DubboConstants.POLARIS_PROTOCOL + "://"
-                        + polarisAddress + "]");
-                applyPolarisFields(cc, polarisAddress, polarisParameters);
             }
+
+            // 分支 2: 改写首位为 polaris,删除其余
+            rewriteFirstConfigCenterRemoveRest(configManager, centers,
+                    polarisAddress, polarisParameters);
         } catch (Throwable th) {
             LOGGER.warning("Polaris config-center rewrite failed; "
                     + "falling back to original config-center: "
@@ -98,34 +107,124 @@ public class DubboBootstrapInterceptor implements Interceptor {
         }
     }
 
-    @Override
-    public void after(Object target, Object[] args,
-            Object result, Throwable throwable) {
+
+    private void rewriteFirstConfigCenterRemoveRest(ConfigManager configManager,
+            Collection<ConfigCenterConfig> centers,
+            String polarisAddress,
+            Map<String, String> polarisParameters) {
+        ConfigCenterConfig first = pickFirstConfigCenter(centers);
+        if (first == null) {
+            return;
+        }
+
+        LOGGER.info("Rewriting first ConfigCenter [" + first.getProtocol()
+                + "://" + first.getAddress() + "] -> ["
+                + DubboConstants.POLARIS_PROTOCOL + "://"
+                + polarisAddress + "]");
+        applyPolarisFields(first, polarisAddress, polarisParameters);
+
+        // 收集"要删的"到独立 list,避免 CME
+        List<ConfigCenterConfig> toRemove =
+                new ArrayList<ConfigCenterConfig>();
+        for (ConfigCenterConfig cc : centers) {
+            if (cc != first) {
+                toRemove.add(cc);
+            }
+        }
+        for (ConfigCenterConfig cc : toRemove) {
+            LOGGER.info("Removing extra ConfigCenter ["
+                    + cc.getProtocol() + "://" + cc.getAddress() + "]");
+            configManager.removeConfig(cc);
+        }
+    }
+
+    /**
+     * 选首位: 优先 id 等于 Dubbo 自动赋的 ConfigCenterBean#0;
+     * 找不到退回 iterator().next()。
+     */
+    private ConfigCenterConfig pickFirstConfigCenter(
+            Collection<ConfigCenterConfig> centers) {
+        if (centers == null || centers.isEmpty()) {
+            return null;
+        }
+        for (ConfigCenterConfig cc : centers) {
+            if (DubboConstants.AUTO_CONFIG_CENTER_ID_PREFIX_ZERO
+                    .equals(cc.getId())) {
+                return cc;
+            }
+        }
+        return centers.iterator().next();
+    }
+
+    private void disableMetadataReport() {
         ConfigManager configManager =
                 ApplicationModel.getConfigManager();
+        Collection<MetadataReportConfig> metadataReportConfigs =
+                configManager.getMetadataConfigs();
+        if (metadataReportConfigs != null && !metadataReportConfigs.isEmpty()) {
+            // remove all existing metadata report configs
+            // polaris does not support metadata report yet
+            metadataReportConfigs.clear();
+        }
+
+        Optional<ApplicationConfig> applicationConfig =
+                configManager.getApplication();
+        // 注意: ApplicationConfig.metadataType 在用户未配置
+        // dubbo.application.metadata-type 时为 null,
+        if (applicationConfig.isPresent()
+                && "remote".equals(applicationConfig.get().getMetadataType())) {
+            LOGGER.warning("metadata-type is remote, change to local "
+                    + "cause polaris does not support remote metadata report yet");
+            applicationConfig.get().setMetadataType("local");
+        }
         Collection<RegistryConfig> registries =
                 configManager.getRegistries();
-
-        // 分支 0: 已有 polaris registry → no-op
-        RegistryConfig existingPolaris = findPolaris(registries);
-        if (existingPolaris != null) {
-            LOGGER.info("Polaris registry already present (id="
-                    + existingPolaris.getId() + ", address="
-                    + existingPolaris.getAddress()
-                    + "), agent skips registry rewrite");
-            return;
-        }
-
-        // 分支 1: 空列表 — 加一个默认 polaris
         if (registries == null || registries.isEmpty()) {
-            LOGGER.info("No registries found in ConfigManager, "
-                    + "adding polaris registry");
-            addPolarisRegistry(configManager);
             return;
         }
+        for (RegistryConfig registryConfig : registries) {
+            // 禁用 metadata report / config center,以及取消默认标识
+            registryConfig.setUseAsMetadataCenter(false);
+            registryConfig.setUseAsConfigCenter(false);
+        }
+    }
 
-        // 分支 2: 改写首位为 polaris,删除其余
-        rewriteFirstRemoveRest(configManager, registries);
+    private void modifyExistedRegistry() {
+        // fail-safe 总入口: 与 injectConfigCenter() 同样的语义 —
+        // plugin 任何异常都不应阻塞 DubboBootstrap.initialize() 主流程,
+        // 否则会让用户应用直接启动失败。
+        try {
+            ConfigManager configManager =
+                    ApplicationModel.getConfigManager();
+            Collection<RegistryConfig> registries =
+                    configManager.getRegistries();
+
+            // 加一个默认 polaris (前移到 for 循环之前,
+            // 避免 registries == null 时 for-each 直接 NPE)
+            if (registries == null || registries.isEmpty()) {
+                LOGGER.info("No registries found in ConfigManager, "
+                        + "adding polaris registry");
+                addPolarisRegistry(configManager);
+                return;
+            }
+
+            // 分支 0: 已有 polaris registry → no-op
+            RegistryConfig existingPolaris = findPolaris(registries);
+            if (existingPolaris != null) {
+                LOGGER.info("Polaris registry already present (id="
+                        + existingPolaris.getId() + ", address="
+                        + existingPolaris.getAddress()
+                        + "), agent skips registry rewrite");
+                return;
+            }
+
+            // 分支 2: 改写首位为 polaris,删除其余
+            rewriteFirstRemoveRest(configManager, registries);
+        } catch (Throwable th) {
+            LOGGER.warning("Polaris registry rewrite failed; "
+                    + "falling back to original registry: "
+                    + th.getMessage());
+        }
     }
 
     private void addPolarisRegistry(
@@ -166,9 +265,7 @@ public class DubboBootstrapInterceptor implements Interceptor {
      * 改写"首位"为 polaris,删除其余。
      *
      * <p>"首位"定义:优先选 id == "org.apache.dubbo.config.RegistryConfig#0"
-     * 的 RegistryConfig (Dubbo 在用户未显式 setId 时按声明顺序自动赋的 id,
-     * 跨 JVM 稳定);若找不到 #0,退回 iterator().next() (HashMap 顺序,
-     * 跨 JVM 不稳定,作为兼容 fallback)。</p>
+     * 的 RegistryConfig (对应dubbo.registry.address的配置);若找不到 #0,退回 iterator().next() </p>
      *
      * <p>关键: 删除时必须先把要删的 collect 到独立 list,再统一调
      * removeConfig,否则 fail-fast iterator 抛 ConcurrentModificationException
@@ -185,7 +282,7 @@ public class DubboBootstrapInterceptor implements Interceptor {
         Map<String, String> params =
                 DubboConfigProvider.getRegistryParameters();
 
-        RegistryConfig first = pickFirst(registries);
+        RegistryConfig first = pickFirstRegistry(registries);
         if (first == null) {
             return; // 防御性: 调用方已保证非空
         }
@@ -219,7 +316,7 @@ public class DubboBootstrapInterceptor implements Interceptor {
      * 选首位: 优先 id 等于 Dubbo 自动赋的 "...RegistryConfig#0";
      * 找不到退回 iterator().next()。
      */
-    private RegistryConfig pickFirst(Collection<RegistryConfig> registries) {
+    private RegistryConfig pickFirstRegistry(Collection<RegistryConfig> registries) {
         if (registries == null || registries.isEmpty()) {
             return null;
         }
@@ -249,23 +346,6 @@ public class DubboBootstrapInterceptor implements Interceptor {
         }
     }
 
-    /**
-     * 把一个 ConfigCenterConfig 重置为 polaris 协议。
-     *
-     * <p>字段处理清单:
-     * <ul>
-     *   <li>protocol → "polaris"</li>
-     *   <li>address  → polarisAddress</li>
-     *   <li>port/cluster/username/password → null (清掉用户原配残值)</li>
-     *   <li>parameters → 重置为空 Map 后 merge 进 polarisParameters</li>
-     *   <li>namespace/group → 完全不动 (用户业务语义,plugin 不越权)</li>
-     *   <li>configFile/appConfigFile/timeout/highestPriority/check → 保留</li>
-     * </ul>
-     *
-     * <p>关键顺序: <strong>必须先 setParameters(new HashMap) 清空</strong>,
-     * 再 setProtocol、setAddress;否则 setAddress 内部会 URL.valueOf 解析
-     * 然后 updateParameters(...) 把残留参数拼回来。</p>
-     */
     private void applyPolarisFields(ConfigCenterConfig cc,
             String polarisAddress,
             Map<String, String> polarisParameters) {
@@ -287,8 +367,6 @@ public class DubboBootstrapInterceptor implements Interceptor {
         if (!polarisParameters.isEmpty()) {
             mergeParameters(cc, polarisParameters);
         }
-        // 6. namespace / group / configFile / appConfigFile / timeout /
-        //    highestPriority / check 不动 — 由用户 application.yml 决定
     }
 
     /**

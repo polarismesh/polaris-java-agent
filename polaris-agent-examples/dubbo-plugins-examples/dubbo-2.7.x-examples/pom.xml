@@ -16,6 +16,7 @@
         <module>dubbo-example-provider</module>
         <module>dubbo-example-consumer</module>
         <module>spring-cloud-dubbo-examples</module>
+        <module>spring-boot-dubbo-example</module>
     </modules>
     <properties>
         <apache.dubbo.version>2.7.23</apache.dubbo.version>
