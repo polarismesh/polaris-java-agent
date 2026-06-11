@@ -194,7 +194,7 @@ public class DubboBootstrapInterceptorTest {
     }
 
     @Test
-    public void testAfter_pickFirstFallback_whenNoZeroId() {
+    public void testAfter_pickFirstRegistryFallback_whenNoZeroId() {
         // 多个 registry 但都不是 #0 id → fallback 到 iterator().next()
         // (HashMap 顺序不稳定,只断言"剩 1 个 polaris" + "无异常")。
         RegistryConfig nacos = new RegistryConfig();
