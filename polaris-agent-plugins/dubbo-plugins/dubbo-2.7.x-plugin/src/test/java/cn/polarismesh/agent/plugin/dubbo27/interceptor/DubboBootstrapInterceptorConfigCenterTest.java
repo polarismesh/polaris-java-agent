@@ -155,8 +155,10 @@ public class DubboBootstrapInterceptorConfigCenterTest {
     }
 
     @Test
-    public void testBefore_mixedPolarisAndNacos_onlyNacosRewritten() {
-        // 同时有 polaris 和 nacos,只改写 nacos,polaris 完全不动
+    public void testBefore_mixedPolarisAndNacos_skipsRewrite() {
+        // 同时有 polaris 和 nacos: plugin 选择不越权——发现已存在 polaris ConfigCenter
+        // 即直接 no-op,既不改写 nacos,也不删除 nacos。语义是"用户自己已经显式声明了
+        // polaris 配置,我们保持现状,任何混合配置都视为用户故意为之"。
         ConfigCenterConfig polarisCc = new ConfigCenterConfig();
         polarisCc.setId("cc-polaris");
         polarisCc.setProtocol(DubboConstants.POLARIS_PROTOCOL);
@@ -174,15 +176,20 @@ public class DubboBootstrapInterceptorConfigCenterTest {
         interceptor.before(new Object(), null);
 
         // polaris 不变
+        Assertions.assertThat(polarisCc.getProtocol())
+                .isEqualTo(DubboConstants.POLARIS_PROTOCOL);
         Assertions.assertThat(polarisCc.getAddress())
                 .isEqualTo("polaris://10.0.0.1:8093");
         Assertions.assertThat(polarisCc.getNamespace())
                 .isEqualTo("polaris-ns");
-        // nacos 改写为 polaris
-        Assertions.assertThat(nacos.getProtocol())
-                .isEqualTo(DubboConstants.POLARIS_PROTOCOL);
+        // nacos 也不变 (不改写、不删除)
+        Assertions.assertThat(nacos.getProtocol()).isEqualTo("nacos");
         Assertions.assertThat(nacos.getAddress())
-                .isEqualTo("polaris://127.0.0.1:8093");
+                .isEqualTo("nacos://2.2.2.2:8848");
+        // ConfigManager 仍保有两条 ConfigCenter
+        Collection<ConfigCenterConfig> centers =
+                ApplicationModel.getConfigManager().getConfigCenters();
+        Assertions.assertThat(centers).hasSize(2);
     }
 
     @Test
