@@ -65,9 +65,9 @@ public class DubboVersionDetector {
             return "dubbo-2.7.x-plugin";
         }
 //        not support yet
-//        if (version.startsWith("3.")) {
-//            return "dubbo-3.x-plugin";
-//        }
+        if (version.startsWith("3.")) {
+            return "dubbo-3.x-plugin";
+        }
         return "";
     }
 
