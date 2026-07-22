@@ -47,7 +47,7 @@ import java.util.Map;
  * 监听端口默认 17082(与 sb-dubbo3-consumer 的 server.port 对齐),
  * 可通过 -Dhttp.listen.port 覆盖。</p>
  */
-public class ConsumerMain {
+public class DubboConsumerApplication {
 
     private static final int LISTEN_PORT = Integer.getInteger("http.listen.port", 17082);
 

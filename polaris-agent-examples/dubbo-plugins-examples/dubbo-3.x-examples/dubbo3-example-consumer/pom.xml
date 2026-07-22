@@ -61,7 +61,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.7.18</version>
                 <configuration>
-                    <mainClass>cn.polarismesh.agent.examples.dubbo3.consumer.ConsumerMain</mainClass>
+                    <mainClass>cn.polarismesh.agent.examples.dubbo3.consumer.DubboConsumerApplication</mainClass>
                     <layout>JAR</layout>
                 </configuration>
                 <executions>

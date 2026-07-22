@@ -44,10 +44,10 @@ import org.springframework.web.client.RestTemplate;
  */
 @SpringBootApplication
 @EnableDubbo
-public class ConsumerApplication {
+public class SpringCloudDubboConsumerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ConsumerApplication.class, args);
+        SpringApplication.run(SpringCloudDubboConsumerApplication.class, args);
     }
 
     @LoadBalanced

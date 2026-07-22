@@ -39,10 +39,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @SpringBootApplication
 @EnableDubbo
-public class DubboConsumerApplication {
+public class SpringBootDubboConsumerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DubboConsumerApplication.class, args);
+        SpringApplication.run(SpringBootDubboConsumerApplication.class, args);
     }
 
     /**

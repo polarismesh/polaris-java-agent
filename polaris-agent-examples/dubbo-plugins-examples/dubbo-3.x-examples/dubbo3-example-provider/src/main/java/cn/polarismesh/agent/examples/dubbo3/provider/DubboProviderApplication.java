@@ -28,7 +28,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * Dubbo3 Provider 启动类
  */
-public class ProviderMain {
+public class DubboProviderApplication {
 
     public static void main(String[] args) throws Exception {
         AnnotationConfigApplicationContext context =

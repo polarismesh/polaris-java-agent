@@ -15,13 +15,14 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package cn.polarismesh.agent.examples.dubbo3.sc.provider;
+package cn.polarismesh.agent.examples.dubbo3.sb.provider;
 
 import static org.apache.dubbo.common.constants.CommonConstants.DUBBO_LABELS;
 
 import cn.polarismesh.agent.examples.dubbo3.api.EchoService;
 import cn.polarismesh.agent.examples.dubbo3.api.GreetingService;
 import org.apache.dubbo.common.config.ConfigurationUtils;
+import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.apache.dubbo.rpc.RpcContext;
@@ -35,25 +36,23 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Spring Cloud Alibaba 2021 + Dubbo 3.2 Provider 启动类.
- * 同时暴露 REST 端点和 Dubbo 服务.
+ * Spring Boot + Dubbo 3.2 Provider 启动类.
  */
 @SpringBootApplication
 @EnableDubbo
-public class ProviderApplication {
+public class SpringBootDubboProviderApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ProviderApplication.class, args);
+        SpringApplication.run(SpringBootDubboProviderApplication.class, args);
     }
 
     /**
-     * REST 端点，供 Spring Cloud 方式调用.
+     * REST Controller，暴露 HTTP 端点用于验证服务存活.
      */
     @RestController
     public static class EchoController {
 
-        private static final Logger LOG =
-                LoggerFactory.getLogger(EchoController.class);
+        private static final Logger LOG = LoggerFactory.getLogger(EchoController.class);
 
         @Value("${spring.application.name}")
         private String appName;
@@ -63,9 +62,7 @@ public class ProviderApplication {
 
         @GetMapping("/echo/{string}")
         public String echo(@PathVariable String string) {
-            String result = String.format(
-                    "[REST] Hello %s, from %s:%d",
-                    string, appName, port);
+            String result = String.format("[REST] Hello %s, from %s:%d", string, appName, port);
             LOG.info("echo called: {}", result);
             return result;
         }
@@ -80,14 +77,17 @@ public class ProviderApplication {
         @Override
         public String sayHello(String name) {
             RpcContext ctx = RpcContext.getContext();
-            return "hello, " + name + " (provider host: " + ctx.getLocalHost() + ", port: " + ctx.getLocalPort() + ")";
+            return "hello, " + name + " (provider host: " + ctx.getLocalHost()
+                    + ", port: " + ctx.getLocalPort() + ", tag: " + ctx.getAttachment(CommonConstants.TAG_KEY) + ")";
         }
 
         @Override
         public String sayHi(String name) {
             String dubboLabel = ConfigurationUtils.getProperty(DUBBO_LABELS);
             RpcContext ctx = RpcContext.getContext();
-            return "[provider by polaris] hi, " + name + " (labels: " + dubboLabel + ", provider host: " + ctx.getLocalHost() + ", port: " + ctx.getLocalPort() + ")";
+            return "[provider by polaris] hi, " + name + " (labels: " + dubboLabel
+                    + ", provider host: " + ctx.getLocalHost()
+                    + ", port: " + ctx.getLocalPort() + ", tag: " + ctx.getAttachment(CommonConstants.TAG_KEY) + ")";
         }
     }
 
@@ -100,7 +100,8 @@ public class ProviderApplication {
         @Override
         public String echo(String message) {
             RpcContext ctx = RpcContext.getContext();
-            return "echo: " + message + " (provider host: " + ctx.getLocalHost() + ", port: " + ctx.getLocalPort() + ")";
+            return "echo: " + message + " (provider host: " + ctx.getLocalHost()
+                    + ", port: " + ctx.getLocalPort() + ", tag: " + ctx.getAttachment(CommonConstants.TAG_KEY) + ")";
         }
     }
 }
