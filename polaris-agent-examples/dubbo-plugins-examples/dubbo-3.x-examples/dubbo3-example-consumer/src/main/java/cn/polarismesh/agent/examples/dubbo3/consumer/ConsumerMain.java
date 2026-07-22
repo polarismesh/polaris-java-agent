@@ -36,13 +36,20 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Dubbo3 Consumer 启动类，内嵌 HTTP Server 按需调用服务
+ * Dubbo3 Consumer 启动类，内嵌 HTTP Server 按需调用服务。
+ *
+ * <p>HTTP 接口与 Spring Boot 示例(sb-dubbo3-consumer)对齐:
+ * <ul>
+ *   <li>GET /dubbo/sayHello?name=xxx</li>
+ *   <li>GET /dubbo/sayHi?name=xxx</li>
+ *   <li>GET /dubbo/echo?message=xxx</li>
+ * </ul>
+ * 监听端口默认 17082(与 sb-dubbo3-consumer 的 server.port 对齐),
+ * 可通过 -Dhttp.listen.port 覆盖。</p>
  */
 public class ConsumerMain {
 
-    private static final int LISTEN_PORT = Integer.getInteger("http.listen.port", 15700);
-
-    private static final String PATH = "/echo";
+    private static final int LISTEN_PORT = Integer.getInteger("http.listen.port", 17082);
 
     public static void main(String[] args) throws Exception {
         AnnotationConfigApplicationContext context =
@@ -50,13 +57,33 @@ public class ConsumerMain {
                         ConsumerConfiguration.class);
         context.start();
 
-        GreetingServiceConsumer consumer =
+        final GreetingServiceConsumer consumer =
                 context.getBean(GreetingServiceConsumer.class);
 
         HttpServer server = HttpServer.create(
                 new InetSocketAddress(LISTEN_PORT), 0);
-        server.createContext(PATH,
-                new EchoClientHandler(consumer));
+        // 与 sb/sc consumer 对齐:每方法一路径 + name/message 查询参数
+        server.createContext("/dubbo/sayHello", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange) throws IOException {
+                String name = param(exchange, "name", "polaris");
+                respond(exchange, consumer.doSayHello(name));
+            }
+        });
+        server.createContext("/dubbo/sayHi", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange) throws IOException {
+                String name = param(exchange, "name", "polaris");
+                respond(exchange, consumer.doSayHi(name));
+            }
+        });
+        server.createContext("/dubbo/echo", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange) throws IOException {
+                String message = param(exchange, "message", "test");
+                respond(exchange, consumer.doEcho(message));
+            }
+        });
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
@@ -68,63 +95,39 @@ public class ConsumerMain {
                 + LISTEN_PORT);
     }
 
-    /**
-     * HTTP 请求处理器，解析查询参数并分发到对应的 Dubbo 服务调用
-     */
-    private static class EchoClientHandler implements HttpHandler {
+    /** 读取查询参数,缺省时返回 defaultValue。 */
+    private static String param(HttpExchange exchange, String key, String defaultValue)
+            throws UnsupportedEncodingException {
+        String value = splitQuery(exchange.getRequestURI()).get(key);
+        return (value == null || value.isEmpty()) ? defaultValue : value;
+    }
 
-        private final GreetingServiceConsumer consumer;
+    private static void respond(HttpExchange exchange, String response) throws IOException {
+        byte[] bytes = response.getBytes("UTF-8");
+        exchange.sendResponseHeaders(200, bytes.length);
+        OutputStream os = exchange.getResponseBody();
+        os.write(bytes);
+        os.close();
+    }
 
-        EchoClientHandler(GreetingServiceConsumer consumer) {
-            this.consumer = consumer;
-        }
-
-        @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            Map<String, String> parameters =
-                    splitQuery(exchange.getRequestURI());
-            String value = parameters.get("value");
-            String method = parameters.get("method");
-            String response = "";
-            switch (method == null ? "" : method) {
-                case "sayHello":
-                    response = consumer.doSayHello(value);
-                    break;
-                case "sayHi":
-                    response = consumer.doSayHi(value);
-                    break;
-                case "echo":
-                    response = consumer.doEcho(value);
-                    break;
-                default:
-                    response = "unknown method: " + method;
-                    break;
-            }
-            exchange.sendResponseHeaders(200, 0);
-            OutputStream os = exchange.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
-        }
-
-        private static Map<String, String> splitQuery(URI uri)
-                throws UnsupportedEncodingException {
-            Map<String, String> queryPairs =
-                    new LinkedHashMap<String, String>();
-            String query = uri.getQuery();
-            if (query == null) {
-                return queryPairs;
-            }
-            String[] pairs = query.split("&");
-            for (String pair : pairs) {
-                int idx = pair.indexOf("=");
-                queryPairs.put(
-                        URLDecoder.decode(
-                                pair.substring(0, idx), "UTF-8"),
-                        URLDecoder.decode(
-                                pair.substring(idx + 1), "UTF-8"));
-            }
+    private static Map<String, String> splitQuery(URI uri)
+            throws UnsupportedEncodingException {
+        Map<String, String> queryPairs = new LinkedHashMap<String, String>();
+        String query = uri.getQuery();
+        if (query == null) {
             return queryPairs;
         }
+        String[] pairs = query.split("&");
+        for (String pair : pairs) {
+            int idx = pair.indexOf("=");
+            if (idx < 0) {
+                continue;
+            }
+            queryPairs.put(
+                    URLDecoder.decode(pair.substring(0, idx), "UTF-8"),
+                    URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+        }
+        return queryPairs;
     }
 
     @Configuration

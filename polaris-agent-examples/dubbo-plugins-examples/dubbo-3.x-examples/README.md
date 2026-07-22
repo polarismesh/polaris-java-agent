@@ -85,18 +85,18 @@ java -javaagent:/path/to/polaris-java-agent-{version}/polaris-agent-core-bootstr
 java -javaagent:/path/to/polaris-java-agent-{version}/polaris-agent-core-bootstrap.jar \
      -Ddubbo.registry.address=polaris://127.0.0.1:8091 \
      -Dplugins.enable=dubbo-3.x-plugin \
-     -Dhttp.listen.port=15700 \
+     -Dhttp.listen.port=17082 \
      -jar dubbo3-example-consumer/target/dubbo3-agent-example-consumer-*.jar
 ```
 
-Consumer 启动后内嵌 HTTP Server 监听 `15700` 端口（可通过 `-Dhttp.listen.port` 修改）。
+Consumer 启动后内嵌 HTTP Server 监听 `17082` 端口(与 sb-dubbo3-consumer 对齐,可通过 `-Dhttp.listen.port` 修改)。HTTP 接口与 Spring Boot 示例一致。
 
 ### 验证接口
 
 ```bash
-curl "http://localhost:15700/echo?method=sayHello&value=world"
-curl "http://localhost:15700/echo?method=sayHi&value=world"
-curl "http://localhost:15700/echo?method=echo&value=hello"
+curl "http://localhost:17082/dubbo/sayHello?name=polaris"
+curl "http://localhost:17082/dubbo/sayHi?name=polaris"
+curl "http://localhost:17082/dubbo/echo?message=test"
 ```
 
 ---
