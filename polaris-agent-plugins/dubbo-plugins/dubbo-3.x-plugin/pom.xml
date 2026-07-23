@@ -13,7 +13,7 @@
     <artifactId>dubbo-3.x-plugin</artifactId>
 
     <properties>
-        <dubbo.java.polaris.version>2.1.0.0-3.2.7-SNAPSHOT</dubbo.java.polaris.version>
+        <dubbo.java.polaris.version>2.1.2.0-3.2.7-SNAPSHOT</dubbo.java.polaris.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
     </properties>
 
@@ -101,7 +101,7 @@
                                     <resource>META-INF/dubbo/internal/org.apache.dubbo.rpc.Filter</resource>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/dubbo/com.tencent.polaris.common.registry.BootConfigHandler</resource>
+                                    <resource>META-INF/dubbo/com.tencent.polaris.common.config.BootConfigHandler</resource>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
