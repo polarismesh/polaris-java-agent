@@ -108,6 +108,9 @@ else
     polaris_dubbo_address="polaris://${POLARIS_SERVER_IP}:${POLARIS_DISCOVER_PORT}"
     echo "read polaris dubbo address: ${polaris_dubbo_address}"
     sed -i "s|dubbo.registry.address=polaris://127.0.0.1:8091|dubbo.registry.address=${polaris_dubbo_address}|g" ${dubbo_config_file}
+    # 注入 Dubbo Metadata-Report 配置 (仅 Dubbo3 消费;polaris 元数据上报走 discovery 服务端,与 registry 同址)
+    echo "read polaris dubbo metadata-report address: ${polaris_dubbo_address}"
+    sed -i "s|dubbo.metadata-report.address=polaris://127.0.0.1:8091|dubbo.metadata-report.address=${polaris_dubbo_address}|g" ${dubbo_config_file}
   else
     echo "WARNING: POLARIS_SERVER_IP or POLARIS_DISCOVER_PORT is empty, skip dubbo address injection"
   fi

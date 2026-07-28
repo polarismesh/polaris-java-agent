@@ -13,5 +13,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>dubbo-2.7.x-examples</module>
+        <module>dubbo-3.x-examples</module>
     </modules>
 </project>
