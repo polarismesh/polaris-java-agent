@@ -13,7 +13,7 @@
     <artifactId>dubbo-3.x-plugin</artifactId>
 
     <properties>
-        <dubbo.java.polaris.version>2.1.2.0-3.2.7-SNAPSHOT</dubbo.java.polaris.version>
+        <dubbo.java.polaris.version>2.1.2.0-3.2.7</dubbo.java.polaris.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
     </properties>
 
