@@ -21,15 +21,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import cn.polarismesh.agent.core.common.utils.ClassUtils;
 import cn.polarismesh.agent.core.common.utils.ReflectionUtils;
 import cn.polarismesh.agent.plugin.spring.cloud.common.BeanInjector;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Constant;
 import cn.polarismesh.agent.plugin.spring.cloud.common.Utils;
 import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementAutoConfiguration;
 import com.tencent.cloud.rpc.enhancement.config.RpcEnhancementBootstrapConfiguration;
-import com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatPropertiesAutoConfiguration;
-import com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatPropertiesBootstrapConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,10 +52,6 @@ public class RpcEnhancementBeanInjector implements BeanInjector {
 			return;
 		}
 		bootstrapLoaded.set(true);
-		Object polarisStatPropertiesBootstrapConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisStatPropertiesBootstrapConfiguration.class, "polarisStatPropertiesBootstrapConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisStatPropertiesBootstrapConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-		registry.registerBeanDefinition("polarisStatPropertiesBootstrapConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-				PolarisStatPropertiesBootstrapConfiguration.class).getBeanDefinition());
 		Object rpcEnhancementBootstrapConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, RpcEnhancementBootstrapConfiguration.class, "rpcEnhancementBootstrapConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, rpcEnhancementBootstrapConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("rpcEnhancementBootstrapConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
@@ -75,10 +68,6 @@ public class RpcEnhancementBeanInjector implements BeanInjector {
 		if (!bootstrapLoaded.get()) {
 			onBootstrapStartup(configurationParser, configClassCreator, processConfigurationClass, registry, environment);
 		}
-		Object polarisStatPropertiesAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, PolarisStatPropertiesAutoConfiguration.class, "polarisStatPropertiesAutoConfiguration");
-		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, polarisStatPropertiesAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
-		registry.registerBeanDefinition("polarisStatPropertiesAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(
-				PolarisStatPropertiesAutoConfiguration.class).getBeanDefinition());
 		Object rpcEnhancementAutoConfiguration = ReflectionUtils.invokeConstructor(configClassCreator, RpcEnhancementAutoConfiguration.class, "rpcEnhancementAutoConfiguration");
 		ReflectionUtils.invokeMethod(processConfigurationClass, configurationParser, rpcEnhancementAutoConfiguration, Constant.DEFAULT_EXCLUSION_FILTER);
 		registry.registerBeanDefinition("rpcEnhancementAutoConfiguration", BeanDefinitionBuilder.genericBeanDefinition(

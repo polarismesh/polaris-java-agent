@@ -18,6 +18,7 @@ polaris-java-agent提供无侵入的方式，供Java应用与polaris进行对接
 
 当前支持基于以下框架开发的Java应用进行接入：
 
+- [x] Spring Cloud Hoxton.SR12
 - [x] spring-cloud(version >= 2021.0.0)
 
 本文档介绍如何使用polaris-java-agent接入polaris服务治理。

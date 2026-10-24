@@ -47,6 +47,7 @@ public class ConfigurationParserInterceptor implements Interceptor {
 
 	public ConfigurationParserInterceptor() {
 		beanInjectors.add(new CommonBeanInjector());
+		beanInjectors.add(new StatBeanInjector());
 		beanInjectors.add(new PolarisContextBeanInjector());
 		beanInjectors.add(new MetadataTransferBeanInjector());
 		beanInjectors.add(new RegistryBeanInjector());
