@@ -22,6 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.polarismesh.agent.plugin.spring.cloud.interceptor.ConfigurationParserInterceptor;
+import com.tencent.cloud.polaris.extend.nacos.NacosContextProperties;
+import com.tencent.cloud.polaris.registry.PolarisRegistration;
+import com.tencent.cloud.polaris.registry.nacos.NacosPolarisRegistrationCustomizer;
 import com.tencent.cloud.rpc.enhancement.stat.config.PolarisStatProperties;
 import org.junit.Test;
 
@@ -38,8 +41,13 @@ import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 
+import static com.tencent.polaris.plugins.connector.common.constant.NacosConstant.MetadataMapKey.NACOS_CLUSTER_KEY;
+import static com.tencent.polaris.plugins.connector.common.constant.NacosConstant.MetadataMapKey.NACOS_GROUP_KEY;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Exercises injection with the actual Spring 5.2 parser and bean definition reader.
@@ -74,9 +82,51 @@ public class HoxtonBeanInjectionTest {
 		DefaultListableBeanFactory registry = inject(false, false, false);
 		assertFalse(registry.containsBeanDefinition("polarisStatPropertiesAutoConfiguration"));
 		assertFalse(registry.containsBeanDefinition("spring.cloud.polaris.stat-" + PolarisStatProperties.class.getName()));
+		assertFalse(registry.containsBeanDefinition("feignEagerLoadSmartLifecycle"));
+		assertFalse(registry.containsBeanDefinition("serviceEagerLoadSmartLifecycle"));
+		assertFalse(registry.containsBeanDefinition("nacosPolarisRegistrationCustomizer"));
+	}
+
+	@Test
+	public void registersEagerLoadingAndNacosCustomizationWithoutRpcEnhancement() {
+		DefaultListableBeanFactory registry = inject(true, false, false);
+		assertTrue(registry.containsBeanDefinition("feignEagerLoadSmartLifecycle"));
+		assertTrue(registry.containsBeanDefinition("serviceEagerLoadSmartLifecycle"));
+		assertTrue(registry.containsBeanDefinition("nacosPolarisRegistrationCustomizer"));
+	}
+
+	@Test
+	public void honorsEagerLoadingDisabled() {
+		DefaultListableBeanFactory registry = inject(true, false, false,
+				Collections.singletonMap("spring.cloud.polaris.discovery.eager-load.enabled", false));
+		assertFalse(registry.containsBeanDefinition("feignEagerLoadSmartLifecycle"));
+		assertFalse(registry.containsBeanDefinition("serviceEagerLoadSmartLifecycle"));
+		assertTrue(registry.containsBeanDefinition("nacosPolarisRegistrationCustomizer"));
+	}
+
+	@Test
+	public void customizesNacosGroupAndClusterMetadata() {
+		DefaultListableBeanFactory registry = inject(true, false, false);
+		registry.registerBeanDefinition("nacosContextProperties",
+				BeanDefinitionBuilder.genericBeanDefinition(NacosContextProperties.class)
+						.addPropertyValue("group", "hoxton-group")
+						.addPropertyValue("clusterName", "hoxton-cluster").getBeanDefinition());
+		NacosPolarisRegistrationCustomizer customizer = registry.getBean("nacosPolarisRegistrationCustomizer",
+				NacosPolarisRegistrationCustomizer.class);
+		Map<String, String> metadata = new HashMap<>();
+		PolarisRegistration registration = mock(PolarisRegistration.class);
+		when(registration.getMetadata()).thenReturn(metadata);
+		customizer.customize(registration);
+		assertEquals("hoxton-group", metadata.get(NACOS_GROUP_KEY));
+		assertEquals("hoxton-cluster", metadata.get(NACOS_CLUSTER_KEY));
 	}
 
 	private DefaultListableBeanFactory inject(boolean polarisEnabled, boolean rpcEnabled, boolean bootstrap) {
+		return inject(polarisEnabled, rpcEnabled, bootstrap, Collections.emptyMap());
+	}
+
+	private DefaultListableBeanFactory inject(boolean polarisEnabled, boolean rpcEnabled, boolean bootstrap,
+			Map<String, Object> overrides) {
 		DefaultListableBeanFactory registry = new DefaultListableBeanFactory();
 		StandardEnvironment environment = new StandardEnvironment();
 		Map<String, Object> properties = new HashMap<>();
@@ -86,6 +136,7 @@ public class HoxtonBeanInjectionTest {
 		properties.put("spring.cloud.polaris.config.enabled", false);
 		properties.put("spring.cloud.tencent.rpc-enhancement.enabled", rpcEnabled);
 		properties.put("spring.cloud.polaris.stat.enabled", false);
+		properties.putAll(overrides);
 		environment.getPropertySources().addFirst(new MapPropertySource("test", properties));
 		DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
 		ConfigurationClassParser parser = new ConfigurationClassParser(new CachingMetadataReaderFactory(),
