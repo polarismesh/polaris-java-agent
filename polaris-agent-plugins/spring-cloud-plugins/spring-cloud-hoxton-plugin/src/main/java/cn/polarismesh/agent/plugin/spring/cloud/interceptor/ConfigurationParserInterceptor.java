@@ -164,11 +164,40 @@ public class ConfigurationParserInterceptor implements Interceptor {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) ReflectionUtils.getObjectByFieldName(target, "registry");
 			Environment environment = (Environment) ReflectionUtils.getObjectByFieldName(target, "environment");
 			for (BeanInjector beanInjector : beanInjectors) {
+				if (beanInjector instanceof RouterBeanInjector) {
+					continue;
+				}
 				LOGGER.info("[PolarisJavaAgent] start to inject application bean definitions in module {}", beanInjector.getModule());
 				beanInjector.onApplicationStartup(target, constructor, processConfigurationClass, registry, environment);
 			}
 			LOGGER.info("[PolarisJavaAgent] successfully injected spring cloud tencent application bean definitions");
 
+		}
+	}
+
+	@Override
+	public void before(Object target, Object[] args) {
+		Set<?> candidates = (Set<?>) args[0];
+		if (candidates.size() != 1) {
+			return;
+		}
+		BeanDefinitionHolder beanDefinitionHolder = (BeanDefinitionHolder) candidates.iterator().next();
+		if (isMainBeanDefinition(beanDefinitionHolder)) {
+			Class<?> clazz = ClassUtils.getClazz("org.springframework.context.annotation.ConfigurationClass", null);
+			Constructor<?> constructor = ReflectionUtils.accessibleConstructor(clazz, Class.class, String.class);
+			Method processConfigurationClass = ReflectionUtils.findMethod(target.getClass(), "processConfigurationClass", clazz, Predicate.class);
+			ReflectionUtils.makeAccessible(processConfigurationClass);
+
+			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) ReflectionUtils.getObjectByFieldName(target, "registry");
+			Environment environment = (Environment) ReflectionUtils.getObjectByFieldName(target, "environment");
+			// Register router configuration before the application's load-balancer configuration.
+			for (BeanInjector beanInjector : beanInjectors) {
+				if (beanInjector instanceof RouterBeanInjector) {
+					LOGGER.info("[PolarisJavaAgent] start to inject application bean definitions in module {}", beanInjector.getModule());
+					beanInjector.onApplicationStartup(target, constructor, processConfigurationClass, registry, environment);
+				}
+			}
+			LOGGER.info("[PolarisJavaAgent] successfully injected spring cloud tencent router application bean definitions");
 		}
 	}
 }
