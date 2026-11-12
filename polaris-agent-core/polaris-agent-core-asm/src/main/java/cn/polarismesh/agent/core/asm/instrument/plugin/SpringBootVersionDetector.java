@@ -120,6 +120,9 @@ public class SpringBootVersionDetector {
         if (bootVersion.startsWith("3.4")) {
             return "2024";
         }
+        if (bootVersion.startsWith("4.0.")) {
+            return "2025.1";
+        }
         return "";
     }
 

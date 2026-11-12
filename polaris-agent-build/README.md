@@ -109,6 +109,15 @@ Agent 主配置文件，主要配置项：
 - `POLARIS_CONFIG_IP` - Polaris 配置服务 IP
 - `POLARIS_CONFIG_PORT` - Polaris 配置服务端口
 
+Spring Cloud 2025.1 / Spring Boot 4.0 应用使用 Java 17 或以上版本，并设置：
+
+```bash
+export JAVA_AGENT_FRAMEWORK_NAME=spring-cloud
+export JAVA_AGENT_FRAMEWORK_VERSION=2025.1
+```
+
+也可以在 `polaris-agent.config` 中配置 `plugins.enable=spring-cloud-2025.1-plugin`。
+
 ## 相关文档
 
 - [Polaris Java Agent 主文档](../README-zh.md)
