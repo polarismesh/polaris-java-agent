@@ -13,8 +13,7 @@
     <packaging>pom</packaging>
     <description>Spring Cloud Alibaba 2025.1 demo for Polaris Java Agent</description>
     <modules>
-        <module>provider</module>
-        <module>consumer</module>
+        <module>quickstart-examples</module>
     </modules>
     <properties>
         <spring.boot.version>4.0.2</spring.boot.version>
@@ -49,10 +48,6 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webmvc</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
