@@ -18,6 +18,7 @@ polaris-java-agent provides a non-invasive way for Java applications to connect 
 
 Currently, Java applications developed based on the following frameworks are supported for access:
 
+- [x] Spring Cloud Hoxton.SR12
 - [x] spring-cloud(version >= 2021.0.0)
 
 This document describes how to use polaris-java-agent to access polaris service governance.
