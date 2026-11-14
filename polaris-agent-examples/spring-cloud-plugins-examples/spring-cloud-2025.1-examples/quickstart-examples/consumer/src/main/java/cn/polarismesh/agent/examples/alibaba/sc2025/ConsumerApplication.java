@@ -23,17 +23,34 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
+
+/**
+ * @author <a href="mailto:liaochuntao@live.com">liaochuntao</a>
+ */
 @SpringBootApplication
 @EnableFeignClients
 public class ConsumerApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(ConsumerApplication.class, args);
-    }
 
-    @Bean
-    @LoadBalanced
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(ConsumerApplication.class, args);
+	}
+
+	@LoadBalanced
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+	@Bean
+	@LoadBalanced
+	public RestTemplate defaultRestTemplate() {
+		DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory(
+				"http://service-provider-2025-1");
+		RestTemplate restTemplate = new RestTemplate();
+		restTemplate.setUriTemplateHandler(uriBuilderFactory);
+		return restTemplate;
+	}
+
 }

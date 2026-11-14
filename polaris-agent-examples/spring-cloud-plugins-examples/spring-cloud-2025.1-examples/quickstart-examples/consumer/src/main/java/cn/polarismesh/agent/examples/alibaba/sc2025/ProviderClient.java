@@ -17,12 +17,17 @@
 
 package cn.polarismesh.agent.examples.alibaba.sc2025;
 
+import java.util.Map;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(name = "service-provider-2025-1")
 public interface ProviderClient {
-    @GetMapping("/echo/{message}")
-    String echo(@PathVariable("message") String message);
+    @GetMapping("/echo/{string}")
+    String echo(@RequestHeader Map<String, String> headers, @PathVariable("string") String string,
+            @RequestParam(name = "param", required = false) String param);
 }
