@@ -20,6 +20,7 @@ polaris-java-agent提供无侵入的方式，供Java应用与polaris进行对接
 
 - [x] Spring Cloud Hoxton.SR12
 - [x] spring-cloud(version >= 2021.0.0)
+- [x] Spring Cloud 2025.1 / Spring Boot 4.0（`spring-cloud-2025.1-plugin`，Java 17+）
 
 本文档介绍如何使用polaris-java-agent接入polaris服务治理。
 
@@ -45,3 +46,4 @@ polaris-java-agent提供以下配置项，所有的配置项都可以通过文�
 ## 使用指南
 
 - [Spring Cloud 接入](https://github.com/Tencent/spring-cloud-tencent/wiki/SCT-Agent-%E6%A6%82%E8%BF%B0)
+- [Spring Cloud Alibaba 2025.1 示例](./polaris-agent-examples/spring-cloud-plugins-examples/spring-cloud-2025.1-examples/README.md)

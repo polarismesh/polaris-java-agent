@@ -110,6 +110,16 @@ public class SpringBootVersionDetectorTest {
     }
 
     @Test
+    public void testGetSpringCloudVersion_2025_1_40() {
+        Assertions.assertThat(SpringBootVersionDetector.getSpringCloudVersion("4.0.2"))
+                .isEqualTo("2025.1");
+        Assertions.assertThat(SpringBootVersionDetector.getSpringCloudVersion("4.0.0-RC1"))
+                .isEqualTo("2025.1");
+        Assertions.assertThat(SpringBootVersionDetector.getSpringCloudVersion("4.1.0"))
+                .isEmpty();
+    }
+
+    @Test
     public void testGetSpringCloudVersion_unsupported() {
         Assertions.assertThat(
                 SpringBootVersionDetector
@@ -140,6 +150,12 @@ public class SpringBootVersionDetectorTest {
         Assertions.assertThat(
                 detector.getPluginName("3.2.5"))
                 .isEqualTo("spring-cloud-2023-plugin");
+    }
+
+    @Test
+    public void testGetPluginName_2025_1() {
+        Assertions.assertThat(detector.getPluginName("4.0.2"))
+                .isEqualTo("spring-cloud-2025.1-plugin");
     }
 
     @Test

@@ -20,6 +20,7 @@ Currently, Java applications developed based on the following frameworks are sup
 
 - [x] Spring Cloud Hoxton.SR12
 - [x] spring-cloud(version >= 2021.0.0)
+- [x] Spring Cloud 2025.1 / Spring Boot 4.0 (`spring-cloud-2025.1-plugin`, Java 17+)
 
 This document describes how to use polaris-java-agent to access polaris service governance.
 
@@ -44,3 +45,4 @@ polaris-java-agent provides the following configuration items, all of which can 
 ## Guide
 
 - [Spring Cloud access](https://github.com/Tencent/spring-cloud-tencent/wiki/SCT-Agent-%E6%A6%82%E8%BF%B0)
+- [Spring Cloud Alibaba 2025.1 demo](./polaris-agent-examples/spring-cloud-plugins-examples/spring-cloud-2025.1-examples/README.md)
